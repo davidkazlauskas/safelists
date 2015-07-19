@@ -11,3 +11,5 @@ include_directories(${GTKMM_INCLUDE_DIRS} $ENV{TEMPLATIOUS_DIR} ${PLUMBING_DIR} 
 link_directories(${GTKMM_LIBRARY_DIRS})
 
 add_subdirectory( ${PLUMBING_DIR} )
+
+

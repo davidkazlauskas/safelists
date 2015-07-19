@@ -1,0 +1,3 @@
+[submodule "submodules/LibTemplatious/templatious"]
+	path = submodules/LibTemplatious/templatious
+	url = https://github.com/davidkazlauskas/templatious.git

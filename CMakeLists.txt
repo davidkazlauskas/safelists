@@ -25,5 +25,7 @@ link_directories(${GTKMM_LIBRARY_DIRS})
 
 add_subdirectory( ${PLUMBING_DIR} )
 
+SET( CMAKE_EXPORT_COMPILE_COMMANDS yes )
+
 add_executable( model-tests tests/model-tests.cpp )
 

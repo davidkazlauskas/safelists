@@ -3,5 +3,9 @@
 
 namespace SafeLists {
 
+StrongMsgPtr AsyncSqlite::createNew(const char* name) {
+    return nullptr;
+}
+
 }
 

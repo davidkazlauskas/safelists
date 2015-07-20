@@ -9,7 +9,9 @@ namespace SafeLists {
 
 struct AsyncSqliteImpl : public Messageable {
 
-    AsyncSqliteImpl() : _keepGoing(true) {}
+    AsyncSqliteImpl() :
+        _keepGoing(true),
+        _handler(genHandler()) {}
 
     void message(templatious::VirtualPack& pack) {
         _g.assertThread();

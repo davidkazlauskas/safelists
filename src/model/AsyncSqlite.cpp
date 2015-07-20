@@ -54,6 +54,16 @@ struct AsyncSqliteImpl : public Messageable {
 private:
     typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
 
+    static int sqliteFuncExec(
+        void* data,
+        int cnt,
+        char** header,
+        char** value
+    )
+    {
+        return 0;
+    }
+
     VmfPtr genHandler() {
         typedef AsyncSqlite AS;
         return SF::virtualMatchFunctorPtr(
@@ -64,7 +74,7 @@ private:
             ),
             SF::virtualMatch< AS::Execute, const char*, AS::SqliteCallbackSimple >(
                 [=](AS::Execute,const char* query, AS::SqliteCallbackSimple& sql) {
-                    sqlite3_exec(this->_sqlite,query,nullptr,nullptr,nullptr);
+                    sqlite3_exec(this->_sqlite,query,&sqliteFuncExec,&sql,nullptr);
                 }
             ),
             SF::virtualMatch< AsyncSqlite::Shutdown >(

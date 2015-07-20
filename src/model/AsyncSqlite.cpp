@@ -21,6 +21,10 @@ struct AsyncSqliteImpl : public Messageable {
     }
 
     ~AsyncSqliteImpl() {
+        _keepGoing = false;
+        _cv.notify_one();
+        auto fut = _finished.get_future();
+        fut.get();
         sqlite3_close(_sqlite);
     }
 
@@ -44,6 +48,7 @@ struct AsyncSqliteImpl : public Messageable {
                 }
             );
         }
+        _finished.set_value();
     }
 
 private:
@@ -59,6 +64,7 @@ private:
             SF::virtualMatch< AsyncSqlite::Shutdown >(
                 [=](AsyncSqlite::Shutdown) {
                     this->_keepGoing = false;
+                    this->_cv.notify_one();
                 }
             )
         );
@@ -70,6 +76,7 @@ private:
     MessageCache _cache;
     VmfPtr _handler;
     ThreadGuard _g;
+    std::promise<void> _finished;
 
     sqlite3* _sqlite;
 };

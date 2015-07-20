@@ -8,6 +8,11 @@ pkg_check_modules(GTKMM gtkmm-3.0)
 SET( PLUMBING_DIR submodules/LibLuaPlumbing/LuaPlumbing )
 SET( SRC_DIR src )
 
+ADD_DEFINITIONS(
+    -x c++
+    -std=c++11
+)
+
 SET( LIBINCLUDE_DIRS
     ${GTKMM_INCLUDE_DIRS}
     $ENV{TEMPLATIOUS_DIR}

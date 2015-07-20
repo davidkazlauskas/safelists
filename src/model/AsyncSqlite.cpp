@@ -20,6 +20,10 @@ struct AsyncSqliteImpl : public Messageable {
         assert( rc == SQLITE_OK );
     }
 
+    ~AsyncSqliteImpl() {
+        sqlite3_close(_sqlite);
+    }
+
     void message(templatious::VirtualPack& pack) {
         _g.assertThread();
         _handler->tryMatch(pack);

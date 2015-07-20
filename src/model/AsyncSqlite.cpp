@@ -24,6 +24,18 @@ struct AsyncSqliteImpl : public Messageable {
         _cache.enqueue(pack);
     }
 
+    void mainLoop() {
+        std::unique_lock< std::mutex > ul;
+        while (_keepGoing) {
+            _cv.wait(ul);
+            _cache.process(
+                [=](templatious::VirtualPack& p) {
+                    this->_handler->tryMatch(p);
+                }
+            );
+        }
+    }
+
 private:
     typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
 
@@ -38,6 +50,8 @@ private:
     }
 
     bool _keepGoing;
+    std::mutex _mtx;
+    std::condition_variable _cv;
     MessageCache _cache;
     VmfPtr _handler;
     ThreadGuard _g;

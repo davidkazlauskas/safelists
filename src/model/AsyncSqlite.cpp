@@ -55,9 +55,15 @@ private:
     typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
 
     VmfPtr genHandler() {
+        typedef AsyncSqlite AS;
         return SF::virtualMatchFunctorPtr(
-            SF::virtualMatch< AsyncSqlite::Execute, const char* >(
-                [=](AsyncSqlite::Execute,const char* query) {
+            SF::virtualMatch< AS::Execute, const char* >(
+                [=](AS::Execute,const char* query) {
+                    sqlite3_exec(this->_sqlite,query,nullptr,nullptr,nullptr);
+                }
+            ),
+            SF::virtualMatch< AS::Execute, const char*, AS::SqliteCallbackSimple >(
+                [=](AS::Execute,const char* query, AS::SqliteCallbackSimple& sql) {
                     sqlite3_exec(this->_sqlite,query,nullptr,nullptr,nullptr);
                 }
             ),

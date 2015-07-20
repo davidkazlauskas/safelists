@@ -21,6 +21,10 @@ SET( LIBINCLUDE_DIRS
 SET( APPINCLUDE_DIRS
     ${SRC_DIR} )
 
+SET( DOMAIN_SOURCES
+    src/model/AsyncSqlite.cpp
+    )
+
 include_directories(
     ${LIBINCLUDE_DIRS}
     ${APPINCLUDE_DIRS}
@@ -32,5 +36,7 @@ add_subdirectory( ${PLUMBING_DIR} )
 
 SET( CMAKE_EXPORT_COMPILE_COMMANDS yes )
 
+add_library( domain ${DOMAIN_SOURCES} )
 add_executable( model-tests tests/model-tests.cpp )
+target_link_libraries( model-tests domain )
 

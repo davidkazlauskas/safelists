@@ -65,6 +65,7 @@ StrongMsgPtr AsyncSqlite::createNew(const char* name) {
     std::thread([&]() {
         auto outPtr = std::make_shared< AsyncSqliteImpl >();
         out.set_value(outPtr);
+        outPtr->mainLoop();
     }).detach();
 
     return fut.get();

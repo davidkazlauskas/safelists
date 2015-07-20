@@ -15,7 +15,8 @@ struct AsyncSqlite {
 
     // query statement
     // Signature:
-    // < Execute, std::function< void(int,const char**,const char**) > >
+    // < Execute, const char* sql >
+    // < Execute, const char* sql, std::function< void(int,const char**,const char**) > >
     DUMMY_STRUCT(Execute);
 
     static StrongMsgPtr createNew(const char* name);

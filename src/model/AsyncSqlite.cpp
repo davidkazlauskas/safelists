@@ -12,6 +12,7 @@ struct AsyncSqliteImpl : public Messageable {
     AsyncSqliteImpl() : _keepGoing(true) {}
 
     void message(templatious::VirtualPack& pack) {
+        _handler->tryMatch(pack);
     }
 
     void message(const StrongPackPtr& pack) {

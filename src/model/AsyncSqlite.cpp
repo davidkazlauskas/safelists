@@ -22,6 +22,7 @@ struct AsyncSqliteImpl : public Messageable {
 
     void message(const StrongPackPtr& pack) {
         _cache.enqueue(pack);
+        _cv.notify_one();
     }
 
     void mainLoop() {

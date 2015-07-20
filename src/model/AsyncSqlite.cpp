@@ -12,6 +12,7 @@ struct AsyncSqliteImpl : public Messageable {
     AsyncSqliteImpl() : _keepGoing(true) {}
 
     void message(templatious::VirtualPack& pack) {
+        _g.assertThread();
         _handler->tryMatch(pack);
     }
 
@@ -35,6 +36,7 @@ private:
     bool _keepGoing;
     MessageCache _cache;
     VmfPtr _handler;
+    ThreadGuard _g;
 };
 
 StrongMsgPtr AsyncSqlite::createNew(const char* name) {

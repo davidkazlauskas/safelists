@@ -38,5 +38,5 @@ SET( CMAKE_EXPORT_COMPILE_COMMANDS yes )
 
 add_library( domain ${DOMAIN_SOURCES} )
 add_executable( model-tests tests/model-tests.cpp )
-target_link_libraries( model-tests domain )
+target_link_libraries( model-tests domain sqlite3 pthread )
 

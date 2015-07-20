@@ -43,7 +43,7 @@ TEST_CASE("model_basic_sqlite","[model]") {
              AsyncSqlite::Execute, const char*, std::function<void(int,char**,char**)>
         >(
             nullptr, query,
-            [&](int cnt,char** headers,char** values) {
+            [&](int cnt,char** values,char** headers) {
                 SA::add(friendos,values[0]);
             }
         );

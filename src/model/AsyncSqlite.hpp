@@ -3,9 +3,14 @@
 
 #include <LuaPlumbing/plumbing.hpp>
 
+#define DUMMY_STRUCT(name)  \
+    struct name { template <class Any> name(Any&&) {} };
+
 namespace SafeLists {
 
 struct AsyncSqlite {
+
+    DUMMY_STRUCT(Shutdown);
 
     static StrongMsgPtr createNew(const char* name);
 };

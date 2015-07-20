@@ -39,7 +39,7 @@ struct AsyncSqliteImpl : public Messageable {
     }
 
     void mainLoop() {
-        std::unique_lock< std::mutex > ul;
+        std::unique_lock< std::mutex > ul(_mtx);
         while (_keepGoing) {
             _cv.wait(ul);
             _cache.process(

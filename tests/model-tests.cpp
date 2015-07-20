@@ -15,7 +15,7 @@ TEST_CASE("model_basic_sqlite","[model]") {
     auto msg = AsyncSqlite::createNew(":memory:");
 
     {
-        const char* query =
+        static const char* query =
             "CREATE TABLE Friends(Id INTEGER PRIMARY KEY, Name TEXT);"
             "INSERT INTO Friends(Name) VALUES ('Tom');"
             "INSERT INTO Friends(Name) VALUES ('Rebecca');"

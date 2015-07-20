@@ -1,4 +1,6 @@
 
+#include <thread>
+
 #include <templatious/FullPack.hpp>
 
 #include "AsyncSqlite.hpp"
@@ -42,7 +44,15 @@ private:
 };
 
 StrongMsgPtr AsyncSqlite::createNew(const char* name) {
-    return nullptr;
+    std::promise< StrongMsgPtr > out;
+    auto fut = out.get_future();
+
+    std::thread([&]() {
+        auto outPtr = std::make_shared< AsyncSqliteImpl >();
+        out.set_value(outPtr);
+    }).detach();
+
+    return fut.get();
 }
 
 }

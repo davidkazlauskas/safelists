@@ -51,6 +51,11 @@ private:
 
     VmfPtr genHandler() {
         return SF::virtualMatchFunctorPtr(
+            SF::virtualMatch< AsyncSqlite::Execute, const char* >(
+                [=](AsyncSqlite::Execute,const char* query) {
+                    sqlite3_exec(this->_sqlite,query,nullptr,nullptr,nullptr);
+                }
+            ),
             SF::virtualMatch< AsyncSqlite::Shutdown >(
                 [=](AsyncSqlite::Shutdown) {
                     this->_keepGoing = false;

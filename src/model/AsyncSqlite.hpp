@@ -13,7 +13,7 @@ struct AsyncSqlite {
     // Turn off and close database
     DUMMY_STRUCT(Shutdown);
 
-    typedef std::function< void(int,const char**,const char**) > SqliteCallbackSimple;
+    typedef std::function< void(int,char**,char**) > SqliteCallbackSimple;
     // query statement
     // Signature:
     // < Execute, const char* sql >

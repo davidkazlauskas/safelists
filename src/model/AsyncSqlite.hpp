@@ -10,6 +10,7 @@ namespace SafeLists {
 
 struct AsyncSqlite {
 
+    // Turn off and close database
     DUMMY_STRUCT(Shutdown);
 
     static StrongMsgPtr createNew(const char* name);

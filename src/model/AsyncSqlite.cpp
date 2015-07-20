@@ -1,5 +1,6 @@
 
 #include <thread>
+#include <sqlite3.h>
 
 #include <templatious/FullPack.hpp>
 
@@ -11,9 +12,13 @@ namespace SafeLists {
 
 struct AsyncSqliteImpl : public Messageable {
 
-    AsyncSqliteImpl() :
+    AsyncSqliteImpl(const char* path) :
         _keepGoing(true),
-        _handler(genHandler()) {}
+        _handler(genHandler())
+    {
+        int rc = sqlite3_open(path,&_sqlite);
+        assert( rc == SQLITE_OK );
+    }
 
     void message(templatious::VirtualPack& pack) {
         _g.assertThread();
@@ -56,6 +61,8 @@ private:
     MessageCache _cache;
     VmfPtr _handler;
     ThreadGuard _g;
+
+    sqlite3* _sqlite;
 };
 
 StrongMsgPtr AsyncSqlite::createNew(const char* name) {

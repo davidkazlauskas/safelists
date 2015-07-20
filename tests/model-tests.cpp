@@ -42,14 +42,27 @@ TEST_CASE("model_basic_sqlite","[model]") {
             "INSERT INTO Friends(Name) VALUES ('Roger');"
             "INSERT INTO Friends(Name) VALUES ('Robert');";
 
+        std::vector< std::string > friendos;
+
         auto pack = SF::vpackPtrCustom< templatious::VPACK_WAIT,
-             AsyncSqlite::Execute, const char*
+             AsyncSqlite::Execute, const char*, std::function<void(int,char**,char**)>
         >(
-            nullptr, query
+            nullptr, query,
+                [&](int cnt,char** headers,char** values) {
+                    SA::add(friendos,values[0]);
+                }
         );
         msg->message(pack);
 
         pack->wait();
+
+        SM::sort( friendos );
+
+        REQUIRE( friendos[0] == "Jim" );
+        REQUIRE( friendos[1] == "Rebecca" );
+        REQUIRE( friendos[2] == "Robert" );
+        REQUIRE( friendos[3] == "Roger" );
+        REQUIRE( friendos[4] == "Tom" );
     }
 }
 

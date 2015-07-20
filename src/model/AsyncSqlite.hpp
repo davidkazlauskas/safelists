@@ -13,6 +13,11 @@ struct AsyncSqlite {
     // Turn off and close database
     DUMMY_STRUCT(Shutdown);
 
+    // query statement
+    // Signature:
+    // < Execute, std::function< void(int,const char**,const char**) > >
+    DUMMY_STRUCT(Execute);
+
     static StrongMsgPtr createNew(const char* name);
 };
 

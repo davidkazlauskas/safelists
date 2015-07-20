@@ -11,9 +11,6 @@ TEMPLATIOUS_TRIPLET_STD;
 
 using namespace SafeLists;
 
-TEST_CASE("model_string_snapshot","[model]") {
-}
-
 TEST_CASE("model_basic_sqlite","[model]") {
     auto msg = AsyncSqlite::createNew(":memory:");
 

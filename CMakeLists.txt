@@ -11,6 +11,7 @@ SET( SRC_DIR src )
 ADD_DEFINITIONS(
     -x c++
     -std=c++11
+    -g
 )
 
 SET( LIBINCLUDE_DIRS

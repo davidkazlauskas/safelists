@@ -17,6 +17,15 @@ struct MyModel : public Gtk::TreeModel {
         return G_TYPE_STRING;
     }
 
+    typedef Gtk::TreeModel::iterator Iterator;
+    bool iter_next_vfunc(const Iterator& iter,Iterator& iterNext) const override {
+        return false;
+    }
+
+    bool get_iter_vfunc(const Path& path,Iterator& iter) const override {
+        return false;
+    }
+
 };
 
 struct GtkMainWindow : public Messageable {

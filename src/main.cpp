@@ -5,10 +5,16 @@
 
 struct GtkMainWindow : public Messageable {
 
-    GtkMainWindow(Glib::RefPtr<Gtk::Builder>& bld) {
+    GtkMainWindow(Glib::RefPtr<Gtk::Builder>& bld) :
+        _left(nullptr),
+        _right(nullptr)
+    {
         Gtk::Window* outWnd = nullptr;
         bld->get_widget("applicationwindow1",outWnd);
         _wnd.reset( outWnd );
+
+        bld->get_widget("treeview1",_right);
+        bld->get_widget("treeview3",_left);
     }
 
     Gtk::Window& getWindow() {
@@ -23,6 +29,8 @@ struct GtkMainWindow : public Messageable {
 
 private:
     std::unique_ptr< Gtk::Window > _wnd;
+    Gtk::TreeView* _left;
+    Gtk::TreeView* _right;
 };
 
 int main(int argc,char** argv) {

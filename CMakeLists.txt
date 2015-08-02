@@ -38,6 +38,11 @@ add_subdirectory( ${PLUMBING_DIR} )
 SET( CMAKE_EXPORT_COMPILE_COMMANDS yes )
 
 add_library( domain ${DOMAIN_SOURCES} )
+target_link_libraries( domain sqlite3 pthread )
+
 add_executable( model-tests tests/model-tests.cpp )
-target_link_libraries( model-tests domain sqlite3 pthread )
+target_link_libraries( model-tests domain )
+
+add_executable( safelists src/main.cpp )
+target_link_libraries( safelists domain ${GTKMM_LIBRARIES} )
 

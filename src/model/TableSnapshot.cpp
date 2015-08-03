@@ -64,8 +64,6 @@ void TableSnapshotBuilder::setValue(int column,const char* value) {
 }
 
 TableSnapshot TableSnapshotBuilder::getSnapshot() {
-    writeCurrentRow();
-
     TableSnapshot outRes;
 
     int res = _stream.tellg();

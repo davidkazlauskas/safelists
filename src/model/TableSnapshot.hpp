@@ -14,7 +14,7 @@ private:
 
 struct TableSnapshotBuilder {
 
-    TableSnapshotBuilder(int columns);
+    TableSnapshotBuilder(int columns,char** headerNames);
 
     TableSnapshotBuilder() = delete;
     TableSnapshotBuilder(const TableSnapshotBuilder&) = delete;
@@ -24,6 +24,7 @@ struct TableSnapshotBuilder {
 
 private:
     int _columns;
+    int _totalCount;
     std::stringstream _stream;
     std::vector< std::string > _tmp;
 };

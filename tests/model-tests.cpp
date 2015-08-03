@@ -87,7 +87,7 @@ TEST_CASE("model_table_snapshot","[model]") {
     auto outStr = ss.str();
     const char* expected =
         "00mickeyfirst name01mouselast name"
-        "10someirst name11namelast name";
+        "10somefirst name11namelast name";
     REQUIRE( outStr == expected );
 }
 

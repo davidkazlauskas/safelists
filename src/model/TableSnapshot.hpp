@@ -11,6 +11,7 @@ struct TableSnapshot {
     ~TableSnapshot();
 
     TableSnapshot(TableSnapshot&& other);
+    TableSnapshot(const TableSnapshot&) = delete;
 
     friend struct TableSnapshotBuilder;
 

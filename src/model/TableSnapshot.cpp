@@ -27,7 +27,37 @@ TableSnapshot::TableSnapshot(TableSnapshot&& other) :
 }
 
 void TableSnapshot::traverse(const TraverseFunction& func) const {
+    templatious::StaticBuffer< const char*, 32 > buf;
+    templatious::StaticBuffer< int, 32 > bufInt;
+    auto vHead = buf.getStaticVector();
+    auto vHeadSize = bufInt.getStaticVector();
+    int total = *reinterpret_cast<int*>(_buffer);
+    int columns = *reinterpret_cast<int*>(_buffer + sizeof(int));
 
+    char* headerStart = _buffer + 2*sizeof(int);
+    TEMPLATIOUS_0_TO_N(i,columns) {
+        int currSize = *reinterpret_cast<int*>(headerStart);
+        headerStart += sizeof(currSize);
+        SA::add(vHead,headerStart);
+        SA::add(vHeadSize,currSize);
+        headerStart += currSize;
+    }
+    char* bodyStart = headerStart;
+
+    std::string strBufHead,strBufVal;
+
+    TEMPLATIOUS_0_TO_N(i,total) {
+        TEMPLATIOUS_0_TO_N(j,columns) {
+            int currSize = *reinterpret_cast<int*>(bodyStart);
+            bodyStart += sizeof(currSize);
+            strBufHead.assign(vHead[j],vHead[j] + vHeadSize[j]);
+            strBufVal.assign(bodyStart,bodyStart + currSize);
+            if (!func(i,j,strBufVal.c_str(),strBufHead.c_str())) {
+                return;
+            }
+            bodyStart += currSize;
+        }
+    }
 }
 
 TableSnapshotBuilder::TableSnapshotBuilder(int columns,const char** headerNames) :

@@ -65,5 +65,13 @@ TEST_CASE("model_basic_sqlite","[model]") {
 TEST_CASE("model_table_snapshot","[model]") {
     const char* names[] = {"first name","last name"};
     TableSnapshotBuilder bld(2,names);
+
+    bld.setValue(0,"mickey");
+    bld.setValue(1,"mouse");
+    bld.commitRow();
+
+    bld.setValue(0,"some");
+    bld.setValue(1,"name");
+    bld.commitRow();
 }
 

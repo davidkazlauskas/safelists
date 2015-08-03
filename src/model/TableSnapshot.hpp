@@ -28,7 +28,7 @@ struct TableSnapshotBuilder {
     TableSnapshotBuilder(const TableSnapshotBuilder&) = delete;
     TableSnapshotBuilder(TableSnapshotBuilder&&) = delete;
 
-    void newRow();
+    void commitRow();
     void setValue(int column,const char* value);
     TableSnapshot getSnapshot();
 

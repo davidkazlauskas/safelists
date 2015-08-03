@@ -52,7 +52,7 @@ void TableSnapshotBuilder::writeCurrentRow() {
     }
 }
 
-void TableSnapshotBuilder::newRow() {
+void TableSnapshotBuilder::commitRow() {
     writeCurrentRow();
 
     SM::set("[EMPTY]",_tmp);

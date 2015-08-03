@@ -91,3 +91,31 @@ TEST_CASE("model_table_snapshot","[model]") {
     REQUIRE( outStr == expected );
 }
 
+TEST_CASE("model_table_snapshot_no_write","[model]") {
+    const char* names[] = {"first name","last name"};
+    TableSnapshotBuilder bld(2,names);
+
+    bld.setValue(0,"mickey");
+    //bld.setValue(1,"mouse");
+    bld.commitRow();
+
+    //bld.setValue(0,"some");
+    bld.setValue(1,"name");
+    bld.commitRow();
+
+    auto snap = bld.getSnapshot();
+
+    std::stringstream ss;
+
+    snap.traverse(
+        [&](int row,int column,const char* value,const char* header) {
+            ss << row << column << value << header;
+            return true;
+        });
+
+    auto outStr = ss.str();
+    const char* expected =
+        "00mickeyfirst name01[EMPTY]last name"
+        "10[EMPTY]first name11namelast name";
+    REQUIRE( outStr == expected );
+}

@@ -83,7 +83,7 @@ void TableSnapshotBuilder::writeCurrentRow() {
     TEMPLATIOUS_FOREACH(auto& i,_tmp) {
         int size = i.size();
         _stream.write(toConstChar(size),sizeof(size));
-        _stream.write(i.c_str(),sizeof(size));
+        _stream.write(i.c_str(),size);
     }
 }
 

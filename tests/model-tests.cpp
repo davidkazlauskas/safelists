@@ -73,5 +73,7 @@ TEST_CASE("model_table_snapshot","[model]") {
     bld.setValue(0,"some");
     bld.setValue(1,"name");
     bld.commitRow();
+
+    auto snap = bld.getSnapshot();
 }
 

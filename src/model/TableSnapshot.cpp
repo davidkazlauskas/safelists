@@ -67,8 +67,13 @@ void TableSnapshotBuilder::setValue(int column,const char* value) {
 TableSnapshot TableSnapshotBuilder::getSnapshot() {
     TableSnapshot outRes;
 
+    _stream.seekg(0,std::ios::end);
     int res = _stream.tellg();
     printf("%d\n",res);
+
+    std::unique_ptr< char[] > uptr(new char[res]);
+    outRes._bufSize = res;
+    outRes._buffer = uptr.release();
 
     return outRes;
 }

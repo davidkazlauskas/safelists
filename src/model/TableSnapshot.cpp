@@ -41,5 +41,5 @@ void TableSnapshotBuilder::newRow() {
     if (_totalCount > 0) {
         writeCurrentRow();
     }
-    SM::set(_tmp,"[EMPTY]");
+    SM::set("[EMPTY]",_tmp);
 }

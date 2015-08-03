@@ -7,6 +7,9 @@
 
 struct TableSnapshot {
 
+    TableSnapshot();
+    ~TableSnapshot();
+
 private:
     int _bufSize;
     char* _buffer;

@@ -12,6 +12,12 @@ namespace {
     }
 }
 
+TableSnapshot::TableSnapshot() : _bufSize(-1), _buffer(nullptr) {}
+
+TableSnapshot::~TableSnapshot() {
+    delete[] _buffer;
+}
+
 TableSnapshotBuilder::TableSnapshotBuilder(int columns,char** headerNames) :
     _columns(columns), _totalCount(0)
 {
@@ -42,4 +48,5 @@ void TableSnapshotBuilder::newRow() {
         writeCurrentRow();
     }
     SM::set("[EMPTY]",_tmp);
+    ++_totalCount;
 }

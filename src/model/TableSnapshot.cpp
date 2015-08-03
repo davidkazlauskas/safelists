@@ -28,3 +28,18 @@ TableSnapshotBuilder::TableSnapshotBuilder(int columns,char** headerNames) :
         _stream.write(buf.c_str(),size);
     }
 }
+
+void TableSnapshotBuilder::writeCurrentRow() {
+    TEMPLATIOUS_FOREACH(auto& i,_tmp) {
+        auto size = i.size();
+        _stream.write(toConstChar(size),sizeof(size));
+        _stream.write(i.c_str(),sizeof(size));
+    }
+}
+
+void TableSnapshotBuilder::newRow() {
+    if (_totalCount > 0) {
+        writeCurrentRow();
+    }
+    SM::set(_tmp,"[EMPTY]");
+}

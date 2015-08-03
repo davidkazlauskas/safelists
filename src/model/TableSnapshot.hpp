@@ -20,9 +20,11 @@ struct TableSnapshotBuilder {
     TableSnapshotBuilder(const TableSnapshotBuilder&) = delete;
     TableSnapshotBuilder(TableSnapshotBuilder&&) = delete;
 
-    void addRow();
+    void newRow();
 
 private:
+    void writeCurrentRow();
+
     int _columns;
     int _totalCount;
     std::stringstream _stream;

@@ -24,6 +24,7 @@ SET( APPINCLUDE_DIRS
 
 SET( DOMAIN_SOURCES
     src/model/AsyncSqlite.cpp
+    src/model/TableSnapshot.cpp
     )
 
 include_directories(

@@ -25,6 +25,10 @@ TableSnapshot::TableSnapshot(TableSnapshot&& other) :
     other._buffer = nullptr;
 }
 
+void TableSnapshot::traverse(const TraverseFunction& func) const {
+
+}
+
 TableSnapshotBuilder::TableSnapshotBuilder(int columns,const char** headerNames) :
     _columns(columns), _totalCount(0)
 {
@@ -74,6 +78,9 @@ TableSnapshot TableSnapshotBuilder::getSnapshot() {
     std::unique_ptr< char[] > uptr(new char[res]);
     outRes._bufSize = res;
     outRes._buffer = uptr.release();
+
+    auto string = _stream.str();
+    _stream.read(outRes._buffer,outRes._bufSize);
 
     return outRes;
 }

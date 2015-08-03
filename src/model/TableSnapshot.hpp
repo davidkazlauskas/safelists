@@ -4,6 +4,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include <functional>
 
 struct TableSnapshot {
 
@@ -15,6 +16,8 @@ struct TableSnapshot {
 
     friend struct TableSnapshotBuilder;
 
+    typedef std::function<bool(int,int,const char*,const char*)> TraverseFunction;
+    void traverse(const TraverseFunction& func) const;
 private:
     int _bufSize;
     char* _buffer;

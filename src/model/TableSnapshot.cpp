@@ -57,3 +57,7 @@ void TableSnapshotBuilder::newRow() {
     SM::set("[EMPTY]",_tmp);
     ++_totalCount;
 }
+
+void TableSnapshotBuilder::setValue(int column,const char* value) {
+    assert( column < _columns && column >= 0 && "HUH?!?" );
+}

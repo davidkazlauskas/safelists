@@ -1,4 +1,5 @@
 
+#include <cstring>
 #include <templatious/FullPack.hpp>
 
 #include "TableSnapshot.hpp"
@@ -81,6 +82,10 @@ TableSnapshot TableSnapshotBuilder::getSnapshot() {
 
     auto string = _stream.str();
     _stream.read(outRes._buffer,outRes._bufSize);
+
+    memcpy(outRes._buffer,
+        toConstChar(_totalCount),
+        sizeof(_totalCount));
 
     return outRes;
 }

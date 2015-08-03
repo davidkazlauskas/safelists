@@ -105,7 +105,6 @@ TableSnapshot TableSnapshotBuilder::getSnapshot() {
     _stream.seekg(0,std::ios::end);
     int res = _stream.tellg();
     _stream.seekg(0,std::ios::beg);
-    printf("%d\n",res);
 
     std::unique_ptr< char[] > uptr(new char[res]);
     outRes._bufSize = res;

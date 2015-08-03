@@ -106,16 +106,18 @@ TEST_CASE("model_table_snapshot_no_write","[model]") {
     auto snap = bld.getSnapshot();
 
     std::stringstream ss;
+    int countDown = 3;
 
     snap.traverse(
         [&](int row,int column,const char* value,const char* header) {
             ss << row << column << value << header;
-            return true;
+            --countDown;
+            return countDown > 0;
         });
 
     auto outStr = ss.str();
     const char* expected =
         "00mickeyfirst name01[EMPTY]last name"
-        "10[EMPTY]first name11namelast name";
+        "10[EMPTY]first name";
     REQUIRE( outStr == expected );
 }

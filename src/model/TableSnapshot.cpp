@@ -62,3 +62,14 @@ void TableSnapshotBuilder::setValue(int column,const char* value) {
     assert( column < _columns && column >= 0 && "HUH?!?" );
     _tmp[column] = value;
 }
+
+TableSnapshot TableSnapshotBuilder::getSnapshot() {
+    writeCurrentRow();
+
+    TableSnapshot outRes;
+
+    int res = _stream.tellg();
+    printf("%d\n",res);
+
+    return outRes;
+}

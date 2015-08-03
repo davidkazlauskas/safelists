@@ -30,6 +30,7 @@ struct TableSnapshotBuilder {
 
     void newRow();
     void setValue(int column,const char* value);
+    TableSnapshot getSnapshot();
 
 private:
     void writeCurrentRow();

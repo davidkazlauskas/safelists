@@ -6,6 +6,7 @@
 
 #include <model/IndexedListView.hpp>
 #include <model/AsyncSqlite.hpp>
+#include <model/TableSnapshot.hpp>
 
 TEMPLATIOUS_TRIPLET_STD;
 
@@ -59,5 +60,10 @@ TEST_CASE("model_basic_sqlite","[model]") {
         REQUIRE( friendos[3] == "Roger" );
         REQUIRE( friendos[4] == "Tom" );
     }
+}
+
+TEST_CASE("model_table_snapshot","[model]") {
+    const char* names[] = {"first name","last name"};
+    TableSnapshotBuilder bld(2,names);
 }
 

@@ -22,7 +22,7 @@ private:
 
 struct TableSnapshotBuilder {
 
-    TableSnapshotBuilder(int columns,char** headerNames);
+    TableSnapshotBuilder(int columns,const char** headerNames);
 
     TableSnapshotBuilder() = delete;
     TableSnapshotBuilder(const TableSnapshotBuilder&) = delete;

@@ -75,5 +75,19 @@ TEST_CASE("model_table_snapshot","[model]") {
     bld.commitRow();
 
     auto snap = bld.getSnapshot();
+
+    std::stringstream ss;
+
+    snap.traverse(
+        [&](int row,int column,const char* value,const char* header) {
+            ss << row << column << value << header;
+            return true;
+        });
+
+    auto outStr = ss.str();
+    const char* expected =
+        "00mickeyfirst name01mouselast name"
+        "10someirst name11namelast name";
+    REQUIRE( outStr == expected );
 }
 

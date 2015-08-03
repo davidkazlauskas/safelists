@@ -71,7 +71,7 @@ TableSnapshotBuilder::TableSnapshotBuilder(int columns,const char** headerNames)
     std::string buf;
     TEMPLATIOUS_0_TO_N(i,columns) {
         buf = headerNames[i];
-        auto size = buf.size();
+        int size = buf.size();
         _stream.write(toConstChar(size),sizeof(size));
         _stream.write(buf.c_str(),size);
     }
@@ -81,7 +81,7 @@ TableSnapshotBuilder::TableSnapshotBuilder(int columns,const char** headerNames)
 
 void TableSnapshotBuilder::writeCurrentRow() {
     TEMPLATIOUS_FOREACH(auto& i,_tmp) {
-        auto size = i.size();
+        int size = i.size();
         _stream.write(toConstChar(size),sizeof(size));
         _stream.write(i.c_str(),sizeof(size));
     }
@@ -104,6 +104,7 @@ TableSnapshot TableSnapshotBuilder::getSnapshot() {
 
     _stream.seekg(0,std::ios::end);
     int res = _stream.tellg();
+    _stream.seekg(0,std::ios::beg);
     printf("%d\n",res);
 
     std::unique_ptr< char[] > uptr(new char[res]);

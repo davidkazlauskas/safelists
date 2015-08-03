@@ -60,4 +60,5 @@ void TableSnapshotBuilder::newRow() {
 
 void TableSnapshotBuilder::setValue(int column,const char* value) {
     assert( column < _columns && column >= 0 && "HUH?!?" );
+    _tmp[column] = value;
 }

@@ -18,6 +18,13 @@ TableSnapshot::~TableSnapshot() {
     delete[] _buffer;
 }
 
+TableSnapshot::TableSnapshot(TableSnapshot&& other) :
+    _bufSize(other._bufSize), _buffer(other._buffer)
+{
+    other._bufSize = -1;
+    other._buffer = nullptr;
+}
+
 TableSnapshotBuilder::TableSnapshotBuilder(int columns,char** headerNames) :
     _columns(columns), _totalCount(0)
 {

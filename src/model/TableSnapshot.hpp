@@ -10,6 +10,10 @@ struct TableSnapshot {
     TableSnapshot();
     ~TableSnapshot();
 
+    TableSnapshot(TableSnapshot&& other);
+
+    friend struct TableSnapshotBuilder;
+
 private:
     int _bufSize;
     char* _buffer;

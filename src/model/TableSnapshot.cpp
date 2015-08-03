@@ -25,7 +25,7 @@ TableSnapshot::TableSnapshot(TableSnapshot&& other) :
     other._buffer = nullptr;
 }
 
-TableSnapshotBuilder::TableSnapshotBuilder(int columns,char** headerNames) :
+TableSnapshotBuilder::TableSnapshotBuilder(int columns,const char** headerNames) :
     _columns(columns), _totalCount(0)
 {
     _tmp.resize(_columns);
@@ -40,6 +40,8 @@ TableSnapshotBuilder::TableSnapshotBuilder(int columns,char** headerNames) :
         _stream.write(toConstChar(size),sizeof(size));
         _stream.write(buf.c_str(),size);
     }
+
+    SM::set("[EMPTY]",_tmp);
 }
 
 void TableSnapshotBuilder::writeCurrentRow() {
@@ -51,9 +53,8 @@ void TableSnapshotBuilder::writeCurrentRow() {
 }
 
 void TableSnapshotBuilder::newRow() {
-    if (_totalCount > 0) {
-        writeCurrentRow();
-    }
+    writeCurrentRow();
+
     SM::set("[EMPTY]",_tmp);
     ++_totalCount;
 }

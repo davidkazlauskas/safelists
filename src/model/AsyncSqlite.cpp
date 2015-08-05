@@ -5,6 +5,7 @@
 #include <templatious/FullPack.hpp>
 
 #include "AsyncSqlite.hpp"
+#include "TableSnapshot.hpp"
 
 TEMPLATIOUS_TRIPLET_STD;
 
@@ -70,6 +71,11 @@ private:
 
     VmfPtr genHandler() {
         return SF::virtualMatchFunctorPtr(
+            SF::virtualMatch< AS::ExecuteOutSnapshot, int, TableSnapshot >(
+                [=](AS::ExecuteOutSnapshot,int columns,TableSnapshot& outSnap) {
+
+                }
+            ),
             SF::virtualMatch< AS::Execute, const char* >(
                 [=](AS::Execute,const char* query) {
                     sqlite3_exec(this->_sqlite,query,nullptr,nullptr,nullptr);

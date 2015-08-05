@@ -181,14 +181,25 @@ TEST_CASE("model_sqlite_snapshot","[model]") {
         );
 
         REQUIRE( outMatrixVal[0][0] == "Jim" );
-        REQUIRE( outMatrixVal[0][1] == "0" );
+        REQUIRE( outMatrixVal[0][1] == "3" );
         REQUIRE( outMatrixVal[1][0] == "Rebecca" );
-        REQUIRE( outMatrixVal[1][1] == "1" );
+        REQUIRE( outMatrixVal[1][1] == "2" );
         REQUIRE( outMatrixVal[2][0] == "Robert" );
-        REQUIRE( outMatrixVal[2][1] == "2" );
+        REQUIRE( outMatrixVal[2][1] == "5" );
         REQUIRE( outMatrixVal[3][0] == "Roger" );
-        REQUIRE( outMatrixVal[3][1] == "3" );
+        REQUIRE( outMatrixVal[3][1] == "4" );
         REQUIRE( outMatrixVal[4][0] == "Tom" );
-        REQUIRE( outMatrixVal[4][1] == "4" );
+        REQUIRE( outMatrixVal[4][1] == "1" );
+
+        REQUIRE( outMatrixHead[0][0] == "The name" );
+        REQUIRE( outMatrixHead[0][1] == "The id" );
+        REQUIRE( outMatrixHead[1][0] == "The name" );
+        REQUIRE( outMatrixHead[1][1] == "The id" );
+        REQUIRE( outMatrixHead[2][0] == "The name" );
+        REQUIRE( outMatrixHead[2][1] == "The id" );
+        REQUIRE( outMatrixHead[3][0] == "The name" );
+        REQUIRE( outMatrixHead[3][1] == "The id" );
+        REQUIRE( outMatrixHead[4][0] == "The name" );
+        REQUIRE( outMatrixHead[4][1] == "The id" );
     }
 }

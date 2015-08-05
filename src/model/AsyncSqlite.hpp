@@ -23,7 +23,12 @@ struct AsyncSqlite {
     // query something and receive table
     // snapshot
     // Signature:
-    // < ExecuteOutSnapshot, int (columns), TableSnapshot (output) >
+    // <
+    //     ExecuteOutSnapshot,
+    //     std::string (query),
+    //     std::vector< std::string > (headernames),
+    //     TableSnapshot (output)
+    // >
     DUMMY_STRUCT(ExecuteOutSnapshot);
 
     static StrongMsgPtr createNew(const char* name);

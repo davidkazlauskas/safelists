@@ -13,8 +13,10 @@ struct TableSnapshot {
 
     TableSnapshot(TableSnapshot&& other);
     TableSnapshot(const TableSnapshot&) = delete;
+    // We could make copying easily but meh...
 
     TableSnapshot& operator=(TableSnapshot&& other);
+    TableSnapshot& operator=(const TableSnapshot&) = delete;
 
     friend struct TableSnapshotBuilder;
 

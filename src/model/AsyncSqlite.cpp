@@ -82,7 +82,16 @@ private:
                     const std::vector< std::string >& headers,
                     TableSnapshot& outSnap)
                 {
-                    //TableSnapshotBuilder bld;
+                    templatious::StaticBuffer< const char*, 32 > buf;
+                    auto vHead = buf.getStaticVector();
+
+                    SA::addCustom(
+                        vHead,
+                        [](const std::string& str) {
+                            return str.c_str();
+                        },
+                        headers
+                    );
                 }
             ),
             SF::virtualMatch< AS::Execute, const char* >(

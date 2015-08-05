@@ -14,6 +14,8 @@ struct TableSnapshot {
     TableSnapshot(TableSnapshot&& other);
     TableSnapshot(const TableSnapshot&) = delete;
 
+    TableSnapshot& operator=(TableSnapshot&& other);
+
     friend struct TableSnapshotBuilder;
 
     typedef std::function<bool(int,int,const char*,const char*)> TraverseFunction;

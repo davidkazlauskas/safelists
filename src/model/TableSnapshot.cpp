@@ -26,6 +26,14 @@ TableSnapshot::TableSnapshot(TableSnapshot&& other) :
     other._buffer = nullptr;
 }
 
+TableSnapshot& TableSnapshot::operator=(TableSnapshot&& other) {
+    delete[] _buffer;
+    _bufSize = other._bufSize;
+    other._bufSize = -1;
+    other._buffer = nullptr;
+    return *this;
+}
+
 void TableSnapshot::traverse(const TraverseFunction& func) const {
     templatious::StaticBuffer< const char*, 32 > buf;
     templatious::StaticBuffer< int, 32 > bufInt;

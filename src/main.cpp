@@ -18,8 +18,6 @@ struct GtkMainWindow : public Messageable {
 
         _left->append_column_editable("cholo",_mdl.m_col_id);
         _left->append_column_editable("holo",_mdl.m_col_name);
-        auto mdl = Glib::RefPtr< MyModel >( new MyModel() );
-        _left->set_model(mdl);
     }
 
     class ModelColumns : public Gtk::TreeModel::ColumnRecord {

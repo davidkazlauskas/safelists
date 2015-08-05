@@ -121,3 +121,74 @@ TEST_CASE("model_table_snapshot_no_write","[model]") {
         "10[EMPTY]first name";
     REQUIRE( outStr == expected );
 }
+
+TEST_CASE("model_sqlite_snapshot","[model]") {
+    auto msg = AsyncSqlite::createNew(":memory:");
+
+    {
+        static const char* query =
+            "CREATE TABLE Friends(Id INTEGER PRIMARY KEY, Name TEXT);"
+            "INSERT INTO Friends(Name) VALUES ('Tom');"
+            "INSERT INTO Friends(Name) VALUES ('Rebecca');"
+            "INSERT INTO Friends(Name) VALUES ('Jim');"
+            "INSERT INTO Friends(Name) VALUES ('Roger');"
+            "INSERT INTO Friends(Name) VALUES ('Robert');";
+
+        auto pack = SF::vpackPtrCustom< templatious::VPACK_WAIT,
+             AsyncSqlite::Execute, const char*
+        >(
+            nullptr, query
+        );
+        msg->message(pack);
+
+        pack->wait();
+    }
+
+    {
+        static const char* query =
+            "SELECT Name,Id FROM FRIENDS ORDER BY Name ASC;";
+
+        std::vector< std::vector< std::string > > outMatrixVal;
+
+        outMatrixVal.resize(5);
+        TEMPLATIOUS_FOREACH(auto& i,outMatrixVal) {
+            i.resize(2);
+        }
+
+        auto outMatrixHead = outMatrixVal;
+
+        std::vector< std::string > headers;
+        SA::add(headers,"The name","The id");
+        auto pack = SF::vpackPtrCustom<
+             templatious::VPACK_WAIT,
+             AsyncSqlite::ExecuteOutSnapshot,
+             std::string,
+             std::vector< std::string >,
+             TableSnapshot
+        >(nullptr, query, std::move(headers), TableSnapshot());
+
+        msg->message(pack);
+        pack->wait();
+
+        auto& snapRef = pack->fGet<3>();
+
+        snapRef.traverse(
+            [&](int row,int col,const char* val,const char* head) {
+                outMatrixVal[row][col] = val;
+                outMatrixHead[row][col] = head;
+                return true;
+            }
+        );
+
+        REQUIRE( outMatrixVal[0][0] == "Jim" );
+        REQUIRE( outMatrixVal[0][1] == "0" );
+        REQUIRE( outMatrixVal[1][0] == "Rebecca" );
+        REQUIRE( outMatrixVal[1][1] == "1" );
+        REQUIRE( outMatrixVal[2][0] == "Robert" );
+        REQUIRE( outMatrixVal[2][1] == "2" );
+        REQUIRE( outMatrixVal[3][0] == "Roger" );
+        REQUIRE( outMatrixVal[3][1] == "3" );
+        REQUIRE( outMatrixVal[4][0] == "Tom" );
+        REQUIRE( outMatrixVal[4][1] == "4" );
+    }
+}

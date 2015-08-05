@@ -9,6 +9,14 @@
 
 TEMPLATIOUS_TRIPLET_STD;
 
+namespace {
+
+void snapshotBuilderCallback(void* snapshotBuilder,int argc,char** argv,char** colName) {
+    TableSnapshotBuilder& bld = *reinterpret_cast< TableSnapshotBuilder* >(snapshotBuilder);
+}
+
+} // end of anon namespace
+
 namespace SafeLists {
 
 struct AsyncSqliteImpl : public Messageable {
@@ -92,6 +100,9 @@ private:
                         },
                         headers
                     );
+
+                    TableSnapshotBuilder bld(vHead.size(),vHead.rawBegin());
+                    sqlite3_exec(this->_sqlite,query.c_str(),)
                 }
             ),
             SF::virtualMatch< AS::Execute, const char* >(

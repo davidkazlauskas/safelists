@@ -114,6 +114,8 @@ private:
                         &bld,
                         &errmsg
                     );
+
+                    outSnap = bld.getSnapshot();
                 }
             ),
             SF::virtualMatch< AS::Execute, const char* >(

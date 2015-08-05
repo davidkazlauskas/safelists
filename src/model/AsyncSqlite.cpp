@@ -116,7 +116,7 @@ private:
                         &errmsg
                     );
 
-                    assert( nullptr != errmsg );
+                    assert( nullptr == errmsg );
                     outSnap = bld.getSnapshot();
                 }
             ),

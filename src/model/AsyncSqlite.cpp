@@ -11,8 +11,12 @@ TEMPLATIOUS_TRIPLET_STD;
 
 namespace {
 
-void snapshotBuilderCallback(void* snapshotBuilder,int argc,char** argv,char** colName) {
+int snapshotBuilderCallback(void* snapshotBuilder,int argc,char** argv,char** colName) {
     TableSnapshotBuilder& bld = *reinterpret_cast< TableSnapshotBuilder* >(snapshotBuilder);
+    TEMPLATIOUS_0_TO_N(i,argc) {
+        bld.setValue(i,argv[i]);
+    }
+    return 0;
 }
 
 } // end of anon namespace
@@ -102,7 +106,14 @@ private:
                     );
 
                     TableSnapshotBuilder bld(vHead.size(),vHead.rawBegin());
-                    sqlite3_exec(this->_sqlite,query.c_str(),)
+                    char* errmsg = nullptr;
+                    sqlite3_exec(
+                        this->_sqlite,
+                        query.c_str(),
+                        snapshotBuilderCallback,
+                        &bld,
+                        &errmsg
+                    );
                 }
             ),
             SF::virtualMatch< AS::Execute, const char* >(

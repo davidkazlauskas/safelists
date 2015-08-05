@@ -70,10 +70,19 @@ private:
     }
 
     VmfPtr genHandler() {
-        return SF::virtualMatchFunctorPtr(
-            SF::virtualMatch< AS::ExecuteOutSnapshot, int, TableSnapshot >(
-                [=](AS::ExecuteOutSnapshot,int columns,TableSnapshot& outSnap) {
-
+    return SF::virtualMatchFunctorPtr(
+            SF::virtualMatch<
+                AS::ExecuteOutSnapshot,
+                std::string,
+                std::vector< std::string >,
+                TableSnapshot
+            >(
+                [=](AS::ExecuteOutSnapshot,
+                    const std::string& query,
+                    const std::vector< std::string >& headers,
+                    TableSnapshot& outSnap)
+                {
+                    //TableSnapshotBuilder bld;
                 }
             ),
             SF::virtualMatch< AS::Execute, const char* >(

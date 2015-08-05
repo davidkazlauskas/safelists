@@ -20,6 +20,12 @@ struct AsyncSqlite {
     // < Execute, const char* sql, SqliteCallbackSimple >
     DUMMY_STRUCT(Execute);
 
+    // query something and receive table
+    // snapshot
+    // Signature:
+    // < ExecuteOutSnapshot, int (columns), TableSnapshot (output) >
+    DUMMY_STRUCT(ExecuteOutSnapshot);
+
     static StrongMsgPtr createNew(const char* name);
 };
 

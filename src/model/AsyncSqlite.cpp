@@ -16,6 +16,7 @@ int snapshotBuilderCallback(void* snapshotBuilder,int argc,char** argv,char** co
     TEMPLATIOUS_0_TO_N(i,argc) {
         bld.setValue(i,argv[i]);
     }
+    bld.commitRow();
     return 0;
 }
 

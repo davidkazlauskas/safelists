@@ -29,6 +29,7 @@ TableSnapshot::TableSnapshot(TableSnapshot&& other) :
 TableSnapshot& TableSnapshot::operator=(TableSnapshot&& other) {
     delete[] _buffer;
     _bufSize = other._bufSize;
+    _buffer = other._buffer;
     other._bufSize = -1;
     other._buffer = nullptr;
     return *this;

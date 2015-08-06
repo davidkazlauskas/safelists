@@ -10,6 +10,13 @@ namespace SafeLists {
 
 typedef std::lock_guard< std::mutex > LGuard;
 
+struct SqliteRangerImpl {
+    static void prepareVectors(SqliteRanger& ranger) {
+        int rows = ranger._requestedEnd - ranger._requestedStart;
+        ranger._valueMatrix.resize(rows);
+    }
+};
+
 SqliteRanger::SqliteRanger(
     const std::weak_ptr< Messageable >& asyncSqlite,
     const char* query,
@@ -38,6 +45,7 @@ void SqliteRanger::process() {
         moved = std::move(_pending);
     }
 
+    SqliteRangerImpl::prepareVectors(*this);
 }
 
 #define SNAPSHOT_SIG \
@@ -47,7 +55,7 @@ void SqliteRanger::process() {
     TableSnapshot
 
 void SqliteRanger::setRange(int start,int end) {
-    if (start == end) {
+    if (start == end || start > end) {
         return;
     }
 

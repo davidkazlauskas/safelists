@@ -15,6 +15,10 @@ struct SqliteRangerImpl {
         int rows = ranger._requestedEnd - ranger._requestedStart;
         ranger._valueMatrix.resize(rows);
     }
+
+    static void applyEmptyness(SqliteRanger& ranger) {
+
+    }
 };
 
 SqliteRanger::SqliteRanger(
@@ -102,6 +106,7 @@ void SqliteRanger::setRange(int start,int end) {
 
     locked->message(msg);
 
+    SqliteRangerImpl::applyEmptyness(*this);
     _requestedStart = start;
     _requestedEnd = end;
 }

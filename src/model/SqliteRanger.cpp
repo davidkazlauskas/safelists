@@ -73,6 +73,8 @@ void SqliteRanger::setRange(int start,int end) {
     >(
     [=](const TEMPLATIOUS_VPCORE< SNAPSHOT_SIG >& out) {
         auto locked = selfCpy.lock();
+        auto& nConst = const_cast< TableSnapshot& >(out.fGet<3>());
+        locked->_pending = std::move(nConst);
     },
     nullptr,queryBuf,std::move(headers),TableSnapshot());
 

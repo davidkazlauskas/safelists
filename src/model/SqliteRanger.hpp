@@ -23,6 +23,7 @@ struct SqliteRanger {
     );
 
     void process();
+    void setRange(int start,int end);
 
 private:
     int _requestedStart;

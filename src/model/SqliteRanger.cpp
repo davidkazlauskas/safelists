@@ -19,3 +19,6 @@ SqliteRanger::SqliteRanger(
 
 void SqliteRanger::process() {
 }
+
+void SqliteRanger::setRange(int start,int end) {
+}

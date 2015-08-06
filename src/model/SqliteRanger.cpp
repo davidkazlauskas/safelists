@@ -69,7 +69,7 @@ void SqliteRanger::setRange(int start,int end) {
     auto msg = SF::vpackPtrCustomWCallback<
         templatious::VPACK_SYNCED,
         SNAPSHOT_SIG
-    >([](const TEMPLATIOUS_VPCORE< SNAPSHOT_SIG >& out) {
+    >([=](const TEMPLATIOUS_VPCORE< SNAPSHOT_SIG >& out) {
 
       },nullptr,queryBuf,std::move(headers),TableSnapshot());
 
@@ -78,6 +78,12 @@ void SqliteRanger::setRange(int start,int end) {
 }
 
 void SqliteRanger::updateRange() {
+}
+
+void SqliteRanger::setSelf(const std::weak_ptr< SqliteRanger >& self) {
+    _self = self;
+    auto locked = _self.lock();
+    assert( this == locked.get() );
 }
 
 } // end of SafeLists namespace

@@ -31,6 +31,8 @@ struct SqliteRanger {
     void setRange(int start,int end);
     void updateRange();
 
+    void setSelf(const std::weak_ptr< SqliteRanger >& self);
+
 private:
     int _requestedStart;
     int _requestedEnd;
@@ -44,6 +46,7 @@ private:
     std::vector< std::vector< std::string > > _valueMatrix;
     UpdateFunction _updateFunction;
     EmptyFunction _emptyValueFunction;
+    std::weak_ptr< SqliteRanger > _self;
 };
 
 }

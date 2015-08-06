@@ -10,6 +10,7 @@ typedef std::lock_guard< std::mutex > LGuard;
 
 SqliteRanger::SqliteRanger(
     const std::weak_ptr< Messageable >& asyncSqlite,
+    const char* headers,
     const UpdateFunction& updateFunction,
     const EmptyFunction& emptyFunction
 ) : _requestedStart(0),
@@ -17,6 +18,7 @@ SqliteRanger::SqliteRanger(
     _actualStart(0),
     _actualEnd(0),
     _asyncSqlite(asyncSqlite),
+    _headers(headers),
     _updateFunction(updateFunction),
     _emptyValueFunction(emptyFunction)
 {

@@ -17,6 +17,10 @@ struct SqliteRangerImpl {
     }
 
     static void applyEmptyness(SqliteRanger& ranger) {
+        if (ranger._actualStart < ranger._requestedEnd) {
+            // =======    > actual
+            //     ====== > requested
+        }
 
     }
 };
@@ -106,9 +110,9 @@ void SqliteRanger::setRange(int start,int end) {
 
     locked->message(msg);
 
-    SqliteRangerImpl::applyEmptyness(*this);
     _requestedStart = start;
     _requestedEnd = end;
+    SqliteRangerImpl::applyEmptyness(*this);
 }
 
 void SqliteRanger::updateRange() {

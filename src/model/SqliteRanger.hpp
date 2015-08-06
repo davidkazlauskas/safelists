@@ -22,6 +22,8 @@ struct SqliteRanger {
         const EmptyFunction& emptyFunction
     );
 
+    void process();
+
 private:
     int _requestedStart;
     int _requestedEnd;

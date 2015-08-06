@@ -1,6 +1,8 @@
 
 #include "SqliteRanger.hpp"
 
+typedef std::lock_guard< std::mutex > LGuard;
+
 SqliteRanger::SqliteRanger(
     const std::weak_ptr< Messageable >& asyncSqlite,
     const UpdateFunction& updateFunction,
@@ -13,4 +15,7 @@ SqliteRanger::SqliteRanger(
     _updateFunction(updateFunction),
     _emptyValueFunction(emptyFunction)
 {
+}
+
+void SqliteRanger::process() {
 }

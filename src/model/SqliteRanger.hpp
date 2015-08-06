@@ -24,6 +24,7 @@ struct SqliteRanger {
 
     void process();
     void setRange(int start,int end);
+    void updateRange();
 
 private:
     int _requestedStart;

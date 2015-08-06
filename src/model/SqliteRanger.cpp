@@ -66,12 +66,15 @@ void SqliteRanger::setRange(int start,int end) {
         header.assign(printout);
     },headers);
 
+    auto selfCpy = _self;
     auto msg = SF::vpackPtrCustomWCallback<
         templatious::VPACK_SYNCED,
         SNAPSHOT_SIG
-    >([=](const TEMPLATIOUS_VPCORE< SNAPSHOT_SIG >& out) {
-
-      },nullptr,queryBuf,std::move(headers),TableSnapshot());
+    >(
+    [=](const TEMPLATIOUS_VPCORE< SNAPSHOT_SIG >& out) {
+        auto locked = selfCpy.lock();
+    },
+    nullptr,queryBuf,std::move(headers),TableSnapshot());
 
     _requestedStart = start;
     _requestedEnd = end;

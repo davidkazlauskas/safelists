@@ -250,6 +250,7 @@ TEST_CASE("model_sqlite_ranger","[model]") {
     // maybe need something more robust to wait out?
     sharedRanger->setRange(1,3);
     std::this_thread::sleep_for( std::chrono::milliseconds(100) );
+    sharedRanger->process();
 
     auto str = ss.str();
     const char* EXPECTED =

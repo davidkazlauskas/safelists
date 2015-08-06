@@ -27,6 +27,7 @@ struct SqliteRangerImpl {
                 ranger._valueMatrix[i] =
                     std::move(ranger._valueMatrix[i + shiftBack]);
             }
+            ranger._valueMatrix.resize(visibleRows);
         }
 
     }

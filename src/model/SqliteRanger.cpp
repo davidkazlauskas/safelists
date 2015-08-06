@@ -36,6 +36,10 @@ void SqliteRanger::process() {
     TableSnapshot
 
 void SqliteRanger::setRange(int start,int end) {
+    if (start == end) {
+        return;
+    }
+
     LGuard guard(_mtx);
     if (start == _requestedStart && end == _requestedEnd) {
         return;
@@ -47,13 +51,18 @@ void SqliteRanger::setRange(int start,int end) {
     }
 
     char queryBuf[256];
-    sprintf(queryBuf,"SELECT ")
+    int limit = end - start;
+    int offset = start;
+    // example: "SELECT Name, Id FROM some LIMIT %d OFFSET %d;
+    sprintf(queryBuf,_query.c_str(),limit,offset);
 
     //auto msg = SF::vpackPtrCustomWCallback<
         //templatious::VPACK_SYNCED,
         //SNAPSHOT_SIG
     //>(nullptr,);
 
+    _requestedStart = start;
+    _requestedEnd = end;
 }
 
 void SqliteRanger::updateRange() {

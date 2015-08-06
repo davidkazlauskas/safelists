@@ -69,7 +69,9 @@ void SqliteRanger::setRange(int start,int end) {
     auto msg = SF::vpackPtrCustomWCallback<
         templatious::VPACK_SYNCED,
         SNAPSHOT_SIG
-    >(nullptr,queryBuf,std::move(headers),TableSnapshot());
+    >([](const TEMPLATIOUS_VPCORE< SNAPSHOT_SIG >& out) {
+
+      },nullptr,queryBuf,std::move(headers),TableSnapshot());
 
     _requestedStart = start;
     _requestedEnd = end;

@@ -7,6 +7,7 @@
 #include <model/IndexedListView.hpp>
 #include <model/AsyncSqlite.hpp>
 #include <model/TableSnapshot.hpp>
+#include <model/SqliteRanger.hpp>
 
 TEMPLATIOUS_TRIPLET_STD;
 
@@ -202,4 +203,8 @@ TEST_CASE("model_sqlite_snapshot","[model]") {
         REQUIRE( outMatrixHead[4][0] == "The name" );
         REQUIRE( outMatrixHead[4][1] == "The id" );
     }
+}
+
+TEST_CASE("model_sqlite_ranger","[model]") {
+
 }

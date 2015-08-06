@@ -211,6 +211,13 @@ TEST_CASE("model_sqlite_snapshot","[model]") {
 //const UpdateFunction& updateFunction,
 //const EmptyFunction& emptyFunction
 
+void asyncSqliteWait(const std::shared_ptr< Messageable >& msg) {
+    auto waitMsg = SF::vpackPtrCustom<
+        templatious::VPACK_WAIT, AsyncSqlite::DummyWait >(nullptr);
+    msg->message(waitMsg);
+    waitMsg->wait();
+}
+
 TEST_CASE("model_sqlite_ranger","[model]") {
     auto msg = AsyncSqlite::createNew(":memory:");
 
@@ -250,7 +257,7 @@ TEST_CASE("model_sqlite_ranger","[model]") {
 
     // maybe need something more robust to wait out?
     sharedRanger->setRange(1,3);
-    std::this_thread::sleep_for( std::chrono::milliseconds(100) );
+    asyncSqliteWait(msg);
     sharedRanger->process();
 
     auto str = ss.str();

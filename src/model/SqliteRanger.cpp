@@ -22,6 +22,9 @@ void SqliteRanger::process() {
 
 void SqliteRanger::setRange(int start,int end) {
     LGuard guard(_mtx);
+    if (start == _requestedStart && end == _requestedEnd) {
+        return;
+    }
 }
 
 void SqliteRanger::updateRange() {

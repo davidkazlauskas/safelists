@@ -17,6 +17,7 @@ struct SqliteRangerImpl {
     }
 
     static void applyEmptyness(SqliteRanger& ranger) {
+        int totalToView = ranger._requestedEnd - ranger._requestedStart;
         if (ranger._actualStart < ranger._requestedEnd
          && ranger._actualEnd >= ranger._requestedStart) {
             // =======    > actual
@@ -40,8 +41,30 @@ struct SqliteRangerImpl {
                     std::move(ranger._valueMatrix[i + shiftBack]);
             }
             ranger._valueMatrix.resize(visibleRows);
+        } else if (ranger._requestedEnd > ranger._actualStart
+                && ranger._actualEnd > ranger._requestedEnd)
+        {
+            //     ====== > actual
+            // =======    > requested
+            int visibleRows = ranger._requestedEnd - ranger._actualStart;
+            //int shiftFront = ranger._requestedEnd -
         }
 
+    }
+
+    static void reset(SqliteRanger& ranger) {
+        int totalToView = ranger._requestedEnd - ranger._requestedStart;
+        int diff = totalToView - SA::size(ranger._valueMatrix);
+        if (diff > 0) {
+            ranger._valueMatrix.resize(totalToView);
+            int start = totalToView - diff;
+            for (int i = start; i < totalToView; ++i) {
+                ranger._valueMatrix[i].resize(ranger._columnCount);
+                TEMPLATIOUS_0_TO_N(j,ranger._columnCount) {
+                    ranger._emptyValueFunction(i,j,ranger._valueMatrix[i][j]);
+                }
+            }
+        }
     }
 };
 
@@ -132,7 +155,10 @@ void SqliteRanger::setRange(int start,int end) {
 
     _requestedStart = start;
     _requestedEnd = end;
-    SqliteRangerImpl::applyEmptyness(*this);
+
+    // some other time, when everything's done
+    //SqliteRangerImpl::applyEmptyness(*this);
+    SqliteRangerImpl::reset(*this);
 }
 
 void SqliteRanger::updateRange() {

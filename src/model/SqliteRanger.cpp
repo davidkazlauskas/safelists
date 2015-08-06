@@ -50,16 +50,24 @@ void SqliteRanger::setRange(int start,int end) {
         return;
     }
 
-    char queryBuf[256];
+    char queryBuf[512];
     int limit = end - start;
     int offset = start;
     // example: "SELECT Name, Id FROM some LIMIT %d OFFSET %d;
     sprintf(queryBuf,_query.c_str(),limit,offset);
 
-    //auto msg = SF::vpackPtrCustomWCallback<
-        //templatious::VPACK_SYNCED,
-        //SNAPSHOT_SIG
-    //>(nullptr,);
+    std::vector< std::string > headers(_columnCount);
+
+    SM::traverse<true>([](int i,std::string& header) {
+        char printout[16];
+        sprintf(printout,"%d",i);
+        header.assign(printout);
+    });
+
+    auto msg = SF::vpackPtrCustomWCallback<
+        templatious::VPACK_SYNCED,
+        SNAPSHOT_SIG
+    >(nullptr,queryBuf,std::move(headers),TableSnapshot());
 
     _requestedStart = start;
     _requestedEnd = end;

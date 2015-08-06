@@ -21,6 +21,8 @@ struct SqliteRangerImpl {
          && ranger._actualEnd >= ranger._requestedStart) {
             // =======    > actual
             //     ====== > requested
+            int visibleRows = ranger._actualEnd - ranger._requestedStart;
+            int shiftBack = ranger._requestedStart - ranger._actualStart;
         }
 
     }

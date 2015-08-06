@@ -100,6 +100,8 @@ void SqliteRanger::setRange(int start,int end) {
     },
     nullptr,queryBuf,std::move(headers),TableSnapshot());
 
+    locked->message(msg);
+
     _requestedStart = start;
     _requestedEnd = end;
 }

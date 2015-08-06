@@ -6,6 +6,8 @@
 
 TEMPLATIOUS_TRIPLET_STD;
 
+namespace SafeLists {
+
 typedef std::lock_guard< std::mutex > LGuard;
 
 SqliteRanger::SqliteRanger(
@@ -75,3 +77,5 @@ void SqliteRanger::setRange(int start,int end) {
 
 void SqliteRanger::updateRange() {
 }
+
+} // end of SafeLists namespace

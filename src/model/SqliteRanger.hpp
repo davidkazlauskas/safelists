@@ -8,6 +8,8 @@
 #include "TableSnapshot.hpp"
 #include "AsyncSqlite.hpp"
 
+namespace SafeLists {
+
 struct SqliteRanger {
 
     typedef std::function< void(int,int,const char*) > UpdateFunction;
@@ -43,6 +45,8 @@ private:
     UpdateFunction _updateFunction;
     EmptyFunction _emptyValueFunction;
 };
+
+}
 
 #endif /* end of include guard: SQLITERANGER_USA0FKBB */
 

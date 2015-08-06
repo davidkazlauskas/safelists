@@ -5,6 +5,7 @@
 #include <vector>
 #include <mutex>
 
+#include "TableSnapshot.hpp"
 #include "AsyncSqlite.hpp"
 
 struct SqliteRanger {
@@ -31,6 +32,7 @@ private:
     int _requestedEnd;
     int _actualStart;
     int _actualEnd;
+    TableSnapshot _pending;
     std::weak_ptr< Messageable > _asyncSqlite;
     std::mutex _mtx;
     std::vector< std::vector< std::string > > _valueMatrix;

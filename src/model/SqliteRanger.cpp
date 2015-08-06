@@ -25,6 +25,11 @@ void SqliteRanger::setRange(int start,int end) {
     if (start == _requestedStart && end == _requestedEnd) {
         return;
     }
+
+    auto locked = _asyncSqlite.lock();
+    if (nullptr == locked) {
+        return;
+    }
 }
 
 void SqliteRanger::updateRange() {

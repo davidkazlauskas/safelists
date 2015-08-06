@@ -9,11 +9,18 @@
 
 struct SqliteRanger {
 
+    typedef std::function< void(int,int,const char*) > UpdateFunction;
+    typedef std::function< void(int,int,std::string&) > EmptyFunction;
+
     SqliteRanger() = delete;
     SqliteRanger(const SqliteRanger&) = delete;
     SqliteRanger(SqliteRanger&&) = delete;
 
-    SqliteRanger(const std::weak_ptr< Messageable >& asyncSqlite);
+    SqliteRanger(
+        const std::weak_ptr< Messageable >& asyncSqlite,
+        const UpdateFunction& updateFunction,
+        const EmptyFunction& emptyFunction
+    );
 
 private:
     int _requestedStart;
@@ -23,8 +30,8 @@ private:
     std::weak_ptr< Messageable > _asyncSqlite;
     std::mutex _mtx;
     std::vector< std::vector< std::string > > _valueMatrix;
-    std::function< void(int,int,const char*) > _updateFunction;
-    std::function< const char*(int,int) > _emptyValueFunction;
+    UpdateFunction _updateFunction;
+    EmptyFunction _emptyValueFunction;
 };
 
 #endif /* end of include guard: SQLITERANGER_USA0FKBB */

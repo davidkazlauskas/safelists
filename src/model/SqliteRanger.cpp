@@ -28,6 +28,18 @@ struct SqliteRangerImpl {
                     std::move(ranger._valueMatrix[i + shiftBack]);
             }
             ranger._valueMatrix.resize(visibleRows);
+        } else if (ranger._actualStart < ranger._requestedStart
+                && ranger._actualEnd >= ranger._requestedEnd)
+        {
+            // =======    > actual
+            //   ===      > requested
+            int visibleRows = ranger._requestedEnd - ranger._requestedStart;
+            int shiftBack = ranger._requestedStart - ranger._actualStart;
+            for (int i = 0; i < visibleRows; ++i) {
+                ranger._valueMatrix[i] =
+                    std::move(ranger._valueMatrix[i + shiftBack]);
+            }
+            ranger._valueMatrix.resize(visibleRows);
         }
 
     }

@@ -1,5 +1,10 @@
 
+#include <templatious/FullPack.hpp>
+
+#include "AsyncSqlite.hpp"
 #include "SqliteRanger.hpp"
+
+TEMPLATIOUS_TRIPLET_STD;
 
 typedef std::lock_guard< std::mutex > LGuard;
 
@@ -20,6 +25,12 @@ SqliteRanger::SqliteRanger(
 void SqliteRanger::process() {
 }
 
+#define SNAPSHOT_SIG \
+    AsyncSqlite::ExecuteOutSnapshot, \
+    std::string, \
+    std::vector< std::string >, \
+    TableSnapshot
+
 void SqliteRanger::setRange(int start,int end) {
     LGuard guard(_mtx);
     if (start == _requestedStart && end == _requestedEnd) {
@@ -30,6 +41,15 @@ void SqliteRanger::setRange(int start,int end) {
     if (nullptr == locked) {
         return;
     }
+
+    //char queryBuf[256];
+    //sprintf(queryBuf,"")
+
+    //auto msg = SF::vpackPtrCustomWCallback<
+        //templatious::VPACK_SYNCED,
+        //SNAPSHOT_SIG
+    //>(nullptr,);
+
 }
 
 void SqliteRanger::updateRange() {

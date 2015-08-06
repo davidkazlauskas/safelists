@@ -239,8 +239,8 @@ TEST_CASE("model_sqlite_ranger","[model]") {
         "SELECT Id, Name FROM Friends LIMIT %d OFFSET %d;",
         2,
         [&ss](int row,int column,const char* value) {
-            ss << "[" << row << ";" << column << "] -> \""
-               << value << "\"" << std::endl;
+            ss << "[" << row << ";" << column << "] -> '"
+               << value << "'|";
         },
         [](int row,int column,std::string& out) {
             out = "[empty]";
@@ -252,5 +252,12 @@ TEST_CASE("model_sqlite_ranger","[model]") {
     std::this_thread::sleep_for( std::chrono::milliseconds(100) );
 
     auto str = ss.str();
+    const char* EXPECTED =
+        "[0;0] -> '2'|"
+        "[0;1] -> 'Rebecca'|"
+        "[1;0] -> '3'|"
+        "[1;1] -> 'Jim'|"
+    ;
 
+    REQUIRE( str == EXPECTED );
 }

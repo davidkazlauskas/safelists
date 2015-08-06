@@ -10,7 +10,7 @@ typedef std::lock_guard< std::mutex > LGuard;
 
 SqliteRanger::SqliteRanger(
     const std::weak_ptr< Messageable >& asyncSqlite,
-    const char* headers,
+    const char* query,
     int columnCount,
     const UpdateFunction& updateFunction,
     const EmptyFunction& emptyFunction
@@ -19,7 +19,7 @@ SqliteRanger::SqliteRanger(
     _actualStart(0),
     _actualEnd(0),
     _asyncSqlite(asyncSqlite),
-    _headers(headers),
+    _query(query),
     _columnCount(columnCount),
     _updateFunction(updateFunction),
     _emptyValueFunction(emptyFunction)
@@ -46,8 +46,8 @@ void SqliteRanger::setRange(int start,int end) {
         return;
     }
 
-    //char queryBuf[256];
-    //sprintf(queryBuf,"")
+    char queryBuf[256];
+    sprintf(queryBuf,"SELECT ")
 
     //auto msg = SF::vpackPtrCustomWCallback<
         //templatious::VPACK_SYNCED,

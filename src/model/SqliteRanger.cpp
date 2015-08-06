@@ -17,7 +17,8 @@ struct SqliteRangerImpl {
     }
 
     static void applyEmptyness(SqliteRanger& ranger) {
-        if (ranger._actualStart < ranger._requestedEnd) {
+        if (ranger._actualStart < ranger._requestedEnd
+         && ranger._actualEnd >= ranger._requestedStart) {
             // =======    > actual
             //     ====== > requested
         }

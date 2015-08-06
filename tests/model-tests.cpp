@@ -205,6 +205,52 @@ TEST_CASE("model_sqlite_snapshot","[model]") {
     }
 }
 
+//const std::weak_ptr< Messageable >& asyncSqlite,
+//const char* query,
+//int columnCount,
+//const UpdateFunction& updateFunction,
+//const EmptyFunction& emptyFunction
+
 TEST_CASE("model_sqlite_ranger","[model]") {
+    auto msg = AsyncSqlite::createNew(":memory:");
+
+    {
+        static const char* query =
+            "CREATE TABLE Friends(Id INTEGER PRIMARY KEY, Name TEXT);"
+            "INSERT INTO Friends(Name) VALUES ('Tom');"
+            "INSERT INTO Friends(Name) VALUES ('Rebecca');"
+            "INSERT INTO Friends(Name) VALUES ('Jim');"
+            "INSERT INTO Friends(Name) VALUES ('Roger');"
+            "INSERT INTO Friends(Name) VALUES ('Robert');";
+
+        auto pack = SF::vpackPtrCustom< templatious::VPACK_WAIT,
+             AsyncSqlite::Execute, const char*
+        >(
+            nullptr, query
+        );
+        msg->message(pack);
+
+        pack->wait();
+    }
+
+    std::stringstream ss;
+    auto sharedRanger = std::make_shared< SqliteRanger >(
+        msg,
+        "SELECT Id, Name FROM Friends LIMIT %d OFFSET %d;",
+        2,
+        [&ss](int row,int column,const char* value) {
+            ss << "[" << row << ";" << column << "] -> \""
+               << value << "\"" << std::endl;
+        },
+        [](int row,int column,std::string& out) {
+            out = "[empty]";
+        }
+    );
+
+    // maybe need something more robust to wait out?
+    sharedRanger->setRange(1,3);
+    std::this_thread::sleep_for( std::chrono::milliseconds(100) );
+
+    auto str = ss.str();
 
 }

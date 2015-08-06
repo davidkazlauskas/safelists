@@ -95,6 +95,7 @@ void SqliteRanger::process() {
     moved.traverse(
         [&](int i,int j,const char* value,const char* header) {
             this->_valueMatrix[i][j] = value;
+            this->_updateFunction(i,j,value);
             return true;
         }
     );

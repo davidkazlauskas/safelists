@@ -246,6 +246,7 @@ TEST_CASE("model_sqlite_ranger","[model]") {
             out = "[empty]";
         }
     );
+    sharedRanger->setSelf(sharedRanger);
 
     // maybe need something more robust to wait out?
     sharedRanger->setRange(1,3);

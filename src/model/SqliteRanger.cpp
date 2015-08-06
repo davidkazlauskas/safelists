@@ -30,7 +30,7 @@ void SqliteRanger::process() {
 }
 
 #define SNAPSHOT_SIG \
-    AsyncSqlite::ExecuteOutSnapshot, \
+    SafeLists::AsyncSqlite::ExecuteOutSnapshot, \
     std::string, \
     std::vector< std::string >, \
     TableSnapshot

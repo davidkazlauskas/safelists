@@ -22,6 +22,8 @@ struct TableSnapshot {
 
     typedef std::function<bool(int,int,const char*,const char*)> TraverseFunction;
     void traverse(const TraverseFunction& func) const;
+    bool isEmpty() const;
+
 private:
     int _bufSize;
     char* _buffer;

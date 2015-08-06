@@ -128,3 +128,7 @@ TableSnapshot TableSnapshotBuilder::getSnapshot() {
 
     return outRes;
 }
+
+bool TableSnapshot::isEmpty() const {
+    return nullptr == _buffer;
+}

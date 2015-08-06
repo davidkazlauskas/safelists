@@ -29,6 +29,7 @@ SqliteRanger::SqliteRanger(
 }
 
 void SqliteRanger::process() {
+
 }
 
 #define SNAPSHOT_SIG \

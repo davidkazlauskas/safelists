@@ -255,7 +255,6 @@ TEST_CASE("model_sqlite_ranger","[model]") {
     );
     sharedRanger->setSelf(sharedRanger);
 
-    // maybe need something more robust to wait out?
     sharedRanger->setRange(1,3);
     asyncSqliteWait(msg);
     sharedRanger->process();
@@ -267,6 +266,25 @@ TEST_CASE("model_sqlite_ranger","[model]") {
         "[1;0] -> '3'|"
         "[1;1] -> 'Jim'|"
     ;
+    std::string expStr = EXPECTED;
 
-    REQUIRE( str == EXPECTED );
+    REQUIRE( str == expStr.c_str() );
+
+    sharedRanger->setRange(2,5);
+    asyncSqliteWait(msg);
+    sharedRanger->process();
+
+    const char* EXPECTED_2 =
+        "[0;0] -> '3'|"
+        "[0;1] -> 'Jim'|"
+        "[1;0] -> '4'|"
+        "[1;1] -> 'Roger'|"
+        "[2;0] -> '5'|"
+        "[2;1] -> 'Robert'|"
+    ;
+
+    expStr += EXPECTED_2;
+    str = ss.str();
+
+    REQUIRE( str == expStr );
 }

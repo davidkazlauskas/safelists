@@ -69,7 +69,7 @@ struct AsyncSqliteImpl : public Messageable {
 
     ~AsyncSqliteImpl() {
         _keepGoing = false;
-        _cv.notify_one();
+        _sem.notify();
         auto fut = _finished.get_future();
         fut.get();
         sqlite3_close(_sqlite);
@@ -82,13 +82,12 @@ struct AsyncSqliteImpl : public Messageable {
 
     void message(const StrongPackPtr& pack) {
         _cache.enqueue(pack);
-        _cv.notify_one();
+        _sem.notify();
     }
 
     void mainLoop() {
-        std::unique_lock< std::mutex > ul(_mtx);
         while (_keepGoing) {
-            _cv.wait(ul);
+            _sem.wait();
             _cache.process(
                 [=](templatious::VirtualPack& p) {
                     this->_handler->tryMatch(p);
@@ -166,7 +165,7 @@ private:
             SF::virtualMatch< AsyncSqlite::Shutdown >(
                 [=](AsyncSqlite::Shutdown) {
                     this->_keepGoing = false;
-                    this->_cv.notify_one();
+                    this->_sem.notify();
                 }
             ),
             SF::virtualMatch< AsyncSqlite::DummyWait >(
@@ -176,8 +175,7 @@ private:
     }
 
     bool _keepGoing;
-    std::mutex _mtx;
-    std::condition_variable _cv;
+    StackOverflow::Semaphore _sem;
     MessageCache _cache;
     VmfPtr _handler;
     ThreadGuard _g;

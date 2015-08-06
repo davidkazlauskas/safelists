@@ -33,6 +33,8 @@ struct SqliteRanger {
 
     void setSelf(const std::weak_ptr< SqliteRanger >& self);
 
+    friend struct SqliteRangerImpl;
+
 private:
     int _requestedStart;
     int _requestedEnd;

@@ -37,6 +37,7 @@ void SqliteRanger::process() {
         }
         moved = std::move(_pending);
     }
+
 }
 
 #define SNAPSHOT_SIG \

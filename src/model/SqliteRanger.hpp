@@ -9,6 +9,12 @@
 
 struct SqliteRanger {
 
+    SqliteRanger() = delete;
+    SqliteRanger(const SqliteRanger&) = delete;
+    SqliteRanger(SqliteRanger&&) = delete;
+
+    SqliteRanger(const std::weak_ptr< Messageable >& asyncSqlite);
+
 private:
     int _requestedStart;
     int _requestedEnd;

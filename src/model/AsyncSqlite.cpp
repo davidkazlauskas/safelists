@@ -83,7 +83,7 @@ private:
     }
 
     VmfPtr genHandler() {
-    return SF::virtualMatchFunctorPtr(
+        return SF::virtualMatchFunctorPtr(
             SF::virtualMatch<
                 AS::ExecuteOutSnapshot,
                 std::string,
@@ -135,6 +135,9 @@ private:
                     this->_keepGoing = false;
                     this->_cv.notify_one();
                 }
+            ),
+            SF::virtualMatch< AsyncSqlite::DummyWait >(
+                [](AsyncSqlite::DummyWait) {}
             )
         );
     }

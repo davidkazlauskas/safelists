@@ -31,6 +31,12 @@ struct AsyncSqlite {
     // >
     DUMMY_STRUCT(ExecuteOutSnapshot);
 
+    // query this message to ensure you're
+    // performing action after another
+    // using templatious virtual pack wait
+    // trait
+    DUMMY_STRUCT(DummyWait);
+
     static StrongMsgPtr createNew(const char* name);
 };
 

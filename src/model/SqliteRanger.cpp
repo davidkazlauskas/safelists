@@ -64,7 +64,7 @@ void SqliteRanger::setRange(int start,int end) {
         char printout[16];
         sprintf(printout,"%d",i);
         header.assign(printout);
-    });
+    },headers);
 
     auto msg = SF::vpackPtrCustomWCallback<
         templatious::VPACK_SYNCED,

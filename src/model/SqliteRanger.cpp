@@ -29,7 +29,14 @@ SqliteRanger::SqliteRanger(
 }
 
 void SqliteRanger::process() {
-
+    TableSnapshot moved;
+    {
+        LGuard g(_mtx);
+        if (_pending.isEmpty()) {
+            return;
+        }
+        moved = std::move(_pending);
+    }
 }
 
 #define SNAPSHOT_SIG \
@@ -74,6 +81,11 @@ void SqliteRanger::setRange(int start,int end) {
     >(
     [=](const TEMPLATIOUS_VPCORE< SNAPSHOT_SIG >& out) {
         auto locked = selfCpy.lock();
+        if (nullptr == locked) {
+            return;
+        }
+
+        LGuard guard(locked->_mtx);
         auto& nConst = const_cast< TableSnapshot& >(out.fGet<3>());
         locked->_pending = std::move(nConst);
     },

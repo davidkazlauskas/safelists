@@ -11,10 +11,6 @@ namespace SafeLists {
 typedef std::lock_guard< std::mutex > LGuard;
 
 struct SqliteRangerImpl {
-    static void prepareVectors(SqliteRanger& ranger) {
-        int rows = ranger._requestedEnd - ranger._requestedStart;
-        ranger._valueMatrix.resize(rows);
-    }
 
     static void applyEmptyness(SqliteRanger& ranger) {
         int totalToView = ranger._requestedEnd - ranger._requestedStart;
@@ -96,7 +92,12 @@ void SqliteRanger::process() {
         moved = std::move(_pending);
     }
 
-    SqliteRangerImpl::prepareVectors(*this);
+    moved.traverse(
+        [&](int i,int j,const char* value,const char* header) {
+            this->_valueMatrix[i][j] = value;
+            return true;
+        }
+    );
 }
 
 #define SNAPSHOT_SIG \

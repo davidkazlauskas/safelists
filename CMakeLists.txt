@@ -46,15 +46,15 @@ SET( CMAKE_EXPORT_COMPILE_COMMANDS yes )
 add_custom_target( copy-runtime-files ALL
     COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/src/uischemes/ ${CMAKE_BINARY_DIR}/uischemes/ )
 
-add_library( gtkspec ${GTK_SOURCES} )
-target_link_libraries( gtkspec ${GTKMM_LIBRARIES} )
-
 add_library( domain ${DOMAIN_SOURCES} )
 target_link_libraries( domain sqlite3 pthread )
 
 add_executable( model-tests tests/model-tests.cpp )
 target_link_libraries( model-tests domain )
 
+add_library( gtkspec ${GTK_SOURCES} )
+target_link_libraries( gtkspec domain ${GTKMM_LIBRARIES} )
+
 add_executable( safelists src/main.cpp )
-target_link_libraries( safelists domain gtkspec )
+target_link_libraries( safelists gtkspec )
 

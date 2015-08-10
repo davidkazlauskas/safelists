@@ -50,7 +50,7 @@ class RangerTreeModel : public Glib::Object, public Gtk::TreeModel {
     typedef std::vector<Glib::ustring>
         typeRow;  // X columns, all of type string.
     typedef std::vector<typeRow> typeListOfRows;  // Y rows.
-    typedef std::unique_ptr< SqliteRanger > _ranger;
+    std::unique_ptr< SqliteRanger > _ranger;
 
     // Allow the GlueList inner class to access the declaration of the GlueItem
     // inner class.

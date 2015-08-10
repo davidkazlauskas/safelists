@@ -130,7 +130,8 @@ int RangerTreeModel::iter_n_children_vfunc(const iterator& iter) const {
 }
 
 int RangerTreeModel::iter_n_root_children_vfunc() const {
-    return LA_MAGICKA_ROWS;
+    //return LA_MAGICKA_ROWS;
+    return _ranger->numRows();
     // return m_rows.size();
 }
 

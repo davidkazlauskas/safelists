@@ -73,6 +73,9 @@ struct GtkMainWindow : public Messageable {
         _right->get_visible_range(start,end);
         auto startI = mdl->get_iter(start);
         auto endI = mdl->get_iter(end);
+
+        int rangeStart = mdl->iterToRow(startI);
+        int rangeEnd = mdl->iterToRow(endI);
     }
 
 private:

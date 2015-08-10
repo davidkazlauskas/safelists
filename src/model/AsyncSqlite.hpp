@@ -31,6 +31,15 @@ struct AsyncSqlite {
     // >
     DUMMY_STRUCT(ExecuteOutSnapshot);
 
+    // query something and receive single
+    // number from first row and first column
+    // Signature: <
+    //     std::string (query),
+    //     int (number),
+    //     bool (did succeed)
+    // >
+    DUMMY_STRUCT(OutSingleNum);
+
     // query this message to ensure you're
     // performing action after another
     // using templatious virtual pack wait

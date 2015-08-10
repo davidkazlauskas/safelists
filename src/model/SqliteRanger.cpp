@@ -173,10 +173,14 @@ void SqliteRanger::setSelf(const std::weak_ptr< SqliteRanger >& self) {
 }
 
 void SqliteRanger::getData(int row,int column,std::string& out) const {
-    LGuard guard(_mtx);
-    if (_actualStart <= row && _actualEnd > row) {
-        out = _valueMatrix[row - _actualStart][column];
+    {
+        LGuard guard(_mtx);
+        if (_actualStart <= row && _actualEnd > row) {
+            out = _valueMatrix[row - _actualStart][column];
+            return;
+        }
     }
+    _emptyValueFunction(row,column,out);
 }
 
 } // end of SafeLists namespace

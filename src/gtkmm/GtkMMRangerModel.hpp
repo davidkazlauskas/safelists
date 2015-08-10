@@ -3,6 +3,7 @@
 #define GTKMMRANGERMODEL_NV9C9SC1
 
 #include <gtkmm.h>
+#include <model/SqliteRanger.hpp>
 
 namespace SafeLists {
 
@@ -42,12 +43,11 @@ class RangerTreeModel : public Glib::Object, public Gtk::TreeModel {
     virtual Path get_path_vfunc(const iterator& iter) const;
     virtual bool get_iter_vfunc(const Path& path, iterator& iter) const;
 
-    // virtual bool iter_is_valid(const iterator& iter) const;
-
    private:
     typedef std::vector<Glib::ustring>
         typeRow;  // X columns, all of type string.
     typedef std::vector<typeRow> typeListOfRows;  // Y rows.
+    typedef std::unique_ptr< SqliteRanger > _ranger;
 
     // Allow the GlueList inner class to access the declaration of the GlueItem
     // inner class.

@@ -4,15 +4,17 @@
 
 #include <gtkmm.h>
 
-class ExampleTreeModel : public Glib::Object, public Gtk::TreeModel {
+namespace SafeLists {
+
+class RangerTreeModel : public Glib::Object, public Gtk::TreeModel {
    protected:
     // Create a TreeModel with @a columns_count number of columns, each of type
     // Glib::ustring.
-    ExampleTreeModel(unsigned int columns_count = 10);
-    virtual ~ExampleTreeModel();
+    RangerTreeModel(unsigned int columns_count = 10);
+    virtual ~RangerTreeModel();
 
    public:
-    static Glib::RefPtr<ExampleTreeModel> create();
+    static Glib::RefPtr<RangerTreeModel> create();
 
     Gtk::TreeModelColumn<Glib::ustring>& get_model_column(int column);
 
@@ -67,5 +69,6 @@ class ExampleTreeModel : public Glib::Object, public Gtk::TreeModel {
                   // the TreeIter is valid.
 };
 
-#endif /* end of include guard: GTKMMRANGERMODEL_NV9C9SC1 */
+}
 
+#endif /* end of include guard: GTKMMRANGERMODEL_NV9C9SC1 */

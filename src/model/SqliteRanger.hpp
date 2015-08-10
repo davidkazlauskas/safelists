@@ -31,6 +31,7 @@ struct SqliteRanger {
     void setRange(int start,int end);
     void updateRange();
     void getData(int row,int column,std::string& out) const;
+    int numRows() const;
 
     void setSelf(const std::weak_ptr< SqliteRanger >& self);
 
@@ -41,6 +42,7 @@ private:
     int _requestedEnd;
     int _actualStart;
     int _actualEnd;
+    int _numRows;
     TableSnapshot _pending;
     std::weak_ptr< Messageable > _asyncSqlite;
     const std::string _query;

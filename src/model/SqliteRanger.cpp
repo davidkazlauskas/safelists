@@ -74,6 +74,7 @@ SqliteRanger::SqliteRanger(
     _requestedEnd(0),
     _actualStart(0),
     _actualEnd(0),
+    _numRows(-1),
     _asyncSqlite(asyncSqlite),
     _query(query),
     _columnCount(columnCount),
@@ -181,6 +182,10 @@ void SqliteRanger::getData(int row,int column,std::string& out) const {
         }
     }
     _emptyValueFunction(row,column,out);
+}
+
+int SqliteRanger::numRows() const {
+    return _numRows;
 }
 
 } // end of SafeLists namespace

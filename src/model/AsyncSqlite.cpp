@@ -101,6 +101,14 @@ private:
     typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
     typedef AsyncSqlite AS;
 
+    struct HolderSingleNum {
+        HolderSingleNum(int& out,bool& success)
+            : _out(out), _success(success) {}
+
+        int& _out;
+        bool& _success;
+    };
+
     static int sqliteFuncExec(
         void* data,
         int cnt,
@@ -112,6 +120,20 @@ private:
             AS::SqliteCallbackSimple* >(data);
         cb(cnt,header,value);
         return 0;
+    }
+
+    static int sqliteFuncSingleOut(
+        void* data,
+        int cnt,
+        char** header,
+        char** value
+    )
+    {
+        HolderSingleNum& hld = *reinterpret_cast<
+            HolderSingleNum* >(data);
+        hld._out = std::atoi(value[0]);
+        hld._success = true;
+        return 1;
     }
 
     VmfPtr genHandler() {
@@ -164,7 +186,8 @@ private:
             ),
             SF::virtualMatch< AS::OutSingleNum, const std::string, int, bool >(
                 [=](AS::OutSingleNum, const std::string& query,int& out,bool& succeeded) {
-
+                    HolderSingleNum h(out,succeeded);
+                    sqlite3_exec(this->_sqlite,query.c_str(),&sqliteFuncSingleOut,&h,nullptr);
                 }
             ),
             SF::virtualMatch< AsyncSqlite::DummyWait >(

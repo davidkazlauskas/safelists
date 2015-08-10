@@ -22,6 +22,7 @@ public:
     // screwSnakeCase
     void setRanger(std::unique_ptr< SqliteRanger >&& ranger);
     int iterToRow(const iterator& iter) const;
+    void appendColumns(Gtk::TreeView& view,const char** names);
 
 protected:
     // Overrides:

@@ -1,4 +1,6 @@
 
+#include <templatious/FullPack.hpp>
+
 #include "GtkMMRangerModel.hpp"
 
 namespace SafeLists {
@@ -248,6 +250,12 @@ void RangerTreeModel::setRanger(std::unique_ptr< SqliteRanger >&& ranger) {
 
 int RangerTreeModel::iterToRow(const iterator& iter) const {
     return get_data_row_iter_from_tree_row_iter(iter);
+}
+
+void RangerTreeModel::appendColumns(Gtk::TreeView& view,const char** names) {
+    TEMPLATIOUS_0_TO_N(i,LA_MAGICKA_COLUMNS) {
+        view.append_column(names[i],get_model_column(i));
+    }
 }
 
 }

@@ -30,6 +30,7 @@ struct SqliteRanger {
     void process();
     void setRange(int start,int end);
     void updateRange();
+    void getData(int row,int column,std::string& out) const;
 
     void setSelf(const std::weak_ptr< SqliteRanger >& self);
 
@@ -44,7 +45,7 @@ private:
     std::weak_ptr< Messageable > _asyncSqlite;
     const std::string _query;
     const int _columnCount;
-    std::mutex _mtx;
+    mutable std::mutex _mtx;
     std::vector< std::vector< std::string > > _valueMatrix;
     UpdateFunction _updateFunction;
     EmptyFunction _emptyValueFunction;

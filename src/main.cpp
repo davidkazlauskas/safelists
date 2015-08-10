@@ -28,18 +28,14 @@ struct GtkMainWindow : public Messageable {
     class ModelColumns : public Gtk::TreeModel::ColumnRecord {
     public:
         ModelColumns() {
-            add(m_col_id);
             add(m_col_name);
-            add(m_col_foo);
-            add(m_col_number);
-            add(m_col_number_validated);
+            add(m_col_size);
+            add(m_col_hash);
         }
 
-        Gtk::TreeModelColumn<unsigned int> m_col_id;
         Gtk::TreeModelColumn<Glib::ustring> m_col_name;
-        Gtk::TreeModelColumn<bool> m_col_foo;
-        Gtk::TreeModelColumn<int> m_col_number;
-        Gtk::TreeModelColumn<int> m_col_number_validated;
+        Gtk::TreeModelColumn<int> m_col_size;
+        Gtk::TreeModelColumn<Glib::ustring> m_col_hash;
     };
 
     Gtk::Window& getWindow() {
@@ -70,12 +66,16 @@ struct GtkMainWindow : public Messageable {
         mdl->setRanger(std::move(ranger));
 
         Gtk::TreePath start,end;
+
+        _right->set_model(mdl);
         _right->get_visible_range(start,end);
         auto startI = mdl->get_iter(start);
         auto endI = mdl->get_iter(end);
 
         int rangeStart = mdl->iterToRow(startI);
         int rangeEnd = mdl->iterToRow(endI);
+
+        printf("<-- %d %d -->",rangeStart,rangeEnd);
     }
 
 private:
@@ -92,6 +92,7 @@ int main(int argc,char** argv) {
     builder->add_from_file("uischemes/main.glade");
     auto asyncSqlite = SafeLists::AsyncSqlite::createNew("exampleData/example2.safelist");
     auto mainWnd = std::make_shared< GtkMainWindow >(builder);
+    mainWnd->initModel(asyncSqlite);
     app->run(mainWnd->getWindow(),argc,argv);
 }
 

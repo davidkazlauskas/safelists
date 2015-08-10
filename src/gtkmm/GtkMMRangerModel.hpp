@@ -19,6 +19,9 @@ class RangerTreeModel : public Glib::Object, public Gtk::TreeModel {
 
     Gtk::TreeModelColumn<Glib::ustring>& get_model_column(int column);
 
+    // screwSnakeCase
+    void setRanger(std::unique_ptr< SqliteRanger >&& ranger);
+
    protected:
     // Overrides:
     virtual Gtk::TreeModelFlags get_flags_vfunc() const;

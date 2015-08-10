@@ -90,6 +90,7 @@ int main(int argc,char** argv) {
 
     auto builder = Gtk::Builder::create();
     builder->add_from_file("uischemes/main.glade");
+    auto asyncSqlite = SafeLists::AsyncSqlite::createNew("exampleData/example2.safelist");
     auto mainWnd = std::make_shared< GtkMainWindow >(builder);
     app->run(mainWnd->getWindow(),argc,argv);
 }

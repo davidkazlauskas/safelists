@@ -32,6 +32,7 @@ struct SqliteRanger {
     void updateRange();
     void getData(int row,int column,std::string& out) const;
     int numRows() const;
+    void updateRows();
 
     void setSelf(const std::weak_ptr< SqliteRanger >& self);
 

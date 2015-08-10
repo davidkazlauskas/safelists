@@ -188,4 +188,11 @@ int SqliteRanger::numRows() const {
     return _numRows;
 }
 
+void SqliteRanger::updateRows() {
+    auto locked = _asyncSqlite.lock();
+    if (nullptr == locked) {
+        return;
+    }
+}
+
 } // end of SafeLists namespace

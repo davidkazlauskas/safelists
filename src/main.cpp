@@ -67,6 +67,9 @@ struct GtkMainWindow : public Messageable {
 
         Gtk::TreePath start,end;
 
+        _right->append_column("one",mdl->get_model_column(0));
+        _right->append_column("two",mdl->get_model_column(1));
+        _right->append_column("three",mdl->get_model_column(2));
         _right->set_model(mdl);
         _right->get_visible_range(start,end);
         auto startI = mdl->get_iter(start);

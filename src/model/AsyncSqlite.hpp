@@ -34,6 +34,7 @@ struct AsyncSqlite {
     // query something and receive single
     // number from first row and first column
     // Signature: <
+    //     OutSingleNum,
     //     std::string (query),
     //     int (number),
     //     bool (did succeed)

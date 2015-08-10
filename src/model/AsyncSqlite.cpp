@@ -162,14 +162,19 @@ private:
                     sqlite3_exec(this->_sqlite,query,&sqliteFuncExec,&sql,nullptr);
                 }
             ),
+            SF::virtualMatch< AS::OutSingleNum, const std::string, int, bool >(
+                [=](AS::OutSingleNum, const std::string& query,int& out,bool& succeeded) {
+
+                }
+            ),
+            SF::virtualMatch< AsyncSqlite::DummyWait >(
+                [](AsyncSqlite::DummyWait) {}
+            ),
             SF::virtualMatch< AsyncSqlite::Shutdown >(
                 [=](AsyncSqlite::Shutdown) {
                     this->_keepGoing = false;
                     this->_sem.notify();
                 }
-            ),
-            SF::virtualMatch< AsyncSqlite::DummyWait >(
-                [](AsyncSqlite::DummyWait) {}
             )
         );
     }

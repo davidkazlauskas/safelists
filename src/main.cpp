@@ -2,6 +2,7 @@
 #include <gtkmm.h>
 #include <templatious/FullPack.hpp>
 #include <LuaPlumbing/plumbing.hpp>
+#include <gtkmm/GtkMMRangerModel.hpp>
 
 struct GtkMainWindow : public Messageable {
 
@@ -16,8 +17,12 @@ struct GtkMainWindow : public Messageable {
         bld->get_widget("treeview1",_right);
         bld->get_widget("treeview3",_left);
 
-        _left->append_column_editable("cholo",_mdl.m_col_id);
-        _left->append_column_editable("holo",_mdl.m_col_name);
+        //_left->append_column_editable("cholo",_mdl.m_col_id);
+        //_left->append_column_editable("holo",_mdl.m_col_name);
+
+        auto mdl = SafeLists::RangerTreeModel::create();
+
+
     }
 
     class ModelColumns : public Gtk::TreeModel::ColumnRecord {
@@ -45,6 +50,22 @@ struct GtkMainWindow : public Messageable {
     }
 
     void message(const std::shared_ptr< templatious::VirtualPack >& msg) override {
+    }
+
+    void initModel(const std::shared_ptr< Messageable >& asyncSqlite) {
+        std::unique_ptr< SafeLists::SqliteRanger > ranger(
+            new SafeLists::SqliteRanger(
+                asyncSqlite,
+                "SELECT file_name,file_size,file_hash FROM files;",
+                3,
+                [](int row,int col,const char* value) {
+
+                },
+                [](int row,int col,std::string& str) {
+
+                }
+            )
+        );
     }
 
 private:

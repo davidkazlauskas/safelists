@@ -56,7 +56,7 @@ struct GtkMainWindow : public Messageable {
         std::unique_ptr< SafeLists::SqliteRanger > ranger(
             new SafeLists::SqliteRanger(
                 asyncSqlite,
-                "SELECT file_name,file_size,file_hash FROM files;",
+                "SELECT file_name,file_size,file_hash FROM files LIMIT %d OFFSET %d;",
                 3,
                 [](int row,int col,const char* value) {
 

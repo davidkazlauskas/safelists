@@ -85,12 +85,15 @@ SqliteRanger::SqliteRanger(
 
 void SqliteRanger::process() {
     TableSnapshot moved;
+    int actualStartCpy,actualEndCpy;
     {
         LGuard g(_mtx);
         if (_pending.isEmpty()) {
             return;
         }
         moved = std::move(_pending);
+        actualStartCpy = _requestedStart;
+        actualEndCpy = _requestedEnd;
     }
 
     moved.traverse(
@@ -100,6 +103,9 @@ void SqliteRanger::process() {
             return true;
         }
     );
+
+    _actualStart = actualStartCpy;
+    _actualEnd = actualEndCpy;
 }
 
 #define SNAPSHOT_SIG \

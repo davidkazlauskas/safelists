@@ -188,11 +188,32 @@ int SqliteRanger::numRows() const {
     return _numRows;
 }
 
+#define UPDATE_ROWS_SIGNATURE   \
+    AsyncSqlite::OutSingleNum,  \
+    std::string,                \
+    int,                        \
+    bool                        \
+
 void SqliteRanger::updateRows() {
     auto locked = _asyncSqlite.lock();
     if (nullptr == locked) {
         return;
     }
+
+    auto selfCpy = _self;
+    auto msg = SF::vpackPtrCustomWCallback<
+        templatious::VPACK_SYNCED,
+        UPDATE_ROWS_SIGNATURE
+    >([=](const TEMPLATIOUS_VPCORE<UPDATE_ROWS_SIGNATURE>& core) {
+        auto lockedSelf = selfCpy.lock();
+        if (nullptr == lockedSelf) {
+            return;
+        }
+
+        if (core.fGet<3>()) {
+            lockedSelf->_numRows = core.fGet<2>();
+        }
+    },nullptr,"SELECT COUNT(*) FROM files;",-1,false);
 }
 
 } // end of SafeLists namespace

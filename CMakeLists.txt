@@ -22,6 +22,10 @@ SET( LIBINCLUDE_DIRS
 SET( APPINCLUDE_DIRS
     ${SRC_DIR} )
 
+SET( GTK_SOURCES
+    src/gtkmm/GtkMMRangerModel.cpp
+    )
+
 SET( DOMAIN_SOURCES
     src/model/AsyncSqlite.cpp
     src/model/TableSnapshot.cpp
@@ -42,6 +46,9 @@ SET( CMAKE_EXPORT_COMPILE_COMMANDS yes )
 add_custom_target( copy-runtime-files ALL
     COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/src/uischemes/ ${CMAKE_BINARY_DIR}/uischemes/ )
 
+add_library( gtkspec ${GTK_SOURCES} )
+target_link_libraries( gtkspec ${GTKMM_LIBRARIES} )
+
 add_library( domain ${DOMAIN_SOURCES} )
 target_link_libraries( domain sqlite3 pthread )
 
@@ -49,5 +56,5 @@ add_executable( model-tests tests/model-tests.cpp )
 target_link_libraries( model-tests domain )
 
 add_executable( safelists src/main.cpp )
-target_link_libraries( safelists domain ${GTKMM_LIBRARIES} )
+target_link_libraries( safelists domain gtkspec )
 

@@ -6,7 +6,7 @@ namespace SafeLists {
 static_assert(sizeof(int) <= sizeof(void*),
               "We kinda assume that we can store int in void pointer, bro...");
 
-const int LA_MAGICKA_ROWS = 1000000;
+const int LA_MAGICKA_ROWS = 1000;
 const int LA_MAGICKA_COLUMNS = 3;
 
 RangerTreeModel::RangerTreeModel(unsigned int columns_count)

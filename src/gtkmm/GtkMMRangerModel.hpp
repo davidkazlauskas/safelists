@@ -8,13 +8,13 @@
 namespace SafeLists {
 
 class RangerTreeModel : public Glib::Object, public Gtk::TreeModel {
-   protected:
+protected:
     // Create a TreeModel with @a columns_count number of columns, each of type
     // Glib::ustring.
     RangerTreeModel(unsigned int columns_count = 10);
     virtual ~RangerTreeModel();
 
-   public:
+public:
     static Glib::RefPtr<RangerTreeModel> create();
 
     Gtk::TreeModelColumn<Glib::ustring>& get_model_column(int column);
@@ -22,7 +22,7 @@ class RangerTreeModel : public Glib::Object, public Gtk::TreeModel {
     // screwSnakeCase
     void setRanger(std::unique_ptr< SqliteRanger >&& ranger);
 
-   protected:
+protected:
     // Overrides:
     virtual Gtk::TreeModelFlags get_flags_vfunc() const;
     virtual int get_n_columns_vfunc() const;
@@ -46,7 +46,7 @@ class RangerTreeModel : public Glib::Object, public Gtk::TreeModel {
     virtual Path get_path_vfunc(const iterator& iter) const;
     virtual bool get_iter_vfunc(const Path& path, iterator& iter) const;
 
-   private:
+private:
     typedef std::vector<Glib::ustring>
         typeRow;  // X columns, all of type string.
     typedef std::vector<typeRow> typeListOfRows;  // Y rows.

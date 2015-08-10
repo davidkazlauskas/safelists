@@ -68,6 +68,11 @@ struct GtkMainWindow : public Messageable {
         );
         auto mdl = SafeLists::RangerTreeModel::create();
         mdl->setRanger(std::move(ranger));
+
+        Gtk::TreePath start,end;
+        _right->get_visible_range(start,end);
+        auto startI = mdl->get_iter(start);
+        auto endI = mdl->get_iter(end);
     }
 
 private:

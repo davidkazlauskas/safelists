@@ -246,4 +246,8 @@ void RangerTreeModel::setRanger(std::unique_ptr< SqliteRanger >&& ranger) {
     _ranger = std::move(ranger);
 }
 
+int RangerTreeModel::iterToRow(const iterator& iter) const {
+    return get_data_row_iter_from_tree_row_iter(iter);
+}
+
 }

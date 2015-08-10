@@ -21,6 +21,7 @@ public:
 
     // screwSnakeCase
     void setRanger(std::unique_ptr< SqliteRanger >&& ranger);
+    int iterToRow(const iterator& iter) const;
 
 protected:
     // Overrides:

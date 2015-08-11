@@ -243,6 +243,14 @@ bool RangerTreeModel::check_treeiter_validity(const iterator& iter) const {
     return m_stamp == iter.get_stamp();
 }
 
+void RangerTreeModel::ref_node_func(const iterator& iter) const {
+
+}
+
+void RangerTreeModel::unref_node_func(const iterator& iter) const {
+
+}
+
 // screwSnakeCase
 void RangerTreeModel::setRanger(const std::shared_ptr< SqliteRanger >& ranger) {
     _ranger = ranger;

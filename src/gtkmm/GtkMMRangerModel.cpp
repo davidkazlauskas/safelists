@@ -29,17 +29,20 @@ RangerTreeModel::RangerTreeModel(unsigned int columns_count)
 
 TEMPLATIOUS_TRIPLET_STD;
 
-void sortedAdd(std::vector<int>& vec,int num) {
+bool sortedAdd(std::vector<int>& vec,int num) {
     if (SA::size(vec) == 0) {
-        return SA::add(vec,num);
+        SA::add(vec,num);
+        return true;
     }
 
     if (vec[0] > num) {
         SA::insert(vec,SA::begin(vec),num);
+        return true;
     }
 
     if (vec.back() < num) {
         SA::add(vec,num);
+        return true;
     }
 
     auto out = std::find_if(
@@ -50,7 +53,10 @@ void sortedAdd(std::vector<int>& vec,int num) {
     );
     if (out != SA::end(vec)) {
         SA::insert(vec,out,num);
+        return true;
     }
+
+    return false;
 }
 
 RangerTreeModel::~RangerTreeModel() {}
@@ -272,6 +278,7 @@ bool RangerTreeModel::check_treeiter_validity(const iterator& iter) const {
 
 void RangerTreeModel::ref_node_vfunc(const iterator& iter) const {
     int row = iterToRow(iter);
+    bool added = sortedAdd(_visibleNodes,row);
 }
 
 void RangerTreeModel::unref_node_vfunc(const iterator& iter) const {

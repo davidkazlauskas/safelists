@@ -1,4 +1,5 @@
 
+#include <iostream>
 #include <templatious/FullPack.hpp>
 
 #include "GtkMMRangerModel.hpp"
@@ -68,12 +69,11 @@ void RangerTreeModel::get_value_vfunc(const TreeModel::iterator& iter,
 
             auto num = get_data_row_iter_from_tree_row_iter(iter);
             if (num != LA_MAGICKA_ROWS) {
-                int rnd = rand() % 1024;
-                char buf[16];
-                sprintf(buf, "%d %d : %d", num, column, rnd);
-                Glib::ustring result = buf;
+                _ranger->process();
+                std::string out;
+                _ranger->getData(num,column,out);
 
-                value_specific.set(result);  // The compiler would complain if
+                value_specific.set(out.c_str());  // The compiler would complain if
                                              // the type was wrong.
                 value.init(
                     Glib::Value<Glib::ustring>::value_type());  // TODO: Is
@@ -130,9 +130,8 @@ int RangerTreeModel::iter_n_children_vfunc(const iterator& iter) const {
 }
 
 int RangerTreeModel::iter_n_root_children_vfunc() const {
-    //return LA_MAGICKA_ROWS;
-    return _ranger->numRows();
-    // return m_rows.size();
+    int rows = _ranger->numRows();
+    return rows;
 }
 
 bool RangerTreeModel::iter_nth_child_vfunc(const iterator& parent, int /* n */,
@@ -245,8 +244,8 @@ bool RangerTreeModel::check_treeiter_validity(const iterator& iter) const {
 }
 
 // screwSnakeCase
-void RangerTreeModel::setRanger(std::unique_ptr< SqliteRanger >&& ranger) {
-    _ranger = std::move(ranger);
+void RangerTreeModel::setRanger(const std::shared_ptr< SqliteRanger >& ranger) {
+    _ranger = ranger;
 }
 
 int RangerTreeModel::iterToRow(const iterator& iter) const {
@@ -257,6 +256,10 @@ void RangerTreeModel::appendColumns(Gtk::TreeView& view,const char** names) {
     TEMPLATIOUS_0_TO_N(i,LA_MAGICKA_COLUMNS) {
         view.append_column(names[i],get_model_column(i));
     }
+}
+
+SqliteRanger& RangerTreeModel::getRanger() {
+    return *_ranger;
 }
 
 }

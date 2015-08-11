@@ -1,4 +1,5 @@
 
+#include <iostream>
 #include <gtkmm.h>
 #include <templatious/FullPack.hpp>
 #include <LuaPlumbing/plumbing.hpp>
@@ -17,12 +18,7 @@ struct GtkMainWindow : public Messageable {
         bld->get_widget("treeview1",_right);
         bld->get_widget("treeview3",_left);
 
-        //_left->append_column_editable("cholo",_mdl.m_col_id);
-        //_left->append_column_editable("holo",_mdl.m_col_name);
-
         auto mdl = SafeLists::RangerTreeModel::create();
-
-
     }
 
     class ModelColumns : public Gtk::TreeModel::ColumnRecord {
@@ -49,38 +45,26 @@ struct GtkMainWindow : public Messageable {
     }
 
     void initModel(const std::shared_ptr< Messageable >& asyncSqlite) {
-        std::unique_ptr< SafeLists::SqliteRanger > ranger(
-            new SafeLists::SqliteRanger(
-                asyncSqlite,
-                "SELECT file_name,file_size,file_hash FROM files LIMIT %d OFFSET %d;",
-                3,
-                [](int row,int col,const char* value) {
-
-                },
-                [](int row,int col,std::string& str) {
-
-                }
-            )
+        auto shared = std::make_shared< SafeLists::SqliteRanger >(
+            asyncSqlite,
+            "SELECT file_name,file_size,file_hash_sha256 FROM files LIMIT %d OFFSET %d;",
+            3,
+            [](int row,int col,const char* value) {
+                std::cout << "PULLED OUT: " << row << ":" << col << " " << value << std::endl;
+            },
+            [](int row,int col,std::string& str) {
+                str = "Loading...";
+            }
         );
+        shared->setSelf(shared);
         auto mdl = SafeLists::RangerTreeModel::create();
-        mdl->setRanger(std::move(ranger));
+        mdl->setRanger(shared);
 
-        Gtk::TreePath start,end;
-
-        //_right->append_column("one",mdl->get_model_column(0));
-        //_right->append_column("two",mdl->get_model_column(1));
-        //_right->append_column("three",mdl->get_model_column(2));
         const char* columns[] = {"one","two","three"};
         mdl->appendColumns(*_right,columns);
+        mdl->getRanger().updateRows();
         _right->set_model(mdl);
-        _right->get_visible_range(start,end);
-        auto startI = mdl->get_iter(start);
-        auto endI = mdl->get_iter(end);
-
-        int rangeStart = mdl->iterToRow(startI);
-        int rangeEnd = mdl->iterToRow(endI);
-
-        printf("<-- %d %d -->",rangeStart,rangeEnd);
+        mdl->getRanger().setRange(0,100);
     }
 
 private:

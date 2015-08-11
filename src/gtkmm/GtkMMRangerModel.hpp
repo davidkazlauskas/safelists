@@ -20,9 +20,10 @@ public:
     Gtk::TreeModelColumn<Glib::ustring>& get_model_column(int column);
 
     // screwSnakeCase
-    void setRanger(std::unique_ptr< SqliteRanger >&& ranger);
+    void setRanger(const std::shared_ptr< SqliteRanger >& ranger);
     int iterToRow(const iterator& iter) const;
     void appendColumns(Gtk::TreeView& view,const char** names);
+    SqliteRanger& getRanger();
 
 protected:
     // Overrides:
@@ -52,7 +53,7 @@ private:
     typedef std::vector<Glib::ustring>
         typeRow;  // X columns, all of type string.
     typedef std::vector<typeRow> typeListOfRows;  // Y rows.
-    std::unique_ptr< SqliteRanger > _ranger;
+    std::shared_ptr< SqliteRanger > _ranger;
 
     // Allow the GlueList inner class to access the declaration of the GlueItem
     // inner class.

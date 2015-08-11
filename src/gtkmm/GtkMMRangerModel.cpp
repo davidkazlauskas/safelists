@@ -290,6 +290,13 @@ void RangerTreeModel::ref_node_vfunc(const iterator& iter) const {
 
 void RangerTreeModel::unref_node_vfunc(const iterator& iter) const {
     int row = iterToRow(iter);
+    if (added) {
+        if (SA::size(_visibleNodes) > 0) {
+            this->_ranger->setRange(
+                _visibleNodes.front(),
+                _visibleNodes.back() + 1);
+        }
+    }
 }
 
 // screwSnakeCase

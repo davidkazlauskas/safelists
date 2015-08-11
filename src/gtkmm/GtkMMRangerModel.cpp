@@ -27,6 +27,30 @@ RangerTreeModel::RangerTreeModel(unsigned int columns_count)
     }
 }
 
+TEMPLATIOUS_TRIPLET_STD;
+
+void sortedAdd(std::vector<int>& vec,int num) {
+    if (SA::size(vec) == 0) {
+        return SA::add(vec,num);
+    }
+
+    if (vec[0] > num) {
+        SA::insert(vec,SA::begin(vec),num);
+    }
+
+    if (vec.back() < num) {
+        SA::add(vec,num);
+    }
+
+    auto out = std::find_if(
+        SA::begin(vec),SA::end(vec),
+        [=](int i) {
+            return i > num;
+        }
+    );
+    SA::insert(vec,out,num);
+}
+
 RangerTreeModel::~RangerTreeModel() {}
 
 Glib::RefPtr<RangerTreeModel> RangerTreeModel::create() {
@@ -243,11 +267,12 @@ bool RangerTreeModel::check_treeiter_validity(const iterator& iter) const {
     return m_stamp == iter.get_stamp();
 }
 
-void RangerTreeModel::ref_node_func(const iterator& iter) const {
 
+void RangerTreeModel::ref_node_vfunc(const iterator& iter) const {
+    int row = iterToRow(iter);
 }
 
-void RangerTreeModel::unref_node_func(const iterator& iter) const {
+void RangerTreeModel::unref_node_vfunc(const iterator& iter) const {
 
 }
 

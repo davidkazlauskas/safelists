@@ -49,8 +49,8 @@ protected:
     virtual Path get_path_vfunc(const iterator& iter) const;
     virtual bool get_iter_vfunc(const Path& path, iterator& iter) const;
 
-    virtual void ref_node_func(const iterator& iter) const override;
-    virtual void unref_node_func(const iterator& iter) const override;
+    virtual void ref_node_vfunc(const iterator& iter) const override;
+    virtual void unref_node_vfunc(const iterator& iter) const override;
 
 private:
     typedef std::vector<Glib::ustring>
@@ -76,6 +76,8 @@ private:
 
     int m_stamp;  // When the model's stamp and the TreeIter's stamp are equal,
                   // the TreeIter is valid.
+
+    std::vector< int > _visibleNodes;
 };
 
 }

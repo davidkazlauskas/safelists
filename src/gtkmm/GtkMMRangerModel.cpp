@@ -48,7 +48,9 @@ void sortedAdd(std::vector<int>& vec,int num) {
             return i > num;
         }
     );
-    SA::insert(vec,out,num);
+    if (out != SA::end(vec)) {
+        SA::insert(vec,out,num);
+    }
 }
 
 RangerTreeModel::~RangerTreeModel() {}
@@ -273,7 +275,7 @@ void RangerTreeModel::ref_node_vfunc(const iterator& iter) const {
 }
 
 void RangerTreeModel::unref_node_vfunc(const iterator& iter) const {
-
+    int row = iterToRow(iter);
 }
 
 // screwSnakeCase

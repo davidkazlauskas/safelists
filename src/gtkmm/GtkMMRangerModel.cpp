@@ -279,6 +279,13 @@ bool RangerTreeModel::check_treeiter_validity(const iterator& iter) const {
 void RangerTreeModel::ref_node_vfunc(const iterator& iter) const {
     int row = iterToRow(iter);
     bool added = sortedAdd(_visibleNodes,row);
+    if (added) {
+        if (SA::size(_visibleNodes) > 0) {
+            this->_ranger->setRange(
+                _visibleNodes.front(),
+                _visibleNodes.back() + 1);
+        }
+    }
 }
 
 void RangerTreeModel::unref_node_vfunc(const iterator& iter) const {

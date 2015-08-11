@@ -56,7 +56,7 @@ private:
     typedef std::vector<Glib::ustring>
         typeRow;  // X columns, all of type string.
     typedef std::vector<typeRow> typeListOfRows;  // Y rows.
-    std::shared_ptr< SqliteRanger > _ranger;
+    mutable std::shared_ptr< SqliteRanger > _ranger;
 
     // Allow the GlueList inner class to access the declaration of the GlueItem
     // inner class.

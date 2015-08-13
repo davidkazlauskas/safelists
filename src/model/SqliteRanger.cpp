@@ -225,7 +225,7 @@ void SqliteRanger::updateRows() {
                 lockedSelf->_rowsPromise.set_value();
             //}
         }
-    },nullptr,"SELECT COUNT(*) FROM files;",-1,false);
+    },nullptr,_countQuery.c_str(),-1,false);
 
     locked->message(msg);
 }

@@ -5,7 +5,7 @@ initAll = function()
 
     ctx:attachContextTo(mainWnd)
 
-    mainWindowPushButtonHandler = theContext:makeLuaMatchHandler(
+    mainWindowPushButtonHandler = ctx:makeLuaMatchHandler(
         VMatch(function()
             print("BALLIN, BALLIN")
         end,"MWI_OutNewFileSignal")

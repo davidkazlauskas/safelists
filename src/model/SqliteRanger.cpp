@@ -250,4 +250,8 @@ std::shared_ptr< SqliteRanger > SqliteRanger::makeRanger(
     return outRes;
 }
 
+int SqliteRanger::numColumns() const {
+    return _columnCount;
+}
+
 } // end of SafeLists namespace

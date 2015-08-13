@@ -25,6 +25,7 @@ struct SqliteRanger {
     void updateRange();
     void getData(int row,int column,std::string& out) const;
     int numRows() const;
+    int numColumns() const;
     void updateRows();
     void waitRows();
 

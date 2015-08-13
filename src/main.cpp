@@ -42,6 +42,10 @@ struct GtkMainWindow : public Messageable {
         _addNewBtn->signal_clicked().connect(
             sigc::mem_fun(*this,&GtkMainWindow::addNewButtonClicked)
         );
+
+        _wnd->signal_draw().connect(
+            sigc::mem_fun(*this,&GtkMainWindow::onDraw)
+        );
     }
 
     class ModelColumns : public Gtk::TreeModel::ColumnRecord {
@@ -113,6 +117,10 @@ private:
                 }
             )
         );
+    }
+
+    void onDraw() {
+        _callbackCache.process();
     }
 
     void addNewButtonClicked() {

@@ -5,6 +5,8 @@
 #include <LuaPlumbing/plumbing.hpp>
 #include <gtkmm/GtkMMRangerModel.hpp>
 
+TEMPLATIOUS_TRIPLET_STD;
+
 struct MainWindowInterface {
     // emitted when new file creation
     // is requested
@@ -23,8 +25,13 @@ struct GtkMainWindow : public Messageable {
 
         bld->get_widget("treeview1",_right);
         bld->get_widget("treeview3",_left);
+        bld->get_widget("addNewBtn",_addNewBtn);
 
         auto mdl = SafeLists::RangerTreeModel::create();
+
+        _addNewBtn->signal_clicked().connect(
+            sigc::mem_fun(*this,&GtkMainWindow::addNewButtonClicked)
+        );
     }
 
     class ModelColumns : public Gtk::TreeModel::ColumnRecord {
@@ -76,9 +83,16 @@ struct GtkMainWindow : public Messageable {
     }
 
 private:
+
+    void addNewButtonClicked() {
+        auto msg = SF::vpack< MainWindowInterface::OutNewFileSignal >(nullptr);
+        _cache.notify(msg);
+    }
+
     std::unique_ptr< Gtk::Window > _wnd;
     Gtk::TreeView* _left;
     Gtk::TreeView* _right;
+    Gtk::Button* _addNewBtn;
     ModelColumns _mdl;
 
     NotifierCache _cache;

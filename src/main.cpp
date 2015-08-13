@@ -97,12 +97,14 @@ struct GtkNewEntryDialog : public Messageable {
 int main(int argc,char** argv) {
     auto app = Gtk::Application::create(argc,argv);
 
+    auto ctx = LuaContext::makeContext("lua/plumbing.lua");
 
     auto builder = Gtk::Builder::create();
     builder->add_from_file("uischemes/main.glade");
     auto asyncSqlite = SafeLists::AsyncSqlite::createNew("exampleData/example2.safelist");
     auto mainWnd = std::make_shared< GtkMainWindow >(builder);
     mainWnd->initModel(asyncSqlite);
+    ctx->doFile("lua/main.lua");
     app->run(mainWnd->getWindow(),argc,argv);
 }
 

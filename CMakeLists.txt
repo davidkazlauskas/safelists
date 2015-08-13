@@ -62,5 +62,5 @@ add_library( gtkspec ${GTK_SOURCES} )
 target_link_libraries( gtkspec domain ${GTKMM_LIBRARIES} )
 
 add_executable( safelists src/main.cpp )
-target_link_libraries( safelists gtkspec )
+target_link_libraries( safelists gtkspec plumbing )
 

@@ -27,7 +27,8 @@ struct GtkMainWindow : public Messageable {
 
     GtkMainWindow(Glib::RefPtr<Gtk::Builder>& bld) :
         _left(nullptr),
-        _right(nullptr)
+        _right(nullptr),
+        _messageHandler(genHandler())
     {
         Gtk::Window* outWnd = nullptr;
         bld->get_widget("window1",outWnd);
@@ -66,9 +67,11 @@ struct GtkMainWindow : public Messageable {
     }
 
     void message(templatious::VirtualPack& msg) override {
+        _messageHandler->tryMatch(msg);
     }
 
     void message(const std::shared_ptr< templatious::VirtualPack >& msg) override {
+        assert( false && "You are not prepared." );
     }
 
     void initModel(const std::shared_ptr< Messageable >& asyncSqlite) {
@@ -134,6 +137,8 @@ private:
     Gtk::TreeView* _right;
     Gtk::Button* _addNewBtn;
     ModelColumns _mdl;
+
+    VmfPtr _messageHandler;
 
     NotifierCache _notifierCache;
     CallbackCache _callbackCache;

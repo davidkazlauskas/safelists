@@ -221,9 +221,7 @@ void SqliteRanger::updateRows() {
 
         if (core.fGet<3>()) {
             lockedSelf->_numRows = core.fGet<2>();
-            //if (!_rowsFuture.valid()) {
-                lockedSelf->_rowsPromise.set_value();
-            //}
+            lockedSelf->_rowsPromise.set_value();
         }
     },nullptr,_countQuery.c_str(),-1,false);
 

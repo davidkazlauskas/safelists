@@ -98,10 +98,18 @@ private:
 
     VmfPtr genHandler() {
         typedef MainWindowInterface MWI;
+        typedef GenericMesseagableInterface GMI;
         return SF::virtualMatchFunctorPtr(
             SF::virtualMatch< MWI::InAttachListener, StrongMsgPtr >(
                 [=](MWI::InAttachListener,const StrongMsgPtr& ptr) {
-                    this->_cache.add(ptr);
+                    this->_notifierCache.add(ptr);
+                }
+            ),
+            SF::virtualMatch<
+                GMI::InAttachToEventLoop, std::function<bool()>
+            >(
+                [=](GMI::InAttachToEventLoop,std::function<bool()>& func) {
+                    this->_callbackCache.attach(func);
                 }
             )
         );
@@ -109,7 +117,7 @@ private:
 
     void addNewButtonClicked() {
         auto msg = SF::vpack< MainWindowInterface::OutNewFileSignal >(nullptr);
-        _cache.notify(msg);
+        _notifierCache.notify(msg);
     }
 
     std::unique_ptr< Gtk::Window > _wnd;
@@ -118,7 +126,8 @@ private:
     Gtk::Button* _addNewBtn;
     ModelColumns _mdl;
 
-    NotifierCache _cache;
+    NotifierCache _notifierCache;
+    CallbackCache _callbackCache;
 };
 
 struct GtkNewEntryDialog : public Messageable {

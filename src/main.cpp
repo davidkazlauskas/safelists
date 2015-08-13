@@ -80,6 +80,8 @@ private:
     Gtk::TreeView* _left;
     Gtk::TreeView* _right;
     ModelColumns _mdl;
+
+    NotifierCache _cache;
 };
 
 struct GtkNewEntryDialog : public Messageable {

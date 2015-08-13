@@ -51,6 +51,7 @@ private:
     );
 
     void setSelf(const std::weak_ptr< SqliteRanger >& self);
+    void updateRangeInternal(int start,int end,bool force);
 
     int _requestedStart;
     int _requestedEnd;

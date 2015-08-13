@@ -118,12 +118,16 @@ void SqliteRanger::process() {
     TableSnapshot
 
 void SqliteRanger::setRange(int start,int end) {
+    updateRangeInternal(start,end,false);
+}
+
+void SqliteRanger::updateRangeInternal(int start,int end,bool force) {
     if (start == end || start > end) {
         return;
     }
 
     LGuard guard(_mtx);
-    if (start == _requestedStart && end == _requestedEnd) {
+    if (start == _requestedStart && end == _requestedEnd && !force) {
         return;
     }
 

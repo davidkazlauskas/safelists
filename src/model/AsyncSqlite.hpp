@@ -4,7 +4,7 @@
 #include <LuaPlumbing/plumbing.hpp>
 
 #define DUMMY_STRUCT(name)  \
-    struct name { template <class Any> name(Any&&) {} };
+    struct name { template <class Any> name(Any&&) {} name() {} };
 
 namespace SafeLists {
 

@@ -16,7 +16,7 @@ struct MainWindowInterface {
 
     // emitted when new file creation
     // is requested.
-    // In lua: MWI_OutNewFileSignal
+    // In lua: MWI_InAttachListener
     // Signature: < InAttachListener, StrongMsgPtr >
     DUMMY_STRUCT(InAttachListener);
 
@@ -188,4 +188,5 @@ typedef templatious::TypeNodeFactory TNF;
 void MainWindowInterface::registerInFactory(templatious::DynVPackFactoryBuilder& bld) {
     typedef MainWindowInterface MWI;
     ATTACH_NAMED_DUMMY(bld,"MWI_OutNewFileSignal",MWI::OutNewFileSignal);
+    ATTACH_NAMED_DUMMY(bld,"MWI_InAttachListener",MWI::InAttachListener);
 }

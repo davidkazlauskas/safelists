@@ -131,7 +131,7 @@ private:
     {
         HolderSingleNum& hld = *reinterpret_cast<
             HolderSingleNum* >(data);
-        hld._out = std::atoi(value[0]);
+        hld._out = std::atoi(value[1]);
         hld._success = true;
         return 1;
     }
@@ -188,6 +188,10 @@ private:
                 [=](AS::OutSingleNum, const std::string& query,int& out,bool& succeeded) {
                     HolderSingleNum h(out,succeeded);
                     sqlite3_exec(this->_sqlite,query.c_str(),&sqliteFuncSingleOut,&h,nullptr);
+                    if (h._success) {
+                        out = h._out;
+                        succeeded = h._success;
+                    }
                 }
             ),
             SF::virtualMatch< AsyncSqlite::DummyWait >(

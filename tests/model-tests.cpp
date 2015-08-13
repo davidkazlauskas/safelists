@@ -244,6 +244,7 @@ TEST_CASE("model_sqlite_ranger","[model]") {
     auto sharedRanger = SqliteRanger::makeRanger(
         msg,
         "SELECT Id, Name FROM Friends LIMIT %d OFFSET %d;",
+        "SELECT COUNT(*) FROM Friends;",
         2,
         [&ss](int row,int column,const char* value) {
             ss << "[" << row << ";" << column << "] -> '"
@@ -313,6 +314,7 @@ TEST_CASE("model_sqlite_ranger_count","[model]") {
     auto sharedRanger = SqliteRanger::makeRanger(
         msg,
         "SELECT Id, Name FROM Friends LIMIT %d OFFSET %d;",
+        "SELECT COUNT(*) FROM Friends;",
         2,
         [](int row,int column,const char* value) {
         },

@@ -33,6 +33,7 @@ struct SqliteRanger {
     static std::shared_ptr< SqliteRanger > makeRanger(
         const std::weak_ptr< Messageable >& asyncSqlite,
         const char* query,
+        const char* countQuery,
         int columnCount,
         const UpdateFunction& updateFunction,
         const EmptyFunction& emptyFunction
@@ -42,6 +43,7 @@ private:
     SqliteRanger(
         const std::weak_ptr< Messageable >& asyncSqlite,
         const char* query,
+        const char* countQuery,
         int columnCount,
         const UpdateFunction& updateFunction,
         const EmptyFunction& emptyFunction
@@ -54,9 +56,13 @@ private:
     int _actualStart;
     int _actualEnd;
     int _numRows;
+
     TableSnapshot _pending;
+
     std::weak_ptr< Messageable > _asyncSqlite;
     const std::string _query;
+    const std::string _countQuery;
+
     const int _columnCount;
     mutable std::mutex _mtx;
     std::vector< std::vector< std::string > > _valueMatrix;

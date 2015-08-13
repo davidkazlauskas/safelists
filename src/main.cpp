@@ -48,6 +48,7 @@ struct GtkMainWindow : public Messageable {
         auto shared = SafeLists::SqliteRanger::makeRanger(
             asyncSqlite,
             "SELECT file_name,file_size,file_hash_sha256 FROM files LIMIT %d OFFSET %d;",
+            "SELECT COUNT(*) FROM files;",
             3,
             [](int row,int col,const char* value) {
                 std::cout << "PULLED OUT: " << row << ":" << col << " " << value << std::endl;

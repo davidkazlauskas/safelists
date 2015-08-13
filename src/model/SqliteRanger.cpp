@@ -67,6 +67,7 @@ struct SqliteRangerImpl {
 SqliteRanger::SqliteRanger(
     const std::weak_ptr< Messageable >& asyncSqlite,
     const char* query,
+    const char* countQuery,
     int columnCount,
     const UpdateFunction& updateFunction,
     const EmptyFunction& emptyFunction
@@ -77,6 +78,7 @@ SqliteRanger::SqliteRanger(
     _numRows(-1),
     _asyncSqlite(asyncSqlite),
     _query(query),
+    _countQuery(countQuery),
     _columnCount(columnCount),
     _updateFunction(updateFunction),
     _emptyValueFunction(emptyFunction),
@@ -219,11 +221,13 @@ void SqliteRanger::updateRows() {
 
         if (core.fGet<3>()) {
             lockedSelf->_numRows = core.fGet<2>();
-            if (!_rowsFuture.valid()) {
+            //if (!_rowsFuture.valid()) {
                 lockedSelf->_rowsPromise.set_value();
-            }
+            //}
         }
     },nullptr,"SELECT COUNT(*) FROM files;",-1,false);
+
+    locked->message(msg);
 }
 
 void SqliteRanger::waitRows() {
@@ -233,12 +237,13 @@ void SqliteRanger::waitRows() {
 std::shared_ptr< SqliteRanger > SqliteRanger::makeRanger(
     const std::weak_ptr< Messageable >& asyncSqlite,
     const char* query,
+    const char* countQuery,
     int columnCount,
     const UpdateFunction& updateFunction,
     const EmptyFunction& emptyFunction
 ) {
     std::unique_ptr< SqliteRanger > rng(
-        new SqliteRanger(asyncSqlite,query,columnCount,
+        new SqliteRanger(asyncSqlite,query,countQuery,columnCount,
             updateFunction,emptyFunction)
     );
 

@@ -219,6 +219,9 @@ void SqliteRanger::updateRows() {
 
         if (core.fGet<3>()) {
             lockedSelf->_numRows = core.fGet<2>();
+            if (!_rowsFuture.valid()) {
+                lockedSelf->_rowsPromise.set_value();
+            }
         }
     },nullptr,"SELECT COUNT(*) FROM files;",-1,false);
 }

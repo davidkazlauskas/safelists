@@ -119,8 +119,9 @@ private:
         );
     }
 
-    void onDraw() {
+    bool onDraw(const Cairo::RefPtr<Cairo::Context>& cr) {
         _callbackCache.process();
+        return false;
     }
 
     void addNewButtonClicked() {

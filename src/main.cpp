@@ -175,6 +175,7 @@ int main(int argc,char** argv) {
     auto asyncSqlite = SafeLists::AsyncSqlite::createNew("exampleData/example2.safelist");
     auto mainWnd = std::make_shared< GtkMainWindow >(builder);
     mainWnd->initModel(asyncSqlite);
+    ctx->addMesseagableWeak("mainWindow",mainWnd);
     ctx->doFile("lua/main.lua");
     app->run(mainWnd->getWindow(),argc,argv);
 }

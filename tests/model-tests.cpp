@@ -325,4 +325,5 @@ TEST_CASE("model_sqlite_ranger_count","[model]") {
     sharedRanger->waitRows();
 
     REQUIRE( 5 == sharedRanger->numRows() );
+    REQUIRE( 2 == sharedRanger->numColumns() );
 }

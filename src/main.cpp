@@ -14,6 +14,12 @@ struct MainWindowInterface {
     // In lua: MWI_OutNewFileSignal
     DUMMY_STRUCT(OutNewFileSignal);
 
+    // emitted when new file creation
+    // is requested.
+    // In lua: MWI_OutNewFileSignal
+    // Signature: < InAttachListener, StrongMsgPtr >
+    DUMMY_STRUCT(InAttachListener);
+
     static void registerInFactory(templatious::DynVPackFactoryBuilder& bld);
 };
 
@@ -87,6 +93,19 @@ struct GtkMainWindow : public Messageable {
     }
 
 private:
+
+    typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
+
+    VmfPtr genHandler() {
+        typedef MainWindowInterface MWI;
+        return SF::virtualMatchFunctorPtr(
+            SF::virtualMatch< MWI::InAttachListener, StrongMsgPtr >(
+                [=](MWI::InAttachListener,const StrongMsgPtr& ptr) {
+                    this->_cache.add(ptr);
+                }
+            )
+        );
+    }
 
     void addNewButtonClicked() {
         auto msg = SF::vpack< MainWindowInterface::OutNewFileSignal >(nullptr);

@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <mutex>
+#include <future>
 
 #include "TableSnapshot.hpp"
 #include "AsyncSqlite.hpp"
@@ -33,6 +34,7 @@ struct SqliteRanger {
     void getData(int row,int column,std::string& out) const;
     int numRows() const;
     void updateRows();
+    void waitRows();
 
     void setSelf(const std::weak_ptr< SqliteRanger >& self);
 
@@ -53,6 +55,9 @@ private:
     UpdateFunction _updateFunction;
     EmptyFunction _emptyValueFunction;
     std::weak_ptr< SqliteRanger > _self;
+
+    std::promise<void> _rowsPromise;
+    std::future<void> _rowsFuture;
 };
 
 }

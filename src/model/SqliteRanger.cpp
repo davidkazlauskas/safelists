@@ -79,7 +79,8 @@ SqliteRanger::SqliteRanger(
     _query(query),
     _columnCount(columnCount),
     _updateFunction(updateFunction),
-    _emptyValueFunction(emptyFunction)
+    _emptyValueFunction(emptyFunction),
+    _rowsFuture(_rowsPromise.get_future())
 {
 }
 
@@ -220,6 +221,10 @@ void SqliteRanger::updateRows() {
             lockedSelf->_numRows = core.fGet<2>();
         }
     },nullptr,"SELECT COUNT(*) FROM files;",-1,false);
+}
+
+void SqliteRanger::waitRows() {
+    _rowsFuture.wait();
 }
 
 } // end of SafeLists namespace

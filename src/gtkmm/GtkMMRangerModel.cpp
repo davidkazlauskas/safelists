@@ -277,27 +277,39 @@ bool RangerTreeModel::check_treeiter_validity(const iterator& iter) const {
 
 
 void RangerTreeModel::ref_node_vfunc(const iterator& iter) const {
-    int row = iterToRow(iter);
-    bool added = sortedAdd(_visibleNodes,row);
-    if (added) {
-        if (SA::size(_visibleNodes) > 0) {
-            this->_ranger->setRange(
-                _visibleNodes.front(),
-                _visibleNodes.back() + 1);
-        }
-    }
+    //int row = iterToRow(iter);
+    //bool added = sortedAdd(_visibleNodes,row);
+    //if (added) {
+        //if (SA::size(_visibleNodes) > 0) {
+            //this->_ranger->setRange(
+                //_visibleNodes.front(),
+                //_visibleNodes.back() + 1);
+        //}
+    //}
 }
 
 void RangerTreeModel::unref_node_vfunc(const iterator& iter) const {
-    int row = iterToRow(iter);
-    bool added = sortedAdd(_visibleNodes,row);
-    if (added) {
-        if (SA::size(_visibleNodes) > 0) {
-            this->_ranger->setRange(
-                _visibleNodes.front(),
-                _visibleNodes.back() + 1);
-        }
-    }
+    //int row = iterToRow(iter);
+    //int prevSize = SA::size(_visibleNodes);
+    //bool added = sortedAdd(_visibleNodes,row);
+    //SA::clear(
+        //SF::filter(
+            //_visibleNodes,
+            //[=](int i) {
+                //return row == i;
+            //}
+        //)
+    //);
+    //std::cout << "DEREF: " << row << std::endl;
+    //int currSize = SA::size(_visibleNodes);
+    //if (prevSize > currSize) {
+        //if (SA::size(_visibleNodes) > 0) {
+            //int front = _visibleNodes.front();
+            //int back = _visibleNodes.back() + 1;
+            //this->_ranger->setRange(front,back);
+            //std::cout << "RANGIN! " << front << ":" << back << std::endl;
+        //}
+    //}
 }
 
 // screwSnakeCase

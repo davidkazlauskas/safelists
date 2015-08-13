@@ -77,7 +77,7 @@ private:
     int m_stamp;  // When the model's stamp and the TreeIter's stamp are equal,
                   // the TreeIter is valid.
 
-    mutable std::vector< int > _visibleNodes;
+    //mutable std::vector< int > _visibleNodes;
 };
 
 }

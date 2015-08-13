@@ -100,7 +100,8 @@ void RangerTreeModel::get_value_vfunc(const TreeModel::iterator& iter,
             // ); //TODO: Is there any way to avoid this step?
 
             auto num = get_data_row_iter_from_tree_row_iter(iter);
-            if (num != LA_MAGICKA_ROWS) {
+            int rowCount = _ranger->numRows();
+            if (num != rowCount) {
                 _ranger->process();
                 std::string out;
                 _ranger->getData(num,column,out);
@@ -134,7 +135,8 @@ bool RangerTreeModel::iter_next_vfunc(const iterator& iter,
 
         // Make the iter_next GtkTreeIter represent the next row:
         row_index++;
-        if (row_index < LA_MAGICKA_ROWS) {
+        int numRows = _ranger->numRows();
+        if (row_index < numRows) {
             iter_next.gobj()->user_data = reinterpret_cast<void*>(row_index);
 
             return true;  // success
@@ -180,7 +182,8 @@ bool RangerTreeModel::iter_nth_child_vfunc(const iterator& parent, int /* n */,
 }
 
 bool RangerTreeModel::iter_nth_root_child_vfunc(int n, iterator& iter) const {
-    if (n < LA_MAGICKA_ROWS) {
+    int numRows = _ranger->numRows();
+    if (n < numRows) {
         iter = iterator();  // clear the input parameter.
         iter.set_stamp(m_stamp);
 
@@ -262,8 +265,9 @@ int RangerTreeModel::get_data_row_iter_from_tree_row_iter(
     // Don't call this on an invalid iter.
     void* udata = iter.gobj()->user_data;
     int row_index = *reinterpret_cast<int*>(&udata);
-    if (row_index > LA_MAGICKA_ROWS)
-        return LA_MAGICKA_ROWS;
+    int numRows = _ranger->numRows();
+    if (row_index > numRows)
+        return numRows;
     else
         return row_index;  // TODO: Performance.
 }

@@ -57,7 +57,7 @@ struct GtkMainWindow : public Messageable {
             "SELECT COUNT(*) FROM files;",
             3,
             [](int row,int col,const char* value) {
-                std::cout << "PULLED OUT: " << row << ":" << col << " " << value << std::endl;
+                //std::cout << "PULLED OUT: " << row << ":" << col << " " << value << std::endl;
             },
             [](int row,int col,std::string& str) {
                 str = "Loading...";

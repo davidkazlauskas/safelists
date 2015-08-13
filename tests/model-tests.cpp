@@ -287,3 +287,40 @@ TEST_CASE("model_sqlite_ranger","[model]") {
 
     REQUIRE( str == expStr );
 }
+
+TEST_CASE("model_sqlite_ranger_count","[model]") {
+    auto msg = AsyncSqlite::createNew(":memory:");
+
+    {
+        static const char* query =
+            "CREATE TABLE Friends(Id INTEGER PRIMARY KEY, Name TEXT);"
+            "INSERT INTO Friends(Name) VALUES ('Tom');"
+            "INSERT INTO Friends(Name) VALUES ('Rebecca');"
+            "INSERT INTO Friends(Name) VALUES ('Jim');"
+            "INSERT INTO Friends(Name) VALUES ('Roger');"
+            "INSERT INTO Friends(Name) VALUES ('Robert');";
+
+        auto pack = SF::vpackPtrCustom< templatious::VPACK_WAIT,
+             AsyncSqlite::Execute, const char*
+        >(
+            nullptr, query
+        );
+        msg->message(pack);
+
+        pack->wait();
+    }
+
+    auto sharedRanger = SqliteRanger::makeRanger(
+        msg,
+        "SELECT Id, Name FROM Friends LIMIT %d OFFSET %d;",
+        2,
+        [](int row,int column,const char* value) {
+        },
+        [](int row,int column,std::string& out) {
+        }
+    );
+    sharedRanger->updateRows();
+    sharedRanger->waitRows();
+
+    REQUIRE( 5 == sharedRanger->numRows() );
+}

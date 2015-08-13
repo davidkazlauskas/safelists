@@ -149,10 +149,6 @@ struct GtkNewEntryDialog : public Messageable {
     }
 };
 
-static void registerInFactory(templatious::DynVPackFactoryBuilder& bld) {
-
-}
-
 templatious::DynVPackFactory makeVfactory() {
     templatious::DynVPackFactoryBuilder bld;
 

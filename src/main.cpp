@@ -5,6 +5,12 @@
 #include <LuaPlumbing/plumbing.hpp>
 #include <gtkmm/GtkMMRangerModel.hpp>
 
+struct MainWindowInterface {
+    // emitted when new file creation
+    // is requested
+    DUMMY_STRUCT(OutNewFileSignal);
+};
+
 struct GtkMainWindow : public Messageable {
 
     GtkMainWindow(Glib::RefPtr<Gtk::Builder>& bld) :

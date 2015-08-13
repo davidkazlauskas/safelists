@@ -57,14 +57,16 @@ struct GtkMainWindow : public Messageable {
             }
         );
         shared->setSelf(shared);
+        shared->updateRows();
+        shared->setRange(0,256*256);
+        shared->waitRows();
+
         auto mdl = SafeLists::RangerTreeModel::create();
         mdl->setRanger(shared);
 
         const char* columns[] = {"one","two","three"};
-        mdl->appendColumns(*_right,columns);
-        mdl->getRanger().updateRows();
         _right->set_model(mdl);
-        mdl->getRanger().setRange(0,100);
+        mdl->appendColumns(*_right,columns);
     }
 
 private:

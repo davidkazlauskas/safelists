@@ -76,6 +76,16 @@ private:
     ModelColumns _mdl;
 };
 
+struct GtkNewEntryDialog : public Messageable {
+    void message(templatious::VirtualPack& msg) override {
+
+    }
+
+    void message(const std::shared_ptr< templatious::VirtualPack >& msg) override {
+        assert( false && "Single threaded messaging only." );
+    }
+};
+
 int main(int argc,char** argv) {
     auto app = Gtk::Application::create(argc,argv);
 

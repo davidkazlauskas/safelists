@@ -178,6 +178,7 @@ void SqliteRanger::updateRangeInternal(int start,int end,bool force) {
 }
 
 void SqliteRanger::updateRange() {
+    updateRangeInternal(_requestedStart,_requestedEnd,true);
 }
 
 void SqliteRanger::setSelf(const std::weak_ptr< SqliteRanger >& self) {

@@ -1,2 +1,5 @@
+initAll = function()
 
-print('yo slick')
+end
+initAll()
+initAll = nil

@@ -241,7 +241,7 @@ TEST_CASE("model_sqlite_ranger","[model]") {
     }
 
     std::stringstream ss;
-    auto sharedRanger = std::make_shared< SqliteRanger >(
+    auto sharedRanger = SqliteRanger::makeRanger(
         msg,
         "SELECT Id, Name FROM Friends LIMIT %d OFFSET %d;",
         2,
@@ -253,7 +253,6 @@ TEST_CASE("model_sqlite_ranger","[model]") {
             out = "[empty]";
         }
     );
-    sharedRanger->setSelf(sharedRanger);
 
     sharedRanger->setRange(1,3);
     asyncSqliteWait(msg);

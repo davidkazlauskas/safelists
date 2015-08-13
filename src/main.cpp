@@ -45,7 +45,7 @@ struct GtkMainWindow : public Messageable {
     }
 
     void initModel(const std::shared_ptr< Messageable >& asyncSqlite) {
-        auto shared = std::make_shared< SafeLists::SqliteRanger >(
+        auto shared = SafeLists::SqliteRanger::makeRanger(
             asyncSqlite,
             "SELECT file_name,file_size,file_hash_sha256 FROM files LIMIT %d OFFSET %d;",
             3,
@@ -56,7 +56,6 @@ struct GtkMainWindow : public Messageable {
                 str = "Loading...";
             }
         );
-        shared->setSelf(shared);
         shared->updateRows();
         shared->setRange(0,256*256);
         shared->waitRows();

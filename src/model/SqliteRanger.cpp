@@ -230,4 +230,21 @@ void SqliteRanger::waitRows() {
     _rowsFuture.wait();
 }
 
+std::shared_ptr< SqliteRanger > SqliteRanger::makeRanger(
+    const std::weak_ptr< Messageable >& asyncSqlite,
+    const char* query,
+    int columnCount,
+    const UpdateFunction& updateFunction,
+    const EmptyFunction& emptyFunction
+) {
+    std::unique_ptr< SqliteRanger > rng(
+        new SqliteRanger(asyncSqlite,query,columnCount,
+            updateFunction,emptyFunction)
+    );
+
+    std::shared_ptr< SqliteRanger > outRes(rng.release());
+    outRes->setSelf(outRes);
+    return outRes;
+}
+
 } // end of SafeLists namespace

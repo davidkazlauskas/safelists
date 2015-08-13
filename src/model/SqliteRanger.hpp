@@ -20,14 +20,6 @@ struct SqliteRanger {
     SqliteRanger(const SqliteRanger&) = delete;
     SqliteRanger(SqliteRanger&&) = delete;
 
-    SqliteRanger(
-        const std::weak_ptr< Messageable >& asyncSqlite,
-        const char* query,
-        int columnCount,
-        const UpdateFunction& updateFunction,
-        const EmptyFunction& emptyFunction
-    );
-
     void process();
     void setRange(int start,int end);
     void updateRange();
@@ -36,11 +28,27 @@ struct SqliteRanger {
     void updateRows();
     void waitRows();
 
-    void setSelf(const std::weak_ptr< SqliteRanger >& self);
-
     friend struct SqliteRangerImpl;
 
+    static std::shared_ptr< SqliteRanger > makeRanger(
+        const std::weak_ptr< Messageable >& asyncSqlite,
+        const char* query,
+        int columnCount,
+        const UpdateFunction& updateFunction,
+        const EmptyFunction& emptyFunction
+    );
+
 private:
+    SqliteRanger(
+        const std::weak_ptr< Messageable >& asyncSqlite,
+        const char* query,
+        int columnCount,
+        const UpdateFunction& updateFunction,
+        const EmptyFunction& emptyFunction
+    );
+
+    void setSelf(const std::weak_ptr< SqliteRanger >& self);
+
     int _requestedStart;
     int _requestedEnd;
     int _actualStart;

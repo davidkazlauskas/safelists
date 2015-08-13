@@ -89,6 +89,7 @@ struct GtkNewEntryDialog : public Messageable {
 int main(int argc,char** argv) {
     auto app = Gtk::Application::create(argc,argv);
 
+
     auto builder = Gtk::Builder::create();
     builder->add_from_file("uischemes/main.glade");
     auto asyncSqlite = SafeLists::AsyncSqlite::createNew("exampleData/example2.safelist");

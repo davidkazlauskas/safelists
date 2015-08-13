@@ -2,6 +2,7 @@
 #include <iostream>
 #include <gtkmm.h>
 #include <templatious/FullPack.hpp>
+#include <templatious/detail/DynamicPackCreator.hpp>
 #include <LuaPlumbing/plumbing.hpp>
 #include <gtkmm/GtkMMRangerModel.hpp>
 
@@ -9,8 +10,11 @@ TEMPLATIOUS_TRIPLET_STD;
 
 struct MainWindowInterface {
     // emitted when new file creation
-    // is requested
+    // is requested.
+    // In lua: MWI_OutNewFileSignal
     DUMMY_STRUCT(OutNewFileSignal);
+
+    static void registerInFactory(templatious::DynVPackFactoryBuilder& bld);
 };
 
 struct GtkMainWindow : public Messageable {
@@ -108,10 +112,30 @@ struct GtkNewEntryDialog : public Messageable {
     }
 };
 
+static void registerInFactory(templatious::DynVPackFactoryBuilder& bld) {
+
+}
+
+templatious::DynVPackFactory makeVfactory() {
+    templatious::DynVPackFactoryBuilder bld;
+
+    LuaContext::registerPrimitives(bld);
+
+    MainWindowInterface::registerInFactory(bld);
+
+    return bld.getFactory();
+}
+
+static templatious::DynVPackFactory* vFactory() {
+    static auto fact = makeVfactory();
+    return &fact;
+}
+
 int main(int argc,char** argv) {
     auto app = Gtk::Application::create(argc,argv);
 
     auto ctx = LuaContext::makeContext("lua/plumbing.lua");
+    ctx->setFactory(vFactory());
 
     auto builder = Gtk::Builder::create();
     builder->add_from_file("uischemes/main.glade");
@@ -122,3 +146,12 @@ int main(int argc,char** argv) {
     app->run(mainWnd->getWindow(),argc,argv);
 }
 
+typedef templatious::TypeNodeFactory TNF;
+
+#define ATTACH_NAMED_DUMMY(factory,name,type)   \
+    factory.attachNode(name,TNF::makeDummyNode< type >(name))
+
+void MainWindowInterface::registerInFactory(templatious::DynVPackFactoryBuilder& bld) {
+    typedef MainWindowInterface MWI;
+    ATTACH_NAMED_DUMMY(bld,"MWI_OutNewFileSignal",MWI::OutNewFileSignal);
+}

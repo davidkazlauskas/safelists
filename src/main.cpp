@@ -27,14 +27,13 @@ struct MainModel : public Messageable {
 
     struct MainModelInterface {
 
-        // use to load folder files
+        // use to load folder tree
         // Signature: <
-        //     InLoadFolder,
-        //     int (folder),
+        //     InLoadFolderTree,
         //     StrongMsgPtr (async sqlite),
         //     StrongMsgPtr (notify)
         // >
-        DUMMY_STRUCT(InLoadFolder);
+        DUMMY_STRUCT(InLoadFolderTree);
 
     };
 
@@ -54,16 +53,23 @@ private:
     VmfPtr genHandler() {
         typedef MainModelInterface MMI;
         return SF::virtualMatchFunctorPtr(
-            SF::virtualMatch< MMI::InLoadFolder,
-                              int,
+            SF::virtualMatch< MMI::InLoadFolderTree,
                               StrongMsgPtr,
                               StrongMsgPtr >
             ([=](
-                MMI::InLoadFolder,int id,
+                MMI::InLoadFolderTree,
                 const StrongMsgPtr& asyncSqlite,
                 const StrongMsgPtr& toNotify)
             {
-
+                typedef SafeLists::AsyncSqlite ASql;
+                std::vector< std::string > headers({"id","name","parent"});
+                auto message = SF::vpackPtr<
+                    ASql::ExecuteOutSnapshot,
+                    std::string,
+                    std::vector< std::string >,
+                    TableSnapshot
+                >(nullptr,"SELECT dir_id, dir_name, dir_parent FROM directories;",
+                    std::move(headers),TableSnapshot());
             })
         );
     }

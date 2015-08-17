@@ -23,6 +23,12 @@ struct MainWindowInterface {
     static void registerInFactory(templatious::DynVPackFactoryBuilder& bld);
 };
 
+#define ASYNC_OUT_SNAP_SIGNATURE \
+    ASql::ExecuteOutSnapshot, \
+    std::string, \
+    std::vector< std::string >, \
+    TableSnapshot
+
 struct MainModel : public Messageable {
 
     struct MainModelInterface {
@@ -63,12 +69,14 @@ private:
             {
                 typedef SafeLists::AsyncSqlite ASql;
                 std::vector< std::string > headers({"id","name","parent"});
-                auto message = SF::vpackPtr<
-                    ASql::ExecuteOutSnapshot,
-                    std::string,
-                    std::vector< std::string >,
-                    TableSnapshot
-                >(nullptr,"SELECT dir_id, dir_name, dir_parent FROM directories;",
+                std::weak_ptr< Messageable > weakNotify = toNotify;
+                auto message = SF::vpackPtrWCallback<
+                    ASYNC_OUT_SNAP_SIGNATURE
+                >(
+                    [=](const TEMPLATIOUS_VPCORE< ASYNC_OUT_SNAP_SIGNATURE >& sig) {
+
+                    },
+                    nullptr,"SELECT dir_id, dir_name, dir_parent FROM directories;",
                     std::move(headers),TableSnapshot());
             })
         );

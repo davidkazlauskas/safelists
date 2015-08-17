@@ -150,7 +150,8 @@ struct GtkMainWindow : public Messageable {
     }
 
     void message(const std::shared_ptr< templatious::VirtualPack >& msg) override {
-        assert( false && "You are not prepared." );
+        //assert( false && "You are not prepared." );
+        _messageCache.enqueue(msg);
     }
 
     void initModel(const std::shared_ptr< Messageable >& asyncSqlite) {
@@ -210,6 +211,11 @@ private:
 
     bool onDraw(const Cairo::RefPtr<Cairo::Context>& cr) {
         _callbackCache.process();
+        _messageCache.process(
+            [&](templatious::VirtualPack& pack) {
+                this->_messageHandler->tryMatch(pack);
+            }
+        );
         return false;
     }
 
@@ -228,6 +234,7 @@ private:
 
     NotifierCache _notifierCache;
     CallbackCache _callbackCache;
+    MessageCache _messageCache;
 };
 
 struct GtkNewEntryDialog : public Messageable {

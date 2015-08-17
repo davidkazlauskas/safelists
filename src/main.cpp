@@ -91,7 +91,8 @@ private:
                         );
                         locked->message(outMsg);
                     },
-                    nullptr,"SELECT dir_id, dir_name, dir_parent FROM directories;",
+                    nullptr,"SELECT dir_id, dir_name, dir_parent FROM directories "
+                            "ORDER BY dir_id;",
                     std::move(headers),TableSnapshot());
 
                 asyncSqlite->message(message);
@@ -227,7 +228,6 @@ private:
     // receiving id, dir name, dir parent
     void setTreeModel(TableSnapshot& snapshot) {
         printf("RECEIVED!\n");
-        _dirStore->clear();
 
         struct Row {
             int _id;
@@ -246,6 +246,7 @@ private:
                     break;
                 case 1:
                     r._name = value;
+                    printf("Namin: %s\n",r._name.c_str());
                     break;
                 case 2:
                     r._parent = std::atoi(value);
@@ -256,6 +257,7 @@ private:
             }
         );
 
+        _dirStore->clear();
     }
 
     bool onDraw(const Cairo::RefPtr<Cairo::Context>& cr) {

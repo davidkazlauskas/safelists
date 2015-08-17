@@ -74,7 +74,10 @@ private:
                     ASYNC_OUT_SNAP_SIGNATURE
                 >(
                     [=](const TEMPLATIOUS_VPCORE< ASYNC_OUT_SNAP_SIGNATURE >& sig) {
-
+                        auto locked = weakNotify.lock();
+                        if (nullptr == locked) {
+                            return;
+                        }
                     },
                     nullptr,"SELECT dir_id, dir_name, dir_parent FROM directories;",
                     std::move(headers),TableSnapshot());

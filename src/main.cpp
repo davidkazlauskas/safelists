@@ -14,11 +14,14 @@ struct MainWindowInterface {
     // In lua: MWI_OutNewFileSignal
     DUMMY_STRUCT(OutNewFileSignal);
 
-    // emitted when new file creation
-    // is requested.
+    // emit to attach listener
     // In lua: MWI_InAttachListener
     // Signature: < InAttachListener, StrongMsgPtr >
     DUMMY_STRUCT(InAttachListener);
+
+    // emit to set tree model from snapshot
+    // Signature: < InSetTreeData, TableSnapshot >
+    DUMMY_STRUCT(InSetTreeData);
 
     static void registerInFactory(templatious::DynVPackFactoryBuilder& bld);
 };
@@ -75,9 +78,17 @@ private:
                 >(
                     [=](const TEMPLATIOUS_VPCORE< ASYNC_OUT_SNAP_SIGNATURE >& sig) {
                         auto locked = weakNotify.lock();
-                        if (nullptr == locked) {
+                        if (nullptr == locked && sig.fGet<3>().isEmpty()) {
                             return;
                         }
+
+                        auto& snapref = const_cast< TableSnapshot& >(sig.fGet<3>());
+
+                        typedef MainWindowInterface MWI;
+                        auto outMsg = SF::vpackPtr< MWI::InSetTreeData, TableSnapshot >(
+                            nullptr, std::move(snapref)
+                        );
+                        locked->message(outMsg);
                     },
                     nullptr,"SELECT dir_id, dir_name, dir_parent FROM directories;",
                     std::move(headers),TableSnapshot());

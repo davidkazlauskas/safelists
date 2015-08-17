@@ -252,6 +252,9 @@ private:
     NotifierCache _notifierCache;
     CallbackCache _callbackCache;
     MessageCache _messageCache;
+
+    // Models, columns...
+    DirectoryTreeColumns _dirColumns;
 };
 
 struct GtkNewEntryDialog : public Messageable {

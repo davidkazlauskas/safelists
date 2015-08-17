@@ -23,6 +23,54 @@ struct MainWindowInterface {
     static void registerInFactory(templatious::DynVPackFactoryBuilder& bld);
 };
 
+struct MainModel : public Messageable {
+
+    struct MainModelInterface {
+
+        // use to load folder files
+        // Signature: <
+        //     InLoadFolder,
+        //     int (folder),
+        //     StrongMsgPtr (async sqlite),
+        //     StrongMsgPtr (notify)
+        // >
+        DUMMY_STRUCT(InLoadFolder);
+
+    };
+
+    MainModel() : _messageHandler(genHandler()) {}
+
+    void message(templatious::VirtualPack& msg) override {
+        _messageHandler->tryMatch(msg);
+    }
+
+    void message(const std::shared_ptr< templatious::VirtualPack >& msg) override {
+        assert( false && "You are not prepared." );
+    }
+
+private:
+    typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
+
+    VmfPtr genHandler() {
+        typedef MainModelInterface MMI;
+        return SF::virtualMatchFunctorPtr(
+            SF::virtualMatch< MMI::InLoadFolder,
+                              int,
+                              StrongMsgPtr,
+                              StrongMsgPtr >
+            ([=](
+                MMI::InLoadFolder,int id,
+                const StrongMsgPtr& asyncSqlite,
+                const StrongMsgPtr& toNotify)
+            {
+
+            })
+        );
+    }
+
+    VmfPtr _messageHandler;
+};
+
 struct GtkMainWindow : public Messageable {
 
     GtkMainWindow(Glib::RefPtr<Gtk::Builder>& bld) :

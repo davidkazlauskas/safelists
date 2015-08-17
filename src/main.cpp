@@ -102,6 +102,8 @@ private:
     VmfPtr _messageHandler;
 };
 
+
+
 struct GtkMainWindow : public Messageable {
 
     GtkMainWindow(Glib::RefPtr<Gtk::Builder>& bld) :
@@ -150,7 +152,6 @@ struct GtkMainWindow : public Messageable {
     }
 
     void message(const std::shared_ptr< templatious::VirtualPack >& msg) override {
-        //assert( false && "You are not prepared." );
         _messageCache.enqueue(msg);
     }
 
@@ -203,10 +204,26 @@ private:
                 MWI::InSetTreeData, TableSnapshot
             >(
                 [=](MWI::InSetTreeData,TableSnapshot& snapshot) {
-                    printf("RECEIVED!\n");
+                    setTreeModel(snapshot);
                 }
             )
         );
+    }
+
+    struct DirectoryTreeColumns : public Gtk::TreeModel::ColumnRecord {
+        DirectoryTreeColumns() {
+            add(m_colId);
+            add(m_colName);
+            add(m_colParent);
+        }
+
+        Gtk::TreeModelColumn<int> m_colId;
+        Gtk::TreeModelColumn<int> m_colParent;
+        Gtk::TreeModelColumn<Glib::ustring> m_colName;
+    };
+
+    void setTreeModel(TableSnapshot& snapshot) {
+        printf("RECEIVED!\n");
     }
 
     bool onDraw(const Cairo::RefPtr<Cairo::Context>& cr) {

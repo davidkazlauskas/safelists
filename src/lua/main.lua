@@ -8,6 +8,9 @@ initAll = function()
     mainWindowPushButtonHandler = ctx:makeLuaMatchHandler(
         VMatch(function()
             print("BALLIN, BALLIN")
+            local mainModel = ctx:namedMesseagable("mainModel")
+            ctx:message(mainModel,
+                VSig("MMI_InLoadFolderTree"),VMsg("asyncSqliteCurrent"),VMsg(mainWnd))
         end,"MWI_OutNewFileSignal")
     )
 

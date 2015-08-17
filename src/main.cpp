@@ -268,6 +268,7 @@ int main(int argc,char** argv) {
     mainWnd->initModel(asyncSqlite);
     ctx->addMesseagableWeak("mainWindow",mainWnd);
     ctx->addMesseagableWeak("mainModel",mainModel);
+    ctx->addMesseagableWeak("asyncSqliteCurrent",asyncSqlite);
     ctx->doFile("lua/main.lua");
     app->run(mainWnd->getWindow(),argc,argv);
 }

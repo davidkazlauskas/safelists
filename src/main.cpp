@@ -128,6 +128,8 @@ struct GtkMainWindow : public Messageable {
         _wnd->signal_draw().connect(
             sigc::mem_fun(*this,&GtkMainWindow::onDraw)
         );
+
+        createDirModel();
     }
 
     class ModelColumns : public Gtk::TreeModel::ColumnRecord {
@@ -224,6 +226,7 @@ private:
 
     void setTreeModel(TableSnapshot& snapshot) {
         printf("RECEIVED!\n");
+        _dirStore->clear();
     }
 
     bool onDraw(const Cairo::RefPtr<Cairo::Context>& cr) {
@@ -241,6 +244,12 @@ private:
         _notifierCache.notify(msg);
     }
 
+    void createDirModel() {
+        _dirStore = Gtk::TreeStore::create(_dirColumns);
+        _left->append_column( "Name", _dirColumns.m_colName );
+        _left->set_model(_dirStore);
+    }
+
     std::unique_ptr< Gtk::Window > _wnd;
     Gtk::TreeView* _left;
     Gtk::TreeView* _right;
@@ -255,6 +264,7 @@ private:
 
     // Models, columns...
     DirectoryTreeColumns _dirColumns;
+    Glib::RefPtr<Gtk::TreeStore> _dirStore;
 };
 
 struct GtkNewEntryDialog : public Messageable {

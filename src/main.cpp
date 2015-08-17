@@ -44,6 +44,7 @@ struct MainModel : public Messageable {
         // >
         DUMMY_STRUCT(InLoadFolderTree);
 
+        static void registerInFactory(templatious::DynVPackFactoryBuilder& bld);
     };
 
     MainModel() : _messageHandler(genHandler()) {}
@@ -243,6 +244,7 @@ templatious::DynVPackFactory makeVfactory() {
     LuaContext::registerPrimitives(bld);
 
     MainWindowInterface::registerInFactory(bld);
+    MainModel::MainModelInterface::registerInFactory(bld);
 
     return bld.getFactory();
 }
@@ -277,4 +279,9 @@ void MainWindowInterface::registerInFactory(templatious::DynVPackFactoryBuilder&
     typedef MainWindowInterface MWI;
     ATTACH_NAMED_DUMMY(bld,"MWI_OutNewFileSignal",MWI::OutNewFileSignal);
     ATTACH_NAMED_DUMMY(bld,"MWI_InAttachListener",MWI::InAttachListener);
+}
+
+void MainModel::MainModelInterface::registerInFactory(templatious::DynVPackFactoryBuilder& bld) {
+    typedef MainModel::MainModelInterface MMI;
+    ATTACH_NAMED_DUMMY(bld,"MMI_InLoadFolderTree",MMI::InLoadFolderTree);
 }

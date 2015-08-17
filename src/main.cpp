@@ -224,9 +224,38 @@ private:
         Gtk::TreeModelColumn<Glib::ustring> m_colName;
     };
 
+    // receiving id, dir name, dir parent
     void setTreeModel(TableSnapshot& snapshot) {
         printf("RECEIVED!\n");
         _dirStore->clear();
+
+        struct Row {
+            int _id;
+            int _parent;
+            std::string _name;
+        };
+
+        std::vector< Row > vecRow;
+        vecRow.reserve( 256 );
+        Row r;
+        snapshot.traverse(
+            [&](int row,int column,const char* value,const char* header) {
+                switch (column) {
+                case 0:
+                    r._id = std::atoi(value);
+                    break;
+                case 1:
+                    r._name = value;
+                    break;
+                case 2:
+                    r._parent = std::atoi(value);
+                    SA::add(vecRow,r);
+                    break;
+                }
+                return true;
+            }
+        );
+
     }
 
     bool onDraw(const Cairo::RefPtr<Cairo::Context>& cr) {

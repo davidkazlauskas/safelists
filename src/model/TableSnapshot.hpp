@@ -20,6 +20,7 @@ struct TableSnapshot {
 
     friend struct TableSnapshotBuilder;
 
+    // row, column, value, header
     typedef std::function<bool(int,int,const char*,const char*)> TraverseFunction;
     void traverse(const TraverseFunction& func) const;
     bool isEmpty() const;

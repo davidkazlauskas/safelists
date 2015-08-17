@@ -264,8 +264,10 @@ int main(int argc,char** argv) {
     builder->add_from_file("uischemes/main.glade");
     auto asyncSqlite = SafeLists::AsyncSqlite::createNew("exampleData/example2.safelist");
     auto mainWnd = std::make_shared< GtkMainWindow >(builder);
+    auto mainModel = std::make_shared< MainModel >();
     mainWnd->initModel(asyncSqlite);
     ctx->addMesseagableWeak("mainWindow",mainWnd);
+    ctx->addMesseagableWeak("mainModel",mainModel);
     ctx->doFile("lua/main.lua");
     app->run(mainWnd->getWindow(),argc,argv);
 }

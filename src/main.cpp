@@ -194,6 +194,13 @@ private:
                 [=](GMI::InAttachToEventLoop,std::function<bool()>& func) {
                     this->_callbackCache.attach(func);
                 }
+            ),
+            SF::virtualMatch<
+                MWI::InSetTreeData, TableSnapshot
+            >(
+                [=](MWI::InSetTreeData,TableSnapshot& snapshot) {
+                    printf("RECEIVED!\n");
+                }
             )
         );
     }

@@ -9,8 +9,9 @@ initAll = function()
         VMatch(function()
             print("BALLIN, BALLIN")
             local mainModel = ctx:namedMesseagable("mainModel")
+            local asyncSqlite = ctx:namedMesseagable("asyncSqliteCurrent")
             ctx:message(mainModel,
-                VSig("MMI_InLoadFolderTree"),VMsg("asyncSqliteCurrent"),VMsg(mainWnd))
+                VSig("MMI_InLoadFolderTree"),VMsg(asyncSqlite),VMsg(mainWnd))
         end,"MWI_OutNewFileSignal")
     )
 

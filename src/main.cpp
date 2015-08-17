@@ -93,6 +93,8 @@ private:
                     },
                     nullptr,"SELECT dir_id, dir_name, dir_parent FROM directories;",
                     std::move(headers),TableSnapshot());
+
+                asyncSqlite->message(message);
             })
         );
     }

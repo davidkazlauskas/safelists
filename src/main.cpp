@@ -449,6 +449,7 @@ typedef templatious::TypeNodeFactory TNF;
 void MainWindowInterface::registerInFactory(templatious::DynVPackFactoryBuilder& bld) {
     typedef MainWindowInterface MWI;
     ATTACH_NAMED_DUMMY(bld,"MWI_OutNewFileSignal",MWI::OutNewFileSignal);
+    ATTACH_NAMED_DUMMY(bld,"MWI_OutDirChangedSignal",MWI::OutDirChangedSignal);
     ATTACH_NAMED_DUMMY(bld,"MWI_InAttachListener",MWI::InAttachListener);
 }
 

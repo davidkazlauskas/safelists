@@ -22,6 +22,9 @@ int snapshotBuilderCallback(void* snapshotBuilder,int argc,char** argv,char** co
 
 } // end of anon namespace
 
+// <3 static asserts
+static_assert( SQLITE_VERSION_NUMBER >= 3008012, "Sqlite has to be at least 3.8.12 or higher." );
+
 namespace StackOverflow {
 
     // http://stackoverflow.com/questions/4792449/c0x-has-no-semaphores-how-to-synchronize-threads
@@ -162,7 +165,7 @@ private:
 
                     TableSnapshotBuilder bld(vHead.size(),vHead.rawBegin());
                     char* errmsg = nullptr;
-                    sqlite3_exec(
+                    int outCode = sqlite3_exec(
                         this->_sqlite,
                         query.c_str(),
                         snapshotBuilderCallback,
@@ -170,7 +173,13 @@ private:
                         &errmsg
                     );
 
+                    const char* errMsg2 = nullptr;
+                    if (SQLITE_OK != outCode) {
+                        errMsg2 = ::sqlite3_errmsg(this->_sqlite);
+                    }
+
                     assert( nullptr == errmsg );
+                    assert( SQLITE_OK == outCode );
                     outSnap = bld.getSnapshot();
                 }
             ),

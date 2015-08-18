@@ -292,7 +292,6 @@ private:
                     break;
                 case 1:
                     r._name = value;
-                    printf("Namin: %s\n",r._name.c_str());
                     break;
                 case 2:
                     r._parent = std::atoi(value);

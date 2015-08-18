@@ -355,6 +355,7 @@ private:
         _dirStore = Gtk::TreeStore::create(_dirColumns);
         _left->append_column( "Name", _dirColumns.m_colName );
         _left->set_model(_dirStore);
+        _dirSelection = _left->get_selection();
     }
 
     std::unique_ptr< Gtk::Window > _wnd;
@@ -372,6 +373,7 @@ private:
     // Models, columns...
     DirectoryTreeColumns _dirColumns;
     Glib::RefPtr<Gtk::TreeStore> _dirStore;
+    Glib::RefPtr<Gtk::TreeSelection> _dirSelection;
 };
 
 struct GtkNewEntryDialog : public Messageable {

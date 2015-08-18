@@ -197,6 +197,7 @@ struct GtkMainWindow : public Messageable {
         );
 
         createDirModel();
+        createFileModel();
     }
 
     class ModelColumns : public Gtk::TreeModel::ColumnRecord {
@@ -225,6 +226,8 @@ struct GtkMainWindow : public Messageable {
     }
 
     void initModel(const std::shared_ptr< Messageable >& asyncSqlite) {
+        return;
+
         auto shared = SafeLists::SqliteRanger::makeRanger(
             asyncSqlite,
             "SELECT file_name,file_size,file_hash_sha256 FROM files LIMIT %d OFFSET %d;",
@@ -425,6 +428,7 @@ private:
         _fileStore = Gtk::ListStore::create(_fileColumns);
         _right->append_column("Name", _fileColumns.m_fileName);
         _right->append_column("Size", _fileColumns.m_fileSize);
+        _right->set_model(_fileStore);
     }
 
     std::unique_ptr< Gtk::Window > _wnd;

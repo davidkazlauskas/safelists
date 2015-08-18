@@ -132,8 +132,8 @@ private:
 
                 auto& snapref = const_cast< TableSnapshot& >(sig.fGet<3>());
                 typedef MainWindowInterface MWI;
-                auto outMsg = SF::vpackPtr< MWI::InSetFileData, TableSnapshot >(
-                    nullptr, std::move(snapref)
+                auto outMsg = SF::vpackPtr< MWI::InSetFileData, int, TableSnapshot >(
+                    nullptr, id, std::move(snapref)
                 );
                 locked->message(outMsg);
             },
@@ -285,10 +285,10 @@ private:
                 }
             ),
             SF::virtualMatch<
-                MWI::InSetFileData, TableSnapshot
+                MWI::InSetFileData, int, TableSnapshot
             >(
-                [=](MWI::InSetFileData,TableSnapshot& snapshot) {
-                    setFileModel(snapshot);
+                [=](MWI::InSetFileData,int id,TableSnapshot& snapshot) {
+                    setFileModel(id,snapshot);
                 }
             )
         );
@@ -387,7 +387,7 @@ private:
         }
     }
 
-    void setFileModel(TableSnapshot& snapshot) {
+    void setFileModel(int id,TableSnapshot& snapshot) {
         struct Row {
             int _id;
             int _dirId;

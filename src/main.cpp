@@ -346,6 +346,9 @@ private:
         return false;
     }
 
+    void directoryToViewChanged() {
+    }
+
     void addNewButtonClicked() {
         auto msg = SF::vpack< MainWindowInterface::OutNewFileSignal >(nullptr);
         _notifierCache.notify(msg);
@@ -357,6 +360,8 @@ private:
         _left->set_model(_dirStore);
         _dirSelection = _left->get_selection();
         _dirSelection->set_mode(Gtk::SELECTION_SINGLE);
+        _dirSelection->signal_changed().connect(sigc::mem_fun(
+            *this,&GtkMainWindow::directoryToViewChanged));
     }
 
     std::unique_ptr< Gtk::Window > _wnd;

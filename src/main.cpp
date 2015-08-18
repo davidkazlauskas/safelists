@@ -356,6 +356,7 @@ private:
         _left->append_column( "Name", _dirColumns.m_colName );
         _left->set_model(_dirStore);
         _dirSelection = _left->get_selection();
+        _dirSelection->set_mode(Gtk::SELECTION_SINGLE);
     }
 
     std::unique_ptr< Gtk::Window > _wnd;

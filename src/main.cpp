@@ -48,6 +48,14 @@ struct MainModel : public Messageable {
         // >
         DUMMY_STRUCT(InLoadFolderTree);
 
+        // use to load folder tree
+        // Signature: <
+        //     InLoadFolderTree,
+        //     StrongMsgPtr (async sqlite),
+        //     StrongMsgPtr (notify)
+        // >
+        DUMMY_STRUCT(InLoadFileList);
+
         static void registerInFactory(templatious::DynVPackFactoryBuilder& bld);
     };
 
@@ -98,6 +106,10 @@ private:
         asyncSqlite->message(message);
     }
 
+    void handleLoadFileList(const StrongMsgPtr& asyncSqlite,const StrongMsgPtr& toNotify) {
+
+    }
+
     VmfPtr genHandler() {
         typedef MainModelInterface MMI;
         return SF::virtualMatchFunctorPtr(
@@ -105,10 +117,19 @@ private:
                               StrongMsgPtr,
                               StrongMsgPtr >
             ([=](
-                MMI::InLoadFolderTree,
+                MMI::InLoadFileList,
                 const StrongMsgPtr& asyncSqlite,
                 const StrongMsgPtr& toNotify) {
                 this->handleLoadFolderTree(asyncSqlite,toNotify);
+            }),
+            SF::virtualMatch< MMI::InLoadFolderTree,
+                              StrongMsgPtr,
+                              StrongMsgPtr >
+            ([=](
+                MMI::InLoadFileList,
+                const StrongMsgPtr& asyncSqlite,
+                const StrongMsgPtr& toNotify) {
+                this->handleLoadFileList(asyncSqlite,toNotify);
             })
         );
     }

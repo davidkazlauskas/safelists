@@ -38,6 +38,12 @@ include_directories(
 )
 
 link_directories(${GTKMM_LIBRARY_DIRS})
+if (UNIX)
+    # for newer version of sqlite built and installed
+    # from source, ubuntu 14.04 only has sqlite3 3.8.2
+    # or something
+    link_directories( /usr/local/lib )
+endif(UNIX)
 
 add_subdirectory( ${PLUMBING_DIR} )
 

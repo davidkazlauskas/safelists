@@ -181,7 +181,8 @@ struct GtkMainWindow : public Messageable {
     GtkMainWindow(Glib::RefPtr<Gtk::Builder>& bld) :
         _left(nullptr),
         _right(nullptr),
-        _messageHandler(genHandler())
+        _messageHandler(genHandler()),
+        _lastSelectedDirId(-1)
     {
         Gtk::Window* outWnd = nullptr;
         bld->get_widget("window1",outWnd);
@@ -396,6 +397,10 @@ private:
             std::string _hash256;
         };
 
+        if (id != _lastSelectedDirId) {
+            return;
+        }
+
         auto setRow =
             [=](const Row& r,Gtk::TreeModel::Row& mdlRow) {
                 mdlRow[_fileColumns.m_fileId] = r._id;
@@ -448,6 +453,7 @@ private:
         if (nullptr != iter) {
             auto row = *iter;
             int id = row[_dirColumns.m_colId];
+            _lastSelectedDirId = id;
             printf("Sending id: %d\n",id);
             auto msg = SF::vpack< MainWindowInterface::OutDirChangedSignal, int >(
                 nullptr, id
@@ -500,6 +506,9 @@ private:
     // FILES
     FileTreeColumns _fileColumns;
     Glib::RefPtr<Gtk::ListStore> _fileStore;
+
+    // STATE
+    int _lastSelectedDirId;
 };
 
 struct GtkNewEntryDialog : public Messageable {

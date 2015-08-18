@@ -23,6 +23,10 @@ struct MainWindowInterface {
     // Signature: < InSetTreeData, TableSnapshot >
     DUMMY_STRUCT(InSetTreeData);
 
+    // emit to set tree model from snapshot
+    // Signature: < InSetFileData, TableSnapshot >
+    DUMMY_STRUCT(InSetFileData);
+
     static void registerInFactory(templatious::DynVPackFactoryBuilder& bld);
 };
 
@@ -214,6 +218,13 @@ private:
             >(
                 [=](MWI::InSetTreeData,TableSnapshot& snapshot) {
                     setTreeModel(snapshot);
+                }
+            ),
+            SF::virtualMatch<
+                MWI::InSetFileData, TableSnapshot
+            >(
+                [=](MWI::InSetFileData,TableSnapshot& snapshot) {
+                    setFileModel(snapshot);
                 }
             )
         );

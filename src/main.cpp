@@ -383,7 +383,49 @@ private:
     }
 
     void setFileModel(TableSnapshot& snapshot) {
-        assert( false && "Implement yo" );
+        struct Row {
+            int _id;
+            int _dirId;
+            long _size;
+            std::string _name;
+            std::string _hash256;
+        };
+
+        auto setRow =
+            [=](const Row& r,Gtk::TreeModel::Row& mdlRow) {
+                mdlRow[_fileColumns.m_fileId] = r._id;
+                mdlRow[_fileColumns.m_dirId] = r._dirId;
+                mdlRow[_fileColumns.m_fileName] = r._name;
+                mdlRow[_fileColumns.m_fileSize] = r._size;
+                mdlRow[_fileColumns.m_fileHash] = r._hash256;
+            };
+
+        Row r;
+        _fileStore.clear();
+        snapshot.traverse(
+            [&](int row,int column,const char* value,const char* header) {
+                switch (column) {
+                case 0:
+                    r._id = std::atoi(value);
+                    break;
+                case 1:
+                    r._dirId = std::atoi(value);
+                    break;
+                case 2:
+                    r._name = value;
+                    break;
+                case 3:
+                    r._size = std::atol(value);
+                    break;
+                case 4:
+                    r._hash256 = value;
+                    auto row = *(_fileStore->append());
+                    setRow(r,row);
+                    break;
+                }
+                return true;
+            }
+        );
     }
 
     bool onDraw(const Cairo::RefPtr<Cairo::Context>& cr) {

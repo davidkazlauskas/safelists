@@ -91,8 +91,13 @@ private:
                         );
                         locked->message(outMsg);
                     },
-                    nullptr,"SELECT dir_id, dir_name, dir_parent FROM directories "
-                            "ORDER BY dir_id;",
+                    nullptr,
+                        "WITH RECURSIVE "
+                        "children(dir_id,dir_name,dir_parent) AS ( "
+                        "   SELECT dir_id,dir_name,dir_parent FROM directories WHERE dir_name='root' AND dir_id=1 "
+                        "   UNION ALL "
+                        "   SELECT dir_id,dir_name,dir_parent FROM children WHERE dir_id=children.dir_parent "
+                        ") SELECT dir_id,dir_name,dir_parent FROM children;",
                     std::move(headers),TableSnapshot());
 
                 asyncSqlite->message(message);

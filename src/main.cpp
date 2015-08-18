@@ -116,6 +116,11 @@ private:
         std::vector< std::string > headers(
             {"file_id","dir_id","file_name","file_size","file_hash"});
         std::weak_ptr< Messageable > weakNotify = toNotify;
+        char queryBuf[512];
+        sprintf(queryBuf,
+            "SELECT file_id,dir_id,file_name,file_size,file_hash_sha256 FROM files"
+            " WHERE dir_id=%d;",
+            id);
         auto message = SF::vpackPtrWCallback<
             ASYNC_OUT_SNAP_SIGNATURE
         >(
@@ -133,7 +138,7 @@ private:
                 locked->message(outMsg);
             },
             nullptr,
-            "SELECT file_id,dir_id,file_name,file_size,file_hash_sha256 FROM files;",
+            queryBuf,
             std::move(headers),TableSnapshot()
         );
 
@@ -401,7 +406,7 @@ private:
             };
 
         Row r;
-        _fileStore.clear();
+        _fileStore->clear();
         snapshot.traverse(
             [&](int row,int column,const char* value,const char* header) {
                 switch (column) {

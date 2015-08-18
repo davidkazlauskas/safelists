@@ -297,6 +297,10 @@ private:
         }
     }
 
+    void setFileModel(TableSnapshot& snapshot) {
+        assert( false && "Implement yo" );
+    }
+
     bool onDraw(const Cairo::RefPtr<Cairo::Context>& cr) {
         _callbackCache.process();
         _messageCache.process(

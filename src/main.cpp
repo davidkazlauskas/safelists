@@ -298,6 +298,22 @@ private:
         Gtk::TreeModelColumn<Glib::ustring> m_colName;
     };
 
+    struct FileTreeColumns : public Gtk::TreeModel::ColumnRecord {
+        FileTreeColumns() {
+            add(m_fileId);
+            add(m_dirId);
+            add(m_fileName);
+            add(m_fileSize);
+            add(m_fileHash);
+        }
+
+        Gtk::TreeModelColumn<int> m_fileId;
+        Gtk::TreeModelColumn<int> m_dirId;
+        Gtk::TreeModelColumn<Glib::ustring> m_fileName;
+        Gtk::TreeModelColumn<int> m_fileSize;
+        Gtk::TreeModelColumn<Glib::ustring> m_fileHash;
+    };
+
     // receiving id, dir name, dir parent
     void setTreeModel(TableSnapshot& snapshot) {
         struct Row {
@@ -418,9 +434,13 @@ private:
     MessageCache _messageCache;
 
     // Models, columns...
+
+    // DIRS
     DirectoryTreeColumns _dirColumns;
     Glib::RefPtr<Gtk::TreeStore> _dirStore;
     Glib::RefPtr<Gtk::TreeSelection> _dirSelection;
+
+    // FILES
 };
 
 struct GtkNewEntryDialog : public Messageable {

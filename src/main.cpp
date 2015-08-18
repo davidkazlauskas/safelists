@@ -93,11 +93,12 @@ private:
                     },
                     nullptr,
                         "WITH RECURSIVE "
-                        "children(dir_id,dir_name,dir_parent) AS ( "
+                        "children(d_id,d_name,d_parent) AS ( "
                         "   SELECT dir_id,dir_name,dir_parent FROM directories WHERE dir_name='root' AND dir_id=1 "
                         "   UNION ALL "
-                        "   SELECT dir_id,dir_name,dir_parent FROM children WHERE dir_id=children.dir_parent "
-                        ") SELECT dir_id,dir_name,dir_parent FROM children;",
+                        "   SELECT dir_id,dir_name,dir_parent "
+                        "   FROM directories JOIN children ON directories.dir_parent=children.d_id "
+                        ") SELECT d_id,d_name,d_parent FROM children; ",
                     std::move(headers),TableSnapshot());
 
                 asyncSqlite->message(message);
@@ -232,8 +233,6 @@ private:
 
     // receiving id, dir name, dir parent
     void setTreeModel(TableSnapshot& snapshot) {
-        printf("RECEIVED!\n");
-
         struct Row {
             int _id;
             int _parent;

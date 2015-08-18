@@ -111,8 +111,8 @@ private:
         asyncSqlite->message(message);
     }
 
-    void handleLoadFileList(const StrongMsgPtr& asyncSqlite,const StrongMsgPtr& toNotify) {
-
+    void handleLoadFileList(int id,const StrongMsgPtr& asyncSqlite,const StrongMsgPtr& toNotify) {
+        printf("YO SLICK %d!\n",id);
     }
 
     VmfPtr genHandler() {
@@ -127,14 +127,16 @@ private:
                 const StrongMsgPtr& toNotify) {
                 this->handleLoadFolderTree(asyncSqlite,toNotify);
             }),
-            SF::virtualMatch< MMI::InLoadFolderTree,
+            SF::virtualMatch< MMI::InLoadFileList,
+                              int, // (id)
                               StrongMsgPtr,
                               StrongMsgPtr >
             ([=](
                 MMI::InLoadFileList,
+                int id,
                 const StrongMsgPtr& asyncSqlite,
                 const StrongMsgPtr& toNotify) {
-                this->handleLoadFileList(asyncSqlite,toNotify);
+                this->handleLoadFileList(id,asyncSqlite,toNotify);
             })
         );
     }

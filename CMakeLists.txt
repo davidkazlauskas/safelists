@@ -55,6 +55,8 @@ add_custom_target( copy-runtime-files-ex-data ALL
     COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/exampleData/ ${CMAKE_BINARY_DIR}/exampleData/ )
 add_custom_target( copy-lua-plumbing ALL
     COMMAND cmake -E copy_if_different ${CMAKE_SOURCE_DIR}/${PLUMBING_DIR}/plumbing.lua ${CMAKE_BINARY_DIR}/lua/plumbing.lua )
+add_custom_target( copy-lua-debug ALL
+    COMMAND cmake -E copy_if_different ${CMAKE_SOURCE_DIR}/${PLUMBING_DIR}/mobdebug.lua ${CMAKE_BINARY_DIR}/lua/mobdebug.lua )
 add_custom_target( copy-lua-scripts ALL
     COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/src/lua ${CMAKE_BINARY_DIR}/lua )
 

@@ -421,6 +421,12 @@ private:
             *this,&GtkMainWindow::directoryToViewChanged));
     }
 
+    void createFileModel() {
+        _fileStore = Gtk::ListStore::create(_fileColumns);
+        _right->append_column("Name", _fileColumns.m_fileName);
+        _right->append_column("Size", _fileColumns.m_fileSize);
+    }
+
     std::unique_ptr< Gtk::Window > _wnd;
     Gtk::TreeView* _left;
     Gtk::TreeView* _right;
@@ -441,6 +447,8 @@ private:
     Glib::RefPtr<Gtk::TreeSelection> _dirSelection;
 
     // FILES
+    FileTreeColumns _fileColumns;
+    Glib::RefPtr<Gtk::ListStore> _fileStore;
 };
 
 struct GtkNewEntryDialog : public Messageable {

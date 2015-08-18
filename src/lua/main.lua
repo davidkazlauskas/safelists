@@ -14,7 +14,11 @@ initAll = function()
                 VSig("MMI_InLoadFolderTree"),VMsg(asyncSqlite),VMsg(mainWnd))
         end,"MWI_OutNewFileSignal"),
         VMatch(function(tree)
-            print("CHANGED!")
+            local mainModel = ctx:namedMesseagable("mainModel")
+            local asyncSqlite = ctx:namedMesseagable("asyncSqliteCurrent")
+            ctx:message(mainModel,
+                VSig("MMI_InLoadFileList"),VInt(tree:values()._2),
+                VMsg(mainModel),VMsg(asyncSqlite))
         end,"MWI_OutDirChangedSignal")
     )
 

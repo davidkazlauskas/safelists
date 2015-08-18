@@ -456,4 +456,5 @@ void MainWindowInterface::registerInFactory(templatious::DynVPackFactoryBuilder&
 void MainModel::MainModelInterface::registerInFactory(templatious::DynVPackFactoryBuilder& bld) {
     typedef MainModel::MainModelInterface MMI;
     ATTACH_NAMED_DUMMY(bld,"MMI_InLoadFolderTree",MMI::InLoadFolderTree);
+    ATTACH_NAMED_DUMMY(bld,"MMI_InLoadFileList",MMI::InLoadFileList);
 }

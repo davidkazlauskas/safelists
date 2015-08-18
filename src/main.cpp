@@ -112,7 +112,32 @@ private:
     }
 
     void handleLoadFileList(int id,const StrongMsgPtr& asyncSqlite,const StrongMsgPtr& toNotify) {
-        printf("YO SLICK %d!\n",id);
+        typedef SafeLists::AsyncSqlite ASql;
+        std::vector< std::string > headers(
+            {"file_id","dir_id","file_name","file_size","file_hash"});
+        std::weak_ptr< Messageable > weakNotify = toNotify;
+        auto message = SF::vpackPtrWCallback<
+            ASYNC_OUT_SNAP_SIGNATURE
+        >(
+            [=](const TEMPLATIOUS_VPCORE< ASYNC_OUT_SNAP_SIGNATURE >& sig) {
+                auto locked = weakNotify.lock();
+                if (nullptr == locked && sig.fGet<3>().isEmpty()) {
+                    return;
+                }
+
+                auto& snapref = const_cast< TableSnapshot& >(sig.fGet<3>());
+                typedef MainWindowInterface MWI;
+                auto outMsg = SF::vpackPtr< MWI::InSetFileData, TableSnapshot >(
+                    nullptr, std::move(snapref)
+                );
+                locked->message(outMsg);
+            },
+            nullptr,
+            "SELECT file_id,dir_id,file_name,file_size,file_hash_sha256 FROM files;",
+            std::move(headers),TableSnapshot()
+        );
+
+        asyncSqlite->message(message);
     }
 
     VmfPtr genHandler() {

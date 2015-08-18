@@ -64,6 +64,40 @@ struct MainModel : public Messageable {
 private:
     typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
 
+    void handleLoadFolderTree(const StrongMsgPtr& asyncSqlite,const StrongMsgPtr& toNotify) {
+        typedef SafeLists::AsyncSqlite ASql;
+        std::vector< std::string > headers({"id","name","parent"});
+        std::weak_ptr< Messageable > weakNotify = toNotify;
+        auto message = SF::vpackPtrWCallback<
+            ASYNC_OUT_SNAP_SIGNATURE
+        >(
+            [=](const TEMPLATIOUS_VPCORE< ASYNC_OUT_SNAP_SIGNATURE >& sig) {
+                auto locked = weakNotify.lock();
+                if (nullptr == locked && sig.fGet<3>().isEmpty()) {
+                    return;
+                }
+
+                auto& snapref = const_cast< TableSnapshot& >(sig.fGet<3>());
+
+                typedef MainWindowInterface MWI;
+                auto outMsg = SF::vpackPtr< MWI::InSetTreeData, TableSnapshot >(
+                    nullptr, std::move(snapref)
+                );
+                locked->message(outMsg);
+            },
+            nullptr,
+                "WITH RECURSIVE "
+                "children(d_id,d_name,d_parent) AS ( "
+                "   SELECT dir_id,dir_name,dir_parent FROM directories WHERE dir_name='root' AND dir_id=1 "
+                "   UNION ALL "
+                "   SELECT dir_id,dir_name,dir_parent "
+                "   FROM directories JOIN children ON directories.dir_parent=children.d_id "
+                ") SELECT d_id,d_name,d_parent FROM children; ",
+            std::move(headers),TableSnapshot());
+
+        asyncSqlite->message(message);
+    }
+
     VmfPtr genHandler() {
         typedef MainModelInterface MMI;
         return SF::virtualMatchFunctorPtr(
@@ -73,39 +107,8 @@ private:
             ([=](
                 MMI::InLoadFolderTree,
                 const StrongMsgPtr& asyncSqlite,
-                const StrongMsgPtr& toNotify)
-            {
-                typedef SafeLists::AsyncSqlite ASql;
-                std::vector< std::string > headers({"id","name","parent"});
-                std::weak_ptr< Messageable > weakNotify = toNotify;
-                auto message = SF::vpackPtrWCallback<
-                    ASYNC_OUT_SNAP_SIGNATURE
-                >(
-                    [=](const TEMPLATIOUS_VPCORE< ASYNC_OUT_SNAP_SIGNATURE >& sig) {
-                        auto locked = weakNotify.lock();
-                        if (nullptr == locked && sig.fGet<3>().isEmpty()) {
-                            return;
-                        }
-
-                        auto& snapref = const_cast< TableSnapshot& >(sig.fGet<3>());
-
-                        typedef MainWindowInterface MWI;
-                        auto outMsg = SF::vpackPtr< MWI::InSetTreeData, TableSnapshot >(
-                            nullptr, std::move(snapref)
-                        );
-                        locked->message(outMsg);
-                    },
-                    nullptr,
-                        "WITH RECURSIVE "
-                        "children(d_id,d_name,d_parent) AS ( "
-                        "   SELECT dir_id,dir_name,dir_parent FROM directories WHERE dir_name='root' AND dir_id=1 "
-                        "   UNION ALL "
-                        "   SELECT dir_id,dir_name,dir_parent "
-                        "   FROM directories JOIN children ON directories.dir_parent=children.d_id "
-                        ") SELECT d_id,d_name,d_parent FROM children; ",
-                    std::move(headers),TableSnapshot());
-
-                asyncSqlite->message(message);
+                const StrongMsgPtr& toNotify) {
+                this->handleLoadFolderTree(asyncSqlite,toNotify);
             })
         );
     }

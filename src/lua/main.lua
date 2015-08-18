@@ -12,7 +12,10 @@ initAll = function()
             local asyncSqlite = ctx:namedMesseagable("asyncSqliteCurrent")
             ctx:message(mainModel,
                 VSig("MMI_InLoadFolderTree"),VMsg(asyncSqlite),VMsg(mainWnd))
-        end,"MWI_OutNewFileSignal")
+        end,"MWI_OutNewFileSignal"),
+        VMatch(function(tree)
+            print("CHANGED!")
+        end,"MWI_OutDirChangedSignal")
     )
 
     ctx:message(mainWnd,VSig("MWI_InAttachListener"),VMsg(mainWindowPushButtonHandler))

@@ -240,6 +240,13 @@ private:
             std::string _name;
         };
 
+        auto setRow =
+            [=](const Row& r,Gtk::TreeModel::Row& mdlRow) {
+                mdlRow[_dirColumns.m_colName] = r._name;
+                mdlRow[_dirColumns.m_colId] = r._id;
+                mdlRow[_dirColumns.m_colParent] = r._parent;
+            };
+
         std::vector< Row > vecRow;
         vecRow.reserve( 256 );
         Row r;
@@ -266,8 +273,28 @@ private:
         std::unordered_map< int, Gtk::TreeModel::Row > rows;
         rows.reserve( 1024 );
 
-        TEMPLATIOUS_FOREACH(auto& i,vecRow) {
+        assert( SA::size(vecRow) > 0 );
+        // first should be root
+        auto& first = vecRow[0];
+        assert( first._id == 1 && first._name == "root"
+                && first._parent == -1
+                && "Should be root..." );
 
+        auto row = *(_dirStore->append());
+        setRow(first,row);
+        rows.insert( std::pair<int,Gtk::TreeModel::Row>(
+            first._id,row) );
+
+        auto range = SF::seqL<int>(1,SA::size(vecRow));
+        TEMPLATIOUS_FOREACH(auto ir,range) {
+            auto& i = vecRow[ir];
+            auto find = rows.find(i._parent);
+            assert( find != rows.end() );
+
+            auto newRow = *(_dirStore->append(find->second->children()));
+            setRow(i,newRow);
+            rows.insert(std::pair<int,Gtk::TreeModel::Row>(
+                i._id,newRow));
         }
     }
 

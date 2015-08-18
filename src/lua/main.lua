@@ -16,15 +16,14 @@ initAll = function()
             ctx:message(mainModel,
                 VSig("MMI_InLoadFolderTree"),VMsg(asyncSqlite),VMsg(mainWnd))
         end,"MWI_OutNewFileSignal"),
-        VMatch(function(tree)
+        VMatch(function(natpack,val)
             local mainModel = ctx:namedMesseagable("mainModel")
             local asyncSqlite = ctx:namedMesseagable("asyncSqliteCurrent")
-            print("SENT!")
+            local inId = val:values()._2
             ctx:message(mainModel,
-                VSig("MMI_InLoadFileList"),VInt(tree:values()._2),
+                VSig("MMI_InLoadFileList"),VInt(inId),
                 VMsg(asyncSqlite),VMsg(mainWnd))
-            print("SENT!")
-        end,"MWI_OutDirChangedSignal")
+        end,"MWI_OutDirChangedSignal","int")
     )
 
     ctx:message(mainWnd,VSig("MWI_InAttachListener"),VMsg(mainWindowPushButtonHandler))

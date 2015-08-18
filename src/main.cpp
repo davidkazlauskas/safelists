@@ -14,6 +14,11 @@ struct MainWindowInterface {
     // In lua: MWI_OutNewFileSignal
     DUMMY_STRUCT(OutNewFileSignal);
 
+    // emitted when new file creation
+    // is requested.
+    // In lua: MWI_OutNewFileSignal
+    DUMMY_STRUCT(OutDirChangedSignal);
+
     // emit to attach listener
     // In lua: MWI_InAttachListener
     // Signature: < InAttachListener, StrongMsgPtr >
@@ -346,6 +351,16 @@ private:
     }
 
     void directoryToViewChanged() {
+        auto iter = _dirSelection->get_selected();
+        if (nullptr != iter) {
+            auto row = *iter;
+            int id = row[_dirColumns.m_colId];
+            printf("Sending id: %d\n",id);
+            auto msg = SF::vpack< MainWindowInterface::OutDirChangedSignal, int >(
+                nullptr, id
+            );
+            _notifierCache.notify(msg);
+        }
     }
 
     void addNewButtonClicked() {

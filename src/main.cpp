@@ -454,7 +454,6 @@ private:
             auto row = *iter;
             int id = row[_dirColumns.m_colId];
             _lastSelectedDirId = id;
-            printf("Sending id: %d\n",id);
             auto msg = SF::vpack< MainWindowInterface::OutDirChangedSignal, int >(
                 nullptr, id
             );

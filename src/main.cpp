@@ -263,6 +263,12 @@ private:
         );
 
         _dirStore->clear();
+        std::unordered_map< int, Gtk::TreeModel::Row > rows;
+        rows.reserve( 1024 );
+
+        TEMPLATIOUS_FOREACH(auto& i,vecRow) {
+
+        }
     }
 
     bool onDraw(const Cairo::RefPtr<Cairo::Context>& cr) {

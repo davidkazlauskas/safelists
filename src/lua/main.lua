@@ -20,7 +20,13 @@ initAll = function()
             local inId = val:values()._2
 
             if (currentDirId > 0) then
+                ctx:message(mainWnd,VSig("MWI_InSetStatusText"),VString(""))
+                if (inId == currentDirId) then
+                    return
+                end
+
                 local asyncSqlite = ctx:namedMesseagable("asyncSqliteCurrent")
+                local mainModel = ctx:namedMesseagable("mainModel")
                 ctx:messageAsync(asyncSqlite,
                     VSig("ASQL_Execute"),
                     VString("UPDATE directories SET dir_parent=" .. inId

@@ -173,11 +173,6 @@ private:
                         &errmsg
                     );
 
-                    const char* errMsg2 = nullptr;
-                    if (SQLITE_OK != outCode) {
-                        errMsg2 = ::sqlite3_errmsg(this->_sqlite);
-                    }
-
                     assert( nullptr == errmsg );
                     assert( SQLITE_OK == outCode );
                     outSnap = bld.getSnapshot();
@@ -185,7 +180,9 @@ private:
             ),
             SF::virtualMatch< AS::Execute, const char* >(
                 [=](AS::Execute,const char* query) {
-                    sqlite3_exec(this->_sqlite,query,nullptr,nullptr,nullptr);
+                    char* errmsg = nullptr;
+                    sqlite3_exec(this->_sqlite,query,nullptr,nullptr,&errmsg);
+                    assert( nullptr == errmsg );
                 }
             ),
             SF::virtualMatch< AS::Execute, const char*, AS::SqliteCallbackSimple >(

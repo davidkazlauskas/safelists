@@ -31,9 +31,12 @@ initAll = function()
                     VSig("ASQL_Execute"),
                     VString("UPDATE directories SET dir_parent=" .. inId
                         .. " WHERE dir_id=" .. currentDirId .. ";"))
+                    local selected = currentDirId
                     currentDirId = -1
                     ctx:message(mainModel,
                         VSig("MMI_InLoadFolderTree"),VMsg(asyncSqlite),VMsg(mainWnd))
+                    ctx:message(mainWnd,
+                        VSig("MWI_InSelectDirIdInTree"),VInt(selected))
                 return
             end
 

@@ -305,8 +305,42 @@ private:
                         outId = -1;
                     }
                 }
+            ),
+            SF::virtualMatch< MWI::InSelectDirIdInTree, const int >(
+                [=](MWI::InSelectDirIdInTree,int id) {
+                    Gtk::TreeModel::iterator iter;
+                    auto children = _dirStore->children();
+                    bool found = findIdIter(id,iter,children);
+                    if (found) {
+                        _dirSelection->select(iter);
+                    }
+                }
             )
         );
+    }
+
+    bool findIdIter(
+        int id,
+        Gtk::TreeModel::iterator& outIter,
+        Gtk::TreeModel::Children& children)
+    {
+        auto beg = children.begin();
+        auto end = children.end();
+        for (; beg != end; ++beg) {
+            auto current = *beg;
+            if (current[_dirColumns.m_colId] == id) {
+                outIter = beg;
+                return true;
+            }
+            auto currentChildren = current.children();
+            if (currentChildren.size() > 0) {
+                bool innerSearch = findIdIter(id,outIter,currentChildren);
+                if (innerSearch) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     struct DirectoryTreeColumns : public Gtk::TreeModel::ColumnRecord {

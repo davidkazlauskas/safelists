@@ -209,6 +209,10 @@ struct GtkMainWindow : public Messageable {
             sigc::mem_fun(*this,&GtkMainWindow::addNewButtonClicked)
         );
 
+        _moveBtn->signal_clicked().connect(
+            sigc::mem_fun(*this,&GtkMainWindow::moveButtonClicked)
+        );
+
         _wnd->signal_draw().connect(
             sigc::mem_fun(*this,&GtkMainWindow::onDraw)
         );
@@ -455,6 +459,11 @@ private:
         _notifierCache.notify(msg);
     }
 
+    void moveButtonClicked() {
+        auto msg = SF::vpack< MainWindowInterface::OutMoveButtonClicked >(nullptr);
+        _notifierCache.notify(msg);
+    }
+
     void createDirModel() {
         _dirStore = Gtk::TreeStore::create(_dirColumns);
         _left->append_column( "Name", _dirColumns.m_colName );
@@ -553,6 +562,7 @@ typedef templatious::TypeNodeFactory TNF;
 void MainWindowInterface::registerInFactory(templatious::DynVPackFactoryBuilder& bld) {
     typedef MainWindowInterface MWI;
     ATTACH_NAMED_DUMMY(bld,"MWI_OutNewFileSignal",MWI::OutNewFileSignal);
+    ATTACH_NAMED_DUMMY(bld,"MWI_OutMoveButtonClicked",MWI::OutMoveButtonClicked);
     ATTACH_NAMED_DUMMY(bld,"MWI_OutDirChangedSignal",MWI::OutDirChangedSignal);
     ATTACH_NAMED_DUMMY(bld,"MWI_InAttachListener",MWI::InAttachListener);
     ATTACH_NAMED_DUMMY(bld,"MWI_InSetStatusText",MWI::InSetStatusText);

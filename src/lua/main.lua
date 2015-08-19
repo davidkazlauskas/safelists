@@ -23,7 +23,11 @@ initAll = function()
             ctx:message(mainModel,
                 VSig("MMI_InLoadFileList"),VInt(inId),
                 VMsg(asyncSqlite),VMsg(mainWnd))
-        end,"MWI_OutDirChangedSignal","int")
+        end,"MWI_OutDirChangedSignal","int"),
+        VMatch(function()
+            ctx:message(mainWnd,
+                VSig("MWI_InSetStatusText"),VString("Press on node under which to move"))
+        end,"MWI_OutMoveButtonClicked")
     )
 
     ctx:message(mainWnd,VSig("MWI_InAttachListener"),VMsg(mainWindowPushButtonHandler))

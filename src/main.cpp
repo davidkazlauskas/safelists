@@ -41,6 +41,9 @@ struct MainWindowInterface {
     // Signature: < InSetStatusText, std::string >
     DUMMY_STRUCT(InSetStatusText);
 
+    // query current directory id
+    DUMMY_STRUCT(QueryCurrentDirId);
+
     static void registerInFactory(templatious::DynVPackFactoryBuilder& bld);
 };
 
@@ -283,6 +286,17 @@ private:
             SF::virtualMatch< MWI::InSetStatusText, const std::string >(
                 [=](MWI::InSetStatusText,const std::string& text) {
                     this->_statusBar->set_text(text.c_str());
+                }
+            ),
+            SF::virtualMatch< MWI::QueryCurrentDirId, int >(
+                [=](MWI::QueryCurrentDirId,int& outId) {
+                    auto selection = _dirSelection->get_selected();
+                    if (nullptr != selection) {
+                        auto row = *selection;
+                        outId = row[_dirColumns.m_colId];
+                    } else {
+                        outId = -1;
+                    }
                 }
             )
         );

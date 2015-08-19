@@ -33,6 +33,7 @@ struct MainWindowInterface {
     DUMMY_STRUCT(InSetFileData);
 
     // set current status text
+    // Signature: < InSetStatusText, std::string >
     DUMMY_STRUCT(InSetStatusText);
 
     static void registerInFactory(templatious::DynVPackFactoryBuilder& bld);
@@ -194,6 +195,8 @@ struct GtkMainWindow : public Messageable {
         bld->get_widget("treeview1",_right);
         bld->get_widget("treeview3",_left);
         bld->get_widget("addNewBtn",_addNewBtn);
+        bld->get_widget("moveButton",_moveBtn);
+        bld->get_widget("statusbar1",_statusBar);
 
         auto mdl = SafeLists::RangerTreeModel::create();
 
@@ -266,6 +269,11 @@ private:
             >(
                 [=](MWI::InSetFileData,int id,TableSnapshot& snapshot) {
                     setFileModel(id,snapshot);
+                }
+            ),
+            SF::virtualMatch< MWI::InSetStatusText, const std::string >(
+                [=](MWI::InSetStatusText,const std::string& text) {
+                    this->_statusBar->set_tooltip_text(text.c_str());
                 }
             )
         );
@@ -464,6 +472,7 @@ private:
     Gtk::TreeView* _right;
     Gtk::Button* _addNewBtn;
     Gtk::Button* _moveBtn;
+    Gtk::Statusbar* _statusBar;
     ModelColumns _mdl;
 
     VmfPtr _messageHandler;
@@ -542,6 +551,7 @@ void MainWindowInterface::registerInFactory(templatious::DynVPackFactoryBuilder&
     ATTACH_NAMED_DUMMY(bld,"MWI_OutNewFileSignal",MWI::OutNewFileSignal);
     ATTACH_NAMED_DUMMY(bld,"MWI_OutDirChangedSignal",MWI::OutDirChangedSignal);
     ATTACH_NAMED_DUMMY(bld,"MWI_InAttachListener",MWI::InAttachListener);
+    ATTACH_NAMED_DUMMY(bld,"MWI_InSetStatusText",MWI::InSetStatusText);
 }
 
 void MainModel::MainModelInterface::registerInFactory(templatious::DynVPackFactoryBuilder& bld) {

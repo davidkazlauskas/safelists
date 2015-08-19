@@ -312,7 +312,8 @@ private:
                     auto children = _dirStore->children();
                     bool found = findIdIter(id,iter,children);
                     if (found) {
-                        _dirSelection->select(iter);
+                        // doesn't work, freeze for some reason
+                        //_dirSelection->select(iter);
                     }
                 }
             )

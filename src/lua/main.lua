@@ -8,8 +8,6 @@ initAll = function()
 
     ctx:attachContextTo(mainWnd)
 
-    ctx:message(mainWnd,VSig("MWI_InSetStatusText"),VString("hi there"))
-
     mainWindowPushButtonHandler = ctx:makeLuaMatchHandler(
         VMatch(function()
             print("BALLIN, BALLIN")

@@ -14,9 +14,14 @@ struct MainWindowInterface {
     // In lua: MWI_OutNewFileSignal
     DUMMY_STRUCT(OutNewFileSignal);
 
+    // emitted when move button is
+    // pressed.
+    // In lua: MWI_OutMoveButtonClicked
+    DUMMY_STRUCT(OutMoveButtonClicked);
+
     // emitted when new file creation
     // is requested.
-    // In lua: MWI_OutNewFileSignal
+    // In lua: MWI_OutDirChangedSignal
     DUMMY_STRUCT(OutDirChangedSignal);
 
     // emit to attach listener
@@ -533,7 +538,6 @@ int main(int argc,char** argv) {
     auto asyncSqlite = SafeLists::AsyncSqlite::createNew("exampleData/example2.safelist");
     auto mainWnd = std::make_shared< GtkMainWindow >(builder);
     auto mainModel = std::make_shared< MainModel >();
-    //mainWnd->initModel(asyncSqlite);
     ctx->addMesseagableWeak("mainWindow",mainWnd);
     ctx->addMesseagableWeak("mainModel",mainModel);
     ctx->addMesseagableWeak("asyncSqliteCurrent",asyncSqlite);

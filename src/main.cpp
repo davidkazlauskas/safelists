@@ -42,6 +42,7 @@ struct MainWindowInterface {
     DUMMY_STRUCT(InSetStatusText);
 
     // query current directory id
+    // Signature: < QueryCurrentDirId, int (output) >
     DUMMY_STRUCT(QueryCurrentDirId);
 
     static void registerInFactory(templatious::DynVPackFactoryBuilder& bld);
@@ -580,6 +581,7 @@ void MainWindowInterface::registerInFactory(templatious::DynVPackFactoryBuilder&
     ATTACH_NAMED_DUMMY(bld,"MWI_OutDirChangedSignal",MWI::OutDirChangedSignal);
     ATTACH_NAMED_DUMMY(bld,"MWI_InAttachListener",MWI::InAttachListener);
     ATTACH_NAMED_DUMMY(bld,"MWI_InSetStatusText",MWI::InSetStatusText);
+    ATTACH_NAMED_DUMMY(bld,"MWI_QueryCurrentDirId",MWI::QueryCurrentDirId);
 }
 
 void MainModel::MainModelInterface::registerInFactory(templatious::DynVPackFactoryBuilder& bld) {

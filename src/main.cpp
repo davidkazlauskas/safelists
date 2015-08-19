@@ -48,6 +48,8 @@ struct MainWindowInterface {
     static void registerInFactory(templatious::DynVPackFactoryBuilder& bld);
 };
 
+void registerSqliteInFactory(templatious::DynVPackFactoryBuilder& bld);
+
 #define ASYNC_OUT_SNAP_SIGNATURE \
     ASql::ExecuteOutSnapshot, \
     std::string, \
@@ -542,6 +544,7 @@ templatious::DynVPackFactory makeVfactory() {
 
     MainWindowInterface::registerInFactory(bld);
     MainModel::MainModelInterface::registerInFactory(bld);
+    registerSqliteInFactory(bld);
 
     return bld.getFactory();
 }
@@ -588,4 +591,9 @@ void MainModel::MainModelInterface::registerInFactory(templatious::DynVPackFacto
     typedef MainModel::MainModelInterface MMI;
     ATTACH_NAMED_DUMMY(bld,"MMI_InLoadFolderTree",MMI::InLoadFolderTree);
     ATTACH_NAMED_DUMMY(bld,"MMI_InLoadFileList",MMI::InLoadFileList);
+}
+
+void registerSqliteInFactory(templatious::DynVPackFactoryBuilder& bld) {
+    typedef SafeLists::AsyncSqlite ASql;
+    ATTACH_NAMED_DUMMY(bld,"ASQL_Execute",ASql::Execute);
 }

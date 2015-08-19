@@ -17,16 +17,34 @@ initAll = function()
                 VSig("MMI_InLoadFolderTree"),VMsg(asyncSqlite),VMsg(mainWnd))
         end,"MWI_OutNewFileSignal"),
         VMatch(function(natpack,val)
+            local inId = val:values()._2
+
+            if (currentDirId > 0) then
+                local asyncSqlite = ctx:namedMesseagable("asyncSqliteCurrent")
+                ctx:messageAsync(asyncSqlite,
+                    VSig("ASQL_Execute"),
+                    VString("UPDATE directories SET dir_parent=" .. inId
+                        .. " WHERE dir_id=" .. currentDirId .. ";"))
+                    currentDirId = -1
+                    ctx:message(mainModel,
+                        VSig("MMI_InLoadFolderTree"),VMsg(asyncSqlite),VMsg(mainWnd))
+                return
+            end
+
             local mainModel = ctx:namedMesseagable("mainModel")
             local asyncSqlite = ctx:namedMesseagable("asyncSqliteCurrent")
-            local inId = val:values()._2
             ctx:message(mainModel,
                 VSig("MMI_InLoadFileList"),VInt(inId),
                 VMsg(asyncSqlite),VMsg(mainWnd))
         end,"MWI_OutDirChangedSignal","int"),
         VMatch(function()
-            ctx:message(mainWnd,
-                VSig("MWI_InSetStatusText"),VString("Press on node under which to move"))
+            currentDirId = ctx:messageRetValues(mainWnd,VSig("MWI_QueryCurrentDirId"),VInt(-7))._2
+            print("Selected dir: " .. currentDirId)
+            if (currentDirId ~= -1) then
+                ctx:message(mainWnd,
+                    VSig("MWI_InSetStatusText"),
+                    VString("Press on node under which to move"))
+            end
         end,"MWI_OutMoveButtonClicked")
     )
 

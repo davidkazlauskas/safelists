@@ -334,7 +334,7 @@ private:
                 return true;
             }
             auto currentChildren = current.children();
-            if (currentChildren.size() > 0) {
+            if (!currentChildren.empty()) {
                 bool innerSearch = findIdIter(id,outIter,currentChildren);
                 if (innerSearch) {
                     return true;

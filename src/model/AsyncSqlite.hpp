@@ -17,6 +17,7 @@ struct AsyncSqlite {
     // query statement
     // Signature:
     // < Execute, const char* sql >
+    // < Execute, std::string >
     // < Execute, const char* sql, SqliteCallbackSimple >
     DUMMY_STRUCT(Execute);
 

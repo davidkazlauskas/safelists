@@ -185,6 +185,13 @@ private:
                     assert( nullptr == errmsg );
                 }
             ),
+            SF::virtualMatch< AS::Execute, const std::string >(
+                [=](AS::Execute,const std::string& query) {
+                    char* errmsg = nullptr;
+                    sqlite3_exec(this->_sqlite,query.c_str(),nullptr,nullptr,&errmsg);
+                    assert( nullptr == errmsg );
+                }
+            ),
             SF::virtualMatch< AS::Execute, const char*, AS::SqliteCallbackSimple >(
                 [=](AS::Execute,const char* query, AS::SqliteCallbackSimple& sql) {
                     sqlite3_exec(this->_sqlite,query,&sqliteFuncExec,&sql,nullptr);

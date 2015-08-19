@@ -196,7 +196,7 @@ struct GtkMainWindow : public Messageable {
         bld->get_widget("treeview3",_left);
         bld->get_widget("addNewBtn",_addNewBtn);
         bld->get_widget("moveButton",_moveBtn);
-        bld->get_widget("statusbar1",_statusBar);
+        bld->get_widget("statusBarLabel",_statusBar);
 
         auto mdl = SafeLists::RangerTreeModel::create();
 
@@ -273,7 +273,7 @@ private:
             ),
             SF::virtualMatch< MWI::InSetStatusText, const std::string >(
                 [=](MWI::InSetStatusText,const std::string& text) {
-                    this->_statusBar->set_tooltip_text(text.c_str());
+                    this->_statusBar->set_text(text.c_str());
                 }
             )
         );
@@ -472,7 +472,7 @@ private:
     Gtk::TreeView* _right;
     Gtk::Button* _addNewBtn;
     Gtk::Button* _moveBtn;
-    Gtk::Statusbar* _statusBar;
+    Gtk::Label* _statusBar;
     ModelColumns _mdl;
 
     VmfPtr _messageHandler;

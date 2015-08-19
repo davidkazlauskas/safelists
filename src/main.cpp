@@ -32,6 +32,9 @@ struct MainWindowInterface {
     // Signature: < InSetFileData, TableSnapshot >
     DUMMY_STRUCT(InSetFileData);
 
+    // set current status text
+    DUMMY_STRUCT(InSetStatusText);
+
     static void registerInFactory(templatious::DynVPackFactoryBuilder& bld);
 };
 
@@ -230,33 +233,6 @@ struct GtkMainWindow : public Messageable {
     void message(const std::shared_ptr< templatious::VirtualPack >& msg) override {
         _messageCache.enqueue(msg);
     }
-
-    //void initModel(const std::shared_ptr< Messageable >& asyncSqlite) {
-        //return;
-
-        //auto shared = SafeLists::SqliteRanger::makeRanger(
-            //asyncSqlite,
-            //"SELECT file_name,file_size,file_hash_sha256 FROM files LIMIT %d OFFSET %d;",
-            //"SELECT COUNT(*) FROM files;",
-            //3,
-            //[](int row,int col,const char* value) {
-                ////std::cout << "PULLED OUT: " << row << ":" << col << " " << value << std::endl;
-            //},
-            //[](int row,int col,std::string& str) {
-                //str = "Loading...";
-            //}
-        //);
-        //shared->updateRows();
-        //shared->setRange(0,256*256);
-        //shared->waitRows();
-
-        //auto mdl = SafeLists::RangerTreeModel::create();
-        //mdl->setRanger(shared);
-
-        //const char* columns[] = {"one","two","three"};
-        //_right->set_model(mdl);
-        //mdl->appendColumns(*_right,columns);
-    //}
 
 private:
 
@@ -487,6 +463,7 @@ private:
     Gtk::TreeView* _left;
     Gtk::TreeView* _right;
     Gtk::Button* _addNewBtn;
+    Gtk::Button* _moveBtn;
     ModelColumns _mdl;
 
     VmfPtr _messageHandler;

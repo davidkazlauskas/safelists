@@ -41,6 +41,10 @@ struct MainWindowInterface {
     // Signature: < InSetStatusText, std::string >
     DUMMY_STRUCT(InSetStatusText);
 
+    // display specified id in the tree
+    // Signature: < InDisplayDirIdInTree, int >
+    DUMMY_STRUCT(InDisplayDirIdInTree);
+
     // query current directory id
     // Signature: < QueryCurrentDirId, int (output) >
     DUMMY_STRUCT(QueryCurrentDirId);
@@ -584,6 +588,7 @@ void MainWindowInterface::registerInFactory(templatious::DynVPackFactoryBuilder&
     ATTACH_NAMED_DUMMY(bld,"MWI_OutDirChangedSignal",MWI::OutDirChangedSignal);
     ATTACH_NAMED_DUMMY(bld,"MWI_InAttachListener",MWI::InAttachListener);
     ATTACH_NAMED_DUMMY(bld,"MWI_InSetStatusText",MWI::InSetStatusText);
+    ATTACH_NAMED_DUMMY(bld,"MWI_InDisplayDirIdInTree",MWI::InDisplayDirIdInTree);
     ATTACH_NAMED_DUMMY(bld,"MWI_QueryCurrentDirId",MWI::QueryCurrentDirId);
 }
 

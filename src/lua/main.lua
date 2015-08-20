@@ -91,6 +91,8 @@ initAll = function()
             end
 
             local dirName = ctx:messageRetValues(mainWnd,VSig("MWI_QueryCurrentDirName"),VString("?"))._2
+            local dirId = ctx:messageRetValues(mainWnd,VSig("MWI_QueryCurrentDirId"),VInt(-7))._2
+
             if (dirName == "[unselected]") then
                 setStatus(ctx,mainWnd,"No directory was selected to create new one.")
                 return
@@ -103,7 +105,21 @@ initAll = function()
             local handler = ctx:makeLuaMatchHandler(
                 VMatch(function()
                     print("Ok!")
+                    local outName = ctx:messageRetValues(dialog,VSig("INDLG_QueryInput"),VString("?"))._2
+                    -- more thorough user input check should be performed
+                    if (outName == "") then
+                        setStatus(ctx,mainWnd,"Some directory name must be specified.")
+                        return
+                    end
 
+                    local asyncSqlite = ctx:namedMesseagable("asyncSqliteCurrent")
+                    ctx:messageAsync(
+                        VSig("ASQL_Execute"),
+                        VString("INSERT INTO directories (dir_name,dir_parent)"
+                            .. " VALUES (" .. outName .. "," .. dirId .. ");")
+                    )
+                    ctx:message(mainModel,
+                        VSig("MMI_InLoadFolderTree"),VMsg(asyncSqlite),VMsg(mainWnd))
                     showOrHide(false)
                 end,"INDLG_OutOkClicked"),
                 VMatch(function()

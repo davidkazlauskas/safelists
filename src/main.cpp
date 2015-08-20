@@ -672,6 +672,11 @@ struct GtkInputDialog : public Messageable {
         // in lua: INDLG_InShowDialog
         DUMMY_STRUCT(InShowDialog);
 
+        // Set notifier to notify messages
+        // in lua: INDLG_InSetNotifier
+        // Signature: < InSetNotifier, StrongMsgPtr >
+        DUMMY_STRUCT(InSetNotifier);
+
         static void registerInFactory(templatious::DynVPackFactoryBuilder& bld);
     };
 
@@ -789,4 +794,5 @@ void registerSqliteInFactory(templatious::DynVPackFactoryBuilder& bld) {
 void GtkInputDialog::Interface::registerInFactory(templatious::DynVPackFactoryBuilder& bld) {
     typedef GtkInputDialog::Interface INT;
     ATTACH_NAMED_DUMMY(bld,"INDLG_InShowDialog",INT::InShowDialog);
+    ATTACH_NAMED_DUMMY(bld,"INDLG_InSetNotifier",INT::InSetNotifier);
 }

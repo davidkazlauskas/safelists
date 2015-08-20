@@ -71,6 +71,10 @@ struct MainWindowInterface {
     // Signature: < QueryCurrentDirId, int (output) >
     DUMMY_STRUCT(QueryCurrentDirId);
 
+    // query current directory name
+    // Signature: < QueryCurrentDirName, std::string (output) >
+    DUMMY_STRUCT(QueryCurrentDirName);
+
     static void registerInFactory(templatious::DynVPackFactoryBuilder& bld);
 };
 
@@ -337,6 +341,18 @@ private:
                         outId = row[_dirColumns.m_colId];
                     } else {
                         outId = -1;
+                    }
+                }
+            ),
+            SF::virtualMatch< MWI::QueryCurrentDirName, std::string >(
+                [=](MWI::QueryCurrentDirName,std::string& outstr) {
+                    auto selection = _dirSelection->get_selected();
+                    if (nullptr != selection) {
+                        auto row = *selection;
+                        Glib::ustring str = row[_dirColumns.m_colName];
+                        outstr = str.c_str();
+                    } else {
+                        outstr = "[unselected]";
                     }
                 }
             ),

@@ -119,7 +119,7 @@ initAll = function()
                         asyncSqlite,
                         VSig("ASQL_Execute"),
                         VString("INSERT INTO directories (dir_name,dir_parent)"
-                            .. " VALUES (" .. outName .. "," .. dirId .. ");")
+                            .. " VALUES ('" .. outName .. "'," .. dirId .. ");")
                     )
                     -- todo: optimize, don't reload all
                     ctx:message(mainModel,

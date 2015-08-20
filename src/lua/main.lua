@@ -96,6 +96,10 @@ initAll = function()
                 return
             end
 
+            ctx:message(dialog,VSig("INDLG_InSetLabel"),VString(
+                "Specify new folder name to create under " .. dirName .. "."
+            ))
+
             local handler = ctx:makeLuaMatchHandler(
                 VMatch(function()
                     print("Ok!")

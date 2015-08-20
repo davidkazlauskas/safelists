@@ -229,6 +229,8 @@ struct GtkMainWindow : public Messageable {
 
         createDirModel();
         createFileModel();
+
+        _selectionStack.resize(2);
     }
 
     class ModelColumns : public Gtk::TreeModel::ColumnRecord {
@@ -499,6 +501,7 @@ private:
 
     void directoryToViewChanged() {
         auto iter = _dirSelection->get_selected();
+        pushToSelectionStack(iter);
         if (nullptr != iter) {
             auto row = *iter;
             int id = row[_dirColumns.m_colId];
@@ -537,6 +540,11 @@ private:
         _right->set_model(_fileStore);
     }
 
+    void pushToSelectionStack(Gtk::TreeModel::iterator& iter) {
+        _selectionStack[0] = _selectionStack[1];
+        _selectionStack[1] = iter;
+    }
+
     std::unique_ptr< Gtk::Window > _wnd;
     Gtk::TreeView* _left;
     Gtk::TreeView* _right;
@@ -564,6 +572,8 @@ private:
 
     // STATE
     int _lastSelectedDirId;
+    // should contain two elements always
+    std::vector<Gtk::TreeModel::iterator> _selectionStack;
 };
 
 struct GtkNewEntryDialog : public Messageable {

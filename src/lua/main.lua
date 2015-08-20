@@ -86,17 +86,24 @@ initAll = function()
         VMatch(function()
             local dialog = ctx:namedMesseagable("singleInputDialog")
 
+            local showOrHide = function(val)
+                ctx:message(dialog,VSig("INDLG_InShowDialog"),VBool(val))
+            end
+
             local handler = ctx:makeLuaMatchHandler(
                 VMatch(function()
                     print("Ok!")
+
+                    showOrHide(false)
                 end,"INDLG_OutOkClicked"),
                 VMatch(function()
                     print("Cancel!")
+                    showOrHide(false)
                 end,"INDLG_OutCancelClicked")
             )
 
             ctx:message(dialog,VSig("INDLG_InSetNotifier"),VMsg(handler))
-            ctx:message(dialog,VSig("INDLG_InShowDialog"),VBool(true))
+            showOrHide(true)
         end,"MWI_OutNewDirButtonClicked")
     )
 

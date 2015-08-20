@@ -677,6 +677,11 @@ struct GtkInputDialog : public Messageable {
         // Signature: < InSetNotifier, StrongMsgPtr >
         DUMMY_STRUCT(InSetNotifier);
 
+        // Set label text
+        // in lua: INDLG_InSetLabel
+        // Signature: < InSetLabel, std::string >
+        DUMMY_STRUCT(InSetLabel);
+
         // Emitted when ok button is clicked
         DUMMY_STRUCT(OutOkClicked);
 
@@ -747,6 +752,11 @@ private:
             SF::virtualMatch< INT::InSetNotifier, StrongMsgPtr >(
                 [=](INT::InSetNotifier,const StrongMsgPtr& msg) {
                     this->_toNotify = msg;
+                }
+            ),
+            SF::virtualMatch< INT::InSetLabel, const std::string >(
+                [=](INT::InSetLabel,const std::string& str) {
+                    this->_label->set_text(str.c_str());
                 }
             )
         );
@@ -836,6 +846,7 @@ void GtkInputDialog::Interface::registerInFactory(templatious::DynVPackFactoryBu
     typedef GtkInputDialog::Interface INT;
     ATTACH_NAMED_DUMMY(bld,"INDLG_InShowDialog",INT::InShowDialog);
     ATTACH_NAMED_DUMMY(bld,"INDLG_InSetNotifier",INT::InSetNotifier);
+    ATTACH_NAMED_DUMMY(bld,"INDLG_InSetLabel",INT::InSetLabel);
     ATTACH_NAMED_DUMMY(bld,"INDLG_OutOkClicked",INT::OutOkClicked);
     ATTACH_NAMED_DUMMY(bld,"INDLG_OutCancelClicked",INT::OutCancelClicked);
 }

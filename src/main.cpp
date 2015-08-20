@@ -24,10 +24,14 @@ struct MainWindowInterface {
     // In lua: MWI_OutDirChangedSignal
     DUMMY_STRUCT(OutDirChangedSignal);
 
-    // emitted when new file creation
+    // emitted when delete dir button clicked
     // is requested.
-    // In lua: MWI_OutDirChangedSignal
+    // In lua: MWI_OutDeleteDirButtonClicked
     DUMMY_STRUCT(OutDeleteDirButtonClicked);
+
+    // emitted when new directory button clicked
+    // In lua: MWI_OutNewDirButtonClicked
+    DUMMY_STRUCT(OutNewDirButtonClicked);
 
     // emit to attach listener
     // In lua: MWI_InAttachListener
@@ -231,6 +235,7 @@ struct GtkMainWindow : public Messageable {
         bld->get_widget("moveButton",_moveDirBtn);
         bld->get_widget("deleteDirButton",_deleteDirBtn);
         bld->get_widget("statusBarLabel",_statusBar);
+        bld->get_widget("newDirectoryButton",_newDirBtn);
 
         auto mdl = SafeLists::RangerTreeModel::create();
 
@@ -244,6 +249,10 @@ struct GtkMainWindow : public Messageable {
 
         _deleteDirBtn->signal_clicked().connect(
             sigc::mem_fun(*this,&GtkMainWindow::deleteDirButtonClicked)
+        );
+
+        _newDirBtn->signal_clicked().connect(
+            sigc::mem_fun(*this,&GtkMainWindow::newDirButtonClicked)
         );
 
         _wnd->signal_draw().connect(
@@ -596,6 +605,11 @@ private:
         _notifierCache.notify(msg);
     }
 
+    void newDirButtonClicked() {
+        auto msg = SF::vpack< MainWindowInterface::OutNewDirButtonClicked >(nullptr);
+        _notifierCache.notify(msg);
+    }
+
     void createDirModel() {
         _dirStore = Gtk::TreeStore::create(_dirColumns);
         _left->append_column( "Name", _dirColumns.m_colName );
@@ -624,6 +638,7 @@ private:
     Gtk::Button* _addNewBtn;
     Gtk::Button* _moveDirBtn;
     Gtk::Button* _deleteDirBtn;
+    Gtk::Button* _newDirBtn;
     Gtk::Label* _statusBar;
     ModelColumns _mdl;
 
@@ -748,6 +763,7 @@ void MainWindowInterface::registerInFactory(templatious::DynVPackFactoryBuilder&
     ATTACH_NAMED_DUMMY(bld,"MWI_OutMoveButtonClicked",MWI::OutMoveButtonClicked);
     ATTACH_NAMED_DUMMY(bld,"MWI_OutDirChangedSignal",MWI::OutDirChangedSignal);
     ATTACH_NAMED_DUMMY(bld,"MWI_OutDeleteDirButtonClicked",MWI::OutDeleteDirButtonClicked);
+    ATTACH_NAMED_DUMMY(bld,"MWI_OutNewDirButtonClicked",MWI::OutNewDirButtonClicked);
     ATTACH_NAMED_DUMMY(bld,"MWI_InAttachListener",MWI::InAttachListener);
     ATTACH_NAMED_DUMMY(bld,"MWI_InSetStatusText",MWI::InSetStatusText);
     ATTACH_NAMED_DUMMY(bld,"MWI_InSelectDirIdInTree",MWI::InSelectDirIdInTree);

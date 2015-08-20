@@ -24,6 +24,11 @@ struct MainWindowInterface {
     // In lua: MWI_OutDirChangedSignal
     DUMMY_STRUCT(OutDirChangedSignal);
 
+    // emitted when new file creation
+    // is requested.
+    // In lua: MWI_OutDirChangedSignal
+    DUMMY_STRUCT(OutDeleteDirButtonClicked);
+
     // emit to attach listener
     // In lua: MWI_InAttachListener
     // Signature: < InAttachListener, StrongMsgPtr >
@@ -577,7 +582,8 @@ private:
     }
 
     void deleteDirButtonClicked() {
-
+        auto msg = SF::vpack< MainWindowInterface::OutDeleteDirButtonClicked >(nullptr);
+        _notifierCache.notify(msg);
     }
 
     void createDirModel() {
@@ -689,6 +695,7 @@ void MainWindowInterface::registerInFactory(templatious::DynVPackFactoryBuilder&
     ATTACH_NAMED_DUMMY(bld,"MWI_OutNewFileSignal",MWI::OutNewFileSignal);
     ATTACH_NAMED_DUMMY(bld,"MWI_OutMoveButtonClicked",MWI::OutMoveButtonClicked);
     ATTACH_NAMED_DUMMY(bld,"MWI_OutDirChangedSignal",MWI::OutDirChangedSignal);
+    ATTACH_NAMED_DUMMY(bld,"MWI_OutDeleteDirButtonClicked",MWI::OutDeleteDirButtonClicked);
     ATTACH_NAMED_DUMMY(bld,"MWI_InAttachListener",MWI::InAttachListener);
     ATTACH_NAMED_DUMMY(bld,"MWI_InSetStatusText",MWI::InSetStatusText);
     ATTACH_NAMED_DUMMY(bld,"MWI_InSelectDirIdInTree",MWI::InSelectDirIdInTree);

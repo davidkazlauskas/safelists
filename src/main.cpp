@@ -749,9 +749,13 @@ private:
     VmfPtr genHandler() {
         typedef Interface INT;
         return SF::virtualMatchFunctorPtr(
-            SF::virtualMatch< INT::InShowDialog >(
-                [=](INT::InShowDialog) {
-                    _dlg->show();
+            SF::virtualMatch< INT::InShowDialog, bool >(
+                [=](INT::InShowDialog,bool show) {
+                    if (show) {
+                        _dlg->show();
+                    } else {
+                        _dlg->hide();
+                    }
                 }
             ),
             SF::virtualMatch< INT::InSetNotifier, StrongMsgPtr >(

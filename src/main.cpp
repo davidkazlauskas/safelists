@@ -652,7 +652,13 @@ private:
 
 struct GtkInputDialog : public Messageable {
 
-    GtkInputDialog(Glib::RefPtr<Gtk::Builder>& bld) {
+    struct Interface {
+
+        // Show the dialog
+        DUMMY_STRUCT(InShowDialog);
+    };
+
+    GtkInputDialog(Glib::RefPtr<Gtk::Builder>& bld) : _handler(genHandler()) {
         Gtk::Dialog* dlg = nullptr;
         bld->get_widget("dialog2",dlg);
         _dlg.reset(dlg);
@@ -664,11 +670,25 @@ struct GtkInputDialog : public Messageable {
     }
 
     void message(templatious::VirtualPack& msg) override {
-
+        _handler->tryMatch(msg);
     }
 
     void message(const std::shared_ptr< templatious::VirtualPack >& msg) override {
         assert( false && "Single threaded messaging only." );
+    }
+
+private:
+    typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
+
+    VmfPtr genHandler() {
+        typedef Interface INT;
+        return SF::virtualMatchFunctorPtr(
+            SF::virtualMatch< INT::InShowDialog >(
+                [=](INT::InShowDialog) {
+                    _dlg->show();
+                }
+            )
+        );
     }
 
     std::unique_ptr< Gtk::Dialog > _dlg;
@@ -676,6 +696,8 @@ struct GtkInputDialog : public Messageable {
     Gtk::Entry* _entry;
     Gtk::Button* _okButton;
     Gtk::Button* _cancelButton;
+
+    VmfPtr _handler;
 };
 
 templatious::DynVPackFactory makeVfactory() {

@@ -668,9 +668,11 @@ private:
 struct GtkInputDialog : public Messageable {
 
     struct Interface {
-
         // Show the dialog
+        // in lua: INDLG_InShowDialog
         DUMMY_STRUCT(InShowDialog);
+
+        static void registerInFactory(templatious::DynVPackFactoryBuilder& bld);
     };
 
     GtkInputDialog(Glib::RefPtr<Gtk::Builder>& bld) : _handler(genHandler()) {
@@ -722,6 +724,7 @@ templatious::DynVPackFactory makeVfactory() {
 
     MainWindowInterface::registerInFactory(bld);
     MainModel::MainModelInterface::registerInFactory(bld);
+    GtkInputDialog::Interface::registerInFactory(bld);
     registerSqliteInFactory(bld);
 
     return bld.getFactory();
@@ -781,4 +784,9 @@ void MainModel::MainModelInterface::registerInFactory(templatious::DynVPackFacto
 void registerSqliteInFactory(templatious::DynVPackFactoryBuilder& bld) {
     typedef SafeLists::AsyncSqlite ASql;
     ATTACH_NAMED_DUMMY(bld,"ASQL_Execute",ASql::Execute);
+}
+
+void GtkInputDialog::Interface::registerInFactory(templatious::DynVPackFactoryBuilder& bld) {
+    typedef GtkInputDialog::Interface INT;
+    ATTACH_NAMED_DUMMY(bld,"INDLG_InShowDialog",INT::InShowDialog);
 }

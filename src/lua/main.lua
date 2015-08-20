@@ -82,7 +82,11 @@ initAll = function()
             else
                 setStatus(ctx,mainWnd,"No directory selected.")
             end
-        end,"MWI_OutDeleteDirButtonClicked")
+        end,"MWI_OutDeleteDirButtonClicked"),
+        VMatch(function()
+            local dialog = ctx:namedMesseagable("singleInputDialog")
+            ctx:message(dialog,VSig("INDLG_InShowDialog"))
+        end,"MWI_OutNewDirButtonClicked")
     )
 
     ctx:message(mainWnd,VSig("MWI_InAttachListener"),VMsg(mainWindowPushButtonHandler))

@@ -45,6 +45,11 @@ struct MainWindowInterface {
     // Signature: < InSelectDirIdInTree, int >
     DUMMY_STRUCT(InSelectDirIdInTree);
 
+    // Move prev item on selection stack
+    // down below current item.
+    // Signature: < InMoveChildUnderParent >
+    DUMMY_STRUCT(InMoveChildUnderParent);
+
     // query current directory id
     // Signature: < QueryCurrentDirId, int (output) >
     DUMMY_STRUCT(QueryCurrentDirId);
@@ -634,6 +639,7 @@ void MainWindowInterface::registerInFactory(templatious::DynVPackFactoryBuilder&
     ATTACH_NAMED_DUMMY(bld,"MWI_InAttachListener",MWI::InAttachListener);
     ATTACH_NAMED_DUMMY(bld,"MWI_InSetStatusText",MWI::InSetStatusText);
     ATTACH_NAMED_DUMMY(bld,"MWI_InSelectDirIdInTree",MWI::InSelectDirIdInTree);
+    ATTACH_NAMED_DUMMY(bld,"MWI_InMoveChildUnderParent",MWI::InMoveChildUnderParent);
     ATTACH_NAMED_DUMMY(bld,"MWI_QueryCurrentDirId",MWI::QueryCurrentDirId);
 }
 

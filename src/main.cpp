@@ -688,6 +688,11 @@ struct GtkInputDialog : public Messageable {
         // Emitted when cancel button is clicked
         DUMMY_STRUCT(OutCancelClicked);
 
+        // Query input text
+        // in lua: INDLG_InQueryInput
+        // Signature: < QueryInput, std::string (out) >
+        DUMMY_STRUCT(QueryInput)
+
         static void registerInFactory(templatious::DynVPackFactoryBuilder& bld);
     };
 
@@ -757,6 +762,11 @@ private:
             SF::virtualMatch< INT::InSetLabel, const std::string >(
                 [=](INT::InSetLabel,const std::string& str) {
                     this->_label->set_text(str.c_str());
+                }
+            ),
+            SF::virtualMatch< INT::QueryInput, std::string >(
+                [=](INT::InSetLabel,std::string& str) {
+                    str = this->_entry->get_text().c_str();
                 }
             )
         );
@@ -849,4 +859,5 @@ void GtkInputDialog::Interface::registerInFactory(templatious::DynVPackFactoryBu
     ATTACH_NAMED_DUMMY(bld,"INDLG_InSetLabel",INT::InSetLabel);
     ATTACH_NAMED_DUMMY(bld,"INDLG_OutOkClicked",INT::OutOkClicked);
     ATTACH_NAMED_DUMMY(bld,"INDLG_OutCancelClicked",INT::OutCancelClicked);
+    ATTACH_NAMED_DUMMY(bld,"INDLG_QueryInput",INT::QueryInput);
 }

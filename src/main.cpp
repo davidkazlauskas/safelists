@@ -414,24 +414,30 @@ private:
         Gtk::TreeModelColumn<Glib::ustring> m_fileHash;
     };
 
+    struct DirRow {
+        int _id;
+        int _parent;
+        std::string _name;
+    };
+
+    void setDirRow(const DirRow& r,Gtk::TreeModel::Row& mdlRow) {
+        mdlRow[_dirColumns.m_colName] = r._name;
+        mdlRow[_dirColumns.m_colId] = r._id;
+        mdlRow[_dirColumns.m_colParent] = r._parent;
+    }
+
+    void getDirRow(DirRow& r,const Gtk::TreeModel::Row& mdlRow) {
+        Glib::ustring name = mdlRow[_dirColumns.m_colName];
+        r._name = name.c_str();
+        r._id = mdlRow[_dirColumns.m_colId];
+        r._parent = mdlRow[_dirColumns.m_colParent];
+    }
+
     // receiving id, dir name, dir parent
     void setTreeModel(TableSnapshot& snapshot) {
-        struct Row {
-            int _id;
-            int _parent;
-            std::string _name;
-        };
-
-        auto setRow =
-            [=](const Row& r,Gtk::TreeModel::Row& mdlRow) {
-                mdlRow[_dirColumns.m_colName] = r._name;
-                mdlRow[_dirColumns.m_colId] = r._id;
-                mdlRow[_dirColumns.m_colParent] = r._parent;
-            };
-
-        std::vector< Row > vecRow;
+        std::vector< DirRow > vecRow;
         vecRow.reserve( 256 );
-        Row r;
+        DirRow r;
         snapshot.traverse(
             [&](int row,int column,const char* value,const char* header) {
                 switch (column) {
@@ -462,7 +468,7 @@ private:
                 && "Should be root..." );
 
         auto row = *(_dirStore->append());
-        setRow(first,row);
+        setDirRow(first,row);
         rows.insert( std::pair<int,Gtk::TreeModel::Row>(
             first._id,row) );
 
@@ -473,7 +479,7 @@ private:
             assert( find != rows.end() );
 
             auto newRow = *(_dirStore->append(find->second->children()));
-            setRow(i,newRow);
+            setDirRow(i,newRow);
             rows.insert(std::pair<int,Gtk::TreeModel::Row>(
                 i._id,newRow));
         }

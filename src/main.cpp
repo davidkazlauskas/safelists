@@ -836,4 +836,6 @@ void GtkInputDialog::Interface::registerInFactory(templatious::DynVPackFactoryBu
     typedef GtkInputDialog::Interface INT;
     ATTACH_NAMED_DUMMY(bld,"INDLG_InShowDialog",INT::InShowDialog);
     ATTACH_NAMED_DUMMY(bld,"INDLG_InSetNotifier",INT::InSetNotifier);
+    ATTACH_NAMED_DUMMY(bld,"INDLG_OutOkClicked",INT::OutOkClicked);
+    ATTACH_NAMED_DUMMY(bld,"INDLG_OutCancelClicked",INT::OutCancelClicked);
 }

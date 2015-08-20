@@ -859,6 +859,7 @@ void MainWindowInterface::registerInFactory(templatious::DynVPackFactoryBuilder&
     ATTACH_NAMED_DUMMY(bld,"MWI_InMoveChildUnderParent",MWI::InMoveChildUnderParent);
     ATTACH_NAMED_DUMMY(bld,"MWI_InDeleteSelectedDir",MWI::InDeleteSelectedDir);
     ATTACH_NAMED_DUMMY(bld,"MWI_QueryCurrentDirId",MWI::QueryCurrentDirId);
+    ATTACH_NAMED_DUMMY(bld,"MWI_QueryCurrentDirName",MWI::QueryCurrentDirName);
 }
 
 void MainModel::MainModelInterface::registerInFactory(templatious::DynVPackFactoryBuilder& bld) {

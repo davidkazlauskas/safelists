@@ -90,6 +90,12 @@ initAll = function()
                 ctx:message(dialog,VSig("INDLG_InShowDialog"),VBool(val))
             end
 
+            local dirName = ctx:messageRetValues(mainWnd,VSig("MWI_QueryCurrentDirName"),VString("?"))._2
+            if (dirName == "[unselected]") then
+                setStatus(ctx,mainWnd,"No directory was selected to create new one.")
+                return
+            end
+
             local handler = ctx:makeLuaMatchHandler(
                 VMatch(function()
                     print("Ok!")

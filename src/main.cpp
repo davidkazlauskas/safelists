@@ -59,6 +59,10 @@ struct MainWindowInterface {
     //  2 - iterators same
     DUMMY_STRUCT(InMoveChildUnderParent);
 
+    // Erase selected item
+    // Signature: < InEraseSelectedDir >
+    DUMMY_STRUCT(InEraseSelectedDir);
+
     // query current directory id
     // Signature: < QueryCurrentDirId, int (output) >
     DUMMY_STRUCT(QueryCurrentDirId);
@@ -360,6 +364,12 @@ private:
                     auto newPlace = *_dirStore->append(parent->children());
                     setDirRow(dr,newPlace);
                     out = 0;
+                }
+            ),
+            SF::virtualMatch< MWI::InEraseSelectedDir >(
+                [=](MWI::InEraseSelectedDir) {
+                    auto& toErase = _selectionStack[1];
+                    _dirStore->erase(toErase);
                 }
             )
         );
@@ -700,6 +710,7 @@ void MainWindowInterface::registerInFactory(templatious::DynVPackFactoryBuilder&
     ATTACH_NAMED_DUMMY(bld,"MWI_InSetStatusText",MWI::InSetStatusText);
     ATTACH_NAMED_DUMMY(bld,"MWI_InSelectDirIdInTree",MWI::InSelectDirIdInTree);
     ATTACH_NAMED_DUMMY(bld,"MWI_InMoveChildUnderParent",MWI::InMoveChildUnderParent);
+    ATTACH_NAMED_DUMMY(bld,"MWI_InEraseSelectedDir",MWI::InEraseSelectedDir);
     ATTACH_NAMED_DUMMY(bld,"MWI_QueryCurrentDirId",MWI::QueryCurrentDirId);
 }
 

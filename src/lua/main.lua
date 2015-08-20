@@ -66,7 +66,18 @@ initAll = function()
                     VSig("MWI_InSetStatusText"),
                     VString("Press on node under which to move"))
             end
-        end,"MWI_OutMoveButtonClicked")
+        end,"MWI_OutMoveButtonClicked"),
+        VMatch(function()
+            currentDirId = ctx:messageRetValues(mainWnd,VSig("MWI_QueryCurrentDirId"),VInt(-7))._2
+            if (currentDirId ~= -1) then
+                ctx:messageAsync(asyncSqlite,
+                    VSig("ASQL_Execute"),
+                    VString("DELETE FROM directories WHERE id=" .. currentDirId .. ";"))
+                ctx:message(mainWnd,VSig("MWI_InEraseSelectedDir"))
+            else
+                setStatus(ctx,mainWnd,"No directory selected.")
+            end
+        end,"MWI_DeleteDirButtonClicked")
     )
 
     ctx:message(mainWnd,VSig("MWI_InAttachListener"),VMsg(mainWindowPushButtonHandler))

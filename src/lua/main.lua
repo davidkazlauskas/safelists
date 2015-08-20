@@ -1,6 +1,10 @@
 
 require('lua/mobdebug').start()
 
+setStatus = function(context,widget,text)
+    context:message(widget,VSig("MWI_InSetStatusText"),VString(text))
+end
+
 initAll = function()
 
     local ctx = luaContext()
@@ -25,18 +29,26 @@ initAll = function()
                     return
                 end
 
+                local mainWnd = ctx:namedMesseagable("mainWindow")
                 local asyncSqlite = ctx:namedMesseagable("asyncSqliteCurrent")
                 local mainModel = ctx:namedMesseagable("mainModel")
+                local outRes = ctx:messageRetValues(mainWnd,VSig("MWI_InMoveChildUnderParent"),VInt(-1))._2
+                if (outRes == 1) then
+                    setStatus(ctx,mainWnd,"Directory to move is parent of selected directory.")
+                    return
+                elseif (outRes == 2) then
+                    setStatus(ctx,mainWnd,"Directories are the same.")
+                    return
+                elseif (outRes ~= 0) then
+                    setStatus(ctx,mainWnd,"Something bad happened...")
+                    return
+                end
+
                 ctx:messageAsync(asyncSqlite,
                     VSig("ASQL_Execute"),
                     VString("UPDATE directories SET dir_parent=" .. inId
                         .. " WHERE dir_id=" .. currentDirId .. ";"))
-                    local selected = currentDirId
                     currentDirId = -1
-                    ctx:message(mainModel,
-                        VSig("MMI_InLoadFolderTree"),VMsg(asyncSqlite),VMsg(mainWnd))
-                    ctx:message(mainWnd,
-                        VSig("MWI_InSelectDirIdInTree"),VInt(selected))
                 return
             end
 

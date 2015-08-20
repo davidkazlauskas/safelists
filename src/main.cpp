@@ -47,7 +47,11 @@ struct MainWindowInterface {
 
     // Move prev item on selection stack
     // down below current item.
-    // Signature: < InMoveChildUnderParent >
+    // Signature: < InMoveChildUnderParent, int (error) >
+    // errors:
+    //  0 - ok
+    //  1 - to move is parent to child
+    //  2 - iterators same
     DUMMY_STRUCT(InMoveChildUnderParent);
 
     // query current directory id
@@ -323,8 +327,38 @@ private:
                         //_dirSelection->select(iter);
                     }
                 }
+            ),
+            SF::virtualMatch< MWI::InMoveChildUnderParent, int >(
+                [=](MWI::InMoveChildUnderParent,int& out) {
+                    auto& toMove = _selectionStack[0];
+                    auto& parent = _selectionStack[1];
+                    if (toMove == parent) {
+                        // dunno how this might happen but whatever...
+                        out = 2;
+                        return;
+                    }
+
+                    if (hasIterUnder(toMove,parent)) {
+                        out = 1;
+                        return;
+                    }
+
+                    auto toMoveRow = *toMove;
+                    _dirStore->erase(toMove);
+                    auto newPlace = *_dirStore->append(parent->children());
+                    newPlace = toMoveRow;
+                }
             )
         );
+    }
+
+    bool hasIterUnder(Gtk::TreeModel::iterator& parent,Gtk::TreeModel::iterator& child) {
+        auto childRow = *child;
+        int childId = childRow[_dirColumns.m_colId];
+        auto children = parent->children();
+        Gtk::TreeModel::iterator outIter;
+        bool result = findIdIter(childId,outIter,children);
+        return result;
     }
 
     bool findIdIter(

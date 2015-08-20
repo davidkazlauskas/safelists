@@ -347,6 +347,7 @@ private:
                     _dirStore->erase(toMove);
                     auto newPlace = *_dirStore->append(parent->children());
                     newPlace = toMoveRow;
+                    out = 0;
                 }
             )
         );

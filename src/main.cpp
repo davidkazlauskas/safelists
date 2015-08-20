@@ -344,9 +344,11 @@ private:
                     }
 
                     auto toMoveRow = *toMove;
+                    DirRow dr;
+                    getDirRow(dr,toMoveRow);
                     _dirStore->erase(toMove);
                     auto newPlace = *_dirStore->append(parent->children());
-                    newPlace = toMoveRow;
+                    setDirRow(dr,newPlace);
                     out = 0;
                 }
             )

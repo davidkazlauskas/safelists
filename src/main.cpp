@@ -219,7 +219,8 @@ struct GtkMainWindow : public Messageable {
         bld->get_widget("treeview1",_right);
         bld->get_widget("treeview3",_left);
         bld->get_widget("addNewBtn",_addNewBtn);
-        bld->get_widget("moveButton",_moveBtn);
+        bld->get_widget("moveButton",_moveDirBtn);
+        bld->get_widget("deleteDirButton",_deleteDirBtn);
         bld->get_widget("statusBarLabel",_statusBar);
 
         auto mdl = SafeLists::RangerTreeModel::create();
@@ -228,8 +229,12 @@ struct GtkMainWindow : public Messageable {
             sigc::mem_fun(*this,&GtkMainWindow::addNewButtonClicked)
         );
 
-        _moveBtn->signal_clicked().connect(
+        _moveDirBtn->signal_clicked().connect(
             sigc::mem_fun(*this,&GtkMainWindow::moveButtonClicked)
+        );
+
+        _deleteDirBtn->signal_clicked().connect(
+            sigc::mem_fun(*this,&GtkMainWindow::deleteDirButtonClicked)
         );
 
         _wnd->signal_draw().connect(
@@ -571,6 +576,10 @@ private:
         _notifierCache.notify(msg);
     }
 
+    void deleteDirButtonClicked() {
+
+    }
+
     void createDirModel() {
         _dirStore = Gtk::TreeStore::create(_dirColumns);
         _left->append_column( "Name", _dirColumns.m_colName );
@@ -597,7 +606,8 @@ private:
     Gtk::TreeView* _left;
     Gtk::TreeView* _right;
     Gtk::Button* _addNewBtn;
-    Gtk::Button* _moveBtn;
+    Gtk::Button* _moveDirBtn;
+    Gtk::Button* _deleteDirBtn;
     Gtk::Label* _statusBar;
     ModelColumns _mdl;
 

@@ -180,8 +180,8 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkButton" id="eraseButton">
-                        <property name="label" translatable="yes">Erase Directory</property>
+                      <object class="GtkButton" id="deleteDirButton">
+                        <property name="label" translatable="yes">Delete Directory</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>

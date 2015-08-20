@@ -113,11 +113,15 @@ initAll = function()
                     end
 
                     local asyncSqlite = ctx:namedMesseagable("asyncSqliteCurrent")
+                    local mainWnd = ctx:namedMesseagable("mainWindow")
+                    local mainModel = ctx:namedMesseagable("mainModel")
                     ctx:messageAsync(
+                        asyncSqlite,
                         VSig("ASQL_Execute"),
                         VString("INSERT INTO directories (dir_name,dir_parent)"
                             .. " VALUES (" .. outName .. "," .. dirId .. ");")
                     )
+                    -- todo: optimize, don't reload all
                     ctx:message(mainModel,
                         VSig("MMI_InLoadFolderTree"),VMsg(asyncSqlite),VMsg(mainWnd))
                     showOrHide(false)

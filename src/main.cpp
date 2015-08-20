@@ -677,6 +677,12 @@ struct GtkInputDialog : public Messageable {
         // Signature: < InSetNotifier, StrongMsgPtr >
         DUMMY_STRUCT(InSetNotifier);
 
+        // Emitted when ok button is clicked
+        DUMMY_STRUCT(OutOkClicked);
+
+        // Emitted when cancel button is clicked
+        DUMMY_STRUCT(OutCancelClicked);
+
         static void registerInFactory(templatious::DynVPackFactoryBuilder& bld);
     };
 
@@ -689,6 +695,14 @@ struct GtkInputDialog : public Messageable {
         bld->get_widget("dialogInput",_entry);
         bld->get_widget("dialogOkButton",_okButton);
         bld->get_widget("dialogCancelButton",_cancelButton);
+
+        _okButton->signal_clicked().connect(
+            sigc::mem_fun(*this,&GtkInputDialog::okClicked)
+        );
+
+        _cancelButton->signal_clicked().connect(
+            sigc::mem_fun(*this,&GtkInputDialog::cancelClicked)
+        );
     }
 
     void message(templatious::VirtualPack& msg) override {
@@ -702,12 +716,37 @@ struct GtkInputDialog : public Messageable {
 private:
     typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
 
+    void okClicked() {
+        auto locked = _toNotify.lock();
+        if (nullptr == locked) {
+            return;
+        }
+
+        auto msg = SF::vpack< Interface::OutOkClicked >(nullptr);
+        locked->message(msg);
+    }
+
+    void cancelClicked() {
+        auto locked = _toNotify.lock();
+        if (nullptr == locked) {
+            return;
+        }
+
+        auto msg = SF::vpack< Interface::OutCancelClicked >(nullptr);
+        locked->message(msg);
+    }
+
     VmfPtr genHandler() {
         typedef Interface INT;
         return SF::virtualMatchFunctorPtr(
             SF::virtualMatch< INT::InShowDialog >(
                 [=](INT::InShowDialog) {
                     _dlg->show();
+                }
+            ),
+            SF::virtualMatch< INT::InSetNotifier, StrongMsgPtr >(
+                [=](INT::InSetNotifier,const StrongMsgPtr& msg) {
+                    this->_toNotify = msg;
                 }
             )
         );
@@ -718,6 +757,8 @@ private:
     Gtk::Entry* _entry;
     Gtk::Button* _okButton;
     Gtk::Button* _cancelButton;
+
+    WeakMsgPtr _toNotify;
 
     VmfPtr _handler;
 };

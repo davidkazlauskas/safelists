@@ -650,7 +650,19 @@ private:
     std::vector<Gtk::TreeModel::iterator> _selectionStack;
 };
 
-struct GtkNewEntryDialog : public Messageable {
+struct GtkInputDialog : public Messageable {
+
+    GtkInputDialog(Glib::RefPtr<Gtk::Builder>& bld) {
+        Gtk::Dialog* dlg = nullptr;
+        bld->get_widget("dialog2",dlg);
+        _dlg.reset(dlg);
+
+        bld->get_widget("dialogText",_label);
+        bld->get_widget("dialogInput",_entry);
+        bld->get_widget("dialogOkButton",_okButton);
+        bld->get_widget("dialogCancelButton",_cancelButton);
+    }
+
     void message(templatious::VirtualPack& msg) override {
 
     }
@@ -658,6 +670,12 @@ struct GtkNewEntryDialog : public Messageable {
     void message(const std::shared_ptr< templatious::VirtualPack >& msg) override {
         assert( false && "Single threaded messaging only." );
     }
+
+    std::unique_ptr< Gtk::Dialog > _dlg;
+    Gtk::Label* _label;
+    Gtk::Entry* _entry;
+    Gtk::Button* _okButton;
+    Gtk::Button* _cancelButton;
 };
 
 templatious::DynVPackFactory makeVfactory() {

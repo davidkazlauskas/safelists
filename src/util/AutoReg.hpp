@@ -11,8 +11,8 @@
 
 namespace SafeLists {
 
-static int registerTypeInMap(const char* name,const templatious::TypeNode* node);
-static void traverseTypes(const std::function<void(const char*,const templatious::TypeNode*)>& func);
+int registerTypeInMap(const char* name,const templatious::TypeNode* node);
+void traverseTypes(const std::function<void(const char*,const templatious::TypeNode*)>& func);
 
 }
 

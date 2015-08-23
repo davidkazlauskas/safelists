@@ -21,7 +21,7 @@ static TheMap& getMap() {
 
 namespace SafeLists {
 
-static int registerTypeInMap(const char* name,const templatious::TypeNode* node) {
+int registerTypeInMap(const char* name,const templatious::TypeNode* node) {
     auto& inst = getMap();
     auto& map = inst._m;
 
@@ -37,7 +37,7 @@ static int registerTypeInMap(const char* name,const templatious::TypeNode* node)
     return 7;
 }
 
-static void traverseTypes(const std::function<void(const char*,const templatious::TypeNode*)>& func) {
+void traverseTypes(const std::function<void(const char*,const templatious::TypeNode*)>& func) {
     auto& inst = getMap();
     auto& map = inst._m;
 

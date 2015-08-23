@@ -75,8 +75,6 @@ struct MainWindowInterface {
     // query current directory name
     // Signature: < QueryCurrentDirName, std::string (output) >
     DUMMY_REG(QueryCurrentDirName,"MWI_QueryCurrentDirName");
-
-    static void registerInFactory(templatious::DynVPackFactoryBuilder& bld);
 };
 
 void registerSqliteInFactory(templatious::DynVPackFactoryBuilder& bld);
@@ -106,8 +104,6 @@ struct MainModel : public Messageable {
         //     StrongMsgPtr (notify)
         // >
         DUMMY_REG(InLoadFileList,"MMI_InLoadFileList");
-
-        static void registerInFactory(templatious::DynVPackFactoryBuilder& bld);
     };
 
     MainModel() : _messageHandler(genHandler()) {}
@@ -709,8 +705,6 @@ struct GtkInputDialog : public Messageable {
         // in lua: INDLG_InQueryInput
         // Signature: < QueryInput, std::string (out) >
         DUMMY_REG(QueryInput,"INDLG_QueryInput")
-
-        static void registerInFactory(templatious::DynVPackFactoryBuilder& bld);
     };
 
     GtkInputDialog(Glib::RefPtr<Gtk::Builder>& bld) : _handler(genHandler()) {
@@ -853,39 +847,8 @@ typedef templatious::TypeNodeFactory TNF;
 #define ATTACH_NAMED_DUMMY(factory,name,type)   \
     factory.attachNode(name,TNF::makeDummyNode< type >(name))
 
-void MainWindowInterface::registerInFactory(templatious::DynVPackFactoryBuilder& bld) {
-    typedef MainWindowInterface MWI;
-    //ATTACH_NAMED_DUMMY(bld,"MWI_OutNewFileSignal",MWI::OutNewFileSignal);
-    //ATTACH_NAMED_DUMMY(bld,"MWI_OutMoveButtonClicked",MWI::OutMoveButtonClicked);
-    //ATTACH_NAMED_DUMMY(bld,"MWI_OutDirChangedSignal",MWI::OutDirChangedSignal);
-    //ATTACH_NAMED_DUMMY(bld,"MWI_OutDeleteDirButtonClicked",MWI::OutDeleteDirButtonClicked);
-    //ATTACH_NAMED_DUMMY(bld,"MWI_OutNewDirButtonClicked",MWI::OutNewDirButtonClicked);
-    //ATTACH_NAMED_DUMMY(bld,"MWI_InAttachListener",MWI::InAttachListener);
-    //ATTACH_NAMED_DUMMY(bld,"MWI_InSetStatusText",MWI::InSetStatusText);
-    //ATTACH_NAMED_DUMMY(bld,"MWI_InSelectDirIdInTree",MWI::InSelectDirIdInTree);
-    //ATTACH_NAMED_DUMMY(bld,"MWI_InMoveChildUnderParent",MWI::InMoveChildUnderParent);
-    //ATTACH_NAMED_DUMMY(bld,"MWI_InDeleteSelectedDir",MWI::InDeleteSelectedDir);
-    //ATTACH_NAMED_DUMMY(bld,"MWI_QueryCurrentDirId",MWI::QueryCurrentDirId);
-    //ATTACH_NAMED_DUMMY(bld,"MWI_QueryCurrentDirName",MWI::QueryCurrentDirName);
-}
-
-void MainModel::MainModelInterface::registerInFactory(templatious::DynVPackFactoryBuilder& bld) {
-    typedef MainModel::MainModelInterface MMI;
-    //ATTACH_NAMED_DUMMY(bld,"MMI_InLoadFolderTree",MMI::InLoadFolderTree);
-    //ATTACH_NAMED_DUMMY(bld,"MMI_InLoadFileList",MMI::InLoadFileList);
-}
-
 void registerSqliteInFactory(templatious::DynVPackFactoryBuilder& bld) {
     typedef SafeLists::AsyncSqlite ASql;
     ATTACH_NAMED_DUMMY(bld,"ASQL_Execute",ASql::Execute);
 }
 
-void GtkInputDialog::Interface::registerInFactory(templatious::DynVPackFactoryBuilder& bld) {
-    typedef GtkInputDialog::Interface INT;
-    //ATTACH_NAMED_DUMMY(bld,"INDLG_InShowDialog",INT::InShowDialog);
-    //ATTACH_NAMED_DUMMY(bld,"INDLG_InSetNotifier",INT::InSetNotifier);
-    //ATTACH_NAMED_DUMMY(bld,"INDLG_InSetLabel",INT::InSetLabel);
-    //ATTACH_NAMED_DUMMY(bld,"INDLG_OutOkClicked",INT::OutOkClicked);
-    //ATTACH_NAMED_DUMMY(bld,"INDLG_OutCancelClicked",INT::OutCancelClicked);
-    //ATTACH_NAMED_DUMMY(bld,"INDLG_QueryInput",INT::QueryInput);
-}

@@ -5,6 +5,7 @@
 #include <templatious/detail/DynamicPackCreator.hpp>
 #include <LuaPlumbing/plumbing.hpp>
 #include <gtkmm/GtkMMRangerModel.hpp>
+#include <util/AutoReg.hpp>
 
 TEMPLATIOUS_TRIPLET_STD;
 

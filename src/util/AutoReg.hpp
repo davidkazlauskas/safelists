@@ -5,6 +5,8 @@
 
 namespace SafeLists {
 
+static int registerTypeInMap(const char* name,const templatious::TypeNode* node);
+
 }
 
 #endif /* end of include guard: AUTOREG_PYXSMU4M */

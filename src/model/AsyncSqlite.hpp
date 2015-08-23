@@ -2,9 +2,7 @@
 #define ASYNCSQLITE_F4E1YMYY
 
 #include <LuaPlumbing/plumbing.hpp>
-
-#define DUMMY_STRUCT(name)  \
-    struct name { template <class Any> name(Any&&) {} name() {} };
+#include <util/DummyStruct.hpp>
 
 namespace SafeLists {
 

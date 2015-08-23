@@ -5,9 +5,15 @@
 namespace {
 
 typedef std::map<std::string,const templatious::TypeNode*> TNodeMap;
+typedef std::lock_guard<std::mutex> Guard;
 
-static TNodeMap& getMap() {
-    static TNodeMap map;
+struct TheMap {
+    TNodeMap _m;
+    std::mutex _mtx;
+};
+
+static TheMap& getMap() {
+    static TheMap map;
     return map;
 }
 

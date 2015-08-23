@@ -32,6 +32,8 @@ static int registerTypeInMap(const char* name,const templatious::TypeNode* node)
         assert(false && "Key already exists");
     }
 
+    map.insert({name,node});
+
     return 7;
 }
 

@@ -803,9 +803,6 @@ templatious::DynVPackFactory makeVfactory() {
 
     LuaContext::registerPrimitives(bld);
 
-    MainWindowInterface::registerInFactory(bld);
-    MainModel::MainModelInterface::registerInFactory(bld);
-    GtkInputDialog::Interface::registerInFactory(bld);
     registerSqliteInFactory(bld);
 
     SafeLists::traverseTypes(

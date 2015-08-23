@@ -814,6 +814,12 @@ templatious::DynVPackFactory makeVfactory() {
     GtkInputDialog::Interface::registerInFactory(bld);
     registerSqliteInFactory(bld);
 
+    SafeLists::traverseTypes(
+        [&](const char* name,const templatious::TypeNode* node) {
+            bld.attachNode(name,node);
+        }
+    );
+
     return bld.getFactory();
 }
 

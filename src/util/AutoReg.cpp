@@ -37,7 +37,7 @@ static int registerTypeInMap(const char* name,const templatious::TypeNode* node)
     return 7;
 }
 
-static void traverseTypes(std::function<void(const char*,const templatious::TypeNode*)>& func) {
+static void traverseTypes(const std::function<void(const char*,const templatious::TypeNode*)>& func) {
     auto& inst = getMap();
     auto& map = inst._m;
 

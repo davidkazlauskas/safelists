@@ -30,6 +30,7 @@ SET( DOMAIN_SOURCES
     src/model/AsyncSqlite.cpp
     src/model/TableSnapshot.cpp
     src/model/SqliteRanger.cpp
+    src/util/AutoReg.cpp
     )
 
 include_directories(

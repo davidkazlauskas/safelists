@@ -7,9 +7,10 @@
 // we might as well use that byte to store the proof
 // of calculation for static initialization.
 #define DUMMY_REG(name,strname)  \
-    struct name { template <class Any> name(Any&&,int reg = Regger::s_sideEffect) {  \
-        assignStatic();                                                              \
-    }                                                                                \
+    struct name {                                                                    \
+        template <class Any> name(Any&&,int reg = Regger::s_sideEffect) {            \
+            assignStatic();                                                          \
+        }                                                                            \
         typedef ::SafeLists::TypeRegger<name> Regger;                                \
         name() { assignStatic(); }                                                   \
         static int registerType() {                                                  \

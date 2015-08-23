@@ -18,26 +18,26 @@ struct MainWindowInterface {
     // emitted when move button is
     // pressed.
     // In lua: MWI_OutMoveButtonClicked
-    DUMMY_STRUCT(OutMoveButtonClicked);
+    DUMMY_REG(OutMoveButtonClicked,"MWI_OutMoveButtonClicked");
 
     // emitted when new file creation
     // is requested.
     // In lua: MWI_OutDirChangedSignal
-    DUMMY_STRUCT(OutDirChangedSignal);
+    DUMMY_REG(OutDirChangedSignal,"MWI_OutDirChangedSignal");
 
     // emitted when delete dir button clicked
     // is requested.
     // In lua: MWI_OutDeleteDirButtonClicked
-    DUMMY_STRUCT(OutDeleteDirButtonClicked);
+    DUMMY_REG(OutDeleteDirButtonClicked,"MWI_OutDeleteDirButtonClicked");
 
     // emitted when new directory button clicked
     // In lua: MWI_OutNewDirButtonClicked
-    DUMMY_STRUCT(OutNewDirButtonClicked);
+    DUMMY_REG(OutNewDirButtonClicked,"MWI_OutNewDirButtonClicked");
 
     // emit to attach listener
     // In lua: MWI_InAttachListener
     // Signature: < InAttachListener, StrongMsgPtr >
-    DUMMY_STRUCT(InAttachListener);
+    DUMMY_REG(InAttachListener,"MWI_InAttachListener");
 
     // emit to set tree model from snapshot
     // Signature: < InSetTreeData, TableSnapshot >
@@ -49,11 +49,11 @@ struct MainWindowInterface {
 
     // set current status text
     // Signature: < InSetStatusText, std::string >
-    DUMMY_STRUCT(InSetStatusText);
+    DUMMY_REG(InSetStatusText,"MWI_InSetStatusText");
 
     // display specified id in the tree
     // Signature: < InSelectDirIdInTree, int >
-    DUMMY_STRUCT(InSelectDirIdInTree);
+    DUMMY_REG(InSelectDirIdInTree,"MWI_InSelectDirIdInTree");
 
     // Move prev item on selection stack
     // down below current item.
@@ -62,19 +62,19 @@ struct MainWindowInterface {
     //  0 - ok
     //  1 - to move is parent to child
     //  2 - iterators same
-    DUMMY_STRUCT(InMoveChildUnderParent);
+    DUMMY_REG(InMoveChildUnderParent,"MWI_InMoveChildUnderParent");
 
     // Erase selected item
     // Signature: < InDeleteSelectedDir >
-    DUMMY_STRUCT(InDeleteSelectedDir);
+    DUMMY_REG(InDeleteSelectedDir,"MWI_InDeleteSelectedDir");
 
     // query current directory id
     // Signature: < QueryCurrentDirId, int (output) >
-    DUMMY_STRUCT(QueryCurrentDirId);
+    DUMMY_REG(QueryCurrentDirId,"MWI_QueryCurrentDirId");
 
     // query current directory name
     // Signature: < QueryCurrentDirName, std::string (output) >
-    DUMMY_STRUCT(QueryCurrentDirName);
+    DUMMY_REG(QueryCurrentDirName,"MWI_QueryCurrentDirName");
 
     static void registerInFactory(templatious::DynVPackFactoryBuilder& bld);
 };
@@ -855,18 +855,18 @@ typedef templatious::TypeNodeFactory TNF;
 
 void MainWindowInterface::registerInFactory(templatious::DynVPackFactoryBuilder& bld) {
     typedef MainWindowInterface MWI;
-    ATTACH_NAMED_DUMMY(bld,"MWI_OutNewFileSignal",MWI::OutNewFileSignal);
-    ATTACH_NAMED_DUMMY(bld,"MWI_OutMoveButtonClicked",MWI::OutMoveButtonClicked);
-    ATTACH_NAMED_DUMMY(bld,"MWI_OutDirChangedSignal",MWI::OutDirChangedSignal);
-    ATTACH_NAMED_DUMMY(bld,"MWI_OutDeleteDirButtonClicked",MWI::OutDeleteDirButtonClicked);
-    ATTACH_NAMED_DUMMY(bld,"MWI_OutNewDirButtonClicked",MWI::OutNewDirButtonClicked);
-    ATTACH_NAMED_DUMMY(bld,"MWI_InAttachListener",MWI::InAttachListener);
-    ATTACH_NAMED_DUMMY(bld,"MWI_InSetStatusText",MWI::InSetStatusText);
-    ATTACH_NAMED_DUMMY(bld,"MWI_InSelectDirIdInTree",MWI::InSelectDirIdInTree);
-    ATTACH_NAMED_DUMMY(bld,"MWI_InMoveChildUnderParent",MWI::InMoveChildUnderParent);
-    ATTACH_NAMED_DUMMY(bld,"MWI_InDeleteSelectedDir",MWI::InDeleteSelectedDir);
-    ATTACH_NAMED_DUMMY(bld,"MWI_QueryCurrentDirId",MWI::QueryCurrentDirId);
-    ATTACH_NAMED_DUMMY(bld,"MWI_QueryCurrentDirName",MWI::QueryCurrentDirName);
+    //ATTACH_NAMED_DUMMY(bld,"MWI_OutNewFileSignal",MWI::OutNewFileSignal);
+    //ATTACH_NAMED_DUMMY(bld,"MWI_OutMoveButtonClicked",MWI::OutMoveButtonClicked);
+    //ATTACH_NAMED_DUMMY(bld,"MWI_OutDirChangedSignal",MWI::OutDirChangedSignal);
+    //ATTACH_NAMED_DUMMY(bld,"MWI_OutDeleteDirButtonClicked",MWI::OutDeleteDirButtonClicked);
+    //ATTACH_NAMED_DUMMY(bld,"MWI_OutNewDirButtonClicked",MWI::OutNewDirButtonClicked);
+    //ATTACH_NAMED_DUMMY(bld,"MWI_InAttachListener",MWI::InAttachListener);
+    //ATTACH_NAMED_DUMMY(bld,"MWI_InSetStatusText",MWI::InSetStatusText);
+    //ATTACH_NAMED_DUMMY(bld,"MWI_InSelectDirIdInTree",MWI::InSelectDirIdInTree);
+    //ATTACH_NAMED_DUMMY(bld,"MWI_InMoveChildUnderParent",MWI::InMoveChildUnderParent);
+    //ATTACH_NAMED_DUMMY(bld,"MWI_InDeleteSelectedDir",MWI::InDeleteSelectedDir);
+    //ATTACH_NAMED_DUMMY(bld,"MWI_QueryCurrentDirId",MWI::QueryCurrentDirId);
+    //ATTACH_NAMED_DUMMY(bld,"MWI_QueryCurrentDirName",MWI::QueryCurrentDirName);
 }
 
 void MainModel::MainModelInterface::registerInFactory(templatious::DynVPackFactoryBuilder& bld) {

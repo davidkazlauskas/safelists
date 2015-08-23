@@ -3,28 +3,40 @@
 
 #include <templatious/detail/DynamicPackCreator.hpp>
 
+// object in C++ has to be at least byte in size,
+// we might as well use that byte to store the proof
+// of calculation for static initialization.
 #define DUMMY_REG(name,strname)  \
-    struct name { template <class Any> name(Any&&,int reg = Regger::s_sideEffect) {} \
+    struct name { template <class Any> name(Any&&,int reg = Regger::s_sideEffect) {  \
+        assignStatic();                                                              \
+    }                                                                                \
         typedef ::SafeLists::TypeRegger<name> Regger;                                \
-        name() {}                                                                    \
+        name() { assignStatic(); }                                                   \
         static int registerType() {                                                  \
             static int res = ::SafeLists::registerTypeInMap(strname,                 \
                 templatious::TypeNodeFactory::makeDummyNode< name >(strname));       \
             return res;                                                              \
         }                                                                            \
+        char dummyData() { return _var; }                                            \
+    private:                                                                         \
+        void assignStatic() {                                                        \
+            static const char* effect = &Regger::s_sideEffect;                       \
+            _var = *effect;                                                          \
+        }                                                                            \
+        char _var;                                                                   \
     };
 
 namespace SafeLists {
 
 template <class T>
 struct TypeRegger {
-    static const int s_sideEffect;
+    static const char s_sideEffect;
 };
 
 template <class T>
-const int TypeRegger<T>::s_sideEffect = T::registerType();
+const char TypeRegger<T>::s_sideEffect = T::registerType();
 
-int registerTypeInMap(const char* name,const templatious::TypeNode* node);
+char registerTypeInMap(const char* name,const templatious::TypeNode* node);
 void traverseTypes(const std::function<void(const char*,const templatious::TypeNode*)>& func);
 
 }

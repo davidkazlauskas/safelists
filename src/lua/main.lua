@@ -12,6 +12,8 @@ initAll = function()
 
     ctx:attachContextTo(mainWnd)
 
+    currentDirId = -1
+
     mainWindowPushButtonHandler = ctx:makeLuaMatchHandler(
         VMatch(function()
             print("BALLIN, BALLIN")

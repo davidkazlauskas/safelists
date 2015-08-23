@@ -97,7 +97,7 @@ struct MainModel : public Messageable {
         //     StrongMsgPtr (async sqlite),
         //     StrongMsgPtr (notify)
         // >
-        DUMMY_STRUCT(InLoadFolderTree);
+        DUMMY_REG(InLoadFolderTree,"MMI_InLoadFolderTree");
 
         // use to load folder tree
         // Signature: <
@@ -105,7 +105,7 @@ struct MainModel : public Messageable {
         //     StrongMsgPtr (async sqlite),
         //     StrongMsgPtr (notify)
         // >
-        DUMMY_STRUCT(InLoadFileList);
+        DUMMY_REG(InLoadFileList,"MMI_InLoadFileList");
 
         static void registerInFactory(templatious::DynVPackFactoryBuilder& bld);
     };
@@ -871,8 +871,8 @@ void MainWindowInterface::registerInFactory(templatious::DynVPackFactoryBuilder&
 
 void MainModel::MainModelInterface::registerInFactory(templatious::DynVPackFactoryBuilder& bld) {
     typedef MainModel::MainModelInterface MMI;
-    ATTACH_NAMED_DUMMY(bld,"MMI_InLoadFolderTree",MMI::InLoadFolderTree);
-    ATTACH_NAMED_DUMMY(bld,"MMI_InLoadFileList",MMI::InLoadFileList);
+    //ATTACH_NAMED_DUMMY(bld,"MMI_InLoadFolderTree",MMI::InLoadFolderTree);
+    //ATTACH_NAMED_DUMMY(bld,"MMI_InLoadFileList",MMI::InLoadFileList);
 }
 
 void registerSqliteInFactory(templatious::DynVPackFactoryBuilder& bld) {

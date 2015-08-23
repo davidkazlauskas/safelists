@@ -687,28 +687,28 @@ struct GtkInputDialog : public Messageable {
     struct Interface {
         // Show the dialog
         // in lua: INDLG_InShowDialog
-        DUMMY_STRUCT(InShowDialog);
+        DUMMY_REG(InShowDialog,"INDLG_InShowDialog");
 
         // Set notifier to notify messages
         // in lua: INDLG_InSetNotifier
         // Signature: < InSetNotifier, StrongMsgPtr >
-        DUMMY_STRUCT(InSetNotifier);
+        DUMMY_REG(InSetNotifier,"INDLG_InSetNotifier");
 
         // Set label text
         // in lua: INDLG_InSetLabel
         // Signature: < InSetLabel, std::string >
-        DUMMY_STRUCT(InSetLabel);
+        DUMMY_REG(InSetLabel,"INDLG_InSetLabel");
 
         // Emitted when ok button is clicked
-        DUMMY_STRUCT(OutOkClicked);
+        DUMMY_REG(OutOkClicked,"INDLG_OutOkClicked");
 
         // Emitted when cancel button is clicked
-        DUMMY_STRUCT(OutCancelClicked);
+        DUMMY_REG(OutCancelClicked,"INDLG_OutCancelClicked");
 
         // Query input text
         // in lua: INDLG_InQueryInput
         // Signature: < QueryInput, std::string (out) >
-        DUMMY_STRUCT(QueryInput)
+        DUMMY_REG(QueryInput,"INDLG_QueryInput")
 
         static void registerInFactory(templatious::DynVPackFactoryBuilder& bld);
     };
@@ -882,10 +882,10 @@ void registerSqliteInFactory(templatious::DynVPackFactoryBuilder& bld) {
 
 void GtkInputDialog::Interface::registerInFactory(templatious::DynVPackFactoryBuilder& bld) {
     typedef GtkInputDialog::Interface INT;
-    ATTACH_NAMED_DUMMY(bld,"INDLG_InShowDialog",INT::InShowDialog);
-    ATTACH_NAMED_DUMMY(bld,"INDLG_InSetNotifier",INT::InSetNotifier);
-    ATTACH_NAMED_DUMMY(bld,"INDLG_InSetLabel",INT::InSetLabel);
-    ATTACH_NAMED_DUMMY(bld,"INDLG_OutOkClicked",INT::OutOkClicked);
-    ATTACH_NAMED_DUMMY(bld,"INDLG_OutCancelClicked",INT::OutCancelClicked);
-    ATTACH_NAMED_DUMMY(bld,"INDLG_QueryInput",INT::QueryInput);
+    //ATTACH_NAMED_DUMMY(bld,"INDLG_InShowDialog",INT::InShowDialog);
+    //ATTACH_NAMED_DUMMY(bld,"INDLG_InSetNotifier",INT::InSetNotifier);
+    //ATTACH_NAMED_DUMMY(bld,"INDLG_InSetLabel",INT::InSetLabel);
+    //ATTACH_NAMED_DUMMY(bld,"INDLG_OutOkClicked",INT::OutOkClicked);
+    //ATTACH_NAMED_DUMMY(bld,"INDLG_OutCancelClicked",INT::OutCancelClicked);
+    //ATTACH_NAMED_DUMMY(bld,"INDLG_QueryInput",INT::QueryInput);
 }

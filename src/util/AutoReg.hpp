@@ -3,11 +3,15 @@
 
 #include <templatious/detail/DynamicPackCreator.hpp>
 
-#define DUMMY_REG(name,strname)                 \
-    DUMMY_STRUCT(name);                         \
-    static const int intvar_##name##__LINE__ =  \
-        ::SafeLists::registerTypeInMap(strname, \
-            templatious::TypeNodeFactory::makeDummyNode< name >(strname))
+#define DUMMY_REG(name,strname)  \
+    struct name { template <class Any> name(Any&&,int i = \
+        registerType()) {} name() {}    \
+        static int registerType() {     \
+            static int res = ::SafeLists::registerTypeInMap(strname,\
+                templatious::TypeNodeFactory::makeDummyNode< name >(strname));\
+            return res;\
+        }\
+    };
 
 namespace SafeLists {
 

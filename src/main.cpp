@@ -13,7 +13,7 @@ struct MainWindowInterface {
     // emitted when new file creation
     // is requested.
     // In lua: MWI_OutNewFileSignal
-    DUMMY_STRUCT(OutNewFileSignal);
+    DUMMY_REG(OutNewFileSignal,"MWI_OutNewFileSignal");
 
     // emitted when move button is
     // pressed.

@@ -1,5 +1,6 @@
 
 #include <fstream>
+#include <cstring>
 
 #include <templatious/FullPack.hpp>
 #include <io/RandomFileWriter.hpp>
@@ -41,6 +42,38 @@ TEST_CASE("io_range_throw_diff_size","[io]") {
     }
 
     REQUIRE( caught );
+
+    std::remove( VICTIM_NAME );
+}
+
+TEST_CASE("io_range_throw_bad_write","[io]") {
+    std::remove( VICTIM_NAME );
+
+    SafeLists::RandomFileWriteHandle handle(VICTIM_NAME,7);
+
+    {
+        bool caught = false;
+        try {
+            const char* txt = "cow say moo";
+            handle.write(txt,0,strlen(txt));
+        } catch (const SafeLists::RandomFileWriterOutOfBoundsWriteException&) {
+            caught = true;
+        }
+
+        REQUIRE( caught );
+    }
+
+    {
+        bool caught = false;
+        try {
+            const char* txt = "cow";
+            handle.write(txt,-1,strlen(txt));
+        } catch (const SafeLists::RandomFileWriterOutOfBoundsWriteException&) {
+            caught = true;
+        }
+
+        REQUIRE( caught );
+    }
 
     std::remove( VICTIM_NAME );
 }

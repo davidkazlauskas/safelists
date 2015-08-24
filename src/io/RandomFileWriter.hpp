@@ -2,6 +2,7 @@
 #define RANDOMFILEWRITER_MCTC8IU8
 
 #include <string>
+#include <cstdio>
 
 namespace SafeLists {
 

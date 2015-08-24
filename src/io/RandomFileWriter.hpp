@@ -1,7 +1,18 @@
 #ifndef RANDOMFILEWRITER_MCTC8IU8
 #define RANDOMFILEWRITER_MCTC8IU8
 
+#include <string>
+
 namespace SafeLists {
+
+struct RandomFileWriteHandle {
+
+    RandomFileWriteHandle(const char* path,int64_t size);
+
+private:
+    std::string _path;
+    int64_t _size;
+};
 
 }
 

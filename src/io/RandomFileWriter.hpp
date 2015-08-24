@@ -4,7 +4,14 @@
 #include <string>
 #include <cstdio>
 
+#include <templatious/util/Exceptions.hpp>
+
 namespace SafeLists {
+
+TEMPLATIOUS_BOILERPLATE_EXCEPTION(
+    RandomFileWriterDifferentFileSizeException,
+    "File opened does not correspond in size with the size expected."
+);
 
 struct RandomFileWriteHandle {
 

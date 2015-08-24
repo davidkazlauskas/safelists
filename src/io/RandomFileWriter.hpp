@@ -37,6 +37,8 @@ private:
 struct RandomFileWriteCache {
     typedef std::shared_ptr< RandomFileWriteHandle > WriterPtr;
 
+    RandomFileWriteCache(int items);
+
 private:
     int _maxItems;
     std::vector< WriterPtr > _vec;

@@ -72,5 +72,10 @@ void RandomFileWriteHandle::read(char* buffer,int64_t start,int64_t size) {
     ::fread(buffer,size,1,_handle);
 }
 
+RandomFileWriteCache::RandomFileWriteCache(int items)
+    : _maxItems(items)
+{
+
+}
 
 }

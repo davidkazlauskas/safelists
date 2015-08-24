@@ -23,6 +23,8 @@ TEST_CASE("io_simple_read_write","[io]") {
     std::string comp = output;
     REQUIRE( comp == "thetext" );
 
+    REQUIRE( handle.getPath() == VICTIM_NAME );
+
     std::remove( VICTIM_NAME );
 }
 

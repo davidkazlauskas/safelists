@@ -1,4 +1,6 @@
 
+#include <fstream>
+
 #include <templatious/FullPack.hpp>
 #include <io/RandomFileWriter.hpp>
 
@@ -21,6 +23,18 @@ TEST_CASE("io_simple_read_write","[io]") {
     std::remove( VICTIM_NAME );
 }
 
-TEST_CASE("io_range_throw","[io]") {
+TEST_CASE("io_range_throw_diff_size","[io]") {
+    {
+        std::ofstream file(VICTIM_NAME);
+        file << "abc";
+    }
 
+    bool caught = false;
+    try {
+        SafeLists::RandomFileWriteHandle handle(VICTIM_NAME,7);
+    } catch (const SafeLists::RandomFileWriterDifferentFileSizeException&) {
+        caught = true;
+    }
+
+    std::remove( VICTIM_NAME );
 }

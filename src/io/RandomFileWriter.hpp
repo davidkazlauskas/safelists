@@ -18,6 +18,9 @@ struct RandomFileWriteHandle {
     RandomFileWriteHandle(const char* path,int64_t size);
     ~RandomFileWriteHandle();
 
+    void write(const char* buffer,int64_t start,int64_t size);
+    void read(char* buffer,int64_t start,int64_t size);
+
 private:
     std::string _path;
     int64_t _size;

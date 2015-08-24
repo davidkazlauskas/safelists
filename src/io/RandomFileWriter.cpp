@@ -1,7 +1,10 @@
 
 #include <fstream>
+#include <templatious/FullPack.hpp>
 
 #include "RandomFileWriter.hpp"
+
+TEMPLATIOUS_TRIPLET_STD;
 
 namespace {
 
@@ -24,10 +27,18 @@ namespace {
         return true;
     }
 
+    template <class Vec,class Func>
+    void traverseVecStartingAt(Vec& vec,Func&& func,int start,int step = -1) {
+        int iterations = SA::size(vec) / std::abs(step);
+        int current = start;
+        TEMPLATIOUS_REPEAT( iterations ) {
+            func(SA::getByIndex(vec,current));
+            current += step;
+        }
+    }
 }
 
 namespace SafeLists {
-
 
 
 RandomFileWriteHandle::RandomFileWriteHandle(const char* path,int64_t size)

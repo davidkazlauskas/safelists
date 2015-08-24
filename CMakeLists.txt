@@ -65,8 +65,12 @@ add_custom_target( copy-lua-scripts ALL
 add_library( domain ${DOMAIN_SOURCES} )
 target_link_libraries( domain sqlite3 pthread )
 
-add_executable( model-tests tests/model-tests.cpp )
-target_link_libraries( model-tests domain )
+SET( TEST_SOURCES
+    tests/model-tests.cpp
+    tests/io-tests.cpp )
+
+add_executable( all-tests ${TEST_SOURCES} )
+target_link_libraries( all-tests domain )
 
 add_library( gtkspec ${GTK_SOURCES} )
 target_link_libraries( gtkspec domain ${GTKMM_LIBRARIES} )

@@ -11,6 +11,8 @@ TEMPLATIOUS_TRIPLET_STD;
 #define VICTIM_NAME "some_file.txt"
 
 TEST_CASE("io_simple_read_write","[io]") {
+    std::remove( VICTIM_NAME );
+
     SafeLists::RandomFileWriteHandle handle(VICTIM_NAME,7);
     handle.write("thetext",0,7);
     char output[8];
@@ -24,6 +26,8 @@ TEST_CASE("io_simple_read_write","[io]") {
 }
 
 TEST_CASE("io_range_throw_diff_size","[io]") {
+    std::remove( VICTIM_NAME );
+
     {
         std::ofstream file(VICTIM_NAME);
         file << "abc";
@@ -35,6 +39,8 @@ TEST_CASE("io_range_throw_diff_size","[io]") {
     } catch (const SafeLists::RandomFileWriterDifferentFileSizeException&) {
         caught = true;
     }
+
+    REQUIRE( caught );
 
     std::remove( VICTIM_NAME );
 }

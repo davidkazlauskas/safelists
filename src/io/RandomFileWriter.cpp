@@ -102,7 +102,7 @@ struct RandomFileWriteCacheImpl {
 };
 
 RandomFileWriteCache::RandomFileWriteCache(int items)
-    : _maxItems(items), _cachePoint(0)
+    : _maxItems(items), _cachePoint(0), _vec(_maxItems)
 {
 
 }
@@ -142,7 +142,7 @@ auto RandomFileWriteCache::getItem(const char* path,int64_t size) -> WriterPtr {
 
 bool RandomFileWriteCache::isCached(const char* path) const {
     TEMPLATIOUS_FOREACH(auto& i,_vec) {
-        if (i->_path == path) {
+        if (nullptr != i && i->_path == path) {
             return true;
         }
     }

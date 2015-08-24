@@ -95,4 +95,8 @@ TEST_CASE("io_random_writer_cache_basic","[io]") {
     SA::add(er._files,"a.txt","b.txt","c.txt");
 
     SafeLists::RandomFileWriteCache cache(2);
+
+    REQUIRE( !cache.isCached("a.txt") );
+    auto item = cache.getItem("a.txt",16);
+    REQUIRE( !cache.isCached("a.txt") );
 }

@@ -122,3 +122,26 @@ TEST_CASE("io_random_writer_cache_overwrite","[io]") {
     REQUIRE(  cache.isCached("c.txt") );
 }
 
+TEST_CASE("io_random_writer_cache_heat","[io]") {
+    FileEraser er;
+    SA::add(er._files,"a.txt","b.txt","c.txt");
+
+    SafeLists::RandomFileWriteCache cache(2);
+
+    auto itemA = cache.getItem("a.txt",16);
+    auto itemB = cache.getItem("b.txt",16);
+    auto itemAA = cache.getItem("a.txt",16);
+    // a.txt should be hotter in cache than b
+    // because it was asked latest
+
+    REQUIRE(  cache.isCached("a.txt") );
+    REQUIRE(  cache.isCached("b.txt") );
+    REQUIRE( !cache.isCached("c.txt") );
+
+    // b should get destroyed
+    auto itemC = cache.getItem("c.txt",16);
+    REQUIRE(  cache.isCached("a.txt") );
+    REQUIRE( !cache.isCached("b.txt") );
+    REQUIRE(  cache.isCached("c.txt") );
+}
+

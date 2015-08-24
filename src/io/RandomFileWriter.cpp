@@ -30,7 +30,8 @@ namespace {
     // returns if all traversed
     template <class Vec,class Func>
     bool traverseVecStartingAt(Vec& vec,Func&& func,int start,int step = -1) {
-        int iterations = SA::size(vec) / std::abs(step);
+        int vecSize = SA::size(vec);
+        int iterations =  vecSize / std::abs(step);
         int current = start;
         TEMPLATIOUS_REPEAT( iterations ) {
             bool res = func(SA::getByIndex(vec,current),current);
@@ -38,6 +39,11 @@ namespace {
                 return false;
             }
             current += step;
+            if (current < 0) {
+                current = vecSize - 1;
+            } else if (current >= vecSize) {
+                current = 0;
+            }
         }
         return true;
     }

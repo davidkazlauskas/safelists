@@ -64,7 +64,12 @@ void RandomFileWriteHandle::write(const char* buffer,int64_t start,int64_t size)
 }
 
 void RandomFileWriteHandle::read(char* buffer,int64_t start,int64_t size) {
+    if (!fileRangeCheck(start,size,_size)) {
+        throw RandomFileWriterOutOfBoundsWriteException();
+    }
 
+    ::fseek(_handle,0,start);
+    ::fread(buffer,size,1,_handle);
 }
 
 

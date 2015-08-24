@@ -9,10 +9,12 @@ namespace SafeLists {
 struct RandomFileWriteHandle {
 
     RandomFileWriteHandle(const char* path,int64_t size);
+    ~RandomFileWriteHandle();
 
 private:
     std::string _path;
     int64_t _size;
+    FILE* _handle;
 };
 
 }

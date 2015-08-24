@@ -9,4 +9,8 @@ RandomFileWriteHandle::RandomFileWriteHandle(const char* path,int64_t size)
 
 }
 
+RandomFileWriteHandle::~RandomFileWriteHandle() {
+    fclose(_handle);
+}
+
 }

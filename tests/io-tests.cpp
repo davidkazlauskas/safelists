@@ -79,3 +79,20 @@ TEST_CASE("io_range_throw_bad_write","[io]") {
 
     std::remove( VICTIM_NAME );
 }
+
+struct FileEraser {
+    ~FileEraser() {
+        TEMPLATIOUS_FOREACH(auto& i,_files) {
+            std::remove(i.c_str());
+        }
+    }
+
+    std::vector< std::string > _files;
+};
+
+TEST_CASE("io_random_writer_cache_basic","[io]") {
+    FileEraser er;
+    SA::add(er._files,"a.txt","b.txt","c.txt");
+
+    SafeLists::RandomFileWriteCache cache(2);
+}

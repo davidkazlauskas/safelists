@@ -101,7 +101,7 @@ std::string RandomFileWriteHandle::getPath() const {
 struct RandomFileWriteCacheImpl {
     static void advanceCachePoint(RandomFileWriteCache& cache) {
         ++cache._cachePoint;
-        if (SA::size(cache._vec) >= cache._cachePoint) {
+        if (SA::size(cache._vec) <= cache._cachePoint) {
             cache._cachePoint = 0;
         }
     }
@@ -134,17 +134,21 @@ auto RandomFileWriteCache::getItem(const char* path,int64_t size) -> WriterPtr {
         _cachePoint
     );
 
+    if (_cachePoint == outPos) {
+        // head of the cache
+        return _vec[_cachePoint];
+    }
+
     Helper::advanceCachePoint(*this);
+    int currCachePoint = _cachePoint;
 
     if (res) {
-        auto& ref = SA::getByIndex(_vec,_cachePoint);
+        auto& ref = SA::getByIndex(_vec,currCachePoint);
         ref = std::make_shared< RandomFileWriteHandle >(path,size);
         return ref;
     }
 
-    if (_cachePoint != outPos) {
-        std::swap(_vec[_cachePoint],_vec[outPos]);
-    }
+    std::swap(_vec[currCachePoint],_vec[outPos]);
 
     // move item forward to be cache hot
     return *out;

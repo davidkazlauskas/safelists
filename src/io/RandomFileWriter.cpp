@@ -140,4 +140,14 @@ auto RandomFileWriteCache::getItem(const char* path,int64_t size) -> WriterPtr {
     return *out;
 }
 
+bool RandomFileWriteCache::isCached(const char* path) const {
+    TEMPLATIOUS_FOREACH(auto& i,_vec) {
+        if (i->_path == path) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 }

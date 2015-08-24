@@ -29,6 +29,7 @@ struct RandomFileWriteHandle {
     void read(char* buffer,int64_t start,int64_t size);
     std::string getPath() const;
 
+    friend struct RandomFileWriteCache;
 private:
     std::string _path;
     int64_t _size;
@@ -40,6 +41,7 @@ struct RandomFileWriteCache {
 
     RandomFileWriteCache(int items = 16);
     WriterPtr getItem(const char* path,int64_t size);
+    bool isCached(const char* path) const;
 
     friend struct RandomFileWriteCacheImpl;
     typedef struct RandomFileWriteCacheImpl Helper;

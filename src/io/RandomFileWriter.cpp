@@ -78,4 +78,8 @@ RandomFileWriteCache::RandomFileWriteCache(int items)
 
 }
 
+auto RandomFileWriteCache::getItem(const char* path) -> WriterPtr {
+
+}
+
 }

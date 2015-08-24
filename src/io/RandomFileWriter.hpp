@@ -1,8 +1,10 @@
 #ifndef RANDOMFILEWRITER_MCTC8IU8
 #define RANDOMFILEWRITER_MCTC8IU8
 
-#include <string>
 #include <cstdio>
+#include <string>
+#include <vector>
+#include <memory>
 
 #include <templatious/util/Exceptions.hpp>
 
@@ -30,6 +32,14 @@ private:
     std::string _path;
     int64_t _size;
     FILE* _handle;
+};
+
+struct RandomFileWriteCache {
+    typedef std::shared_ptr< RandomFileWriteHandle > WriterPtr;
+
+private:
+    int _maxItems;
+    std::vector< WriterPtr > _vec;
 };
 
 }

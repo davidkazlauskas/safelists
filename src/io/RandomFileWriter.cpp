@@ -33,7 +33,7 @@ namespace {
         int iterations = SA::size(vec) / std::abs(step);
         int current = start;
         TEMPLATIOUS_REPEAT( iterations ) {
-            bool res = func(SA::getByIndex(vec,current));
+            bool res = func(SA::getByIndex(vec,current),current);
             if (!res) {
                 return false;
             }
@@ -92,6 +92,15 @@ std::string RandomFileWriteHandle::getPath() const {
     return _path;
 }
 
+struct RandomFileWriteCacheImpl {
+    static void advanceCachePoint(RandomFileWriteCache& cache) {
+        ++cache._cachePoint;
+        if (SA::size(cache._vec) >= cache._cachePoint) {
+            cache._cachePoint = 0;
+        }
+    }
+};
+
 RandomFileWriteCache::RandomFileWriteCache(int items)
     : _maxItems(items), _cachePoint(0)
 {
@@ -100,12 +109,14 @@ RandomFileWriteCache::RandomFileWriteCache(int items)
 
 auto RandomFileWriteCache::getItem(const char* path,int64_t size) -> WriterPtr {
     WriterPtr* out = nullptr;
+    int outPos = -1;
     bool res = traverseVecStartingAt(_vec,
-        [&](WriterPtr& ptr) {
+        [&](WriterPtr& ptr,int index) {
             if (nullptr != ptr) {
                 auto pathNew = ptr->getPath();
                 if (pathNew == path) {
                     out = std::addressof(ptr);
+                    outPos = index;
                 }
             }
             return true;
@@ -113,16 +124,19 @@ auto RandomFileWriteCache::getItem(const char* path,int64_t size) -> WriterPtr {
         _cachePoint
     );
 
+    Helper::advanceCachePoint(*this);
+
     if (res) {
-        ++_cachePoint;
-        if (SA::size(_vec) >= _cachePoint) {
-            _cachePoint = 0;
-        }
         auto& ref = SA::getByIndex(_vec,_cachePoint);
         ref = std::make_shared< RandomFileWriteHandle >(path,size);
         return ref;
     }
 
+    if (_cachePoint != outPos) {
+        std::swap(_vec[_cachePoint],_vec[outPos]);
+    }
+
+    // move item forward to be cache hot
     return *out;
 }
 

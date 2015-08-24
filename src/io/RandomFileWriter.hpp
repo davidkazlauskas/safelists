@@ -41,6 +41,8 @@ struct RandomFileWriteCache {
     RandomFileWriteCache(int items = 16);
     WriterPtr getItem(const char* path,int64_t size);
 
+    friend struct RandomFileWriteCacheImpl;
+    typedef struct RandomFileWriteCacheImpl Helper;
 private:
     int _maxItems;
     int _cachePoint;

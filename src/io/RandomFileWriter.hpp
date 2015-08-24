@@ -41,6 +41,10 @@ TEMPLATIOUS_BOILERPLATE_EXCEPTION(
     "File from cache differs in size with requested size."
 );
 
+// WARNING:
+// handles returned by this class should not travel
+// across universe because otherwise duplicate newly
+// created handles will be returned by this class
 struct RandomFileWriteCache {
     typedef std::shared_ptr< RandomFileWriteHandle > WriterPtr;
 

@@ -121,6 +121,9 @@ auto RandomFileWriteCache::getItem(const char* path,int64_t size) -> WriterPtr {
             if (nullptr != ptr) {
                 auto pathNew = ptr->getPath();
                 if (pathNew == path) {
+                    if (size != ptr->_size) {
+                        throw RandomFileWriteCacheDifferentSize();
+                    }
                     out = std::addressof(ptr);
                     outPos = index;
                 }

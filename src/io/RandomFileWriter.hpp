@@ -36,6 +36,11 @@ private:
     FILE* _handle;
 };
 
+TEMPLATIOUS_BOILERPLATE_EXCEPTION(
+    RandomFileWriteCacheDifferentSize,
+    "File from cache differs in size with requested size."
+);
+
 struct RandomFileWriteCache {
     typedef std::shared_ptr< RandomFileWriteHandle > WriterPtr;
 

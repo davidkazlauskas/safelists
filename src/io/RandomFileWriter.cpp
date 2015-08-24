@@ -150,4 +150,8 @@ bool RandomFileWriteCache::isCached(const char* path) const {
     return false;
 }
 
+void RandomFileWriteCache::clear() {
+    SM::set(nullptr,_vec);
+}
+
 }

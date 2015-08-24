@@ -42,6 +42,7 @@ struct RandomFileWriteCache {
     RandomFileWriteCache(int items = 16);
     WriterPtr getItem(const char* path,int64_t size);
     bool isCached(const char* path) const;
+    void clear();
 
     friend struct RandomFileWriteCacheImpl;
     typedef struct RandomFileWriteCacheImpl Helper;

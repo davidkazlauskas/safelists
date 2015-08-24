@@ -98,5 +98,5 @@ TEST_CASE("io_random_writer_cache_basic","[io]") {
 
     REQUIRE( !cache.isCached("a.txt") );
     auto item = cache.getItem("a.txt",16);
-    REQUIRE( !cache.isCached("a.txt") );
+    REQUIRE( cache.isCached("a.txt") );
 }

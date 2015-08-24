@@ -32,7 +32,10 @@ namespace {
         int iterations = SA::size(vec) / std::abs(step);
         int current = start;
         TEMPLATIOUS_REPEAT( iterations ) {
-            func(SA::getByIndex(vec,current));
+            bool res = func(SA::getByIndex(vec,current));
+            if (!res) {
+                return;
+            }
             current += step;
         }
     }

@@ -31,6 +31,7 @@ SET( DOMAIN_SOURCES
     src/model/TableSnapshot.cpp
     src/model/SqliteRanger.cpp
     src/util/AutoReg.cpp
+    src/io/RandomFileWriter.cpp
     )
 
 include_directories(

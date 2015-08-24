@@ -13,6 +13,11 @@ TEMPLATIOUS_BOILERPLATE_EXCEPTION(
     "File opened does not correspond in size with the size expected."
 );
 
+TEMPLATIOUS_BOILERPLATE_EXCEPTION(
+    RandomFileWriterOutOfBoundsWriteException,
+    "File position is out of bounds."
+);
+
 struct RandomFileWriteHandle {
 
     RandomFileWriteHandle(const char* path,int64_t size);

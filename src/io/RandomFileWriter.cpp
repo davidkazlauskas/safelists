@@ -42,4 +42,22 @@ RandomFileWriteHandle::~RandomFileWriteHandle() {
     fclose(_handle);
 }
 
+void RandomFileWriteHandle::write(const char* buffer,int64_t start,int64_t size) {
+    if (start < 0) {
+        throw RandomFileWriterOutOfBoundsWriteException();
+    }
+
+    if (start + size > _size) {
+        throw RandomFileWriterOutOfBoundsWriteException();
+    }
+
+    ::fseek(_handle,0,start);
+    ::fwrite(buffer,size,1,_handle);
+}
+
+void RandomFileWriteHandle::read(char* buffer,int64_t start,int64_t size) {
+
+}
+
+
 }

@@ -27,17 +27,19 @@ namespace {
         return true;
     }
 
+    // returns if all traversed
     template <class Vec,class Func>
-    void traverseVecStartingAt(Vec& vec,Func&& func,int start,int step = -1) {
+    bool traverseVecStartingAt(Vec& vec,Func&& func,int start,int step = -1) {
         int iterations = SA::size(vec) / std::abs(step);
         int current = start;
         TEMPLATIOUS_REPEAT( iterations ) {
             bool res = func(SA::getByIndex(vec,current));
             if (!res) {
-                return;
+                return false;
             }
             current += step;
         }
+        return true;
     }
 }
 
@@ -86,14 +88,42 @@ void RandomFileWriteHandle::read(char* buffer,int64_t start,int64_t size) {
     ::fread(buffer,size,1,_handle);
 }
 
+std::string RandomFileWriteHandle::getPath() const {
+    return _path;
+}
+
 RandomFileWriteCache::RandomFileWriteCache(int items)
-    : _maxItems(items)
+    : _maxItems(items), _cachePoint(0)
 {
 
 }
 
-auto RandomFileWriteCache::getItem(const char* path) -> WriterPtr {
+auto RandomFileWriteCache::getItem(const char* path,int64_t size) -> WriterPtr {
+    WriterPtr* out = nullptr;
+    bool res = traverseVecStartingAt(_vec,
+        [&](WriterPtr& ptr) {
+            if (nullptr != ptr) {
+                auto pathNew = ptr->getPath();
+                if (pathNew == path) {
+                    out = std::addressof(ptr);
+                }
+            }
+            return true;
+        },
+        _cachePoint
+    );
 
+    if (res) {
+        ++_cachePoint;
+        if (SA::size(_vec) >= _cachePoint) {
+            _cachePoint = 0;
+        }
+        auto& ref = SA::getByIndex(_vec,_cachePoint);
+        ref = std::make_shared< RandomFileWriteHandle >(path,size);
+        return ref;
+    }
+
+    return *out;
 }
 
 }

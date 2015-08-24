@@ -27,6 +27,7 @@ struct RandomFileWriteHandle {
 
     void write(const char* buffer,int64_t start,int64_t size);
     void read(char* buffer,int64_t start,int64_t size);
+    std::string getPath() const;
 
 private:
     std::string _path;
@@ -38,10 +39,11 @@ struct RandomFileWriteCache {
     typedef std::shared_ptr< RandomFileWriteHandle > WriterPtr;
 
     RandomFileWriteCache(int items = 16);
-    WriterPtr getItem(const char* path);
+    WriterPtr getItem(const char* path,int64_t size);
 
 private:
     int _maxItems;
+    int _cachePoint;
     std::vector< WriterPtr > _vec;
 };
 

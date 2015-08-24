@@ -126,6 +126,7 @@ auto RandomFileWriteCache::getItem(const char* path,int64_t size) -> WriterPtr {
                     }
                     out = std::addressof(ptr);
                     outPos = index;
+                    return false;
                 }
             }
             return true;

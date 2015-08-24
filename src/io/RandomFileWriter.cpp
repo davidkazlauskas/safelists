@@ -12,6 +12,18 @@ namespace {
         file.write("",1);
     }
 
+    bool fileRangeCheck(int64_t start,int64_t size,int64_t max) {
+        if (start < 0) {
+            return false;
+        }
+
+        if (start + size > max) {
+            return false;
+        }
+
+        return true;
+    }
+
 }
 
 namespace SafeLists {
@@ -43,11 +55,7 @@ RandomFileWriteHandle::~RandomFileWriteHandle() {
 }
 
 void RandomFileWriteHandle::write(const char* buffer,int64_t start,int64_t size) {
-    if (start < 0) {
-        throw RandomFileWriterOutOfBoundsWriteException();
-    }
-
-    if (start + size > _size) {
+    if (!fileRangeCheck(start,size,_size)) {
         throw RandomFileWriterOutOfBoundsWriteException();
     }
 

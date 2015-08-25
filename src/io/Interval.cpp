@@ -23,5 +23,13 @@ IntervalList::IntervalList(int64_t emptyStart,int64_t emptyEnd)
 {
 }
 
+void IntervalList::traverseFilled(const std::is_function<bool(Interval)>& func) {
+
+}
+
+void IntervalList::traverseEmpty(const std::is_function<bool(Interval)>& func) {
+
+}
+
 }
 

@@ -77,6 +77,29 @@ TEST_CASE("interval_list_append","[interval]") {
 
     REQUIRE( eList[0] == Int(0,16) );
     REQUIRE( eList[1] == Int(32,1024) );
+    REQUIRE( SA::size( eList ) == 2 );
 
     REQUIRE( fList[0] == Int(16,32) );
+    REQUIRE( SA::size( fList ) == 1 );
+}
+
+TEST_CASE("interval_list_append_shorten","[interval]") {
+
+    typedef SafeLists::Interval Int;
+
+    SafeLists::IntervalList list(Int(0,1024));
+    IntervalCollector colEmpty;
+    IntervalCollector colFilled;
+    auto &eList = colEmpty._list;
+    auto &fList = colFilled._list;
+
+    list.append(Int(16,32));
+    list.append(Int(32,64));
+    list.traverseEmpty(colEmpty.f());
+    list.traverseFilled(colFilled.f());
+
+    REQUIRE( eList[0] == Int(0,16) );
+    REQUIRE( eList[1] == Int(64,1024) );
+
+    REQUIRE( fList[0] == Int(16,64) );
 }

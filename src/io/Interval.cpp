@@ -1,5 +1,8 @@
 
+#include <templatious/FullPack.hpp>
 #include "Interval.hpp"
+
+TEMPLATIOUS_TRIPLET_STD;
 
 namespace SafeLists {
 
@@ -24,7 +27,9 @@ IntervalList::IntervalList(int64_t emptyStart,int64_t emptyEnd)
 }
 
 void IntervalList::traverseFilled(const std::is_function<bool(Interval)>& func) {
-
+    if (SA::size(_list) == 0) {
+        return;
+    }
 }
 
 void IntervalList::traverseEmpty(const std::is_function<bool(Interval)>& func) {

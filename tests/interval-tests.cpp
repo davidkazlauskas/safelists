@@ -17,6 +17,10 @@ TEST_CASE("interval_throw_wrong_interval","[interval]") {
     REQUIRE( caught );
 }
 
+TEST_CASE("interval_evaluation","[interval]") {
+
+}
+
 struct IntervalCollector {
 
     bool operator()(const SafeLists::Interval& i) {
@@ -29,12 +33,12 @@ struct IntervalCollector {
 
 TEST_CASE("interval_list_append","[interval]") {
 
-    SafeLists::IntervalList list(0,1024);
-    IntervalCollector colEmpty;
-    IntervalCollector colFilled;
+    //SafeLists::IntervalList list(0,1024);
+    //IntervalCollector colEmpty;
+    //IntervalCollector colFilled;
 
-    list.append(16,32);
-    list.traverseEmpty(colEmpty);
-    list.traverseFilled(colFilled);
+    ////list.append(16,32);
+    //list.traverseEmpty(colEmpty);
+    //list.traverseFilled(colFilled);
 
 }

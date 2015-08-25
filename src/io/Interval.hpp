@@ -41,6 +41,7 @@ struct Interval {
 
     // this interval is A, other is B
     RelationResult evaluate(const Interval& other) const;
+    static RelationResult evaluate(const Interval& a,const Interval& b);
 
     bool operator==(const Interval& rhs) const;
 

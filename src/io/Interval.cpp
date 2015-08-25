@@ -80,6 +80,12 @@ auto Interval::evaluate(const Interval& other) const
     return IntervalListImpl::evaluate(*this,other);
 }
 
+auto Interval::evaluate(const Interval& a,const Interval& b)
+    -> RelationResult
+{
+    return a.evaluate(b);
+}
+
 IntervalList::IntervalList(const Interval& empty)
     : _emptyInterval(empty)
 {

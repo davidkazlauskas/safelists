@@ -72,5 +72,10 @@ void IntervalList::traverseEmpty(const IntervalReceiveFunction& func) {
     }
 }
 
+// returns overlap, if any. empty range if none
+Interval IntervalList::append(const Interval& i) {
+
+}
+
 }
 

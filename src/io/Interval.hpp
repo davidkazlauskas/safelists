@@ -11,6 +11,10 @@ struct Interval {
 
     Interval(int64_t start,int64_t end);
 
+    int64_t start() const;
+    int64_t end() const;
+    bool isEmpty() const;
+
 private:
     int64_t _start;
     int64_t _end;

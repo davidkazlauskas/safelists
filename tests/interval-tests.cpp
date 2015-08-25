@@ -73,8 +73,8 @@ TEST_CASE("interval_list_append","[interval]") {
     list.traverseEmpty(colEmpty);
     list.traverseFilled(colFilled);
 
-    //REQUIRE( eList[0] == Int(0,16) );
-    //REQUIRE( eList[1] == Int(32,1024) );
+    REQUIRE( eList[0] == Int(0,16) );
+    REQUIRE( eList[1] == Int(32,1024) );
 
-    //REQUIRE( fList[0] == Int(16,32) );
+    REQUIRE( fList[0] == Int(16,32) );
 }

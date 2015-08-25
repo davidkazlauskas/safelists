@@ -189,6 +189,10 @@ Interval IntervalList::append(const Interval& i) {
     typedef Interval::RelationResult RR;
     RR r;
     auto res = IntervalListImpl::findClosest(*this,i,r);
+    if (res == -1) {
+        SA::add(_list,i);
+    }
+
     if (r == RR::Equal) {
         return i;
     } else if (r == RR::InFront) {

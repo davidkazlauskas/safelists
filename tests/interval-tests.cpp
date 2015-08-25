@@ -61,12 +61,14 @@ struct IntervalCollector {
 
 TEST_CASE("interval_list_append","[interval]") {
 
-    //SafeLists::IntervalList list(0,1024);
-    //IntervalCollector colEmpty;
-    //IntervalCollector colFilled;
+    typedef SafeLists::Interval Int;
 
-    ////list.append(16,32);
-    //list.traverseEmpty(colEmpty);
-    //list.traverseFilled(colFilled);
+    SafeLists::IntervalList list(Int(0,1024));
+    IntervalCollector colEmpty;
+    IntervalCollector colFilled;
+
+    list.append(Int(16,32));
+    list.traverseEmpty(colEmpty);
+    list.traverseFilled(colFilled);
 
 }

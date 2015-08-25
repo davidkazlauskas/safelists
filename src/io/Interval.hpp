@@ -65,6 +65,7 @@ struct IntervalList {
     void traverseEmpty(const IntervalReceiveFunction& func) const;
     // returns overlap, if any. empty range if none
     Interval append(const Interval& i);
+    Interval closest(const Interval& i,Interval::RelationResult& outRel) const;
 
     friend struct IntervalListImpl;
 

@@ -187,5 +187,14 @@ Interval IntervalList::append(const Interval& i) {
 
 }
 
+Interval IntervalList::closest(const Interval& i,Interval::RelationResult& outRel) const {
+    auto res = IntervalListImpl::findClosest(*this,i,outRel);
+    if (res > 0) {
+        return SA::getByIndex(_list,res);
+    }
+    Interval outNull;
+    return outNull;
+}
+
 }
 

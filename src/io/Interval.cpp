@@ -54,7 +54,9 @@ void IntervalList::traverseEmpty(const IntervalReceiveFunction& func) {
     }
 
     auto beg = SA::begin(_list);
-
+    if (beg->start() > 0) {
+        func(Interval(0,beg->start()));
+    }
 }
 
 }

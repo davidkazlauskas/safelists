@@ -191,6 +191,7 @@ Interval IntervalList::append(const Interval& i) {
     auto res = IntervalListImpl::findClosest(*this,i,r);
     if (res == -1) {
         SA::add(_list,i);
+        return Interval();
     }
 
     if (r == RR::Equal) {
@@ -219,8 +220,7 @@ Interval IntervalList::append(const Interval& i) {
         assert( false && "Not yet implemented." );
     }
 
-    Interval ret;
-    return ret;
+    return Interval();
 }
 
 Interval IntervalList::closest(const Interval& i,Interval::RelationResult& outRel) const {

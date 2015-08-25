@@ -23,6 +23,21 @@ TEST_CASE("interval_evaluation","[interval]") {
 
     r = Int::evaluate(Int(0,1),Int(2,3));
     REQUIRE( r == Int::RelationResult::InFront );
+
+    r = Int::evaluate(Int(0,1),Int(1,3));
+    REQUIRE( r == Int::RelationResult::OverlapsFront );
+
+    r = Int::evaluate(Int(0,1),Int(-2,-1));
+    REQUIRE( r == Int::RelationResult::InBack );
+
+    r = Int::evaluate(Int(0,1),Int(-2,0));
+    REQUIRE( r == Int::RelationResult::OverlapsBack );
+
+    r = Int::evaluate(Int(0,1),Int(0,2));
+    REQUIRE( r == Int::RelationResult::OverlapsFront );
+
+    r = Int::evaluate(Int(0,1),Int(-2,1));
+    REQUIRE( r == Int::RelationResult::OverlapsBack );
 }
 
 struct IntervalCollector {

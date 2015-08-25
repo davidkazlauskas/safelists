@@ -86,16 +86,7 @@ struct IntervalListImpl {
         while (keepgoing) {
             const Interval* current = &SA::getByIndex(vec,demarcation);
             RelationResult r = current->evaluate(interval);
-            if (r == RelationResult::EmergesA
-                || r == RelationResult::EmergesB
-                || r == RelationResult::OverlapsBack
-                || r == RelationResult::OverlapsFront
-                || r == RelationResult::Equal
-                )
-            {
-                outRel = r;
-                return demarcation;
-            } else if (r == RelationResult::InFront) {
+            if (r == RelationResult::InFront) {
                 demarcation += slider;
                 slider /= 2;
                 if (slider <= 0) {
@@ -107,6 +98,16 @@ struct IntervalListImpl {
                 if (slider <= 0) {
                     slider = 1;
                 }
+            } else if (
+                r == RelationResult::EmergesA
+                || r == RelationResult::EmergesB
+                || r == RelationResult::OverlapsBack
+                || r == RelationResult::OverlapsFront
+                || r == RelationResult::Equal
+            )
+            {
+                outRel = r;
+                return demarcation;
             }
         }
     }

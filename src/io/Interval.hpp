@@ -28,6 +28,9 @@ struct IntervalList {
     IntervalList(IntervalList&&) = delete;
     IntervalList(const IntervalList&) = delete;
 
+    void traverseFilled(const std::is_function<bool(Interval)>& func);
+    void traverseEmpty(const std::is_function<bool(Interval)>& func);
+
 private:
     Interval _emptyInterval;
     std::vector< Interval > _list;

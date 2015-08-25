@@ -54,8 +54,21 @@ void IntervalList::traverseEmpty(const IntervalReceiveFunction& func) {
     }
 
     auto beg = SA::begin(_list);
+    auto end = SA::end(_list);
     if (beg->start() > 0) {
         func(Interval(0,beg->start()));
+    }
+
+    victim = *beg;
+    ++beg;
+    while (beg != end) {
+        func(Interval(victim.end(),beg->start()));
+        victim = *beg;
+        ++beg;
+    }
+
+    if (victim.end() < _emptyInterval.end()) {
+        func(Interval(victim.end(),_emptyInterval.end()));
     }
 }
 

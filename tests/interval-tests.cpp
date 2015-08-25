@@ -16,3 +16,7 @@ TEST_CASE("interval_throw_wrong_interval","[interval]") {
 
     REQUIRE( caught );
 }
+
+TEST_CASE("interval_list_append","[interval]") {
+
+}

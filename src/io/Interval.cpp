@@ -69,9 +69,47 @@ struct IntervalListImpl {
         assert( false && "Didn't expect this milky." );
     }
 
-    //static int64_t findClosest(const IntervalList& list) {
+    static int64_t findClosest(
+            const IntervalList& list,
+            const Interval& interval,
+            RelationResult& outRel)
+    {
+        auto size = SA::size(list._list);
+        if (0 == size) {
+            return -1;
+        }
 
-    //}
+        auto& vec = list._list;
+        auto demarcation = size / 2;
+        auto slider = demarcation / 2;
+        bool keepgoing = true;
+        while (keepgoing) {
+            const Interval* current = &SA::getByIndex(vec,demarcation);
+            RelationResult r = current->evaluate(interval);
+            if (r == RelationResult::EmergesA
+                || r == RelationResult::EmergesB
+                || r == RelationResult::OverlapsBack
+                || r == RelationResult::OverlapsFront
+                || r == RelationResult::Equal
+                )
+            {
+                outRel = r;
+                return demarcation;
+            } else if (r == RelationResult::InFront) {
+                demarcation += slider;
+                slider /= 2;
+                if (slider <= 0) {
+                    slider = 1;
+                }
+            } else if (r == RelationResult::InBack) {
+                demarcation -= slider;
+                slider /= 2;
+                if (slider <= 0) {
+                    slider = 1;
+                }
+            }
+        }
+    }
 };
 
 auto Interval::evaluate(const Interval& other) const

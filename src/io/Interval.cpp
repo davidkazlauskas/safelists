@@ -83,12 +83,26 @@ struct IntervalListImpl {
         auto demarcation = size / 2;
         auto slider = demarcation / 2;
         bool keepgoing = true;
-        while (keepgoing) {
+        const Interval* previous = nullptr;
+        const Interval* prevPrev = nullptr;
+        for (;;) {
+            if (demarcation < 0 || demarcation >= size) {
+                return -1;
+            }
+
             const Interval* current = &SA::getByIndex(vec,demarcation);
             RelationResult r = current->evaluate(interval);
             if (r == RelationResult::InFront) {
+                if (prevPrev == current) {
+                    outRel = r;
+                    return demarcation;
+                }
                 demarcation += slider;
             } else if (r == RelationResult::InBack) {
+                if (prevPrev == current) {
+                    outRel = r;
+                    return demarcation;
+                }
                 demarcation -= slider;
             } else if (
                 r == RelationResult::EmergesA
@@ -106,6 +120,9 @@ struct IntervalListImpl {
             if (slider <= 0) {
                 slider = 1;
             }
+
+            prevPrev = previous;
+            previous = current;
         }
     }
 };

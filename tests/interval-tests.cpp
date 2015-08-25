@@ -21,7 +21,7 @@ TEST_CASE("interval_evaluation","[interval]") {
     typedef SafeLists::Interval Int;
     Int::RelationResult r;
 
-    r = Int::evaluate(Int(0,1),Int(1,2));
+    r = Int::evaluate(Int(0,1),Int(2,3));
     REQUIRE( r == Int::RelationResult::InFront );
 }
 

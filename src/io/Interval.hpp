@@ -29,9 +29,9 @@ struct Interval {
 
     Interval(int64_t start,int64_t end);
     Interval(const Interval&) = default;
-    Interval(Interval&&) = delete;
+    Interval(Interval&&) = default;
     Interval& operator=(const Interval&) = default;
-    Interval& operator=(Interval&&) = delete;
+    Interval& operator=(Interval&&) = default;
 
     Interval();
 

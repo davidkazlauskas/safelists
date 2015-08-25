@@ -2,6 +2,8 @@
 #ifndef INTERVAL_C5VNKZTP
 #define INTERVAL_C5VNKZTP
 
+#include <cstdint>
+
 namespace SafeLists {
 
 struct Interval {

@@ -32,6 +32,7 @@ SET( DOMAIN_SOURCES
     src/model/SqliteRanger.cpp
     src/util/AutoReg.cpp
     src/io/RandomFileWriter.cpp
+    src/io/Interval.cpp
     )
 
 include_directories(

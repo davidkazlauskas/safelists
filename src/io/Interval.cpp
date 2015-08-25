@@ -34,6 +34,11 @@ void IntervalList::traverseFilled(const IntervalReceiveFunction& func) {
     if (SA::size(_list) == 0) {
         return;
     }
+    Interval victim;
+    TEMPLATIOUS_FOREACH(auto& i,_list) {
+        victim = i;
+        func(victim);
+    }
 }
 
 void IntervalList::traverseEmpty(const IntervalReceiveFunction& func) {
@@ -41,6 +46,7 @@ void IntervalList::traverseEmpty(const IntervalReceiveFunction& func) {
     if (SA::size(_list) == 0) {
         victim = _emptyInterval;
         func(victim);
+        return;
     }
 }
 

@@ -205,7 +205,18 @@ Interval IntervalList::append(const Interval& i) {
         } else {
             SA::insert(_list,SA::iterAt(_list,res),i);
         }
+    } else if (r == RR::OverlapsFront) {
+        assert( false && "Not yet implemented." );
+    } else if (r == RR::OverlapsBack) {
+        assert( false && "Not yet implemented." );
+    } else if (r == RR::EmergesA) {
+        assert( false && "Not yet implemented." );
+    } else if (r == RR::EmergesB) {
+        assert( false && "Not yet implemented." );
     }
+
+    Interval ret;
+    return ret;
 }
 
 Interval IntervalList::closest(const Interval& i,Interval::RelationResult& outRel) const {

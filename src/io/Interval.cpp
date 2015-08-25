@@ -29,6 +29,12 @@ bool Interval::isEmpty() const {
     return _start == _end;
 }
 
+struct IntervalListImpl {
+    static int64_t findClosest(const IntervalList& list) {
+
+    }
+};
+
 IntervalList::IntervalList(const Interval& empty)
     : _emptyInterval(empty)
 {

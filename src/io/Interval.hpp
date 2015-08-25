@@ -50,6 +50,8 @@ struct IntervalList {
     // returns overlap, if any. empty range if none
     Interval append(const Interval& i);
 
+    friend struct IntervalListImpl;
+
 private:
     Interval _emptyInterval;
     std::vector< Interval > _list;

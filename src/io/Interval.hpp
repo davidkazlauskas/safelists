@@ -24,6 +24,10 @@ struct IntervalList {
 
     IntervalList(int64_t emptyStart,int64_t emptyEnd);
 
+    IntervalList() = delete;
+    IntervalList(IntervalList&&) = delete;
+    IntervalList(const IntervalList&) = delete;
+
 private:
     Interval _emptyInterval;
     std::vector< Interval > _list;

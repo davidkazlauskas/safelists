@@ -6,7 +6,14 @@
 #include <vector>
 #include <functional>
 
+#include <templatious/util/Exceptions.hpp>
+
 namespace SafeLists {
+
+TEMPLATIOUS_BOILERPLATE_EXCEPTION(
+    IntervalStartGreaterThanEndException,
+    "Beginning of interval cannot be greater than the end."
+);
 
 struct Interval {
 

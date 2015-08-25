@@ -7,7 +7,11 @@ TEMPLATIOUS_TRIPLET_STD;
 namespace SafeLists {
 
 Interval::Interval(int64_t start,int64_t end) :
-    _start(start), _end(end) {}
+    _start(start), _end(end)
+{
+    if (_start > _end)
+        throw IntervalStartGreaterThanEndException();
+}
 
 // -1/-1 -> unused inteval
 Interval::Interval() :
@@ -48,6 +52,9 @@ void IntervalList::traverseEmpty(const IntervalReceiveFunction& func) {
         func(victim);
         return;
     }
+
+    auto beg = SA::begin(_list);
+
 }
 
 }

@@ -30,6 +30,15 @@ bool Interval::isEmpty() const {
 }
 
 struct IntervalListImpl {
+
+    enum class ClosesResult {
+        Emerges,       // {..}
+        OverlapsFront, // {.}.
+        OverlapsBack,  // .{.}
+        InFront,       // {}..
+        InBack,        // ..{}
+    };
+
     static int64_t findClosest(const IntervalList& list) {
 
     }

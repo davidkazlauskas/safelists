@@ -45,8 +45,8 @@ struct IntervalList {
 
     typedef std::function<bool(const Interval&)> IntervalReceiveFunction;
 
-    void traverseFilled(const IntervalReceiveFunction& func);
-    void traverseEmpty(const IntervalReceiveFunction& func);
+    void traverseFilled(const IntervalReceiveFunction& func) const;
+    void traverseEmpty(const IntervalReceiveFunction& func) const;
     // returns overlap, if any. empty range if none
     Interval append(const Interval& i);
 

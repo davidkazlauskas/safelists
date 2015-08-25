@@ -34,7 +34,7 @@ IntervalList::IntervalList(const Interval& empty)
 {
 }
 
-void IntervalList::traverseFilled(const IntervalReceiveFunction& func) {
+void IntervalList::traverseFilled(const IntervalReceiveFunction& func) const {
     if (SA::size(_list) == 0) {
         return;
     }
@@ -45,7 +45,7 @@ void IntervalList::traverseFilled(const IntervalReceiveFunction& func) {
     }
 }
 
-void IntervalList::traverseEmpty(const IntervalReceiveFunction& func) {
+void IntervalList::traverseEmpty(const IntervalReceiveFunction& func) const {
     Interval victim;
     if (SA::size(_list) == 0) {
         victim = _emptyInterval;

@@ -6,8 +6,12 @@ TEMPLATIOUS_TRIPLET_STD;
 
 namespace SafeLists {
 
-Interval::Interval(int64_t start,int64_t end)
- : _start(start), _end(end) {}
+Interval::Interval(int64_t start,int64_t end) :
+    _start(start), _end(end) {}
+
+// -1/-1 -> unused inteval
+Interval::Interval() :
+    _start(-1), _end(-1) {}
 
 int64_t Interval::start() const {
     return _start;

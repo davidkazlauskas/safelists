@@ -12,7 +12,7 @@ struct Interval {
     Interval(int64_t start,int64_t end);
     Interval(const Interval&) = default;
     Interval(Interval&&) = delete;
-    Interval() = delete;
+    Interval();
 
     int64_t start() const;
     int64_t end() const;

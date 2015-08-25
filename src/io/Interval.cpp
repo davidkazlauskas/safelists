@@ -35,24 +35,28 @@ bool Interval::operator==(const Interval& rhs) const {
 
 struct IntervalListImpl {
 
-    enum class RelationResult {
-        Equal,         // ====
-        EmergesA,      // {..}
-        EmergesB,      // .{}.
-        OverlapsFront, // {.}.
-        OverlapsBack,  // .{.}
-        InFront,       // {}..
-        InBack,        // ..{}
-    };
+    typedef Interval::RelationResult RelationResult;
 
     static RelationResult evaluate(const Interval& a,const Interval& b) {
-        if (a.start())
+        if (a == b) {
+            return RelationResult::Equal;
+        }
+
+        if (a.start() < b.start() && a.end() > b.end()) {
+            return RelationResult::EmergesA;
+        }
     }
 
     static int64_t findClosest(const IntervalList& list) {
 
     }
 };
+
+auto Interval::evaluate(const Interval& other) const
+    -> RelationResult
+{
+    return IntervalListImpl::evaluate(*this,other);
+}
 
 IntervalList::IntervalList(const Interval& empty)
     : _emptyInterval(empty)

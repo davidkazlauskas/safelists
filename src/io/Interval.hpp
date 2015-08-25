@@ -17,6 +17,16 @@ TEMPLATIOUS_BOILERPLATE_EXCEPTION(
 
 struct Interval {
 
+    enum class RelationResult {
+        Equal,         // ====
+        EmergesA,      // {..}
+        EmergesB,      // .{}.
+        OverlapsFront, // {.}.
+        OverlapsBack,  // .{.}
+        InFront,       // {}..
+        InBack         // ..{}
+    };
+
     Interval(int64_t start,int64_t end);
     Interval(const Interval&) = default;
     Interval(Interval&&) = delete;
@@ -28,6 +38,9 @@ struct Interval {
     int64_t start() const;
     int64_t end() const;
     bool isEmpty() const;
+
+    // this interval is A, other is B
+    RelationResult evaluate(const Interval& other) const;
 
     bool operator==(const Interval& rhs) const;
 

@@ -22,7 +22,10 @@ private:
 
 struct IntervalList {
 
+    IntervalList(int64_t emptyStart,int64_t emptyEnd);
+
 private:
+    Interval _emptyInterval;
     std::vector< Interval > _list;
 };
 

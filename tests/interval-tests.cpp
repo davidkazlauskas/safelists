@@ -66,9 +66,15 @@ TEST_CASE("interval_list_append","[interval]") {
     SafeLists::IntervalList list(Int(0,1024));
     IntervalCollector colEmpty;
     IntervalCollector colFilled;
+    auto &eList = colEmpty._list;
+    auto &fList = colFilled._list;
 
     list.append(Int(16,32));
     list.traverseEmpty(colEmpty);
     list.traverseFilled(colFilled);
 
+    REQUIRE( eList[0] == Int(0,16) );
+    REQUIRE( eList[1] == Int(32,1024) );
+
+    REQUIRE( fList[0] == Int(16,32) );
 }

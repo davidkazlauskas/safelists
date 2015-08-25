@@ -29,8 +29,8 @@ bool Interval::isEmpty() const {
     return _start == _end;
 }
 
-IntervalList::IntervalList(int64_t emptyStart,int64_t emptyEnd)
-    : _emptyInterval(emptyStart,emptyEnd)
+IntervalList::IntervalList(const Interval& empty)
+    : _emptyInterval(empty)
 {
 }
 

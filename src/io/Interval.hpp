@@ -37,7 +37,7 @@ private:
 
 struct IntervalList {
 
-    IntervalList(int64_t emptyStart,int64_t emptyEnd);
+    IntervalList(const Interval& empty);
 
     IntervalList() = delete;
     IntervalList(IntervalList&&) = delete;
@@ -47,6 +47,8 @@ struct IntervalList {
 
     void traverseFilled(const IntervalReceiveFunction& func);
     void traverseEmpty(const IntervalReceiveFunction& func);
+    // returns overlap, if any. empty range if none
+    Interval append(const Interval& i);
 
 private:
     Interval _emptyInterval;

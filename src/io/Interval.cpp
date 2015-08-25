@@ -199,6 +199,12 @@ Interval IntervalList::append(const Interval& i) {
                 SA::iterAt(_list,res + 1),
                 i);
         }
+    } else if (r == RR::InBack) {
+        if (res == 0) {
+            SA::insert(_list,SA::begin(_list),i);
+        } else {
+            SA::insert(_list,SA::iterAt(_list,res),i);
+        }
     }
 }
 

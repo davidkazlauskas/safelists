@@ -88,16 +88,8 @@ struct IntervalListImpl {
             RelationResult r = current->evaluate(interval);
             if (r == RelationResult::InFront) {
                 demarcation += slider;
-                slider /= 2;
-                if (slider <= 0) {
-                    slider = 1;
-                }
             } else if (r == RelationResult::InBack) {
                 demarcation -= slider;
-                slider /= 2;
-                if (slider <= 0) {
-                    slider = 1;
-                }
             } else if (
                 r == RelationResult::EmergesA
                 || r == RelationResult::EmergesB
@@ -108,6 +100,11 @@ struct IntervalListImpl {
             {
                 outRel = r;
                 return demarcation;
+            }
+
+            slider /= 2;
+            if (slider <= 0) {
+                slider = 1;
             }
         }
     }

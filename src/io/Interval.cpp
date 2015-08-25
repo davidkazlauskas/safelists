@@ -29,15 +29,25 @@ bool Interval::isEmpty() const {
     return _start == _end;
 }
 
+bool Interval::operator==(const Interval& rhs) const {
+    return _start == rhs._start && _end == rhs._end;
+}
+
 struct IntervalListImpl {
 
-    enum class ClosesResult {
-        Emerges,       // {..}
+    enum class RelationResult {
+        Equal,         // ====
+        EmergesA,      // {..}
+        EmergesB,      // .{}.
         OverlapsFront, // {.}.
         OverlapsBack,  // .{.}
         InFront,       // {}..
         InBack,        // ..{}
     };
+
+    static RelationResult evaluate(const Interval& a,const Interval& b) {
+        if (a.start())
+    }
 
     static int64_t findClosest(const IntervalList& list) {
 

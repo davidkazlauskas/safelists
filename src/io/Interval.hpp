@@ -29,6 +29,8 @@ struct Interval {
     int64_t end() const;
     bool isEmpty() const;
 
+    bool operator==(const Interval& rhs) const;
+
     friend struct IntervalList;
 private:
     int64_t _start;

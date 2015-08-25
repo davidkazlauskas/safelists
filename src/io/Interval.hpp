@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <functional>
 
 namespace SafeLists {
 
@@ -12,6 +13,9 @@ struct Interval {
     Interval(int64_t start,int64_t end);
     Interval(const Interval&) = default;
     Interval(Interval&&) = delete;
+    Interval& operator=(const Interval&) = default;
+    Interval& operator=(Interval&&) = delete;
+
     Interval();
 
     int64_t start() const;
@@ -31,8 +35,8 @@ struct IntervalList {
     IntervalList(IntervalList&&) = delete;
     IntervalList(const IntervalList&) = delete;
 
-    void traverseFilled(const std::is_function<bool(Interval)>& func);
-    void traverseEmpty(const std::is_function<bool(Interval)>& func);
+    void traverseFilled(const std::function<bool(Interval)>& func);
+    void traverseEmpty(const std::function<bool(Interval)>& func);
 
 private:
     Interval _emptyInterval;

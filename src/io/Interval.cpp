@@ -38,16 +38,16 @@ struct IntervalListImpl {
     typedef Interval::RelationResult RelationResult;
 
     static RelationResult evaluate(const Interval& a,const Interval& b) {
-        if (a == b) {
-            return RelationResult::Equal;
-        }
-
         if (a.end() < b.start()) {
             return RelationResult::InFront;
         }
 
         if (b.end() < a.start()) {
             return RelationResult::InBack;
+        }
+
+        if (a == b) {
+            return RelationResult::Equal;
         }
 
         if (a.start() < b.start() && a.end() > b.end()) {
@@ -65,11 +65,13 @@ struct IntervalListImpl {
         if (b.start() <= a.start() && b.end() <= a.end()) {
             return RelationResult::OverlapsBack;
         }
+
+        assert( false && "Didn't expect this milky." );
     }
 
-    static int64_t findClosest(const IntervalList& list) {
+    //static int64_t findClosest(const IntervalList& list) {
 
-    }
+    //}
 };
 
 auto Interval::evaluate(const Interval& other) const

@@ -51,9 +51,11 @@ TEST_CASE("interval_evaluation","[interval]") {
 
 struct IntervalCollector {
 
-    bool operator()(const SafeLists::Interval& i) {
-        SA::add(_list,i);
-        return true;
+    std::function<bool(const SafeLists::Interval&)> f() {
+        return [=](const SafeLists::Interval& i) {
+            SA::add(this->_list,i);
+            return true;
+        };
     }
 
     std::vector< SafeLists::Interval > _list;
@@ -70,8 +72,8 @@ TEST_CASE("interval_list_append","[interval]") {
     auto &fList = colFilled._list;
 
     list.append(Int(16,32));
-    list.traverseEmpty(colEmpty);
-    list.traverseFilled(colFilled);
+    list.traverseEmpty(colEmpty.f());
+    list.traverseFilled(colFilled.f());
 
     REQUIRE( eList[0] == Int(0,16) );
     REQUIRE( eList[1] == Int(32,1024) );

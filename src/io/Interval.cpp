@@ -49,6 +49,14 @@ struct IntervalListImpl {
         if (b.start() < a.start() && b.end() > a.end()) {
             return RelationResult::EmergesB;
         }
+
+        if (a.start() <= b.start() && a.end() <= b.end()) {
+            return RelationResult::OverlapsFront;
+        }
+
+        if (b.start() <= a.start() && b.end() <= a.end()) {
+            return RelationResult::OverlapsBack;
+        }
     }
 
     static int64_t findClosest(const IntervalList& list) {

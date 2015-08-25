@@ -42,6 +42,14 @@ struct IntervalListImpl {
             return RelationResult::Equal;
         }
 
+        if (a.end() < b.start()) {
+            return RelationResult::InFront;
+        }
+
+        if (b.end() < a.start()) {
+            return RelationResult::InBack;
+        }
+
         if (a.start() < b.start() && a.end() > b.end()) {
             return RelationResult::EmergesA;
         }

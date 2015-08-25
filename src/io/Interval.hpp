@@ -35,8 +35,10 @@ struct IntervalList {
     IntervalList(IntervalList&&) = delete;
     IntervalList(const IntervalList&) = delete;
 
-    void traverseFilled(const std::function<bool(Interval)>& func);
-    void traverseEmpty(const std::function<bool(Interval)>& func);
+    typedef std::function<bool(const Interval&)> IntervalReceiveFunction;
+
+    void traverseFilled(const IntervalReceiveFunction& func);
+    void traverseEmpty(const IntervalReceiveFunction& func);
 
 private:
     Interval _emptyInterval;

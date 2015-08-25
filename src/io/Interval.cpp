@@ -30,13 +30,13 @@ IntervalList::IntervalList(int64_t emptyStart,int64_t emptyEnd)
 {
 }
 
-void IntervalList::traverseFilled(const std::function<bool(Interval)>& func) {
+void IntervalList::traverseFilled(const IntervalReceiveFunction& func) {
     if (SA::size(_list) == 0) {
         return;
     }
 }
 
-void IntervalList::traverseEmpty(const std::function<bool(Interval)>& func) {
+void IntervalList::traverseEmpty(const IntervalReceiveFunction& func) {
     Interval victim;
     if (SA::size(_list) == 0) {
         victim = _emptyInterval;

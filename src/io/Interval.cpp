@@ -86,8 +86,10 @@ struct IntervalListImpl {
         const Interval* previous = nullptr;
         const Interval* prevPrev = nullptr;
         for (;;) {
-            if (demarcation < 0 || demarcation >= size) {
-                return -1;
+            if (demarcation < 0) {
+                return 0;
+            } else if (demarcation >= size) {
+                return size - 1;
             }
 
             const Interval* current = &SA::getByIndex(vec,demarcation);
@@ -184,7 +186,20 @@ void IntervalList::traverseEmpty(const IntervalReceiveFunction& func) const {
 
 // returns overlap, if any. empty range if none
 Interval IntervalList::append(const Interval& i) {
-
+    typedef Interval::RelationResult RR;
+    RR r;
+    auto res = IntervalListImpl::findClosest(*this,i,r);
+    if (r == RR::Equal) {
+        return i;
+    } else if (r == RR::InFront) {
+        if (SA::size(_list) - 1 == res) {
+            SA::add(_list,i);
+        } else {
+            SA::insert(_list,
+                SA::iterAt(_list,res + 1),
+                i);
+        }
+    }
 }
 
 Interval IntervalList::closest(const Interval& i,Interval::RelationResult& outRel) const {

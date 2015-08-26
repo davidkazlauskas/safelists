@@ -271,7 +271,8 @@ Interval IntervalList::append(const Interval& i) {
             )
         );
     } else if (r == RR::EmergesA) {
-        assert( false && "Not yet implemented." );
+        // doesn't matter, interval swallows already
+        return Interval();
     } else if (r == RR::EmergesB) {
         Interval nuller;
         auto iter = SA::iterAt(_list,res);

@@ -222,7 +222,9 @@ Interval IntervalList::append(const Interval& i) {
         *iter = Interval(iter->start(),i.end());
         ++iter;
         while (iter != end) {
-            if (iter->end() >= i.end()) {
+            if (iter->start() <= i.end()
+                && iter->end() >= i.end())
+            {
                 *iter = nuller;
             } else {
                 break;

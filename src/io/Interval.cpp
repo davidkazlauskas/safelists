@@ -245,7 +245,7 @@ Interval IntervalList::append(const Interval& i) {
         auto iter = SA::iterAt(_list,res);
         auto original = iter;
         auto beg = SA::begin(_list);
-        *iter = Interval(iter->start(),i.end());
+        *iter = Interval(i.start(),iter->end());
         if (res > 0) {
             --iter;
             while (iter != beg) {

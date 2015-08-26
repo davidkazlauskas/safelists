@@ -255,9 +255,13 @@ Interval IntervalList::append(const Interval& i) {
         if (res > 0) {
             --iter;
             while (iter != beg) {
-                if (iter->end() >= i.end()) {
+                if (iter->start() >= original->start()) {
                     *iter = nuller;
                 } else {
+                    if (iter->end() <= original->start()) {
+                        *original = Interval(iter->start(),original->end());
+                        *iter = nuller;
+                    }
                     break;
                 }
             }

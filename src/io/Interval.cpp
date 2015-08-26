@@ -212,6 +212,34 @@ Interval IntervalList::append(const Interval& i) {
         }
     } else if (r == RR::OverlapsFront) {
         assert( false && "Not yet implemented." );
+        Interval nuller;
+        auto iter = SA::iterAt(_list,res);
+        auto original = iter;
+        auto end = SA::end(_list);
+        *iter = Interval(iter->start(),i.end());
+        ++iter;
+        while (iter != end) {
+            if (iter->end() >= i.end()) {
+                *iter = nuller;
+            } else {
+                break;
+            }
+            ++iter;
+        }
+
+        if (iter != end && iter->start() <= i.end()) {
+            *original = Interval(original->start(),iter->end());
+            *iter = nuller;
+        }
+
+        SA::clear(
+            SF::filter(
+                _list,
+                [](const Interval& i) {
+                    return i.isEmpty();
+                }
+            )
+        );
     } else if (r == RR::OverlapsBack) {
         assert( false && "Not yet implemented." );
     } else if (r == RR::EmergesA) {

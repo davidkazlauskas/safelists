@@ -124,3 +124,25 @@ TEST_CASE("interval_list_append_shorten_front","[interval]") {
 
     REQUIRE( fList[0] == Int(16,64) );
 }
+
+TEST_CASE("interval_list_append_merge_all","[interval]") {
+    typedef SafeLists::Interval Int;
+
+    SafeLists::IntervalList list(Int(0,1024));
+    IntervalCollector colEmpty;
+    IntervalCollector colFilled;
+    auto &eList = colEmpty._list;
+    auto &fList = colFilled._list;
+
+    list.append(Int(16,32));
+    list.append(Int(48,64));
+    list.append(Int(8,128));
+
+    list.traverseEmpty(colEmpty.f());
+    list.traverseFilled(colFilled.f());
+
+    REQUIRE( eList[0] == Int(0,8) );
+    REQUIRE( eList[1] == Int(128,1024) );
+
+    REQUIRE( fList[0] == Int(8,128) );
+}

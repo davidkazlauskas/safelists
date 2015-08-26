@@ -120,7 +120,7 @@ TEST_CASE("interval_list_append_shorten_front","[interval]") {
     list.traverseFilled(colFilled.f());
 
     REQUIRE( eList[0] == Int(0,16) );
-    REQUIRE( eList[0] == Int(64,1024) );
+    REQUIRE( eList[1] == Int(64,1024) );
 
     REQUIRE( fList[0] == Int(16,64) );
 }

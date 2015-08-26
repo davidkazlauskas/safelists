@@ -87,8 +87,12 @@ struct IntervalListImpl {
         const Interval* prevPrev = nullptr;
         for (;;) {
             if (demarcation < 0) {
+                outRel = SA::getByIndex(list._list,0)
+                    .evaluate(interval);
                 return 0;
             } else if (demarcation >= size) {
+                outRel = SA::getByIndex(list._list,size - 1)
+                    .evaluate(interval);
                 return size - 1;
             }
 

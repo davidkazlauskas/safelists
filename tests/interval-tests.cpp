@@ -238,3 +238,36 @@ TEST_CASE("interval_list_stress_a","[interval]") {
     REQUIRE( SA::size(eList) == 2201 );
     REQUIRE( SA::size(fList) == 2200 );
 }
+
+TEST_CASE("interval_list_stress_b","[interval]") {
+    typedef SafeLists::Interval Int;
+    std::mt19937 generator(7);
+
+    const int LIMIT = 256 * 16;
+    SafeLists::IntervalList list(Int(0,LIMIT));
+
+    TEMPLATIOUS_REPEAT( 18099 ) {
+        if (__tmp_i == 3) {
+            int cholo = 7;
+        }
+
+        int64_t current = generator() % LIMIT;
+        int64_t end = current + 10;
+        if (end > LIMIT) {
+            end = LIMIT;
+        }
+
+        list.append(Int(current,end));
+    }
+
+    IntervalCollector colEmpty;
+    IntervalCollector colFilled;
+    auto &eList = colEmpty._list;
+    auto &fList = colFilled._list;
+
+    list.traverseEmpty(colEmpty.f());
+    list.traverseFilled(colFilled.f());
+
+    REQUIRE( SA::size(eList) == 0 );
+    REQUIRE( SA::size(fList) == 1 );
+}

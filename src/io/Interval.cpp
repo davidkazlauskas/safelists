@@ -240,7 +240,36 @@ Interval IntervalList::append(const Interval& i) {
             )
         );
     } else if (r == RR::OverlapsBack) {
-        assert( false && "Not yet implemented." );
+        // I'm so lazy, this need to be rewritten
+        Interval nuller;
+        auto iter = SA::iterAt(_list,res);
+        auto original = iter;
+        auto beg = SA::begin(_list);
+        *iter = Interval(iter->start(),i.end());
+        if (res > 0) {
+            --iter;
+            while (iter != beg) {
+                if (iter->end() >= i.end()) {
+                    *iter = nuller;
+                } else {
+                    break;
+                }
+            }
+        }
+
+        if (iter != beg && iter->end() <= i.start()) {
+            *original = Interval(iter->start(),original->end());
+            *iter = nuller;
+        }
+
+        SA::clear(
+            SF::filter(
+                _list,
+                [](const Interval& i) {
+                    return i.isEmpty();
+                }
+            )
+        );
     } else if (r == RR::EmergesA) {
         assert( false && "Not yet implemented." );
     } else if (r == RR::EmergesB) {

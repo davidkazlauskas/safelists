@@ -312,7 +312,7 @@ Interval IntervalList::append(const Interval& i) {
             }
 
             if (iter == beg) {
-                if (iter->end() <= starter->start()) {
+                if (iter->end() >= starter->start()) {
                     if (iter->start() < starter->start()) {
                         *starter = Interval(iter->start(),starter->end());
                     }

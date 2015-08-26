@@ -295,6 +295,7 @@ Interval IntervalList::append(const Interval& i) {
             }
         }
 
+        iter = starter;
         // backward purge
         if (iter != beg) {
             iter = starter;

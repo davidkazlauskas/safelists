@@ -298,7 +298,6 @@ Interval IntervalList::append(const Interval& i) {
         iter = starter;
         // backward purge
         if (iter != beg) {
-            iter = starter;
             --iter;
             for (; iter != beg; --iter) {
                 if (iter->end() <= starter->start()) {
@@ -309,6 +308,15 @@ Interval IntervalList::append(const Interval& i) {
                     } else {
                         *iter = nuller;
                     }
+                }
+            }
+
+            if (iter == beg) {
+                if (iter->end() <= starter->start()) {
+                    if (iter->start() < starter->start()) {
+                        *starter = Interval(iter->start(),starter->end());
+                    }
+                    *iter = nuller;
                 }
             }
         }

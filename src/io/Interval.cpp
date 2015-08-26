@@ -275,8 +275,42 @@ Interval IntervalList::append(const Interval& i) {
     } else if (r == RR::EmergesB) {
         Interval nuller;
         auto iter = SA::iterAt(_list,res);
+        auto beg = SA::begin(_list);
+        auto end = SA::end(_list);
+        auto starter = iter;
 
         *iter = i;
+
+        // forward purge
+        ++iter;
+        for (; iter != end; ++iter) {
+            if (iter->start() <= starter->end()) {
+                if (iter->end() > starter->end()) {
+                    *starter = Interval(starter->start(),iter->end());
+                    *iter = nuller;
+                    break;
+                } else {
+                    *iter = nuller;
+                }
+            }
+        }
+
+        // backward purge
+        if (iter != beg) {
+            iter = starter;
+            --iter;
+            for (; iter != beg; --iter) {
+                if (iter->end() <= starter->start()) {
+                    if (iter->start() < starter->start()) {
+                        *starter = Interval(iter->start(),starter->end());
+                        *iter = nuller;
+                        break;
+                    } else {
+                        *iter = nuller;
+                    }
+                }
+            }
+        }
 
         SA::clear(
             SF::filter(

@@ -82,6 +82,9 @@ struct IntervalListImpl {
         auto& vec = list._list;
         auto demarcation = size / 2;
         auto slider = demarcation / 2;
+        if (slider == 0) {
+            slider = 1;
+        }
         bool keepgoing = true;
         const Interval* previous = nullptr;
         const Interval* prevPrev = nullptr;
@@ -130,6 +133,21 @@ struct IntervalListImpl {
             prevPrev = previous;
             previous = current;
         }
+    }
+
+    static bool isCorrupted(const IntervalList& list) {
+        auto iter = SA::begin(list._list);
+        auto end = SA::end(list._list);
+        Interval victim;
+        while (iter != end) {
+            if (victim.end() >= iter->start()) {
+                return true;
+            }
+            victim = *iter;
+            ++iter;
+        }
+
+        return false;
     }
 };
 
@@ -192,6 +210,11 @@ void IntervalList::traverseEmpty(const IntervalReceiveFunction& func) const {
 Interval IntervalList::append(const Interval& i) {
     typedef Interval::RelationResult RR;
     RR r;
+
+    //if (IntervalListImpl::isCorrupted(*this)) {
+        //int cholo = 7;
+    //}
+
     auto res = IntervalListImpl::findClosest(*this,i,r);
     if (res == -1) {
         SA::add(_list,i);

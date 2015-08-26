@@ -211,7 +211,6 @@ Interval IntervalList::append(const Interval& i) {
             SA::insert(_list,SA::iterAt(_list,res),i);
         }
     } else if (r == RR::OverlapsFront) {
-        assert( false && "Not yet implemented." );
         Interval nuller;
         auto iter = SA::iterAt(_list,res);
         auto original = iter;

@@ -95,7 +95,7 @@ struct IntervalListImpl {
             const Interval* current = &SA::getByIndex(vec,demarcation);
             RelationResult r = current->evaluate(interval);
             if (r == RelationResult::InFront) {
-                if (prevPrev == current) {
+                if (current == previous || prevPrev == current) {
                     outRel = r;
                     return demarcation;
                 }

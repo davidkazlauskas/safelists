@@ -258,7 +258,7 @@ Interval IntervalList::append(const Interval& i) {
                 if (iter->start() >= original->start()) {
                     *iter = nuller;
                 } else {
-                    if (iter->end() <= original->start()) {
+                    if (iter->end() >= original->start()) {
                         *original = Interval(iter->start(),original->end());
                         *iter = nuller;
                     }

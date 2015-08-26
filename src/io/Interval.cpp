@@ -273,7 +273,19 @@ Interval IntervalList::append(const Interval& i) {
     } else if (r == RR::EmergesA) {
         assert( false && "Not yet implemented." );
     } else if (r == RR::EmergesB) {
-        assert( false && "Not yet implemented." );
+        Interval nuller;
+        auto iter = SA::iterAt(_list,res);
+
+        *iter = i;
+
+        SA::clear(
+            SF::filter(
+                _list,
+                [](const Interval& i) {
+                    return i.isEmpty();
+                }
+            )
+        );
     }
 
     return Interval();

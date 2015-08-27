@@ -286,6 +286,10 @@ TEST_CASE("interval_list_stress_c","[interval]") {
             end = current + 100;
         }
 
+        if (end > LIMIT) {
+            end = LIMIT;
+        }
+
         list.append(Int(current,end));
     }
 
@@ -325,7 +329,10 @@ TEST_CASE("interval_list_stress_d","[interval]") {
                 end = current + 100;
             }
 
-            list.append(Int(current,end));
+            auto toCheck = Int(current,end);
+            if (list.doesBelong(toCheck)) {
+                list.append(toCheck);
+            }
         }
 
         bool isGood = list.checkIntegrity();

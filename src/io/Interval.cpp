@@ -384,7 +384,7 @@ Interval IntervalList::closest(const Interval& i,Interval::RelationResult& outRe
 
 #ifdef SAFELISTS_TESTING
 bool IntervalList::checkIntegrity() const {
-    return IntervalListImpl::isCorrupted(*this);
+    return !IntervalListImpl::isCorrupted(*this);
 }
 #endif
 

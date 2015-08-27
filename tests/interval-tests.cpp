@@ -275,10 +275,11 @@ TEST_CASE("interval_list_stress_c","[Interval]") {
     const int LIMIT = 256 * 256;
     SafeLists::IntervalList list(Int(0,LIMIT));
 
-    TEMPLATIOUS_REPEAT( 10000 ) {
+    TEMPLATIOUS_REPEAT( 77236 ) {
         int64_t current = generator() % LIMIT;
         int64_t switcher = generator() % 10;
         int64_t end = current + 10;
+
         if (switcher == 9) {
             end = current + 1000;
         } else if (switcher > 6) {

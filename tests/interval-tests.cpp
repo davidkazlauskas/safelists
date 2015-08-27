@@ -247,10 +247,6 @@ TEST_CASE("interval_list_stress_b","[interval]") {
     SafeLists::IntervalList list(Int(0,LIMIT));
 
     TEMPLATIOUS_REPEAT( 18099 ) {
-        if (__tmp_i == 3) {
-            int cholo = 7;
-        }
-
         int64_t current = generator() % LIMIT;
         int64_t end = current + 10;
         if (end > LIMIT) {
@@ -270,4 +266,16 @@ TEST_CASE("interval_list_stress_b","[interval]") {
 
     REQUIRE( SA::size(eList) == 0 );
     REQUIRE( SA::size(fList) == 1 );
+}
+
+TEST_CASE("interval_list_stress_c","[Interval]") {
+    typedef SafeLists::Interval Int;
+    std::mt19937 generator(777);
+
+    const int LIMIT = 256 * 16;
+    SafeLists::IntervalList list(Int(0,LIMIT));
+
+    TEMPLATIOUS_REPEAT( 10000 ) {
+
+    }
 }

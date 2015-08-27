@@ -72,6 +72,7 @@ struct IntervalList {
     // returns overlap, if any. empty range if none
     Interval append(const Interval& i);
     Interval closest(const Interval& i,Interval::RelationResult& outRel) const;
+    void randomEmptyIntervals(int64_t size,const IntervalReceiveFunction& func) const;
 
     bool doesBelong(const Interval& i) const;
     bool isFilled() const;

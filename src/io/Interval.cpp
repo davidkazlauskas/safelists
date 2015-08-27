@@ -406,6 +406,10 @@ bool IntervalList::isFilled() const {
     return this->_emptyInterval == SA::getByIndex(_list,0);
 }
 
+void IntervalList::randomEmptyIntervals(int64_t size,const IntervalReceiveFunction& func) const {
+
+}
+
 #ifdef SAFELISTS_TESTING
 bool IntervalList::checkIntegrity() const {
     return !IntervalListImpl::isCorrupted(*this);

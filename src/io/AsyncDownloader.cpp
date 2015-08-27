@@ -39,6 +39,15 @@ namespace SafeLists {
     private:
         typedef std::unique_ptr< templatious::VirtualMatchFunctor > Handler;
 
+        typedef std::function< bool(const char*,int64_t,int64_t) > ByteFunction;
+        typedef std::function< void() > OnFinishFunction;
+
+        struct DownloadJobImitation {
+
+            ByteFunction _byteFunc;
+            OnFinishFunction _onFinish;
+        };
+
         void messageLoop() {
             while (!_shutdown) {
                 _cache.process(

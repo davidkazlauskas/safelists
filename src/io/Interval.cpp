@@ -1,4 +1,5 @@
 
+#include <random>
 #include <templatious/FullPack.hpp>
 #include "Interval.hpp"
 
@@ -407,7 +408,35 @@ bool IntervalList::isFilled() const {
 }
 
 void IntervalList::randomEmptyIntervals(int64_t size,const IntervalReceiveFunction& func) const {
+    int64_t sizeShipped = 0;
+    std::mt19937 generator(size);
+    while (!this->isFilled() && sizeShipped < size) {
+        auto currSize = SA::size(_list);
+        if (currSize > 0) {
 
+        } else if (currSize == 0) {
+            int64_t point = generator() % _emptyInterval.size();
+            Interval toShip(point,_emptyInterval.end());
+            if (toShip.size() < size) {
+                toShip = Interval(_emptyInterval.end() - size,_emptyInterval.end());
+                if (this->doesBelong(toShip)) {
+                    sizeShipped += toShip.size();
+                    func(toShip);
+                } else {
+                    toShip = _emptyInterval;
+                    sizeShipped += toShip.size();
+                    func(toShip);
+                }
+            } else {
+                sizeShipped += toShip.size();
+                func(toShip);
+            }
+        }
+
+        //int64_t current = generator() % currSize;
+
+        //auto& filled =
+    }
 }
 
 #ifdef SAFELISTS_TESTING

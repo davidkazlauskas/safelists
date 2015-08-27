@@ -3,6 +3,7 @@
 #include <future>
 
 #include <templatious/FullPack.hpp>
+#include <io/Interval.hpp>
 
 #include "AsyncDownloader.hpp"
 
@@ -44,6 +45,16 @@ namespace SafeLists {
 
         struct DownloadJobImitation {
 
+            DownloadJobImitation(
+                const Interval& toDownload,
+                const ByteFunction& byteFunc,
+                const OnFinishFunction& onFinishFunc
+            ) : _remaining(toDownload),
+                _byteFunc(byteFunc),
+                _onFinish(onFinishFunc)
+            {}
+
+            IntervalList _remaining;
             ByteFunction _byteFunc;
             OnFinishFunction _onFinish;
         };

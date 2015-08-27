@@ -2,7 +2,11 @@
 #include <cstring>
 #include <future>
 
+#include <templatious/FullPack.hpp>
+
 #include "AsyncDownloader.hpp"
+
+TEMPLATIOUS_TRIPLET_STD;
 
 namespace SafeLists {
 
@@ -33,6 +37,8 @@ namespace SafeLists {
         }
 
     private:
+        typedef std::unique_ptr< templatious::VirtualMatchFunctor > Handler;
+
         void messageLoop() {
             while (!_shutdown) {
 
@@ -43,8 +49,20 @@ namespace SafeLists {
             _shutdown = true;
         }
 
+        Handler genHandler() {
+            typedef AsyncDownloader AD;
+            return SF::virtualMatchFunctorPtr(
+                SF::virtualMatch< AD::Shutdown >(
+                    [=](AD::Shutdown) {
+                        this->shutdown();
+                    }
+                )
+            );
+        }
+
         MessageCache _cache;
         bool _shutdown;
+        Handler _handler;
     };
 
     StrongMsgPtr AsyncDownloader::createNew(const char* type) {

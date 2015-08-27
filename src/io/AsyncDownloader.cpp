@@ -14,7 +14,7 @@ namespace SafeLists {
         // this is for sending stack allocated (faster)
         // if we know we're on the same thread as GUI
         void message(templatious::VirtualPack& msg) {
-
+            assert( false && "Synchronous messages disabled for this object." );
         }
     };
 

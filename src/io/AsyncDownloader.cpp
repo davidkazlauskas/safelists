@@ -8,7 +8,7 @@ namespace SafeLists {
     struct AsyncDownloaderImitationImpl : public Messageable {
         // this is for sending message across threads
         void message(const std::shared_ptr< templatious::VirtualPack >& msg) {
-
+            _cache.enqueue(msg);
         }
 
         // this is for sending stack allocated (faster)
@@ -22,6 +22,9 @@ namespace SafeLists {
 
             return result;
         }
+
+    private:
+        MessageCache _cache;
     };
 
     StrongMsgPtr AsyncDownloader::createNew(const char* type) {

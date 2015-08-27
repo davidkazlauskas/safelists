@@ -149,6 +149,11 @@ struct IntervalListImpl {
 
         return false;
     }
+
+    static bool livesInside(const IntervalList& list,const Interval& i) {
+        return list._emptyInterval.start() >= i.start()
+            && list._emptyInterval.end() <= i.end();
+    }
 };
 
 auto Interval::evaluate(const Interval& other) const
@@ -210,6 +215,10 @@ void IntervalList::traverseEmpty(const IntervalReceiveFunction& func) const {
 Interval IntervalList::append(const Interval& i) {
     typedef Interval::RelationResult RR;
     RR r;
+
+    if (!IntervalListImpl::livesInside(*this,i)) {
+        throw IntervalListIntervalDoesntBelongException();
+    }
 
     //if (IntervalListImpl::isCorrupted(*this)) {
         //int cholo = 7;

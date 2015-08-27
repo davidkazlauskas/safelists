@@ -51,6 +51,11 @@ private:
     int64_t _end;
 };
 
+TEMPLATIOUS_BOILERPLATE_EXCEPTION(
+    IntervalListIntervalDoesntBelongException,
+    "Interval passed does not fit into the interval of this list."
+);
+
 struct IntervalList {
 
     IntervalList(const Interval& empty);

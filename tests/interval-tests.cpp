@@ -349,10 +349,41 @@ TEST_CASE("interval_list_stress_d","[interval]") {
 TEST_CASE("interval_list_throw_foreign","[interval]") {
     typedef SafeLists::Interval Int;
     SafeLists::IntervalList list(Int(0,128));
+
     {
         bool caught = false;
         try {
             list.append(Int(-1,0));
+        } catch (const SafeLists::IntervalListIntervalDoesntBelongException&) {
+            caught = true;
+        }
+        REQUIRE( caught );
+    }
+
+    {
+        bool caught = false;
+        try {
+            list.append(Int(-2,-1));
+        } catch (const SafeLists::IntervalListIntervalDoesntBelongException&) {
+            caught = true;
+        }
+        REQUIRE( caught );
+    }
+
+    {
+        bool caught = false;
+        try {
+            list.append(Int(128,129));
+        } catch (const SafeLists::IntervalListIntervalDoesntBelongException&) {
+            caught = true;
+        }
+        REQUIRE( caught );
+    }
+
+    {
+        bool caught = false;
+        try {
+            list.append(Int(-1,129));
         } catch (const SafeLists::IntervalListIntervalDoesntBelongException&) {
             caught = true;
         }

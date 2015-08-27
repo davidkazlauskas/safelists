@@ -287,6 +287,7 @@ Interval IntervalList::append(const Interval& i) {
                     }
                     break;
                 }
+                --iter;
             }
         }
 

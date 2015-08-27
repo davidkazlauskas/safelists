@@ -73,6 +73,7 @@ struct IntervalList {
     Interval closest(const Interval& i,Interval::RelationResult& outRel) const;
 
     bool doesBelong(const Interval& i) const;
+    bool isFilled() const;
 
     friend struct IntervalListImpl;
 

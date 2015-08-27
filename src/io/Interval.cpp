@@ -395,6 +395,13 @@ bool IntervalList::doesBelong(const Interval& i) const {
     return IntervalListImpl::livesInside(*this,i);
 }
 
+bool IntervalList::isFilled() const {
+    if (SA::size(_list) != 1) {
+        return false;
+    }
+    return this->_emptyInterval == SA::getByIndex(_list,0);
+}
+
 #ifdef SAFELISTS_TESTING
 bool IntervalList::checkIntegrity() const {
     return !IntervalListImpl::isCorrupted(*this);

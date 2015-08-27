@@ -54,6 +54,17 @@ namespace SafeLists {
                 _onFinish(onFinishFunc)
             {}
 
+            // download and return if finished
+            bool download(int64_t bytes,const char* dummyBuffer) {
+                // do
+                return isDone();
+            }
+
+            bool isDone() const {
+                return _remaining.isFilled();
+            }
+
+        private:
             IntervalList _remaining;
             ByteFunction _byteFunc;
             OnFinishFunction _onFinish;

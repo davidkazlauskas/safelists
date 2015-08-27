@@ -8,7 +8,7 @@ namespace SafeLists {
 
     struct AsyncDownloader {
 
-        static StrongMsgPtr createNew();
+        static StrongMsgPtr createNew(const char* type = "imitation");
     };
 
 }

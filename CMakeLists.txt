@@ -34,6 +34,7 @@ SET( DOMAIN_SOURCES
     src/util/AutoReg.cpp
     src/io/RandomFileWriter.cpp
     src/io/Interval.cpp
+    src/io/AsyncDownloader.cpp
     )
 
 include_directories(

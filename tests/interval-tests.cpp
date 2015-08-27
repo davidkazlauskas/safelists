@@ -272,10 +272,30 @@ TEST_CASE("interval_list_stress_c","[Interval]") {
     typedef SafeLists::Interval Int;
     std::mt19937 generator(777);
 
-    const int LIMIT = 256 * 16;
+    const int LIMIT = 256 * 256;
     SafeLists::IntervalList list(Int(0,LIMIT));
 
     TEMPLATIOUS_REPEAT( 10000 ) {
+        int64_t current = generator() % LIMIT;
+        int64_t switcher = generator() % 10;
+        int64_t end = current + 10;
+        if (switcher == 9) {
+            end = current + 1000;
+        } else if (switcher > 6) {
+            end = current + 100;
+        }
 
+        list.append(Int(current,end));
     }
+
+    IntervalCollector colEmpty;
+    IntervalCollector colFilled;
+    auto &eList = colEmpty._list;
+    auto &fList = colFilled._list;
+
+    list.traverseEmpty(colEmpty.f());
+    list.traverseFilled(colFilled.f());
+
+    REQUIRE( SA::size(eList) == 0 );
+    REQUIRE( SA::size(fList) == 1 );
 }

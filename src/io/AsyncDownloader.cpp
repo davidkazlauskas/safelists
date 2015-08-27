@@ -1,4 +1,6 @@
 
+#include <cstring>
+
 #include "AsyncDownloader.hpp"
 
 namespace SafeLists {
@@ -17,7 +19,10 @@ namespace SafeLists {
     };
 
     StrongMsgPtr AsyncDownloader::createNew(const char* type) {
-        return std::make_shared< AsyncDownloaderImitationImpl >();
+        if (0 == strcmp(type,"imitation")) {
+            return std::make_shared< AsyncDownloaderImitationImpl >();
+        }
+        return nullptr;
     }
 
 }

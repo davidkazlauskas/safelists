@@ -151,8 +151,8 @@ struct IntervalListImpl {
     }
 
     static bool livesInside(const IntervalList& list,const Interval& i) {
-        return list._emptyInterval.start() >= i.start()
-            && list._emptyInterval.end() <= i.end();
+        return list._emptyInterval.start() <= i.start()
+            && list._emptyInterval.end() >= i.end();
     }
 };
 
@@ -389,6 +389,10 @@ Interval IntervalList::closest(const Interval& i,Interval::RelationResult& outRe
     }
     Interval outNull;
     return outNull;
+}
+
+bool IntervalList::doesBelong(const Interval& i) const {
+    return IntervalListImpl::livesInside(*this,i);
 }
 
 #ifdef SAFELISTS_TESTING

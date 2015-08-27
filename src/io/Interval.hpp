@@ -72,6 +72,8 @@ struct IntervalList {
     Interval append(const Interval& i);
     Interval closest(const Interval& i,Interval::RelationResult& outRel) const;
 
+    bool doesBelong(const Interval& i) const;
+
     friend struct IntervalListImpl;
 
 #ifdef SAFELISTS_TESTING

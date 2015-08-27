@@ -338,3 +338,17 @@ TEST_CASE("interval_list_stress_d","[interval]") {
     REQUIRE( -1 == integrityFail );
 }
 #endif
+
+TEST_CASE("interval_list_throw_foreign","[interval]") {
+    typedef SafeLists::Interval Int;
+    SafeLists::IntervalList list(Int(0,128));
+    {
+        bool caught = false;
+        try {
+            list.append(Int(-1,0));
+        } catch (const SafeLists::IntervalListIntervalDoesntBelongException&) {
+            caught = true;
+        }
+        REQUIRE( caught );
+    }
+}

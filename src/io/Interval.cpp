@@ -321,7 +321,9 @@ Interval IntervalList::append(const Interval& i) {
         // forward purge
         ++iter;
         for (; iter != end; ++iter) {
-            if (iter->start() <= starter->end()) {
+            if (iter->start() > starter->end()) {
+                break;
+            } else if (iter->start() <= starter->end()) {
                 if (iter->end() > starter->end()) {
                     *starter = Interval(starter->start(),iter->end());
                     *iter = nuller;

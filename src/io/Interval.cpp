@@ -337,13 +337,13 @@ Interval IntervalList::append(const Interval& i) {
         if (iter != beg) {
             --iter;
             for (; iter != beg; --iter) {
-                if (iter->end() <= starter->start()) {
+                if (iter->start() >= starter->start()) {
+                    *iter = nuller;
+                } else if (iter->end() <= starter->start()) {
                     if (iter->start() < starter->start()) {
                         *starter = Interval(iter->start(),starter->end());
                         *iter = nuller;
                         break;
-                    } else {
-                        *iter = nuller;
                     }
                 }
             }

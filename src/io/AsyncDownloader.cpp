@@ -41,7 +41,11 @@ namespace SafeLists {
 
         void messageLoop() {
             while (!_shutdown) {
-
+                _cache.process(
+                    [=](templatious::VirtualPack& p) {
+                        this->_handler->tryMatch(p);
+                    }
+                );
             }
         }
 

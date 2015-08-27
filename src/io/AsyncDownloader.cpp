@@ -16,6 +16,12 @@ namespace SafeLists {
         void message(templatious::VirtualPack& msg) {
             assert( false && "Synchronous messages disabled for this object." );
         }
+
+        static StrongMsgPtr spinupNew() {
+            auto result = std::make_shared< AsyncDownloaderImitationImpl >();
+
+            return result;
+        }
     };
 
     StrongMsgPtr AsyncDownloader::createNew(const char* type) {

@@ -51,6 +51,12 @@ TEST_CASE("interval_evaluation","[interval]") {
     REQUIRE( r == Int::RelationResult::EmergesB );
 }
 
+TEST_CASE("interval_size","[interval]") {
+    typedef SafeLists::Interval Int;
+    REQUIRE( Int(0,10).size() == 10 );
+    REQUIRE( Int(-10,10).size() == 20 );
+}
+
 struct IntervalCollector {
 
     std::function<bool(const SafeLists::Interval&)> f() {

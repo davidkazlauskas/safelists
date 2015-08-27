@@ -38,6 +38,7 @@ struct Interval {
     int64_t start() const;
     int64_t end() const;
     bool isEmpty() const;
+    int64_t size() const;
 
     // this interval is A, other is B
     RelationResult evaluate(const Interval& other) const;

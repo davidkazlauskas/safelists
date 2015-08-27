@@ -168,6 +168,10 @@ auto Interval::evaluate(const Interval& a,const Interval& b)
     return a.evaluate(b);
 }
 
+int64_t Interval::size() const {
+    return _end - _start;
+}
+
 IntervalList::IntervalList(const Interval& empty)
     : _emptyInterval(empty)
 {

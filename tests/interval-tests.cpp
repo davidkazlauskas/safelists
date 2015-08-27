@@ -306,15 +306,16 @@ TEST_CASE("interval_list_stress_d","[interval]") {
     typedef SafeLists::Interval Int;
     std::mt19937 generator(7);
 
-    const int LIMIT = 256 * 16;
+    const int LIMIT[] = { 256 * 16, 256 * 256, 256 * 256 * 16, 256 };
 
     int integrityFail = -1;
-    TEMPLATIOUS_REPEAT( 100 ) {
+    TEMPLATIOUS_REPEAT( 1000 ) {
         std::mt19937 generatorInner(generator());
-        SafeLists::IntervalList list(Int(0,LIMIT));
+        auto specLimit = LIMIT[generator() % 5];
+        SafeLists::IntervalList list(Int(0,specLimit));
 
-        TEMPLATIOUS_REPEAT( 10000 ) {
-            int64_t current = generatorInner() % LIMIT;
+        TEMPLATIOUS_REPEAT( 1000 ) {
+            int64_t current = generatorInner() % specLimit;
             int64_t switcher = generator() % 10;
             int64_t end = current + 10;
 

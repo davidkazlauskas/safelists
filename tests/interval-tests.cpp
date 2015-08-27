@@ -268,7 +268,7 @@ TEST_CASE("interval_list_stress_b","[interval]") {
     REQUIRE( SA::size(fList) == 1 );
 }
 
-TEST_CASE("interval_list_stress_c","[Interval]") {
+TEST_CASE("interval_list_stress_c","[interval]") {
     typedef SafeLists::Interval Int;
     std::mt19937 generator(777);
 
@@ -300,3 +300,33 @@ TEST_CASE("interval_list_stress_c","[Interval]") {
     REQUIRE( SA::size(eList) == 0 );
     REQUIRE( SA::size(fList) == 1 );
 }
+
+#ifdef SAFELISTS_TESTING
+TEST_CASE("interval_list_stress_d","[interval]") {
+    typedef SafeLists::Interval Int;
+    std::mt19937 generator(7);
+
+    const int LIMIT = 256 * 16;
+
+    TEMPLATIOUS_REPEAT( 100 ) {
+        std::mt19937 generatorInner(generator());
+        SafeLists::IntervalList list(Int(0,LIMIT));
+
+        TEMPLATIOUS_REPEAT( 10000 ) {
+
+            list.append(Int(current,end));
+        }
+    }
+
+    IntervalCollector colEmpty;
+    IntervalCollector colFilled;
+    auto &eList = colEmpty._list;
+    auto &fList = colFilled._list;
+
+    list.traverseEmpty(colEmpty.f());
+    list.traverseFilled(colFilled.f());
+
+    REQUIRE( SA::size(eList) == 0 );
+    REQUIRE( SA::size(fList) == 1 );
+}
+#endif

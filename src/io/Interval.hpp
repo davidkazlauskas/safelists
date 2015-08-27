@@ -69,6 +69,9 @@ struct IntervalList {
 
     friend struct IntervalListImpl;
 
+#ifdef SAFELISTS_TESTING
+    bool checkIntegrity() const;
+#endif
 private:
     Interval _emptyInterval;
     std::vector< Interval > _list;

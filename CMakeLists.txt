@@ -12,6 +12,7 @@ ADD_DEFINITIONS(
     -x c++
     -std=c++11
     -g
+    -DSAFELISTS_TESTING
 )
 
 SET( LIBINCLUDE_DIRS

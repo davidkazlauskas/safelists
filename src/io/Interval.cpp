@@ -433,6 +433,7 @@ void IntervalList::randomEmptyIntervals(int64_t size,const IntervalReceiveFuncti
 
     auto end = SA::end(list);
     while (!this->isFilled() && sizeShipped < size) {
+        int64_t remaining = size - sizeShipped;
         auto point = generator() % SA::size(list);
         auto picked = SA::iterAt(list,point);
         while (picked->isEmpty() && picked != end) {
@@ -440,10 +441,14 @@ void IntervalList::randomEmptyIntervals(int64_t size,const IntervalReceiveFuncti
         }
         if (picked != end) {
             auto& current = *picked;
-            // perfect match
-            if (current.size() == size) {
+            auto currentSize = current.size();
+
+            if (currentSize > remaining) {
+
+            } else if (currentSize <= remaining) {
                 auto copy = current;
                 func(copy);
+                sizeShipped += currentSize;
                 current = Interval();
             }
         }

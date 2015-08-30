@@ -426,23 +426,25 @@ TEST_CASE("interval_list_random_intervals_stress","[interval]") {
         auto remainingSize = specLimit;
 
         TEMPLATIOUS_REPEAT( 1 ) {
-            list.randomEmptyIntervals(specShipSize,
-                [&](const Int& i) {
+            while (remainingSize > 0 && integrityFail == -1) {
+                list.randomEmptyIntervals(specShipSize,
+                    [&](const Int& i) {
 
-                    remainingSize -= i.size();
-                    list.append(i);
+                        remainingSize -= i.size();
+                        list.append(i);
 
-                    IntervalCounter cnt;
-                    list.traverseEmpty(cnt.f());
+                        IntervalCounter cnt;
+                        list.traverseEmpty(cnt.f());
 
-                    if (!list.checkIntegrity() || remainingSize != cnt._size) {
-                        integrityFail = 10000 * __tmp_i;
-                        return false;
+                        if (!list.checkIntegrity() || remainingSize != cnt._size) {
+                            integrityFail = 10000 * __tmp_i;
+                            return false;
+                        }
+
+                        return true;
                     }
-
-                    return true;
-                }
-            );
+                );
+            }
 
             if (integrityFail > 0) {
                 break;

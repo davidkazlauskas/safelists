@@ -446,9 +446,15 @@ void IntervalList::randomEmptyIntervals(int64_t size,const IntervalReceiveFuncti
             if (currentSize > remaining) {
                 auto splitPoint = generator() % (currentSize - remaining);
                 if (splitPoint > 0 && splitPoint != currentSize - remaining) {
-
+                    auto currentStart = current.start() + splitPoint;
+                    Interval toShip(currentStart,currentStart + remaining);
+                    Interval cutOff(toShip.end(),current.end());
+                    current._end = toShip.start();
+                    SA::add(list,cutOff);
+                    func(toShip);
+                    sizeShipped += remaining;
                 } else if (splitPoint == currentSize - remaining) {
-                    auto currentStart = currentSize - remaining;
+                    auto currentStart = current.start() + splitPoint;
                     Interval toShip(currentStart,current.end());
                     auto shipSize = toShip.size();
                     func(toShip);

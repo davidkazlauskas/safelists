@@ -439,7 +439,13 @@ void IntervalList::randomEmptyIntervals(int64_t size,const IntervalReceiveFuncti
             ++picked;
         }
         if (picked != end) {
-
+            auto& current = *picked;
+            // perfect match
+            if (current.size() == size) {
+                auto copy = current;
+                func(copy);
+                current = Interval();
+            }
         }
     }
 }

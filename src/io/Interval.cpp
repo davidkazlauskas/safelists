@@ -407,35 +407,40 @@ bool IntervalList::isFilled() const {
     return this->_emptyInterval == SA::getByIndex(_list,0);
 }
 
+namespace {
+
+struct IntervalCollector {
+
+    std::function<bool(const SafeLists::Interval&)> f() {
+        return [=](const SafeLists::Interval& i) {
+            SA::add(this->_list,i);
+            return true;
+        };
+    }
+
+    std::vector< SafeLists::Interval > _list;
+
+};
+
+}
+
 void IntervalList::randomEmptyIntervals(int64_t size,const IntervalReceiveFunction& func) const {
     int64_t sizeShipped = 0;
     std::mt19937 generator(size);
+    IntervalCollector collector;
+    this->traverseEmpty(collector.f());
+    auto& list = collector._list;
+
+    auto end = SA::end(list);
     while (!this->isFilled() && sizeShipped < size) {
-        auto currSize = SA::size(_list);
-        if (currSize > 0) {
-
-        } else if (currSize == 0) {
-            int64_t point = generator() % _emptyInterval.size();
-            Interval toShip(point,_emptyInterval.end());
-            if (toShip.size() < size) {
-                toShip = Interval(_emptyInterval.end() - size,_emptyInterval.end());
-                if (this->doesBelong(toShip)) {
-                    sizeShipped += toShip.size();
-                    func(toShip);
-                } else {
-                    toShip = _emptyInterval;
-                    sizeShipped += toShip.size();
-                    func(toShip);
-                }
-            } else {
-                sizeShipped += toShip.size();
-                func(toShip);
-            }
+        auto point = generator() % SA::size(list);
+        auto picked = SA::iterAt(list,point);
+        while (picked->isEmpty() && picked != end) {
+            ++picked;
         }
+        if (picked != end) {
 
-        //int64_t current = generator() % currSize;
-
-        //auto& filled =
+        }
     }
 }
 

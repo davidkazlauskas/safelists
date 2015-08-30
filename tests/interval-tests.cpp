@@ -396,3 +396,32 @@ TEST_CASE("interval_list_throw_foreign","[interval]") {
         REQUIRE( caught );
     }
 }
+
+#ifdef SAFELISTS_TESTING
+TEST_CASE("interval_list_random_intervals_stress","[interval]") {
+    typedef SafeLists::Interval Int;
+    std::mt19937 generator(7);
+
+    const int LIMIT[] = { 256, 256 * 16, 256 * 256, 256 * 256 * 16 };
+    int integrityFail = -1;
+    TEMPLATIOUS_REPEAT( 1000 ) {
+        std::mt19937 generatorInner(generator());
+        auto specLimit = LIMIT[generator() % (sizeof(LIMIT) / sizeof(LIMIT[0]))];
+        SafeLists::IntervalList list(Int(0,specLimit));
+
+        TEMPLATIOUS_REPEAT( 1000 ) {
+            list.randomEmptyIntervals(specLimit,
+                [&](const Int& i) {
+
+
+                    return true;
+                }
+            );
+        }
+
+        if (integrityFail > 0) {
+            break;
+        }
+    }
+}
+#endif

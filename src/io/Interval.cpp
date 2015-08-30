@@ -451,25 +451,37 @@ void IntervalList::randomEmptyIntervals(int64_t size,const IntervalReceiveFuncti
                     Interval cutOff(toShip.end(),current.end());
                     current._end = toShip.start();
                     SA::add(list,cutOff);
-                    func(toShip);
+                    bool funcResult = func(toShip);
+                    if (!funcResult) {
+                        return;
+                    }
                     sizeShipped += remaining;
                 } else if (splitPoint == currentSize - remaining) {
                     auto currentStart = current.start() + splitPoint;
                     Interval toShip(currentStart,current.end());
                     auto shipSize = toShip.size();
-                    func(toShip);
+                    bool funcResult = func(toShip);
+                    if (!funcResult) {
+                        return;
+                    }
                     current._end = currentStart;
                     sizeShipped += shipSize;
                 } else if (splitPoint == 0) {
                     auto currentStart = current.start();
                     Interval toShip(currentStart,currentStart + currentSize);
                     current._start = toShip.end();
-                    func(toShip);
+                    bool funcResult = func(toShip);
+                    if (!funcResult) {
+                        return;
+                    }
                     sizeShipped += currentSize;
                 }
             } else if (currentSize <= remaining) {
                 auto copy = current;
-                func(copy);
+                bool funcResult = func(copy);
+                if (!funcResult) {
+                    return;
+                }
                 sizeShipped += currentSize;
                 current = Interval();
             }

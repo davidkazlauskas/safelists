@@ -445,7 +445,9 @@ void IntervalList::randomEmptyIntervals(int64_t size,const IntervalReceiveFuncti
 
             if (currentSize > remaining) {
                 auto splitPoint = generator() % (currentSize - remaining);
-                if (splitPoint == currentSize - remaining) {
+                if (splitPoint > 0 && splitPoint != currentSize - remaining) {
+
+                } else if (splitPoint == currentSize - remaining) {
                     auto currentStart = currentSize - remaining;
                     Interval toShip(currentStart,current.end());
                     auto shipSize = toShip.size();

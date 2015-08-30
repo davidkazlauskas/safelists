@@ -423,7 +423,7 @@ TEST_CASE("interval_list_random_intervals_stress","[interval]") {
         SafeLists::IntervalList list(Int(0,specLimit));
         auto remainingSize = specLimit;
 
-        TEMPLATIOUS_REPEAT( 1000 ) {
+        TEMPLATIOUS_REPEAT( 100 ) {
             list.randomEmptyIntervals(specLimit,
                 [&](const Int& i) {
 

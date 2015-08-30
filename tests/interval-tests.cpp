@@ -397,6 +397,19 @@ TEST_CASE("interval_list_throw_foreign","[interval]") {
     }
 }
 
+struct IntervalCounter {
+    IntervalCounter() : _size(0) {}
+
+    std::function<bool(const SafeLists::Interval&)> f() {
+        return [=](const SafeLists::Interval& i) {
+            _size += i.size();
+            return true;
+        };
+    }
+
+    int64_t _size;
+};
+
 #ifdef SAFELISTS_TESTING
 TEST_CASE("interval_list_random_intervals_stress","[interval]") {
     typedef SafeLists::Interval Int;
@@ -408,20 +421,38 @@ TEST_CASE("interval_list_random_intervals_stress","[interval]") {
         std::mt19937 generatorInner(generator());
         auto specLimit = LIMIT[generator() % (sizeof(LIMIT) / sizeof(LIMIT[0]))];
         SafeLists::IntervalList list(Int(0,specLimit));
+        auto remainingSize = specLimit;
 
         TEMPLATIOUS_REPEAT( 1000 ) {
             list.randomEmptyIntervals(specLimit,
                 [&](const Int& i) {
 
+                    remainingSize -= i.size();
+                    list.append(i);
+
+                    IntervalCounter cnt;
+                    list.traverseEmpty(cnt.f());
+
+                    if (remainingSize != cnt._size) {
+                        integrityFail = 10000 * __tmp_i;
+                        return false;
+                    }
 
                     return true;
                 }
             );
+
+            if (integrityFail > 0) {
+                break;
+            }
         }
 
         if (integrityFail > 0) {
+            integrityFail += __tmp_i;
             break;
         }
     }
+
+    REQUIRE( -1 == integrityFail );
 }
 #endif

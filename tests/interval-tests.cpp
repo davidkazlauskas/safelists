@@ -416,15 +416,17 @@ TEST_CASE("interval_list_random_intervals_stress","[interval]") {
     std::mt19937 generator(7);
 
     const int LIMIT[] = { 256, 256 * 16, 256 * 256, 256 * 256 * 16 };
+    const int SHIP_LIMIT[] = {16,128,256,17,73,1024};
     int integrityFail = -1;
     TEMPLATIOUS_REPEAT( 1000 ) {
         std::mt19937 generatorInner(generator());
         auto specLimit = LIMIT[generator() % (sizeof(LIMIT) / sizeof(LIMIT[0]))];
+        auto specShipSize = LIMIT[generator() % (sizeof(SHIP_LIMIT) / sizeof(SHIP_LIMIT[0]))];
         SafeLists::IntervalList list(Int(0,specLimit));
         auto remainingSize = specLimit;
 
-        TEMPLATIOUS_REPEAT( 100 ) {
-            list.randomEmptyIntervals(specLimit,
+        TEMPLATIOUS_REPEAT( 1 ) {
+            list.randomEmptyIntervals(specShipSize,
                 [&](const Int& i) {
 
                     remainingSize -= i.size();

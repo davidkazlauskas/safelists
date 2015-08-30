@@ -435,7 +435,7 @@ TEST_CASE("interval_list_random_intervals_stress","[interval]") {
                     IntervalCounter cnt;
                     list.traverseEmpty(cnt.f());
 
-                    if (remainingSize != cnt._size) {
+                    if (!list.checkIntegrity() || remainingSize != cnt._size) {
                         integrityFail = 10000 * __tmp_i;
                         return false;
                     }

@@ -112,6 +112,21 @@ namespace SafeLists {
                 return _downloadRevision;
             }
 
+            static bool compareTwo(
+                const DownloadJobImitation& left,
+                const DownloadJobImitation& right)
+            {
+                if (left._priority < right._priority) {
+                    return true;
+                }
+
+                if (left._downloadRevision > right._downloadRevision) {
+                    return true;
+                }
+
+                return false;
+            }
+
         private:
             int _priority;
             int64_t _downloadRevision;

@@ -30,6 +30,9 @@ namespace {
 namespace SafeLists {
 
     struct AsyncDownloaderImitationImpl : public Messageable {
+
+        static const int DOWNLOAD_PERIODICITY_MS = 100; // 100 milliseconds
+
         AsyncDownloaderImitationImpl() :
             _shutdown(false),
             _downloadSpeedBytesPerSec(1024 * 1024 * 1), // 1 MB/sec default
@@ -122,12 +125,23 @@ namespace SafeLists {
 
         void messageLoop() {
             while (!_shutdown) {
+                auto preDownload = std::chrono::high_resolution_clock::now();
                 _cache.process(
                     [=](templatious::VirtualPack& p) {
                         this->_handler->tryMatch(p);
                     }
                 );
                 downloadRoutine();
+                auto postDownload = std::chrono::high_resolution_clock::now();
+                auto millisecondsPassed = std::chrono::duration_cast<
+                    std::chrono::milliseconds
+                >(postDownload - preDownload).count();
+                auto diff = DOWNLOAD_PERIODICITY_MS - millisecondsPassed;
+                if (diff > 0) {
+                    std::this_thread::sleep_for(
+                        std::chrono::milliseconds(diff)
+                    );
+                }
             }
         }
 
@@ -137,6 +151,10 @@ namespace SafeLists {
             int64_t thisPumpStart = std::chrono::duration_cast<
                 std::chrono::milliseconds
             >(timeStamp - referencePoint).count();
+        }
+
+        int64_t byteTargetForSpeed() {
+            return (_downloadSpeedBytesPerSec * DOWNLOAD_PERIODICITY_MS)/ 1000;
         }
 
         void shutdown() {

@@ -122,7 +122,12 @@ namespace SafeLists {
                         this->_handler->tryMatch(p);
                     }
                 );
+                downloadRoutine();
             }
+        }
+
+        void downloadRoutine() {
+
         }
 
         void shutdown() {

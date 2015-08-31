@@ -37,7 +37,7 @@ namespace SafeLists {
             _shutdown(false),
             _downloadSpeedBytesPerSec(1024 * 1024 * 1), // 1 MB/sec default
             _lastPumpStart(0),
-            _lastPumpSize(0),
+            _lastDebt(0),
             _downloadRevision(0)
         {}
 
@@ -130,7 +130,7 @@ namespace SafeLists {
                         this->_handler->tryMatch(p);
                     }
                 );
-                downloadRoutine();
+                downloadRoutine(preDownload);
                 auto postDownload = std::chrono::high_resolution_clock::now();
                 auto millisecondsPassed = std::chrono::duration_cast<
                     std::chrono::milliseconds
@@ -154,6 +154,10 @@ namespace SafeLists {
                 std::chrono::milliseconds
             >(sessionStart - referencePoint).count();
             int64_t toDeliver = byteTargetForSpeed();
+            if (_lastDebt > 0) {
+                toDeliver += _lastDebt;
+                _lastDebt = 0;
+            }
 
             auto now = std::chrono::high_resolution_clock::now();
             while (now < deadline && toDeliver > 0) {
@@ -208,7 +212,7 @@ namespace SafeLists {
         int _downloadSpeedBytesPerSec;
 
         int64_t _lastPumpStart;
-        int64_t _lastPumpSize;
+        int64_t _lastDebt;
         int64_t _downloadRevision;
     };
 

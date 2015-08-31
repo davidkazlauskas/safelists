@@ -111,6 +111,8 @@ namespace SafeLists {
             OnFinishFunction _onFinish;
         };
 
+        typedef std::unique_ptr< DownloadJobImitation > ImitationPtr;
+
         void messageLoop() {
             while (!_shutdown) {
                 _cache.process(

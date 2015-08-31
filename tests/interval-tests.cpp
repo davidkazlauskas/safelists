@@ -241,8 +241,8 @@ TEST_CASE("interval_list_stress_a","[interval]") {
     list.traverseEmpty(colEmpty.f());
     list.traverseFilled(colFilled.f());
 
-    REQUIRE( SA::size(eList) == 2201 );
-    REQUIRE( SA::size(fList) == 2200 );
+    REQUIRE( SA::size(eList) == 2037 );
+    REQUIRE( SA::size(fList) == 2036 );
 }
 
 TEST_CASE("interval_list_stress_b","[interval]") {

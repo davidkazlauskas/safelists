@@ -60,6 +60,7 @@ namespace SafeLists {
 
         typedef std::function< bool(const char*,int64_t,int64_t) > ByteFunction;
         typedef std::function< void() > OnFinishFunction;
+        typedef std::weak_ptr< Messageable > WeakMsgPtr;
 
         static std::unique_ptr< const char[] > s_dummyBuffer;
 
@@ -109,6 +110,7 @@ namespace SafeLists {
             IntervalList _remaining;
             ByteFunction _byteFunc;
             OnFinishFunction _onFinish;
+            WeakMsgPtr _otherNotify;
         };
 
         typedef std::unique_ptr< DownloadJobImitation > ImitationPtr;

@@ -132,7 +132,11 @@ namespace SafeLists {
         }
 
         void downloadRoutine() {
+            static auto referencePoint = std::chrono::high_resolution_clock::now();
             auto timeStamp = std::chrono::high_resolution_clock::now();
+            int64_t thisPumpStart = std::chrono::duration_cast<
+                std::chrono::milliseconds
+            >(timeStamp - referencePoint).count();
         }
 
         void shutdown() {

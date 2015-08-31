@@ -14,6 +14,7 @@ namespace SafeLists {
         // Schedule.
         // Signature: <
         //     ScheduleDownload,
+        //     Interval, // file interval
         //     std::function< bool(const char*,int64_t,int64_t) >, // byte process function
         //     std::weak_ptr< Messeagable > // handle other misc errors
         // >

@@ -205,6 +205,17 @@ namespace SafeLists {
             while (now < deadline && toDeliver > 0) {
 
                 SM::sortS(_imitationVector,DownloadJobImitation::compareTwo);
+                SA::clear(pcVec);
+
+                TEMPLATIOUS_FOREACH(auto& i,_imitationVector) {
+                    addToPriorityVec(i->getPriority());
+                }
+
+                SM::sortS(pcVec,
+                    [](const PriorityCounter& left,const PriorityCounter& right) {
+                        return left._priority < right._priority;
+                    }
+                );
 
                 now = std::chrono::high_resolution_clock::now();
             }

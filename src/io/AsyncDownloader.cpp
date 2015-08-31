@@ -68,7 +68,6 @@ namespace SafeLists {
         typedef std::unique_ptr< templatious::VirtualMatchFunctor > Handler;
 
         typedef std::function< bool(const char*,int64_t,int64_t) > ByteFunction;
-        typedef std::function< void() > OnFinishFunction;
         typedef std::weak_ptr< Messageable > WeakMsgPtr;
 
         static std::unique_ptr< const char[] > s_dummyBuffer;
@@ -78,12 +77,12 @@ namespace SafeLists {
             DownloadJobImitation(
                 const Interval& toDownload,
                 const ByteFunction& byteFunc,
-                const OnFinishFunction& onFinishFunc
+                const WeakMsgPtr& otherNotify
             ) : _priority(0),
                 _downloadRevision(0),
                 _remaining(toDownload),
                 _byteFunc(byteFunc),
-                _onFinish(onFinishFunc)
+                _otherNotify(otherNotify)
             {}
 
             // download and return if finished
@@ -118,7 +117,6 @@ namespace SafeLists {
             int64_t _downloadRevision;
             IntervalList _remaining;
             ByteFunction _byteFunc;
-            OnFinishFunction _onFinish;
             WeakMsgPtr _otherNotify;
         };
 

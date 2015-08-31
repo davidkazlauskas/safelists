@@ -141,6 +141,7 @@ namespace SafeLists {
         MessageCache _cache;
         bool _shutdown;
         Handler _handler;
+        std::vector< ImitationPtr > _imitationVector;
     };
 
     StrongMsgPtr AsyncDownloader::createNew(const char* type) {

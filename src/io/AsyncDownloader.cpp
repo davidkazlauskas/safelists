@@ -235,7 +235,13 @@ namespace SafeLists {
                             thisSlice += thisPrioritySharesCpy;
                             thisPrioritySharesCpy = 0;
                         }
+                        j->tagRevision(incRevision());
 
+                        while (thisSlice > 0) {
+                            auto currDownload = thisSlice > dummySize() ? dummySize() : thisSlice;
+                            thisSlice -= currDownload;
+                            j->download(currDownload,s_dummyBuffer.get());
+                        }
                     }
 
                     toDeliver -= thisPriorityShares;

@@ -76,18 +76,9 @@ namespace SafeLists {
 
             // download and return if finished
             bool download(int64_t bytes,const char* dummyBuffer) {
-                // do
-                auto dummySz = dummySize();
                 _remaining.randomEmptyIntervals(bytes,
                     [&](const Interval& interval) {
-                        auto toShip = interval.size();
-                        auto iter = interval.start();
-                        while (toShip > 0) {
-                            auto shipSize = toShip > dummySz ? dummySz : toShip;
-                            _byteFunc(s_dummyBuffer.get(),iter,iter + shipSize);
-                            toShip -= shipSize;
-                            iter += shipSize;
-                        }
+                        _byteFunc(dummyBuffer,interval.start(),interval.end());
                         return true;
                     }
                 );

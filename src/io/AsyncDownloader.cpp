@@ -30,7 +30,10 @@ namespace {
 namespace SafeLists {
 
     struct AsyncDownloaderImitationImpl : public Messageable {
-        AsyncDownloaderImitationImpl() : _shutdown(false) {}
+        AsyncDownloaderImitationImpl() :
+            _shutdown(false),
+            _downloadSpeedBytesPerSec(1024 * 1024 * 1) // 1 MB/sec default
+        {}
 
         // this is for sending message across threads
         void message(const std::shared_ptr< templatious::VirtualPack >& msg) {
@@ -160,6 +163,7 @@ namespace SafeLists {
         bool _shutdown;
         Handler _handler;
         std::vector< ImitationPtr > _imitationVector;
+        int _downloadSpeedBytesPerSec;
     };
 
     StrongMsgPtr AsyncDownloader::createNew(const char* type) {

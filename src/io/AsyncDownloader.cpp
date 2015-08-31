@@ -238,7 +238,8 @@ namespace SafeLists {
                         j->tagRevision(incRevision());
 
                         while (thisSlice > 0) {
-                            auto currDownload = thisSlice > dummySize() ? dummySize() : thisSlice;
+                            auto currDownload = thisSlice > dummySize() ?
+                                dummySize() : thisSlice;
                             thisSlice -= currDownload;
                             j->download(currDownload,s_dummyBuffer.get());
                         }

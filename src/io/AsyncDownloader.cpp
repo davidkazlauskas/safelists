@@ -32,7 +32,9 @@ namespace SafeLists {
     struct AsyncDownloaderImitationImpl : public Messageable {
         AsyncDownloaderImitationImpl() :
             _shutdown(false),
-            _downloadSpeedBytesPerSec(1024 * 1024 * 1) // 1 MB/sec default
+            _downloadSpeedBytesPerSec(1024 * 1024 * 1), // 1 MB/sec default
+            _lastPumpStart(0),
+            _lastPumpSize(0)
         {}
 
         // this is for sending message across threads
@@ -130,7 +132,7 @@ namespace SafeLists {
         }
 
         void downloadRoutine() {
-
+            auto timeStamp = std::chrono::high_resolution_clock::now();
         }
 
         void shutdown() {
@@ -164,6 +166,9 @@ namespace SafeLists {
         Handler _handler;
         std::vector< ImitationPtr > _imitationVector;
         int _downloadSpeedBytesPerSec;
+
+        int64_t _lastPumpStart;
+        int64_t _lastPumpSize;
     };
 
     StrongMsgPtr AsyncDownloader::createNew(const char* type) {

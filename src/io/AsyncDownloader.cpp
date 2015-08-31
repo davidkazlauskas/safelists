@@ -104,6 +104,10 @@ namespace SafeLists {
                 _priority = priority;
             }
 
+            int getPriority() const {
+                return _priority;
+            }
+
             void tagRevision(int64_t revision) {
                 _downloadRevision = revision;
             }

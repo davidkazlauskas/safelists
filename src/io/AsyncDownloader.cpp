@@ -130,6 +130,17 @@ namespace SafeLists {
         Handler genHandler() {
             typedef AsyncDownloader AD;
             return SF::virtualMatchFunctorPtr(
+                SF::virtualMatch<
+                    AD::ScheduleDownload,
+                    ByteFunction,
+                    std::weak_ptr< Messageable >
+                >(
+                    [=](AD::ScheduleDownload,const ByteFunction& func,
+                        const std::weak_ptr< Messageable >& wmsg)
+                    {
+
+                    }
+                ),
                 SF::virtualMatch< AD::Shutdown >(
                     [=](AD::Shutdown) {
                         this->shutdown();

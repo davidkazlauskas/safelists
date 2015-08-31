@@ -177,6 +177,8 @@ namespace SafeLists {
             auto now = std::chrono::high_resolution_clock::now();
             while (now < deadline && toDeliver > 0) {
 
+                SM::sortS(_imitationVector,DownloadJobImitation::compareTwo);
+
                 now = std::chrono::high_resolution_clock::now();
             }
         }

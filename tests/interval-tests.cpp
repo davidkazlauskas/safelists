@@ -415,7 +415,7 @@ TEST_CASE("interval_list_random_intervals_stress","[interval]") {
     typedef SafeLists::Interval Int;
     std::mt19937 generator(7);
 
-    const int LIMIT[] = { 256, 256 * 16, 256 * 256, 256 * 256 * 16 };
+    const int LIMIT[] = { 256, 256 * 16, 256 * 256 };
     const int SHIP_LIMIT[] = {16,128,256,17,73,777,1024,4096,7777};
     int integrityFail = -1;
     TEMPLATIOUS_REPEAT( 1000 ) {

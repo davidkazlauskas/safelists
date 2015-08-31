@@ -69,7 +69,9 @@ namespace SafeLists {
                 const Interval& toDownload,
                 const ByteFunction& byteFunc,
                 const OnFinishFunction& onFinishFunc
-            ) : _remaining(toDownload),
+            ) : _priority(0),
+                _downloadRevision(0),
+                _remaining(toDownload),
                 _byteFunc(byteFunc),
                 _onFinish(onFinishFunc)
             {}
@@ -89,7 +91,21 @@ namespace SafeLists {
                 return _remaining.isFilled();
             }
 
+            void setPriority(int priority) {
+                _priority = priority;
+            }
+
+            void tagRevision(int64_t revision) {
+                _downloadRevision = revision;
+            }
+
+            int64_t getRevision() const {
+                return _downloadRevision;
+            }
+
         private:
+            int _priority;
+            int64_t _downloadRevision;
             IntervalList _remaining;
             ByteFunction _byteFunc;
             OnFinishFunction _onFinish;

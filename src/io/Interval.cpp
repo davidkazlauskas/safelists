@@ -259,8 +259,7 @@ Interval IntervalList::append(const Interval& i) {
         *iter = Interval(iter->start(),i.end());
         ++iter;
         while (iter != end) {
-            if (iter->start() <= i.end()
-                && iter->end() >= i.end())
+            if (iter->end() <= i.end())
             {
                 *iter = nuller;
             } else {
@@ -477,8 +476,8 @@ void IntervalList::randomEmptyIntervals(int64_t size,const IntervalReceiveFuncti
                     sizeShipped += currentSize;
                 }
             } else if (currentSize <= remaining) {
-                auto copy = current;
-                bool funcResult = func(copy);
+                auto toShip = current;
+                bool funcResult = func(toShip);
                 if (!funcResult) {
                     return;
                 }

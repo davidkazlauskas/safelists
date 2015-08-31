@@ -113,14 +113,14 @@ namespace SafeLists {
             }
 
             static bool compareTwo(
-                const DownloadJobImitation& left,
-                const DownloadJobImitation& right)
+                const std::unique_ptr< DownloadJobImitation >& left,
+                const std::unique_ptr< DownloadJobImitation >& right)
             {
-                if (left._priority < right._priority) {
+                if (left->_priority < right->_priority) {
                     return true;
                 }
 
-                if (left._downloadRevision > right._downloadRevision) {
+                if (left->_downloadRevision > right->_downloadRevision) {
                     return true;
                 }
 

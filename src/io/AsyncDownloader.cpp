@@ -9,6 +9,24 @@
 
 TEMPLATIOUS_TRIPLET_STD;
 
+namespace {
+
+    size_t dummySize() {
+        return 256 * 256;
+    }
+
+    std::unique_ptr< const char[] > prepDummyBuffer() {
+        std::unique_ptr< const char[] > result;
+        auto dummySz = dummySize();
+        auto original = new char[dummySz];
+        result.reset( original );
+        TEMPLATIOUS_0_TO_N( i, dummySz ) {
+            original[i] = '7';
+        }
+        return result;
+    }
+}
+
 namespace SafeLists {
 
     struct AsyncDownloaderImitationImpl : public Messageable {
@@ -43,6 +61,8 @@ namespace SafeLists {
         typedef std::function< bool(const char*,int64_t,int64_t) > ByteFunction;
         typedef std::function< void() > OnFinishFunction;
 
+        static std::unique_ptr< const char[] > s_dummyBuffer;
+
         struct DownloadJobImitation {
 
             DownloadJobImitation(
@@ -57,6 +77,20 @@ namespace SafeLists {
             // download and return if finished
             bool download(int64_t bytes,const char* dummyBuffer) {
                 // do
+                auto dummySz = dummySize();
+                _remaining.randomEmptyIntervals(bytes,
+                    [&](const Interval& interval) {
+                        auto toShip = interval.size();
+                        auto iter = interval.start();
+                        while (toShip > 0) {
+                            auto shipSize = toShip > dummySz ? dummySz : toShip;
+                            _byteFunc(s_dummyBuffer.get(),iter,iter + shipSize);
+                            toShip -= shipSize;
+                            iter += shipSize;
+                        }
+                        return true;
+                    }
+                );
                 return isDone();
             }
 
@@ -106,5 +140,7 @@ namespace SafeLists {
         }
         return nullptr;
     }
+
+    std::unique_ptr< const char[] > AsyncDownloaderImitationImpl::s_dummyBuffer = prepDummyBuffer();
 
 }

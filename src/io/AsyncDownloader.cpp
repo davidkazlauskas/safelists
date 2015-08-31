@@ -37,7 +37,8 @@ namespace SafeLists {
             _shutdown(false),
             _downloadSpeedBytesPerSec(1024 * 1024 * 1), // 1 MB/sec default
             _lastPumpStart(0),
-            _lastPumpSize(0)
+            _lastPumpSize(0),
+            _downloadRevision(0)
         {}
 
         // this is for sending message across threads
@@ -151,14 +152,19 @@ namespace SafeLists {
             int64_t thisPumpStart = std::chrono::duration_cast<
                 std::chrono::milliseconds
             >(timeStamp - referencePoint).count();
+            int64_t toDeliver = byteTargetForSpeed();
         }
 
         int64_t byteTargetForSpeed() {
-            return (_downloadSpeedBytesPerSec * DOWNLOAD_PERIODICITY_MS)/ 1000;
+            return (_downloadSpeedBytesPerSec * DOWNLOAD_PERIODICITY_MS) / 1000;
         }
 
         void shutdown() {
             _shutdown = true;
+        }
+
+        int64_t incRevision() {
+            return ++_downloadRevision;
         }
 
         Handler genHandler() {
@@ -191,6 +197,7 @@ namespace SafeLists {
 
         int64_t _lastPumpStart;
         int64_t _lastPumpSize;
+        int64_t _downloadRevision;
     };
 
     StrongMsgPtr AsyncDownloader::createNew(const char* type) {

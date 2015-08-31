@@ -144,13 +144,22 @@ namespace SafeLists {
             }
         }
 
-        void downloadRoutine() {
+        void downloadRoutine(
+            const std::chrono::high_resolution_clock::time_point& sessionStart
+        )
+        {
             static auto referencePoint = std::chrono::high_resolution_clock::now();
-            auto timeStamp = std::chrono::high_resolution_clock::now();
+            auto deadline = sessionStart + std::chrono::milliseconds( DOWNLOAD_PERIODICITY_MS );
             int64_t thisPumpStart = std::chrono::duration_cast<
                 std::chrono::milliseconds
-            >(timeStamp - referencePoint).count();
+            >(sessionStart - referencePoint).count();
             int64_t toDeliver = byteTargetForSpeed();
+
+            auto now = std::chrono::high_resolution_clock::now();
+            while (now < deadline && toDeliver > 0) {
+
+                now = std::chrono::high_resolution_clock::now();
+            }
         }
 
         int64_t byteTargetForSpeed() {

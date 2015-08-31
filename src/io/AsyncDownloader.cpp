@@ -217,6 +217,30 @@ namespace SafeLists {
                     }
                 );
 
+                TEMPLATIOUS_FOREACH(const auto& i,pcVec) {
+                    int64_t thisPriorityShares = toDeliver > 256 ? toDeliver / 2 : toDeliver;
+                    int64_t thisPrioritySharesCpy = thisPriorityShares;
+                    int64_t averageSlice = thisPriorityShares / i._count;
+
+                    auto priorityFlt = SF::filter(_imitationVector,
+                        [&](const DownloadJobImitation& j) {
+                            return j.getPriority() == i._priority;
+                        }
+                    );
+
+                    TEMPLATIOUS_FOREACH(const auto& j,priorityFlt) {
+                        int64_t thisSlice = averageSlice;
+                        thisPrioritySharesCpy -= thisSlice;
+                        if (thisPrioritySharesCpy < thisSlice) {
+                            thisSlice += thisPrioritySharesCpy;
+                            thisPrioritySharesCpy = 0;
+                        }
+
+                    }
+
+                    toDeliver -= thisPriorityShares;
+                }
+
                 now = std::chrono::high_resolution_clock::now();
             }
         }

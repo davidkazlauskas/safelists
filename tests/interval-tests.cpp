@@ -416,39 +416,35 @@ TEST_CASE("interval_list_random_intervals_stress","[interval]") {
     std::mt19937 generator(7);
 
     const int LIMIT[] = { 256, 256 * 16, 256 * 256, 256 * 256 * 16 };
-    const int SHIP_LIMIT[] = {16,128,256,17,73,1024};
+    const int SHIP_LIMIT[] = {16,128,256,17,73,777,1024,4096,7777};
     int integrityFail = -1;
     TEMPLATIOUS_REPEAT( 1000 ) {
         std::mt19937 generatorInner(generator());
         auto specLimit = LIMIT[generator() % (sizeof(LIMIT) / sizeof(LIMIT[0]))];
-        auto specShipSize = LIMIT[generator() % (sizeof(SHIP_LIMIT) / sizeof(SHIP_LIMIT[0]))];
         SafeLists::IntervalList list(Int(0,specLimit));
         auto remainingSize = specLimit;
 
-        TEMPLATIOUS_REPEAT( 1 ) {
-            while (remainingSize > 0 && integrityFail == -1) {
-                list.randomEmptyIntervals(specShipSize,
-                    [&](const Int& i) {
+        while (remainingSize > 0 && integrityFail == -1) {
+            auto specShipSize = SHIP_LIMIT[generator() % (sizeof(SHIP_LIMIT) / sizeof(SHIP_LIMIT[0]))];
+            list.randomEmptyIntervals(specShipSize,
+                [&](const Int& i) {
 
-                        remainingSize -= i.size();
-                        list.append(i);
+                    remainingSize -= i.size();
+                    IntervalCounter cntPre;
+                    list.traverseEmpty(cntPre.f());
+                    list.append(i);
 
-                        IntervalCounter cnt;
-                        list.traverseEmpty(cnt.f());
+                    IntervalCounter cnt;
+                    list.traverseEmpty(cnt.f());
 
-                        if (!list.checkIntegrity() || remainingSize != cnt._size) {
-                            integrityFail = 10000 * __tmp_i;
-                            return false;
-                        }
-
-                        return true;
+                    if (!list.checkIntegrity() || remainingSize != cnt._size) {
+                        integrityFail = 10000 * __tmp_i;
+                        return false;
                     }
-                );
-            }
 
-            if (integrityFail > 0) {
-                break;
-            }
+                    return true;
+                }
+            );
         }
 
         if (integrityFail > 0) {

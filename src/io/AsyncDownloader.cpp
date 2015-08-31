@@ -178,6 +178,29 @@ namespace SafeLists {
                 _lastDebt = 0;
             }
 
+            struct PriorityCounter {
+                int _priority;
+                int _count;
+            };
+
+            std::vector< PriorityCounter > pcVec;
+            auto addToPriorityVec =
+                [&](int priority) {
+                    auto flt = SF::filter(pcVec,
+                        [=](const PriorityCounter& counter) {
+                            return counter._priority == priority;
+                        });
+                    auto beg = SA::begin(flt);
+                    if (beg != SA::end(flt)) {
+                        ++beg->_count;
+                    } else {
+                        PriorityCounter toAdd;
+                        toAdd._priority = priority;
+                        toAdd._count = 1;
+                        SA::add(pcVec,toAdd);
+                    }
+                };
+
             auto now = std::chrono::high_resolution_clock::now();
             while (now < deadline && toDeliver > 0) {
 

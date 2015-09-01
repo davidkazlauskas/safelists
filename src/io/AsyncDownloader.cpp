@@ -54,6 +54,7 @@ namespace SafeLists {
 
         static StrongMsgPtr spinupNew() {
             auto result = std::make_shared< AsyncDownloaderImitationImpl >();
+            result->_myself = result;
 
             std::thread(
                 [=]() {
@@ -162,6 +163,11 @@ namespace SafeLists {
 
         void messageLoop() {
             while (!_shutdown) {
+                if (_myself.unique()) {
+                    shutdown();
+                    break;
+                }
+
                 auto preDownload = std::chrono::high_resolution_clock::now();
                 _cache.process(
                     [=](templatious::VirtualPack& p) {
@@ -321,6 +327,8 @@ namespace SafeLists {
         int64_t _lastPumpStart;
         int64_t _lastDebt;
         int64_t _downloadRevision;
+
+        std::shared_ptr< AsyncDownloaderImitationImpl > _myself;
     };
 
     StrongMsgPtr AsyncDownloader::createNew(const char* type) {

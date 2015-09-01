@@ -31,7 +31,7 @@ namespace SafeLists {
 
     struct AsyncDownloaderImitationImpl : public Messageable {
 
-        static const int DOWNLOAD_PERIODICITY_MS = 100; // 100 milliseconds
+        static const int DOWNLOAD_PERIODICITY_MS; // 100 milliseconds
 
         AsyncDownloaderImitationImpl() :
             _shutdown(false),
@@ -335,6 +335,8 @@ namespace SafeLists {
         int64_t _lastDebt;
         int64_t _downloadRevision;
     };
+
+    const int AsyncDownloaderImitationImpl::DOWNLOAD_PERIODICITY_MS = 100; // 100 milliseconds
 
     StrongMsgPtr AsyncDownloader::createNew(const char* type) {
         if (0 == strcmp(type,"imitation")) {

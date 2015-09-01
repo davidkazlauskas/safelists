@@ -97,7 +97,7 @@ namespace SafeLists {
 
             // download and return if finished
             bool download(int64_t bytes,const char* dummyBuffer) {
-                if (_stopAsked) {
+                if (isDone()) {
                     return true;
                 }
 

@@ -103,6 +103,7 @@ namespace SafeLists {
 
                 _remaining.randomEmptyIntervals(bytes,
                     [&](const Interval& interval) {
+                        _remaining.append(interval);
                         _stopAsked |= !_byteFunc(dummyBuffer,interval.start(),interval.end());
                         if (_stopAsked) {
                             return false;

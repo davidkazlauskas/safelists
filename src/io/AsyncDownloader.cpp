@@ -162,8 +162,9 @@ namespace SafeLists {
         typedef std::unique_ptr< DownloadJobImitation > ImitationPtr;
 
         void messageLoop() {
+            auto locked = _myself.lock();
             while (!_shutdown) {
-                if (_myself.unique()) {
+                if (locked.unique()) {
                     shutdown();
                     break;
                 }
@@ -328,7 +329,7 @@ namespace SafeLists {
         int64_t _lastDebt;
         int64_t _downloadRevision;
 
-        std::shared_ptr< AsyncDownloaderImitationImpl > _myself;
+        std::weak_ptr< AsyncDownloaderImitationImpl > _myself;
     };
 
     StrongMsgPtr AsyncDownloader::createNew(const char* type) {

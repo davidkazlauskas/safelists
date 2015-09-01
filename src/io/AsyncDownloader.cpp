@@ -218,7 +218,9 @@ namespace SafeLists {
                 );
 
                 TEMPLATIOUS_FOREACH(const auto& i,pcVec) {
-                    int64_t thisPriorityShares = toDeliver > 256 ? toDeliver / 2 : toDeliver;
+                    int64_t thisPriorityShares =
+                        SA::size(pcVec) == 1 ? toDeliver :
+                        (toDeliver > 256 ? toDeliver / 2 : toDeliver);
                     int64_t thisPrioritySharesCpy = thisPriorityShares;
                     int64_t averageSlice = thisPriorityShares / i._count;
 

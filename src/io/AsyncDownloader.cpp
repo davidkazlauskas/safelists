@@ -88,6 +88,10 @@ namespace SafeLists {
 
             // download and return if finished
             bool download(int64_t bytes,const char* dummyBuffer) {
+                if (_stopAsked) {
+                    return true;
+                }
+
                 _remaining.randomEmptyIntervals(bytes,
                     [&](const Interval& interval) {
                         _stopAsked |= !_byteFunc(dummyBuffer,interval.start(),interval.end());

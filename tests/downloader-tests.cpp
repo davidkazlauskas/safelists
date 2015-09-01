@@ -63,6 +63,8 @@ TEST_CASE("async_downloader_dummy","[async_downloader]") {
 
     future.wait();
 
+    *success &= toDownload->isFilled();
+
     REQUIRE( *success );
 }
 

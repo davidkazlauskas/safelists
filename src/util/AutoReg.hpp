@@ -4,6 +4,8 @@
 #include <templatious/FullPack.hpp>
 #include <templatious/detail/DynamicPackCreator.hpp>
 
+#include <messageable.hpp>
+
 // object in C++ has to be at least byte in size,
 // we might as well use that byte to store the proof
 // of calculation for static initialization.

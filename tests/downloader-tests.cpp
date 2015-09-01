@@ -40,12 +40,15 @@ TEST_CASE("async_downloader_dummy","[async_downloader]") {
 
     std::unique_ptr< bool > success( new bool(true) );
     std::unique_ptr< Int > toDownload(new Int(0,1024 * 1024)); // 1MB
+    Int copy(*toDownload);
     auto downloadJob = SF::vpackPtr<
         AD::ScheduleDownload,
+        Int,
         std::function< bool(const char*,int64_t,int64_t) >,
         std::weak_ptr< Messageable >
     >(
         nullptr,
+        copy,
         [&](const char* buffer,int64_t start,int64_t end) {
             auto size = end - start;
             *success &= ensureExpected(size,buffer);

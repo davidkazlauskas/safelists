@@ -93,7 +93,17 @@ namespace SafeLists {
                         return true;
                     }
                 );
-                return isDone();
+                bool done = isDone();
+                if (done) {
+                    auto notifyLock = _otherNotify.lock();
+                    if (nullptr != notifyLock) {
+                        auto msg = SF::vpack<
+                            AsyncDownloader::OutDownloadFinished
+                        >(nullptr);
+                        notifyLock->message(msg);
+                    }
+                }
+                return done;
             }
 
             bool isDone() const {

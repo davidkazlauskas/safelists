@@ -20,6 +20,10 @@ namespace SafeLists {
         // >
         DUMMY_REG(ScheduleDownload,"AD_ScheduleDownload");
 
+        // Signalled when download is finished.
+        // Signature: < OutDownloadFinished >
+        DUMMY_REG(OutDownloadFinished,"AD_OutDownloadFinished");
+
         static StrongMsgPtr createNew(const char* type = "imitation");
     };
 

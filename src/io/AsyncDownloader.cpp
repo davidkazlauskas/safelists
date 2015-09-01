@@ -54,13 +54,20 @@ namespace SafeLists {
 
         static StrongMsgPtr spinupNew() {
             auto result = std::make_shared< AsyncDownloaderImitationImpl >();
-            result->_myself = result;
 
+            std::unique_ptr< std::promise<void> > prom( new std::promise<void> );
+            auto rawProm = prom.get();
+            auto future = prom->get_future();
+            std::weak_ptr< AsyncDownloaderImitationImpl > weak = result;
             std::thread(
                 [=]() {
-                    result->messageLoop();
+                    auto locked = weak.lock();
+                    rawProm->set_value();
+                    result->messageLoop(locked);
                 }
             ).detach();
+
+            future.wait();
 
             return result;
         }
@@ -161,10 +168,9 @@ namespace SafeLists {
 
         typedef std::unique_ptr< DownloadJobImitation > ImitationPtr;
 
-        void messageLoop() {
-            auto locked = _myself.lock();
+        void messageLoop(const std::shared_ptr< AsyncDownloaderImitationImpl >& myself) {
             while (!_shutdown) {
-                if (locked.unique()) {
+                if (myself.unique()) {
                     shutdown();
                     break;
                 }
@@ -328,8 +334,6 @@ namespace SafeLists {
         int64_t _lastPumpStart;
         int64_t _lastDebt;
         int64_t _downloadRevision;
-
-        std::weak_ptr< AsyncDownloaderImitationImpl > _myself;
     };
 
     StrongMsgPtr AsyncDownloader::createNew(const char* type) {

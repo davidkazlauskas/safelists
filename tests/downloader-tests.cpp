@@ -1,5 +1,6 @@
 
 #include <templatious/FullPack.hpp>
+#include <templatious/detail/DynamicVirtualMatchFunctor.hpp>
 #include <io/AsyncDownloader.hpp>
 
 #include "catch.hpp"
@@ -18,7 +19,41 @@ namespace {
 }
 
 TEST_CASE("async_downloader_dummy","[async_downloader]") {
-    auto downloader = SafeLists::AsyncDownloader::createNew("imitation");
+    typedef SafeLists::AsyncDownloader AD;
+    auto downloader = AD::createNew("imitation");
 
+    std::unique_ptr< std::promise<void> > prom( new std::promise<void> );
+    auto future = prom->get_future();
+    auto handler =
+        std::make_shared< SafeLists::MessageableMatchFunctor >(
+            SF::virtualMatchFunctorPtr(
+                SF::virtualMatch< AD::OutDownloadFinished >(
+                    [&](AD::OutDownloadFinished) {
+                        prom->set_value();
+                    }
+                )
+            )
+        );
+
+
+    std::unique_ptr< bool > success( new bool(true) );
+    auto downloadJob = SF::vpackPtr<
+        AD::ScheduleDownload,
+        std::function< bool(const char*,int64_t,int64_t) >,
+        std::weak_ptr< Messageable >
+    >(
+        nullptr,
+        [&](const char* buffer,int64_t start,int64_t end) {
+            auto size = end - start;
+            *success &= ensureExpected(size,buffer);
+        },
+        handler
+    );
+
+    downloader->message(downloadJob);
+
+    future.wait();
+
+    REQUIRE( *success );
 }
 

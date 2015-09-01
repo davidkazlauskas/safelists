@@ -72,7 +72,9 @@ target_link_libraries( domain sqlite3 pthread )
 SET( TEST_SOURCES
     tests/model-tests.cpp
     tests/io-tests.cpp
-    tests/interval-tests.cpp )
+    tests/interval-tests.cpp
+    tests/downloader-tests.cpp
+)
 
 add_executable( all-tests ${TEST_SOURCES} )
 target_link_libraries( all-tests domain )

@@ -82,14 +82,18 @@ namespace SafeLists {
                 _downloadRevision(0),
                 _remaining(toDownload),
                 _byteFunc(byteFunc),
-                _otherNotify(otherNotify)
+                _otherNotify(otherNotify),
+                _stopAsked(false)
             {}
 
             // download and return if finished
             bool download(int64_t bytes,const char* dummyBuffer) {
                 _remaining.randomEmptyIntervals(bytes,
                     [&](const Interval& interval) {
-                        _byteFunc(dummyBuffer,interval.start(),interval.end());
+                        _stopAsked |= !_byteFunc(dummyBuffer,interval.start(),interval.end());
+                        if (_stopAsked) {
+                            return false;
+                        }
                         return true;
                     }
                 );
@@ -107,7 +111,7 @@ namespace SafeLists {
             }
 
             bool isDone() const {
-                return _remaining.isFilled();
+                return !_stopAsked && _remaining.isFilled();
             }
 
             void setPriority(int priority) {
@@ -147,6 +151,7 @@ namespace SafeLists {
             IntervalList _remaining;
             ByteFunction _byteFunc;
             WeakMsgPtr _otherNotify;
+            bool _stopAsked;
         };
 
         typedef std::unique_ptr< DownloadJobImitation > ImitationPtr;

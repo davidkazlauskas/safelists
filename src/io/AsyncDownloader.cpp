@@ -35,6 +35,7 @@ namespace SafeLists {
 
         AsyncDownloaderImitationImpl() :
             _shutdown(false),
+            _handler(genHandler()),
             _downloadSpeedBytesPerSec(1024 * 1024 * 1), // 1 MB/sec default
             _lastPumpStart(0),
             _lastDebt(0),

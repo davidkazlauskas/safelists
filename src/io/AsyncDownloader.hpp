@@ -18,6 +18,13 @@ namespace SafeLists {
         //     std::function< bool(const char*,int64_t,int64_t) >, // byte process function
         //     std::weak_ptr< Messeagable > // handle other misc errors
         // >
+        //
+        // Signature: <
+        //     ScheduleDownload,
+        //     IntervalList, // file interval, for unfinished, partially downloaded files
+        //     std::function< bool(const char*,int64_t,int64_t) >, // byte process function
+        //     std::weak_ptr< Messeagable > // handle other misc errors
+        // >
         DUMMY_REG(ScheduleDownload,"AD_ScheduleDownload");
 
         // Signalled when download is finished.

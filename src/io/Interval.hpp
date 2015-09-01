@@ -79,6 +79,8 @@ struct IntervalList {
 
     friend struct IntervalListImpl;
 
+    IntervalList clone() const;
+
 #ifdef SAFELISTS_TESTING
     bool checkIntegrity() const;
 #endif

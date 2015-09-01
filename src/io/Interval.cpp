@@ -186,6 +186,12 @@ IntervalList::IntervalList(IntervalList&& other) :
     SA::clear(other._list);
 }
 
+IntervalList IntervalList::clone() const {
+    IntervalList target(_emptyInterval);
+    target._list = _list;
+    return target;
+}
+
 void IntervalList::traverseFilled(const IntervalReceiveFunction& func) const {
     if (SA::size(_list) == 0) {
         return;

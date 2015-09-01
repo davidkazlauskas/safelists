@@ -31,7 +31,7 @@ namespace SafeLists {
 
     struct AsyncDownloaderImitationImpl : public Messageable {
 
-        static const int DOWNLOAD_PERIODICITY_MS; // 100 milliseconds
+        static const int DOWNLOAD_PERIODICITY_MS;
 
         AsyncDownloaderImitationImpl() :
             _shutdown(false),

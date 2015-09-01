@@ -50,4 +50,12 @@ void traverseTypes(const std::function<void(const char*,const templatious::TypeN
     }
 }
 
+void MessageableMatchFunctor::message(const std::shared_ptr< templatious::VirtualPack >& msg) {
+    assert( false && "Async messages disabled on messeagable match functor." );
+}
+
+void MessageableMatchFunctor::message(templatious::VirtualPack& msg) {
+    _handler->tryMatch(msg);
+}
+
 }

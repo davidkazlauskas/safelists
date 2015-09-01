@@ -1,6 +1,7 @@
 #ifndef AUTOREG_PYXSMU4M
 #define AUTOREG_PYXSMU4M
 
+#include <templatious/FullPack.hpp>
 #include <templatious/detail/DynamicPackCreator.hpp>
 
 // object in C++ has to be at least byte in size,
@@ -39,6 +40,19 @@ const char TypeRegger<T>::s_sideEffect = T::registerType();
 
 char registerTypeInMap(const char* name,const templatious::TypeNode* node);
 void traverseTypes(const std::function<void(const char*,const templatious::TypeNode*)>& func);
+
+struct MessageableMatchFunctor : public Messageable {
+    typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
+
+    MessageableMatchFunctor(VmfPtr&& ptr) :
+        _handler(std::move(ptr)) {}
+
+    void message(const std::shared_ptr< templatious::VirtualPack >& msg) override;
+    void message(templatious::VirtualPack& msg) override;
+
+private:
+    VmfPtr _handler;
+};
 
 }
 

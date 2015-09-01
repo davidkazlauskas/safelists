@@ -83,12 +83,12 @@ namespace SafeLists {
         struct DownloadJobImitation {
 
             DownloadJobImitation(
-                const Interval& toDownload,
+                IntervalList&& toDownload,
                 const ByteFunction& byteFunc,
                 const WeakMsgPtr& otherNotify
             ) : _priority(0),
                 _downloadRevision(0),
-                _remaining(toDownload),
+                _remaining(std::move(toDownload)),
                 _byteFunc(byteFunc),
                 _otherNotify(otherNotify),
                 _stopAsked(false)
@@ -303,6 +303,22 @@ namespace SafeLists {
             return SF::virtualMatchFunctorPtr(
                 SF::virtualMatch<
                     AD::ScheduleDownload,
+                    IntervalList,
+                    ByteFunction,
+                    std::weak_ptr< Messageable >
+                >(
+                    [=](AD::ScheduleDownload,
+                        IntervalList& interval,
+                        const ByteFunction& func,
+                        const std::weak_ptr< Messageable >& wmsg)
+                    {
+                        ImitationPtr newImitation(
+                            new DownloadJobImitation(std::move(interval),func,wmsg) );
+                        SA::add(_imitationVector,std::move(newImitation));
+                    }
+                ),
+                SF::virtualMatch<
+                    AD::ScheduleDownload,
                     Interval,
                     ByteFunction,
                     std::weak_ptr< Messageable >
@@ -312,8 +328,9 @@ namespace SafeLists {
                         const ByteFunction& func,
                         const std::weak_ptr< Messageable >& wmsg)
                     {
+                        IntervalList list(interval);
                         ImitationPtr newImitation(
-                            new DownloadJobImitation(interval,func,wmsg) );
+                            new DownloadJobImitation(std::move(list),func,wmsg) );
                         SA::add(_imitationVector,std::move(newImitation));
                     }
                 ),

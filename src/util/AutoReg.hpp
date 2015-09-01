@@ -46,6 +46,10 @@ void traverseTypes(const std::function<void(const char*,const templatious::TypeN
 struct MessageableMatchFunctor : public Messageable {
     typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
 
+    MessageableMatchFunctor() = delete;
+    MessageableMatchFunctor(MessageableMatchFunctor&&) = delete;
+    MessageableMatchFunctor(const MessageableMatchFunctor&) = delete;
+
     MessageableMatchFunctor(VmfPtr&& ptr) :
         _handler(std::move(ptr)) {}
 

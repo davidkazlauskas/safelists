@@ -284,6 +284,15 @@ namespace SafeLists {
                     toDeliver -= thisPriorityShares;
                 }
 
+                SA::clear(
+                    SF::filter(
+                        _imitationVector,
+                        [](const ImitationPtr& i) {
+                            return i->isDone();
+                        }
+                    )
+                );
+
                 now = std::chrono::high_resolution_clock::now();
             }
         }

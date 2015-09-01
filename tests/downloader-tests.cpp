@@ -38,7 +38,6 @@ TEST_CASE("async_downloader_dummy","[async_downloader]") {
             )
         );
 
-
     std::unique_ptr< bool > success( new bool(true) );
     std::unique_ptr< IntList > toDownload(new IntList(Int(0,1024 * 1024))); // 1MB
     IntList copy = toDownload->clone();

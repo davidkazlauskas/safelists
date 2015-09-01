@@ -62,7 +62,7 @@ struct IntervalList {
     IntervalList(const Interval& empty);
 
     IntervalList() = delete;
-    IntervalList(IntervalList&&) = delete;
+    IntervalList(IntervalList&&);
     IntervalList(const IntervalList&) = delete;
 
     typedef std::function<bool(const Interval&)> IntervalReceiveFunction;

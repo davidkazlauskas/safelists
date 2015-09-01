@@ -178,6 +178,14 @@ IntervalList::IntervalList(const Interval& empty)
 {
 }
 
+IntervalList::IntervalList(IntervalList&& other) :
+    _emptyInterval(other._emptyInterval),
+    _list(std::move(other._list))
+{
+    other._emptyInterval = Interval();
+    SA::clear(other._list);
+}
+
 void IntervalList::traverseFilled(const IntervalReceiveFunction& func) const {
     if (SA::size(_list) == 0) {
         return;

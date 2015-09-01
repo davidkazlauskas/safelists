@@ -52,6 +52,7 @@ TEST_CASE("async_downloader_dummy","[async_downloader]") {
         [&](const char* buffer,int64_t start,int64_t end) {
             auto size = end - start;
             *success &= ensureExpected(size,buffer);
+            return true;
         },
         handler
     );

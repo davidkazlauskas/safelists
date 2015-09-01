@@ -88,8 +88,25 @@ struct AsyncSqliteImpl : public Messageable {
         _sem.notify();
     }
 
-    void mainLoop() {
+    void mainLoop(const std::shared_ptr< AsyncSqliteImpl >& myself) {
+
+        struct FinishGuard {
+            FinishGuard(std::promise<void>* prom) :
+                _prom(prom) {}
+
+            ~FinishGuard() {
+                _prom->set_value();
+            }
+
+            std::promise<void>* _prom;
+        };
+
+        FinishGuard g(&_finished);
+
         while (_keepGoing) {
+            if (myself.unique()) {
+                return;
+            }
             _sem.wait();
             _cache.process(
                 [=](templatious::VirtualPack& p) {
@@ -97,7 +114,6 @@ struct AsyncSqliteImpl : public Messageable {
                 }
             );
         }
-        _finished.set_value();
     }
 
 private:
@@ -236,7 +252,7 @@ StrongMsgPtr AsyncSqlite::createNew(const char* name) {
     std::thread([&]() {
         auto outPtr = std::make_shared< AsyncSqliteImpl >(name);
         out.set_value(outPtr);
-        outPtr->mainLoop();
+        outPtr->mainLoop(outPtr);
     }).detach();
 
     return fut.get();

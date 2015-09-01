@@ -223,8 +223,8 @@ namespace SafeLists {
                     int64_t averageSlice = thisPriorityShares / i._count;
 
                     auto priorityFlt = SF::filter(_imitationVector,
-                        [&](const DownloadJobImitation& j) {
-                            return j.getPriority() == i._priority;
+                        [&](const ImitationPtr& j) {
+                            return j->getPriority() == i._priority;
                         }
                     );
 

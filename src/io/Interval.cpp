@@ -562,6 +562,12 @@ IntervalList readIntervalList(std::istream& input) {
 
     IntervalList result(Interval(rangeStart,rangeEnd));
 
+    TEMPLATIOUS_REPEAT( count ) {
+        rangeStart = numFromStream();
+        rangeEnd = numFromStream();
+        result.append(Interval(rangeStart,rangeEnd));
+    }
+
     return result;
 }
 

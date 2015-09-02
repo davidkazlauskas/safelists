@@ -92,6 +92,7 @@ private:
     std::vector< Interval > _list;
 };
 
+// streams should be binary, oh ye who looks for trouble
 void writeIntervalList(const IntervalList& list,std::ostream& output);
 void readIntervalList(IntervalList& list,std::istream& output);
 

@@ -468,3 +468,22 @@ TEST_CASE("endianess_check","[misc]") {
     REQUIRE( theNumber == outNum );
 }
 
+TEST_CASE("interval_list_equality_check","[interval]") {
+    using namespace SafeLists;
+
+    IntervalList list(Interval(0,512));
+    list.append(Interval(1,7));
+    list.append(Interval(77,128));
+
+    auto clone = list.clone();
+    REQUIRE( areIntervalListsEqual(list,clone) );
+
+    list.append(Interval(7,10));
+    REQUIRE( !areIntervalListsEqual(list,clone) );
+    bool another = areIntervalListsEqual(list,IntervalList(Interval(0,511)));
+    REQUIRE( !another );
+    clone.append(Interval(7,10));
+    REQUIRE( areIntervalListsEqual(list,clone) );
+    clone.append(Interval(300,310));
+    REQUIRE( !areIntervalListsEqual(list,clone) );
+}

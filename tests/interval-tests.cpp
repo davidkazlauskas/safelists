@@ -459,5 +459,12 @@ TEST_CASE("interval_list_random_intervals_stress","[interval]") {
 #endif
 
 TEST_CASE("endianess_check","[misc]") {
+    const int64_t theNumber = 1234567890;
+    char arr[sizeof(theNumber)];
+    SafeLists::writeI64AsLittleEndian(theNumber,arr);
+    int64_t outNum = 0;
+    SafeLists::readI64FromLittleEndian(outNum,arr);
 
+    REQUIRE( theNumber == outNum );
 }
+

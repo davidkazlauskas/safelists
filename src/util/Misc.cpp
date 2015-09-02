@@ -9,6 +9,8 @@ namespace {
         a = b;
         b = tmp;
     }
+
+    static bool isLittle = SafeLists::isLittleEndianMachine();
 }
 
 namespace SafeLists {
@@ -20,7 +22,6 @@ bool isLittleEndianMachine() {
 }
 
 void writeI64AsLittleEndian(int64_t number,char array[sizeof(number)]) {
-    static bool isLittle = isLittleEndianMachine();
     static_assert( sizeof(number) == 8, "I'm so paranoid it's not even funny." );
     memcpy(array,&number,sizeof(number));
     if (!isLittle) {

@@ -89,6 +89,9 @@ private:
     std::vector< Interval > _list;
 };
 
+void writeIntervalList(const IntervalList& list,std::ostream& output);
+void readIntervalList(IntervalList& list,std::istream& output);
+
 }
 
 #endif /* end of include guard: INTERVAL_C5VNKZTP */

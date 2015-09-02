@@ -508,5 +508,13 @@ bool IntervalList::checkIntegrity() const {
 }
 #endif
 
+void writeIntervalList(const IntervalList& list,std::ostream& output) {
+
+}
+
+void readIntervalList(IntervalList& list,std::istream& output) {
+
+}
+
 }
 

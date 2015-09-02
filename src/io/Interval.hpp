@@ -81,6 +81,8 @@ struct IntervalList {
 
     IntervalList clone() const;
 
+    int64_t nonEmptyIntervalCount() const;
+
 #ifdef SAFELISTS_TESTING
     bool checkIntegrity() const;
 #endif

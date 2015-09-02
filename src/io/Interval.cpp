@@ -511,8 +511,12 @@ bool IntervalList::checkIntegrity() const {
 }
 #endif
 
-void writeIntervalList(const IntervalList& list,std::ostream& output) {
+int64_t IntervalList::nonEmptyIntervalCount() const {
+    return SA::size(_list);
+}
 
+void writeIntervalList(const IntervalList& list,std::ostream& output) {
+    char buf[sizeof(int64_t)];
 }
 
 void readIntervalList(IntervalList& list,std::istream& output) {

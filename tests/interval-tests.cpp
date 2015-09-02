@@ -3,6 +3,7 @@
 
 #include <templatious/FullPack.hpp>
 #include <io/Interval.hpp>
+#include <util/Misc.hpp>
 
 #include "catch.hpp"
 
@@ -456,3 +457,7 @@ TEST_CASE("interval_list_random_intervals_stress","[interval]") {
     REQUIRE( -1 == integrityFail );
 }
 #endif
+
+TEST_CASE("endianess_check","[misc]") {
+
+}

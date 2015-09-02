@@ -162,6 +162,28 @@ struct IntervalListImpl {
         return list._emptyInterval.start() <= i.start()
             && list._emptyInterval.end() >= i.end();
     }
+
+    static bool areEqual(const IntervalList& a,const IntervalList& b) {
+        if (a._emptyInterval != b._emptyInterval) {
+            return false;
+        }
+
+        if (SA::size(a._list) != SA::size(b._list)) {
+            return false;
+        }
+
+        bool isGood = true;
+        SM::traverse(
+            [&](const Interval& left,const Interval& right) {
+                isGood &= left == right;
+                return isGood;
+            },
+            a._list,
+            b._list
+        );
+
+        return isGood;
+    }
 };
 
 auto Interval::evaluate(const Interval& other) const
@@ -576,13 +598,7 @@ IntervalList readIntervalList(std::istream& input) {
 }
 
 bool areIntervalListsEqual(const IntervalList& a,const IntervalList& b) {
-    if (a.range() != b.range()) {
-        return false;
-    }
-
-    if (a.nonEmptyIntervalCount() != b.nonEmptyIntervalCount()) {
-        return false;
-    }
+    return IntervalListImpl::areEqual(a,b);
 }
 
 }

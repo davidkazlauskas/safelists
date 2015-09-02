@@ -579,6 +579,10 @@ bool areIntervalListsEqual(const IntervalList& a,const IntervalList& b) {
     if (a.range() != b.range()) {
         return false;
     }
+
+    if (a.nonEmptyIntervalCount() != b.nonEmptyIntervalCount()) {
+        return false;
+    }
 }
 
 }

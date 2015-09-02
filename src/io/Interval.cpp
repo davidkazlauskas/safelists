@@ -520,9 +520,28 @@ Interval IntervalList::range() const {
 }
 
 void writeIntervalList(const IntervalList& list,std::ostream& output) {
-    char buf[sizeof(int64_t)];
+    const int SZ = sizeof(int64_t);
+    char buf[SZ];
     auto count = list.nonEmptyIntervalCount();
+    auto range = list.range();
 
+    auto numToStream =
+        [&](const int64_t& num) {
+            writeI64AsLittleEndian(num,buf);
+            output.write(buf,SZ);
+        };
+
+    numToStream(count);
+    numToStream(range.start());
+    numToStream(range.end());
+
+    list.traverseFilled(
+        [&](const Interval& i) {
+            numToStream(i.start());
+            numToStream(i.end());
+            return true;
+        }
+    );
 }
 
 void readIntervalList(IntervalList& list,std::istream& output) {

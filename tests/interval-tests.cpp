@@ -487,3 +487,18 @@ TEST_CASE("interval_list_equality_check","[interval]") {
     clone.append(Interval(300,310));
     REQUIRE( !areIntervalListsEqual(list,clone) );
 }
+
+TEST_CASE("interval_list_write_read_test","[interval]") {
+    using namespace SafeLists;
+
+    IntervalList list(Interval(0,512));
+    list.append(Interval(1,7));
+    list.append(Interval(77,128));
+
+    std::stringstream ss( std::stringstream::binary );
+    writeIntervalList(list,ss);
+    ss.seekg( std::ios::beg );
+    auto out = readIntervalList(ss);
+
+    REQUIRE( areIntervalListsEqual(list,out) );
+}

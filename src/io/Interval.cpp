@@ -515,8 +515,14 @@ int64_t IntervalList::nonEmptyIntervalCount() const {
     return SA::size(_list);
 }
 
+Interval IntervalList::range() const {
+    return _emptyInterval;
+}
+
 void writeIntervalList(const IntervalList& list,std::ostream& output) {
     char buf[sizeof(int64_t)];
+    auto count = list.nonEmptyIntervalCount();
+
 }
 
 void readIntervalList(IntervalList& list,std::istream& output) {

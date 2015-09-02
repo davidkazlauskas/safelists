@@ -496,8 +496,6 @@ TEST_CASE("interval_list_write_read_test","[interval]") {
     list.append(Interval(1,7));
     list.append(Interval(77,128));
 
-    printf("UNDONE\n");
-
     {
         std::ofstream os( "tmp.bin", std::ios::binary );
         writeIntervalList(list,os);

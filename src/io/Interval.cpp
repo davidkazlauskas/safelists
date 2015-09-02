@@ -1,6 +1,9 @@
 
 #include <random>
 #include <templatious/FullPack.hpp>
+
+#include <util/Misc.hpp>
+
 #include "Interval.hpp"
 
 TEMPLATIOUS_TRIPLET_STD;

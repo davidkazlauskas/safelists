@@ -545,7 +545,24 @@ void writeIntervalList(const IntervalList& list,std::ostream& output) {
 }
 
 IntervalList readIntervalList(std::istream& input) {
+    const int SZ = sizeof(int64_t);
+    char buf[SZ];
+    int64_t num;
 
+    auto numFromStream =
+        [&]() {
+            input.read(buf,SZ);
+            readI64FromLittleEndian(num,buf);
+            return num;
+        };
+
+    auto count = numFromStream();
+    auto rangeStart = numFromStream();
+    auto rangeEnd = numFromStream();
+
+    IntervalList result(Interval(rangeStart,rangeEnd));
+
+    return result;
 }
 
 }

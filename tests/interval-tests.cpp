@@ -1,5 +1,6 @@
 
 #include <random>
+#include <fstream>
 
 #include <templatious/FullPack.hpp>
 #include <io/Interval.hpp>
@@ -495,10 +496,18 @@ TEST_CASE("interval_list_write_read_test","[interval]") {
     list.append(Interval(1,7));
     list.append(Interval(77,128));
 
-    std::stringstream ss( std::stringstream::binary );
-    writeIntervalList(list,ss);
-    ss.seekg( std::ios::beg );
-    auto out = readIntervalList(ss);
+    printf("UNDONE\n");
+
+    {
+        std::ofstream os( "tmp.bin", std::ios::binary );
+        writeIntervalList(list,os);
+    }
+
+
+    auto out = []() {
+        std::ifstream is( "tmp.bin", std::ios::binary );
+        return readIntervalList(is);
+    }();
 
     REQUIRE( areIntervalListsEqual(list,out) );
 }

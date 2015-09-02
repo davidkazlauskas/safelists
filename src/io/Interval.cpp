@@ -554,7 +554,7 @@ void writeIntervalList(const IntervalList& list,std::ostream& output) {
     auto numToStream =
         [&](const int64_t& num) {
             writeI64AsLittleEndian(num,buf);
-            output.write(buf,SZ);
+            output.write(buf,sizeof(num));
         };
 
     numToStream(count);
@@ -577,7 +577,7 @@ IntervalList readIntervalList(std::istream& input) {
 
     auto numFromStream =
         [&]() {
-            input.read(buf,SZ);
+            input.read(buf,sizeof(buf));
             readI64FromLittleEndian(num,buf);
             return num;
         };

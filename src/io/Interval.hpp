@@ -45,6 +45,7 @@ struct Interval {
     static RelationResult evaluate(const Interval& a,const Interval& b);
 
     bool operator==(const Interval& rhs) const;
+    bool operator!=(const Interval& rhs) const;
 
     friend struct IntervalList;
 private:
@@ -95,6 +96,7 @@ private:
 // streams should be binary, oh ye who looks for trouble
 void writeIntervalList(const IntervalList& list,std::ostream& output);
 IntervalList readIntervalList(std::istream& input);
+bool areIntervalListsEqual(const IntervalList& a,const IntervalList& b);
 
 }
 

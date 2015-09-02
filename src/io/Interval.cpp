@@ -37,6 +37,10 @@ bool Interval::operator==(const Interval& rhs) const {
     return _start == rhs._start && _end == rhs._end;
 }
 
+bool Interval::operator!=(const Interval& rhs) const {
+    return !(*this == rhs);
+}
+
 struct IntervalListImpl {
 
     typedef Interval::RelationResult RelationResult;
@@ -569,6 +573,12 @@ IntervalList readIntervalList(std::istream& input) {
     }
 
     return result;
+}
+
+bool areIntervalListsEqual(const IntervalList& a,const IntervalList& b) {
+    if (a.range() != b.range()) {
+        return false;
+    }
 }
 
 }

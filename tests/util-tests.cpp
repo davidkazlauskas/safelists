@@ -24,3 +24,24 @@ TEST_CASE("dumb_hash_basic","[util]") {
 
     REQUIRE( buf == expected );
 }
+
+TEST_CASE("dumb_hash_basic_append_end","[util]") {
+    SafeLists::DumbHash256 hash;
+
+    hash.add(249,255);
+
+    char buf[65];
+    hash.toString(buf);
+
+    std::string expected =
+        "37373737"
+        "37373737"
+        "37373737"
+        "37373737"
+        "37373737"
+        "37373737"
+        "37373737"
+        "37373737";
+
+    REQUIRE( buf == expected );
+}

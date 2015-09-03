@@ -29,7 +29,7 @@ namespace SafeLists {
                 int posA = remainder / 8;
                 int posB = posA + 1;
                 _mem[posA] ^= byte>>splitPoint;
-                if (posB < 32) {
+                if (posB >= 32) {
                     posB = 0;
                 }
                 _mem[posB] ^= byte<<(8-splitPoint);
@@ -42,6 +42,7 @@ namespace SafeLists {
         template <int bufSize>
         void toString(char (&buf)[bufSize]) const {
             static_assert( bufSize >= 65, "Too small buffer cholo." );
+            typedef unsigned char uc;
             sprintf(
                 buf,
                 "%02x%02x%02x%02x%02x%02x%02x%02x"
@@ -49,14 +50,14 @@ namespace SafeLists {
                 "%02x%02x%02x%02x%02x%02x%02x%02x"
                 "%02x%02x%02x%02x%02x%02x%02x%02x"
                 ,
-                _mem[0], _mem[1], _mem[2], _mem[3],
-                _mem[4], _mem[5], _mem[6], _mem[7],
-                _mem[8], _mem[9], _mem[10],_mem[11],
-                _mem[12],_mem[13],_mem[14],_mem[15],
-                _mem[16],_mem[17],_mem[18],_mem[19],
-                _mem[20],_mem[21],_mem[22],_mem[23],
-                _mem[24],_mem[25],_mem[26],_mem[27],
-                _mem[28],_mem[29],_mem[30],_mem[31]
+                uc(_mem[0]), uc(_mem[1]), uc(_mem[2]), uc(_mem[3]),
+                uc(_mem[4]), uc(_mem[5]), uc(_mem[6]), uc(_mem[7]),
+                uc(_mem[8]), uc(_mem[9]), uc(_mem[10]),uc(_mem[11]),
+                uc(_mem[12]),uc(_mem[13]),uc(_mem[14]),uc(_mem[15]),
+                uc(_mem[16]),uc(_mem[17]),uc(_mem[18]),uc(_mem[19]),
+                uc(_mem[20]),uc(_mem[21]),uc(_mem[22]),uc(_mem[23]),
+                uc(_mem[24]),uc(_mem[25]),uc(_mem[26]),uc(_mem[27]),
+                uc(_mem[28]),uc(_mem[29]),uc(_mem[30]),uc(_mem[31])
             );
         }
     private:

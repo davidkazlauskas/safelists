@@ -86,6 +86,11 @@ void RandomFileWriteHandle::write(const char* buffer,int64_t start,int64_t size)
 
     ::fseek(_handle,0,start);
     ::fwrite(buffer,size,1,_handle);
+
+    int64_t farthestOffset = start + size;
+    if (farthestOffset > _writeSize) {
+        _writeSize = farthestOffset;
+    }
 }
 
 void RandomFileWriteHandle::read(char* buffer,int64_t start,int64_t size) {

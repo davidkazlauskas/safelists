@@ -151,6 +151,11 @@ TEST_CASE("io_dynamic_read_write","[io]") {
     const char* str = "dovahkiin";
 
     {
+        std::ofstream out("a.txt");
+        out.write("7",1);
+    }
+
+    {
         SafeLists::RandomFileWriteHandle handle("a.txt",-1);
         handle.write(str,77,strlen(str));
     }

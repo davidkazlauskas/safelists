@@ -34,14 +34,14 @@ TEST_CASE("dumb_hash_basic_append_end","[util]") {
     hash.toString(buf);
 
     std::string expected =
+        "b7373737"
         "37373737"
         "37373737"
         "37373737"
         "37373737"
         "37373737"
         "37373737"
-        "37373737"
-        "37373737";
+        "373737c8";
 
     REQUIRE( buf == expected );
 }

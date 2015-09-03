@@ -45,3 +45,45 @@ TEST_CASE("dumb_hash_basic_append_end","[util]") {
 
     REQUIRE( buf == expected );
 }
+
+TEST_CASE("dumb_hash_basic_append_single","[util]") {
+    SafeLists::DumbHash256 hash;
+
+    hash.add(16,255);
+
+    char buf[65];
+    hash.toString(buf);
+
+    std::string expected =
+        "3737c837"
+        "37373737"
+        "37373737"
+        "37373737"
+        "37373737"
+        "37373737"
+        "37373737"
+        "37373737";
+
+    REQUIRE( buf == expected );
+}
+
+TEST_CASE("dumb_hash_basic_append_midsplit","[util]") {
+    SafeLists::DumbHash256 hash;
+
+    hash.add(3,255);
+
+    char buf[65];
+    hash.toString(buf);
+
+    std::string expected =
+        "c8d73737"
+        "37373737"
+        "37373737"
+        "37373737"
+        "37373737"
+        "37373737"
+        "37373737"
+        "37373737";
+
+    REQUIRE( buf == expected );
+}

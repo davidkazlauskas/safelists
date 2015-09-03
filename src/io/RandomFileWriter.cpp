@@ -8,13 +8,6 @@ TEMPLATIOUS_TRIPLET_STD;
 
 namespace {
 
-    void fallocateFile(const char* path,int64_t size) {
-        // todo, optimize with fallocate for linux
-        std::ofstream file(path);
-        file.seekp(size - 1);
-        file.write("",1);
-    }
-
     bool fileRangeCheck(int64_t start,int64_t size,int64_t max) {
         if (start < 0) {
             return false;

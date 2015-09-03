@@ -25,16 +25,19 @@ namespace SafeLists {
             int splitPoint = remainder % 8;
 
             if (splitPoint != 0) {
-            
+                int posA = remainder / 8;
+                int posB = posA + 1;
+                _mem[posA] ^= byte>>splitPoint;
+                if (posB < 32) {
+                    posB = 0;
+                }
+                _mem[posB] ^= byte<<(8-splitPoint);
             } else {
                 _mem[remainder / 8] ^= byte;
             }
-
         }
 
     private:
-
-
         char _mem[32];
     };
 

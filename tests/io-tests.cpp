@@ -145,3 +145,22 @@ TEST_CASE("io_random_writer_cache_heat","[io]") {
     REQUIRE(  cache.isCached("c.txt") );
 }
 
+TEST_CASE("io_dynamic_read_write","[io]") {
+    FileEraser er;
+    SA::add(er._files,"a.txt");
+    const char* str = "dovahkiin";
+
+    {
+        SafeLists::RandomFileWriteHandle handle("a.txt",-1);
+        handle.write(str,77,strlen(str));
+    }
+
+    {
+        SafeLists::RandomFileWriteHandle handle("a.txt",-1);
+        char arr[64];
+        handle.read(arr,77,strlen(str));
+        arr[strlen(str)] = '\0';
+
+        REQUIRE( 0 == strcmp(arr,str) );
+    }
+}

@@ -1,4 +1,5 @@
 
+#include <util/DumbHash.hpp>
 #include "SafeListDownloader.hpp"
 
 namespace SafeLists {

@@ -3,6 +3,7 @@
 #define DUMBHASH_DGGM3OP4
 
 #include <cstring>
+#include <cstdint>
 
 namespace SafeLists {
 
@@ -21,9 +22,19 @@ namespace SafeLists {
 
         void add(int64_t pos,char byte) {
             int remainder = pos % 256;
+            int splitPoint = remainder % 8;
+
+            if (splitPoint != 0) {
+            
+            } else {
+                _mem[remainder / 8] ^= byte;
+            }
+
         }
 
     private:
+
+
         char _mem[32];
     };
 

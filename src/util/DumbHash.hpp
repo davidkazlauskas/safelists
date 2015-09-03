@@ -2,6 +2,8 @@
 #ifndef DUMBHASH_DGGM3OP4
 #define DUMBHASH_DGGM3OP4
 
+#include <cstring>
+
 namespace SafeLists {
 
     // the only advantage
@@ -10,6 +12,12 @@ namespace SafeLists {
     // is that you can sum bytes
     // in any order and the result will be the same;
     struct DumbHash256 {
+
+        DumbHash256() {
+            memset(_mem,'7',sizeof(_mem));
+        }
+
+        DumbHash256(const DumbHash256&) = default;
 
     private:
         char _mem[32];

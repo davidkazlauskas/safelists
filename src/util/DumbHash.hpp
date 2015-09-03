@@ -19,6 +19,10 @@ namespace SafeLists {
 
         DumbHash256(const DumbHash256&) = default;
 
+        void add(int64_t pos,char byte) {
+            int remainder = pos % 256;
+        }
+
     private:
         char _mem[32];
     };

@@ -4,6 +4,7 @@
 
 #include <cstring>
 #include <cstdint>
+#include <templatious/FullPack.hpp>
 
 namespace SafeLists {
 
@@ -37,6 +38,27 @@ namespace SafeLists {
             }
         }
 
+        // buf should be at least 65 bytes long.
+        template <int bufSize>
+        void toString(char (&buf)[bufSize]) const {
+            static_assert( bufSize >= 65, "Too small buffer cholo." );
+            sprintf(
+                buf,
+                "%02x%02x%02x%02x%02x%02x%02x%02x"
+                "%02x%02x%02x%02x%02x%02x%02x%02x"
+                "%02x%02x%02x%02x%02x%02x%02x%02x"
+                "%02x%02x%02x%02x%02x%02x%02x%02x"
+                ,
+                _mem[0], _mem[1], _mem[2], _mem[3],
+                _mem[4], _mem[5], _mem[6], _mem[7],
+                _mem[8], _mem[9], _mem[10],_mem[11],
+                _mem[12],_mem[13],_mem[14],_mem[15],
+                _mem[16],_mem[17],_mem[18],_mem[19],
+                _mem[20],_mem[21],_mem[22],_mem[23],
+                _mem[24],_mem[25],_mem[26],_mem[27],
+                _mem[28],_mem[29],_mem[30],_mem[31]
+            );
+        }
     private:
         char _mem[32];
     };

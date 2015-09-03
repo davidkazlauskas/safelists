@@ -33,6 +33,7 @@ struct RandomFileWriteHandle {
 private:
     std::string _path;
     int64_t _size;
+    int64_t _writeSize;
     FILE* _handle;
 };
 

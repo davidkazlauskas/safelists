@@ -53,7 +53,7 @@ namespace SafeLists {
 
 
 RandomFileWriteHandle::RandomFileWriteHandle(const char* path,int64_t size)
-    : _path(path), _size(size)
+    : _path(path), _size(size), _writeSize(0)
 {
     FILE* handle = fopen(_path.c_str(),"r+");
     if (nullptr != handle) {
@@ -113,7 +113,6 @@ struct RandomFileWriteCacheImpl {
 RandomFileWriteCache::RandomFileWriteCache(int items)
     : _maxItems(items), _cachePoint(0), _vec(_maxItems)
 {
-
 }
 
 auto RandomFileWriteCache::getItem(const char* path,int64_t size) -> WriterPtr {

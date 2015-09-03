@@ -57,13 +57,14 @@ RandomFileWriteHandle::RandomFileWriteHandle(const char* path,int64_t size)
 {
     FILE* handle = fopen(_path.c_str(),"r+");
     if (nullptr != handle) {
+        fseek(handle,0,SEEK_END);
+        int64_t realSize = ftell(handle);
         if (_size > 0) {
-            fseek(handle,0,SEEK_END);
-            int64_t realSize = ftell(handle);
             if (realSize != _size) {
                 throw RandomFileWriterDifferentFileSizeException();
             }
         }
+        _writeSize = realSize;
     } else {
         handle = fopen(_path.c_str(),"w+");
         if (_size > 0) {
@@ -84,8 +85,9 @@ void RandomFileWriteHandle::write(const char* buffer,int64_t start,int64_t size)
         throw RandomFileWriterOutOfBoundsWriteException();
     }
 
-    ::fseek(_handle,0,start);
-    ::fwrite(buffer,size,1,_handle);
+    auto outS = fseek(_handle,start,SEEK_SET);
+    auto outW = fwrite(buffer,size,1,_handle);
+    assert( outS == 0 && outW > 0 );
 
     int64_t farthestOffset = start + size;
     if (farthestOffset > _writeSize) {
@@ -98,8 +100,9 @@ void RandomFileWriteHandle::read(char* buffer,int64_t start,int64_t size) {
         throw RandomFileWriterOutOfBoundsWriteException();
     }
 
-    ::fseek(_handle,0,start);
-    ::fread(buffer,size,1,_handle);
+    auto outS = fseek(_handle,start,SEEK_SET);
+    auto outR = fread(buffer,size,1,_handle);
+    assert( outS == 0 && outR > 0 );
 }
 
 std::string RandomFileWriteHandle::getPath() const {

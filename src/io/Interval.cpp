@@ -557,14 +557,18 @@ void writeIntervalList(const IntervalList& list,std::ostream& output) {
             output.write(buf,sizeof(num));
         };
 
-    numToStream(count);
-    numToStream(range.start());
-    numToStream(range.end());
+    SM::callEach(
+        numToStream,
+        count,
+        range.start(),
+        range.end());
 
     list.traverseFilled(
         [&](const Interval& i) {
-            numToStream(i.start());
-            numToStream(i.end());
+            SM::callEach(
+                numToStream,
+                i.start(),
+                i.end());
             return true;
         }
     );

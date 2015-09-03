@@ -76,6 +76,7 @@ SET( TEST_SOURCES
     tests/io-tests.cpp
     tests/interval-tests.cpp
     tests/downloader-tests.cpp
+    tests/util-tests.cpp
 )
 
 add_executable( all-tests ${TEST_SOURCES} )

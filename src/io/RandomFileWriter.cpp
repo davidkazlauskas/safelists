@@ -55,21 +55,24 @@ namespace SafeLists {
 RandomFileWriteHandle::RandomFileWriteHandle(const char* path,int64_t size)
     : _path(path), _size(size)
 {
-    {
-        // could be more optimized...
-        std::ifstream exists(_path.c_str(),std::ifstream::ate | std::ifstream::binary);
-        if (!exists.is_open()) {
-            fallocateFile(_path.c_str(),_size);
-        } else {
-            // ensure size is good
-            int64_t realSize = exists.tellg();
+    FILE* handle = fopen(_path.c_str(),"r+");
+    if (nullptr != handle) {
+        if (_size > 0) {
+            fseek(handle,0,SEEK_END);
+            int64_t realSize = ftell(handle);
             if (realSize != _size) {
                 throw RandomFileWriterDifferentFileSizeException();
             }
         }
+    } else {
+        handle = fopen(_path.c_str(),"w+");
+        if (_size > 0) {
+            fseek(handle,_size - 1,SEEK_SET);
+            fputc('7',handle);
+        }
     }
 
-    _handle = fopen(_path.c_str(),"r+");
+    _handle = handle;
 }
 
 RandomFileWriteHandle::~RandomFileWriteHandle() {

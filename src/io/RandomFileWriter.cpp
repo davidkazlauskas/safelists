@@ -20,7 +20,7 @@ namespace {
             return false;
         }
 
-        if (start + size > max) {
+        if (max != -1 && start + size > max) {
             return false;
         }
 

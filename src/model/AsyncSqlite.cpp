@@ -4,6 +4,8 @@
 
 #include <templatious/FullPack.hpp>
 
+#include <util/Semaphore.hpp>
+
 #include "AsyncSqlite.hpp"
 #include "TableSnapshot.hpp"
 
@@ -24,39 +26,6 @@ int snapshotBuilderCallback(void* snapshotBuilder,int argc,char** argv,char** co
 
 // <3 static asserts
 static_assert( SQLITE_VERSION_NUMBER >= 3008012, "Sqlite has to be at least 3.8.12 or higher." );
-
-namespace StackOverflow {
-
-    // http://stackoverflow.com/questions/4792449/c0x-has-no-semaphores-how-to-synchronize-threads
-    class Semaphore {
-    public:
-        Semaphore (int count = 0)
-            : _count(count) {}
-
-        inline void notify()
-        {
-            std::unique_lock<std::mutex> lock(_mtx);
-            ++_count;
-            _cv.notify_one();
-        }
-
-        inline void wait()
-        {
-            std::unique_lock<std::mutex> lock(_mtx);
-
-            while (_count == 0) {
-                _cv.wait(lock);
-            }
-            _count--;
-        }
-
-    private:
-        std::mutex _mtx;
-        std::condition_variable _cv;
-        int _count;
-    };
-
-}
 
 namespace SafeLists {
 

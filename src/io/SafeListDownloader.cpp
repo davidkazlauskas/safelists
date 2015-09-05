@@ -12,16 +12,25 @@
 TEMPLATIOUS_TRIPLET_STD;
 
 namespace {
-    //SafeLists::IntervalList listForPath(
-        //const std::string& path,
-        //int64_t size
-    //)
-    //{
-        //std::string listPath = path + ".ilist";
-        //std::ifstream target(listPath.c_str());
-        ////if (!target.is_open()) {
-        ////}
-    //}
+    SafeLists::IntervalList listForPath(
+        const std::string& path,
+        int64_t size
+    )
+    {
+        std::string listPath = path + ".ilist";
+        std::ifstream target(listPath.c_str());
+        if (!target.is_open()) {
+            if (size > 0) {
+                return SafeLists::IntervalList(
+                    SafeLists::Interval(0,size)
+                );
+            } else {
+                return SafeLists::IntervalList(
+                    SafeLists::Interval()
+                );
+            }
+        }
+    }
 }
 
 namespace SafeLists {

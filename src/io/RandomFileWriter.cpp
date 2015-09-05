@@ -1,15 +1,18 @@
 
+#include <util/Semaphore.hpp>
+
 #include "RandomFileWriter.hpp"
 #include "RandomFileWriterImpl.hpp"
 
 namespace SafeLists {
 
 struct RandomFileWriterImpl : public Messageable {
-    RandomFileWriterImpl() : _cache(16) // default
+    RandomFileWriterImpl() : _writeCache(16) // default
     {}
 
     void message(const std::shared_ptr< templatious::VirtualPack >& msg) override {
-        // todo
+        _msgCache.enqueue(msg);
+        _sem.notify();
     }
 
     void message(templatious::VirtualPack& msg) override {
@@ -27,7 +30,9 @@ struct RandomFileWriterImpl : public Messageable {
     }
 
 private:
-    RandomFileWriteCache _cache;
+    RandomFileWriteCache _writeCache;
+    StackOverflow::Semaphore _sem;
+    MessageCache _msgCache;
 };
 
 // singleton

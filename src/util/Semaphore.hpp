@@ -2,6 +2,7 @@
 #define SEMAPHORE_UJFQCGWA
 
 #include <mutex>
+#include <condition_variable>
 
 namespace StackOverflow {
 

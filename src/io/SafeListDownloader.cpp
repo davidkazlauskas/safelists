@@ -25,9 +25,17 @@ struct SafeListDownloaderImpl : public Messageable {
     }
 
     static std::shared_ptr< SafeListDownloaderImpl > startSession(
-            const char* path)
+        const char* path,
+        const StrongMsgPtr& fileWriter,
+        const StrongMsgPtr& fileDownloader,
+        const StrongMsgPtr& toNotify)
     {
-        return nullptr;
+        auto result = std::make_shared< SafeListDownloaderImpl >(
+            path,
+            fileWriter,
+            fileDownloader,
+            toNotify);
+        return result;
     }
 private:
     std::string _path;

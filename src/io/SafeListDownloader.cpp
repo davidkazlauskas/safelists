@@ -35,6 +35,11 @@ struct SafeListDownloaderImpl : public Messageable {
             fileWriter,
             fileDownloader,
             toNotify);
+        WeakMsgPtr weakNotify = toNotify;
+        std::thread(
+            [=]() {
+            }
+        ).detach();
         return result;
     }
 private:

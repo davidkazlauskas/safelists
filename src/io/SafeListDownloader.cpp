@@ -182,7 +182,11 @@ private:
 
             TEMPLATIOUS_FOREACH(auto& i,toDownload) {
                 if (nullptr == i._downloadJob) {
-
+                    i._downloadJob =
+                        std::make_shared< SingleDownloadJob >(
+                            impl,
+                            i._id
+                        );
                 }
             }
 

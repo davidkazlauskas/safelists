@@ -8,6 +8,13 @@ struct SafeListDownloaderImpl : public Messageable {
     SafeListDownloaderImpl() = delete;
     SafeListDownloaderImpl(const SafeListDownloaderImpl&) = delete;
     SafeListDownloaderImpl(SafeListDownloaderImpl&&) = delete;
+    SafeListDownloaderImpl(
+            const char* path,
+            const StrongMsgPtr& fileWriter,
+            const StrongMsgPtr& fileDownloader,
+            const StrongMsgPtr& toNotify
+    ) : _path(path)
+    {}
 
     void message(const std::shared_ptr< templatious::VirtualPack >& msg) override {
         _cache.enqueue(msg);

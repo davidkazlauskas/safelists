@@ -1,12 +1,28 @@
 
+#include <fstream>
+
 #include <sqlite3.h>
 #include <util/DumbHash.hpp>
 #include <util/ScopeGuard.hpp>
 #include <util/Semaphore.hpp>
+#include <io/Interval.hpp>
 
 #include "SafeListDownloader.hpp"
 
 TEMPLATIOUS_TRIPLET_STD;
+
+namespace {
+    //SafeLists::IntervalList listForPath(
+        //const std::string& path,
+        //int64_t size
+    //)
+    //{
+        //std::string listPath = path + ".ilist";
+        //std::ifstream target(listPath.c_str());
+        ////if (!target.is_open()) {
+        ////}
+    //}
+}
 
 namespace SafeLists {
 
@@ -187,6 +203,10 @@ private:
                             impl,
                             i._id
                         );
+
+                    //auto job = SF::vpackPtr<
+
+                    //>();
                 }
             }
 

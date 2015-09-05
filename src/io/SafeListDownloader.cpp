@@ -143,7 +143,7 @@ private:
             "LEFT OUTER JOIN to_download ON mirrors.id=to_download.id"
             "WHERE status=0"
             "ORDER BY priority DESC, use_count ASC"
-            "LIMIT 5"
+            "LIMIT %d"
             ");";
 
         do {
@@ -159,6 +159,24 @@ private:
                     &downloadQueryCallback,
                     &toDownload,
                     &errMsg);
+
+                if (res != 0) {
+                    printf("Failed, pookie: %s\n",errMsg);
+                }
+                assert( res == 0 && "Should werk milky..." );
+
+                sprintf(queryBuf,UPDATE_STATUS_QUERY,diff);
+                res = sqlite3_exec(
+                    conn,
+                    queryBuf,
+                    nullptr,
+                    nullptr,
+                    &errMsg);
+
+                if (res != 0) {
+                    printf("Failed, pookie: %s\n",errMsg);
+                }
+                assert( res == 0 && "Should werk milky..." );
             }
 
             TEMPLATIOUS_FOREACH(auto& i,toDownload) {

@@ -94,6 +94,8 @@ private:
 
         TDVec toDownload;
 
+        const int KEEP_NUM = 5;
+
         char queryBuf[512];
         char* errMsg = nullptr;
         const char* FIRST_QUERY =
@@ -101,21 +103,28 @@ private:
             " LEFT OUTER JOIN to_download ON mirrors.id=to_download.id"
             " ORDER BY priority DESC, use_count ASC"
             " LIMIT %d;";
-        sprintf(queryBuf,FIRST_QUERY,5);
-        res = sqlite3_exec(
-                conn,
-                queryBuf,
-                &downloadQueryCallback,
-                &toDownload,
-                &errMsg);
 
-        while (SA::size(toDownload) > 0) {
+        do {
+            // proc messages
+
+            auto currSize = SA::size(toDownload);
+            int diff = KEEP_NUM - currSize;
+            if (diff > 0) {
+                sprintf(queryBuf,FIRST_QUERY,diff);
+                res = sqlite3_exec(
+                    conn,
+                    queryBuf,
+                    &downloadQueryCallback,
+                    &toDownload,
+                    &errMsg);
+            }
+
             TEMPLATIOUS_FOREACH(auto& i,toDownload) {
-
+                // schedule
             }
 
             _sem.wait();
-        }
+        } while (SA::size(toDownload) > 0);
     }
 
     std::string _path;

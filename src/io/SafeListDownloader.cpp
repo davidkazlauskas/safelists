@@ -52,6 +52,10 @@ private:
     void mainLoop(const std::shared_ptr< SafeListDownloaderImpl >& impl) {
         sqlite3* conn = nullptr;
         int res = sqlite3_open(_path.c_str(),&conn);
+        if (0 != res) {
+            assert( false &&
+                "Todo, message to notify that session doesn't exist.");
+        }
     }
 
     std::string _path;

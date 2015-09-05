@@ -58,9 +58,14 @@ private:
                 "Todo, message to notify that session doesn't exist.");
         }
 
+        bool isFinished = false;
+
         auto sqliteGuard = makeScopeGuard(
             [&]() {
                 sqlite3_close(conn);
+                if (isFinished) {
+                    std::remove(_path.c_str());
+                }
             }
         );
     }

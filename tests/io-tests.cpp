@@ -4,6 +4,7 @@
 
 #include <templatious/FullPack.hpp>
 #include <io/RandomFileWriterImpl.cpp>
+#include <io/RandomFileWriter.hpp>
 
 #include "catch.hpp"
 
@@ -188,4 +189,45 @@ TEST_CASE("io_dynamic_read_write_create","[io]") {
 
         REQUIRE( 0 == strcmp(arr,str) );
     }
+}
+
+TEST_CASE("io_actor_random_file_writer","[io]") {
+    using namespace SafeLists;
+    FileEraser er;
+    SA::add(er._files,"a.txt");
+    const char* str = "dovahkiin";
+
+    auto writer = RandomFileWriter::make();
+
+    typedef std::unique_ptr< char[] > BufPtr;
+    BufPtr buffer( new char[strlen(str)] );
+    memcpy(buffer.get(),str,strlen(str));
+
+    auto writeMessage = SF::vpackPtr<
+        RandomFileWriter::WriteData,
+        std::string,
+        BufPtr,
+        int64_t,
+        int64_t
+    >(
+        nullptr,
+        "a.txt",
+        std::move(buffer),
+        0,
+        strlen(str)
+    );
+    writer->message(writeMessage);
+    auto closeMessage = SF::vpackPtrCustom<
+        templatious::VPACK_WAIT,
+        RandomFileWriter::ClearCache
+    >(nullptr);
+    writer->message(closeMessage);
+    closeMessage->wait();
+
+    RandomFileWriteHandle reader("a.txt",-1);
+    char buf[64];
+    reader.read(buf,0,strlen(str));
+    buf[strlen(str)] = '\0';
+
+    REQUIRE( 0 == strcmp(str,buf) );
 }

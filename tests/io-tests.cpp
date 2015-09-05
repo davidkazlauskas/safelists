@@ -3,7 +3,7 @@
 #include <cstring>
 
 #include <templatious/FullPack.hpp>
-#include <io/RandomFileWriter.hpp>
+#include <io/RandomFileWriterImpl.cpp>
 
 #include "catch.hpp"
 

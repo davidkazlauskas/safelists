@@ -34,7 +34,7 @@ SET( DOMAIN_SOURCES
     src/model/SqliteRanger.cpp
     src/util/AutoReg.cpp
     src/util/Misc.cpp
-    src/io/RandomFileWriter.cpp
+    src/io/RandomFileWriterImpl.cpp
     src/io/Interval.cpp
     src/io/AsyncDownloader.cpp
     src/io/SafeListDownloader.cpp

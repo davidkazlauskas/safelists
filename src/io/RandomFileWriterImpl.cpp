@@ -2,7 +2,7 @@
 #include <fstream>
 #include <templatious/FullPack.hpp>
 
-#include "RandomFileWriter.hpp"
+#include "RandomFileWriterImpl.hpp"
 
 TEMPLATIOUS_TRIPLET_STD;
 

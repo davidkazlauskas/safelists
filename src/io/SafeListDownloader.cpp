@@ -2,6 +2,7 @@
 #include <sqlite3.h>
 #include <util/DumbHash.hpp>
 #include <util/ScopeGuard.hpp>
+#include <util/Semaphore.hpp>
 
 #include "SafeListDownloader.hpp"
 
@@ -112,6 +113,7 @@ private:
     StrongMsgPtr _fileDownloader;
     WeakMsgPtr _toNotify;
     MessageCache _cache;
+    StackOverflow::Semaphore _sem;
 };
 
 StrongMsgPtr SafeListDownloader::startNew(

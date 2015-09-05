@@ -188,6 +188,8 @@ private:
 
             _sem.wait();
         } while (SA::size(toDownload) > 0);
+
+        isFinished = true;
     }
 
     std::string _path;

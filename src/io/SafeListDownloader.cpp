@@ -111,10 +111,11 @@ private:
         }
 
         bool isFinished = false;
-
+        _currentConnection = conn;
         auto sqliteGuard = makeScopeGuard(
             [&]() {
                 sqlite3_close(conn);
+                this->_currentConnection = nullptr;
                 if (isFinished) {
                     std::remove(_path.c_str());
                 }
@@ -193,6 +194,7 @@ private:
     StrongMsgPtr _fileWriter;
     StrongMsgPtr _fileDownloader;
     WeakMsgPtr _toNotify;
+    sqlite3* _currentConnection;
     MessageCache _cache;
     StackOverflow::Semaphore _sem;
 };

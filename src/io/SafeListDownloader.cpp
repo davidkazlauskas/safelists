@@ -57,6 +57,12 @@ private:
             assert( false &&
                 "Todo, message to notify that session doesn't exist.");
         }
+
+        auto sqliteGuard = makeScopeGuard(
+            [&]() {
+                sqlite3_close(conn);
+            }
+        );
     }
 
     std::string _path;

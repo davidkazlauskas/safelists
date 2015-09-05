@@ -9,10 +9,10 @@ struct SafeListDownloaderImpl : public Messageable {
     SafeListDownloaderImpl(const SafeListDownloaderImpl&) = delete;
     SafeListDownloaderImpl(SafeListDownloaderImpl&&) = delete;
     SafeListDownloaderImpl(
-            const char* path,
-            const StrongMsgPtr& fileWriter,
-            const StrongMsgPtr& fileDownloader,
-            const StrongMsgPtr& toNotify
+        const char* path,
+        const StrongMsgPtr& fileWriter,
+        const StrongMsgPtr& fileDownloader,
+        const StrongMsgPtr& toNotify
     ) : _path(path)
     {}
 

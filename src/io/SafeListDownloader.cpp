@@ -93,11 +93,18 @@ private:
 
         TDVec toDownload;
 
+        char* errMsg = nullptr;
         const char* FIRST_QUERY =
             "SELECT mirrors.id,file_size,link,file_path FROM mirrors"
             " LEFT OUTER JOIN to_download ON mirrors.id=to_download.id"
             " ORDER BY priority DESC, use_count ASC"
             " LIMIT 5;";
+        res = sqlite3_exec(
+                conn,
+                FIRST_QUERY,
+                &downloadQueryCallback,
+                &toDownload,
+                &errMsg);
     }
 
     std::string _path;

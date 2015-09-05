@@ -13,7 +13,11 @@ struct SafeListDownloaderImpl : public Messageable {
         const StrongMsgPtr& fileWriter,
         const StrongMsgPtr& fileDownloader,
         const StrongMsgPtr& toNotify
-    ) : _path(path)
+    ) :
+        _path(path),
+        _fileWriter(fileWriter),
+        _fileDownloader(fileDownloader),
+        _toNotify(toNotify)
     {}
 
     void message(const std::shared_ptr< templatious::VirtualPack >& msg) override {
@@ -35,7 +39,6 @@ struct SafeListDownloaderImpl : public Messageable {
             fileWriter,
             fileDownloader,
             toNotify);
-        WeakMsgPtr weakNotify = toNotify;
         std::thread(
             [=]() {
                 result->mainLoop(result);
@@ -49,6 +52,9 @@ private:
     }
 
     std::string _path;
+    StrongMsgPtr _fileWriter;
+    StrongMsgPtr _fileDownloader;
+    WeakMsgPtr _toNotify;
     MessageCache _cache;
 };
 

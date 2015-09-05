@@ -38,11 +38,16 @@ struct SafeListDownloaderImpl : public Messageable {
         WeakMsgPtr weakNotify = toNotify;
         std::thread(
             [=]() {
+                result->mainLoop(result);
             }
         ).detach();
         return result;
     }
 private:
+    void mainLoop(const std::shared_ptr< SafeListDownloaderImpl >& impl) {
+
+    }
+
     std::string _path;
     MessageCache _cache;
 };

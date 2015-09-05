@@ -7,9 +7,8 @@ namespace SafeLists {
 
 template <class T>
 struct ScopeGuard {
-    template <class V>
-    ScopeGuard(V&& function) :
-        _use(true), _f(std::forward<V>(function))
+    ScopeGuard(T&& function) :
+        _use(true), _f(std::move(function))
     {}
 
     void dismiss() {

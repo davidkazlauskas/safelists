@@ -4,6 +4,7 @@
 #include "catch.hpp"
 
 #include <util/DumbHash.hpp>
+#include <util/ScopeGuard.hpp>
 
 TEMPLATIOUS_TRIPLET_STD;
 
@@ -115,4 +116,31 @@ TEST_CASE("dumb_hash_the_cake","[util]") {
     std::string aStr = strA;
     std::string bStr = strB;
     REQUIRE( aStr == bStr );
+}
+
+TEST_CASE("scope_guard_simple","[util]") {
+    bool called = false;
+    {
+        auto g = SafeLists::makeScopeGuard(
+            [&]() {
+                called = true;
+            }
+        );
+    }
+
+    REQUIRE( called );
+}
+
+TEST_CASE("scope_guard_dismiss","[util]") {
+    bool called = false;
+    {
+        auto g = SafeLists::makeScopeGuard(
+            [&]() {
+                called = true;
+            }
+        );
+        g.dismiss();
+    }
+
+    REQUIRE( !called );
 }

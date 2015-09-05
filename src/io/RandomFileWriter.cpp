@@ -18,6 +18,11 @@ struct RandomFileWriterImpl : public Messageable {
 
     static std::shared_ptr< RandomFileWriterImpl > spinNew() {
         auto result = std::make_shared< RandomFileWriterImpl >();
+        std::thread(
+            [=]() {
+
+            }
+        ).detach();
         return result;
     }
 

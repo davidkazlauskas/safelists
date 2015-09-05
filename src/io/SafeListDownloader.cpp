@@ -54,6 +54,7 @@ struct SafeListDownloaderImpl : public Messageable {
 private:
     struct ToDownloadList {
         int _id;
+        int64_t _size;
         std::string _link;
         std::string _path;
     };
@@ -63,9 +64,11 @@ private:
     static int downloadQueryCallback(void* userdata,int column,char** header,char** value) {
         TDVec& list = *reinterpret_cast< TDVec* >(userdata);
         SA::add(list,ToDownloadList());
-        list.back()._id = std::atoi(value[0]);
-        list.back()._link = std::atoi(value[1]);
-        list.back()._path = std::atoi(value[2]);
+        auto& back = list.back();
+        back._id = std::atoi(value[0]);
+        back._size = std::stoi(value[1]);
+        back._link = std::atoi(value[2]);
+        back._path = std::atoi(value[3]);
         return 0;
     }
 

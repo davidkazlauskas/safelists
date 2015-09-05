@@ -82,7 +82,8 @@ private:
 
 // singleton
 StrongMsgPtr RandomFileWriter::make() {
-    return nullptr;
+    static auto theOne = RandomFileWriterImpl::spinNew();
+    return theOne;
 }
 
 }

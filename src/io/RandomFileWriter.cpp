@@ -4,6 +4,8 @@
 #include "RandomFileWriter.hpp"
 #include "RandomFileWriterImpl.hpp"
 
+TEMPLATIOUS_TRIPLET_STD;
+
 namespace SafeLists {
 
 struct RandomFileWriterImpl : public Messageable {
@@ -31,9 +33,24 @@ struct RandomFileWriterImpl : public Messageable {
     }
 
 private:
+    typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
+
+    VmfPtr genHandler() {
+        typedef RandomFileWriter RFW;
+        return SF::virtualMatchFunctorPtr(
+            SF::virtualMatch< RFW::ClearCache >(
+                [=](RFW::ClearCache) {
+
+                }
+            )
+        );
+    }
 
     void processLoop(const std::shared_ptr< RandomFileWriterImpl >& impl) {
+        while (!impl.unique()) {
+            _sem.wait();
 
+        }
     }
 
     RandomFileWriteCache _writeCache;

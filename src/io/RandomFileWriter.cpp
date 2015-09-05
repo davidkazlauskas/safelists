@@ -66,7 +66,11 @@ private:
     void processLoop(const std::shared_ptr< RandomFileWriterImpl >& impl) {
         while (!impl.unique()) {
             _sem.wait();
-
+            _msgCache.process(
+                [=](templatious::VirtualPack& pack) {
+                    this->_handler->tryMatch(pack);
+                }
+            );
         }
     }
 

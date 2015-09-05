@@ -92,7 +92,12 @@ private:
         );
 
         TDVec toDownload;
-        //int res = sqlite3_exec()
+
+        const char* FIRST_QUERY =
+            "SELECT mirrors.id,file_size,link,file_path FROM mirrors"
+            " LEFT OUTER JOIN to_download ON mirrors.id=to_download.id"
+            " ORDER BY priority DESC, use_count ASC"
+            " LIMIT 5;";
     }
 
     std::string _path;

@@ -153,15 +153,15 @@ private:
 
         const char* UPDATE_STATUS_QUERY =
             "UPDATE to_download"
-            "SET status=1"
-            "WHERE id IN"
-            "("
-            "SELECT mirrors.id FROM mirrors"
-            "LEFT OUTER JOIN to_download ON mirrors.id=to_download.id"
-            "WHERE status=0"
-            "ORDER BY priority DESC, use_count ASC"
-            "LIMIT %d"
-            ");";
+            " SET status=1"
+            " WHERE id IN"
+            " ("
+            " SELECT mirrors.id FROM mirrors"
+            " LEFT OUTER JOIN to_download ON mirrors.id=to_download.id"
+            " WHERE status=0"
+            " ORDER BY priority DESC, use_count ASC"
+            " LIMIT %d"
+            " );";
 
         do {
             // proc messages

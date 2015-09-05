@@ -10,6 +10,12 @@ TEMPLATIOUS_TRIPLET_STD;
 
 namespace SafeLists {
 
+struct SingleDownloadJob {
+
+private:
+    WeakMsgPtr _session;
+};
+
 struct SafeListDownloaderImpl : public Messageable {
     SafeListDownloaderImpl() = delete;
     SafeListDownloaderImpl(const SafeListDownloaderImpl&) = delete;

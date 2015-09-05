@@ -1,6 +1,7 @@
 
 #include <sqlite3.h>
 #include <util/DumbHash.hpp>
+#include <util/ScopeGuard.hpp>
 
 #include "SafeListDownloader.hpp"
 

@@ -545,6 +545,10 @@ Interval IntervalList::range() const {
     return _emptyInterval;
 }
 
+bool IntervalList::isDefined() const {
+    return _emptyInterval.isEmpty();
+}
+
 void writeIntervalList(const IntervalList& list,std::ostream& output) {
     const int SZ = sizeof(int64_t);
     char buf[SZ];

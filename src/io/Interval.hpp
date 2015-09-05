@@ -85,6 +85,8 @@ struct IntervalList {
     int64_t nonEmptyIntervalCount() const;
     Interval range() const;
 
+    bool isDefined() const;
+
 #ifdef SAFELISTS_TESTING
     bool checkIntegrity() const;
 #endif

@@ -1,5 +1,7 @@
 
+#include <sqlite3.h>
 #include <util/DumbHash.hpp>
+
 #include "SafeListDownloader.hpp"
 
 namespace SafeLists {
@@ -48,7 +50,8 @@ struct SafeListDownloaderImpl : public Messageable {
     }
 private:
     void mainLoop(const std::shared_ptr< SafeListDownloaderImpl >& impl) {
-
+        sqlite3* conn = nullptr;
+        int res = sqlite3_open(_path.c_str(),&conn);
     }
 
     std::string _path;

@@ -40,6 +40,19 @@ private:
     VmfPtr genHandler() {
         typedef RandomFileWriter RFW;
         return SF::virtualMatchFunctorPtr(
+            SF::virtualMatch<
+                RFW::WriteData,
+                std::string,
+                std::unique_ptr< char[] >,
+                int64_t,
+                int64_t
+            >(
+                [=](RFW::WriteData,const std::string& path,
+                    const std::unique_ptr< char[] >& data,
+                    int64_t start,int64_t end)
+                {
+                }
+            ),
             SF::virtualMatch< RFW::ClearCache >(
                 [=](RFW::ClearCache) {
                     this->_writeCache.clear();

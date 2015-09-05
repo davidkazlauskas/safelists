@@ -94,15 +94,17 @@ private:
 
         TDVec toDownload;
 
+        char queryBuf[512];
         char* errMsg = nullptr;
         const char* FIRST_QUERY =
             "SELECT mirrors.id,file_size,link,file_path FROM mirrors"
             " LEFT OUTER JOIN to_download ON mirrors.id=to_download.id"
             " ORDER BY priority DESC, use_count ASC"
-            " LIMIT 5;";
+            " LIMIT %d;";
+        sprintf(queryBuf,FIRST_QUERY,5);
         res = sqlite3_exec(
                 conn,
-                FIRST_QUERY,
+                queryBuf,
                 &downloadQueryCallback,
                 &toDownload,
                 &errMsg);

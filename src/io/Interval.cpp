@@ -546,7 +546,7 @@ Interval IntervalList::range() const {
 }
 
 bool IntervalList::isDefined() const {
-    return _emptyInterval.isEmpty();
+    return !_emptyInterval.isEmpty();
 }
 
 void writeIntervalList(const IntervalList& list,std::ostream& output) {

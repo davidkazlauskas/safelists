@@ -509,3 +509,16 @@ TEST_CASE("interval_list_write_read_test","[interval]") {
 
     REQUIRE( areIntervalListsEqual(list,out) );
 }
+
+TEST_CASE("interval_list_is_defined","[interval]") {
+    using namespace SafeLists;
+
+    Interval empty;
+    IntervalList listE(empty);
+
+    REQUIRE( !listE.isDefined() );
+
+    IntervalList listV(Interval(0,7));
+
+    REQUIRE( listV.isDefined() );
+}

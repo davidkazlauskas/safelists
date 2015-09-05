@@ -106,6 +106,14 @@ private:
                 &downloadQueryCallback,
                 &toDownload,
                 &errMsg);
+
+        while (SA::size(toDownload) > 0) {
+            TEMPLATIOUS_FOREACH(auto& i,toDownload) {
+
+            }
+
+            _sem.wait();
+        }
     }
 
     std::string _path;

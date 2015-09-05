@@ -12,7 +12,7 @@ namespace SafeLists {
 
 struct SingleDownloadJob : public Messageable {
     SingleDownloadJob(const StrongMsgPtr& session,int id) :
-        _session(session), _id(id)
+        _session(session), _id(id), _handler(genHandler())
     {}
 
     void message(const std::shared_ptr< templatious::VirtualPack >& msg) override {
@@ -25,8 +25,16 @@ struct SingleDownloadJob : public Messageable {
 private:
     typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
 
-    int _id;
+    VmfPtr genHandler() {
+        return SF::virtualMatchFunctorPtr(
+            SF::virtualMatch< int >(
+                [](int) {} // dummy
+            )
+        );
+    }
+
     WeakMsgPtr _session;
+    int _id;
     VmfPtr _handler;
 };
 
@@ -141,7 +149,9 @@ private:
             }
 
             TEMPLATIOUS_FOREACH(auto& i,toDownload) {
-                // schedule
+                if (nullptr == i._downloadJob) {
+
+                }
             }
 
             _sem.wait();

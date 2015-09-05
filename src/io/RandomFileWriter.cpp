@@ -9,7 +9,9 @@ TEMPLATIOUS_TRIPLET_STD;
 namespace SafeLists {
 
 struct RandomFileWriterImpl : public Messageable {
-    RandomFileWriterImpl() : _writeCache(16) // default
+    RandomFileWriterImpl() :
+        _writeCache(16), // default
+        _handler(genHandler())
     {}
 
     void message(const std::shared_ptr< templatious::VirtualPack >& msg) override {
@@ -40,7 +42,7 @@ private:
         return SF::virtualMatchFunctorPtr(
             SF::virtualMatch< RFW::ClearCache >(
                 [=](RFW::ClearCache) {
-
+                    this->_writeCache.clear();
                 }
             )
         );
@@ -56,6 +58,7 @@ private:
     RandomFileWriteCache _writeCache;
     StackOverflow::Semaphore _sem;
     MessageCache _msgCache;
+    VmfPtr _handler;
 };
 
 // singleton

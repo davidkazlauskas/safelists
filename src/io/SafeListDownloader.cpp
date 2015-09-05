@@ -10,10 +10,24 @@ TEMPLATIOUS_TRIPLET_STD;
 
 namespace SafeLists {
 
-struct SingleDownloadJob {
+struct SingleDownloadJob : public Messageable {
+    SingleDownloadJob(const StrongMsgPtr& session,int id) :
+        _session(session), _id(id)
+    {}
 
+    void message(const std::shared_ptr< templatious::VirtualPack >& msg) override {
+        assert( false && "Async disabled for SingleDownloadJob." );
+    }
+
+    void message(templatious::VirtualPack& msg) override {
+        _handler->tryMatch(msg);
+    }
 private:
+    typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
+
+    int _id;
     WeakMsgPtr _session;
+    VmfPtr _handler;
 };
 
 struct SafeListDownloaderImpl : public Messageable {

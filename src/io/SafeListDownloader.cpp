@@ -78,6 +78,7 @@ private:
         int64_t _size;
         std::string _link;
         std::string _path;
+        std::shared_ptr< SingleDownloadJob > _downloadJob;
     };
 
     typedef std::vector< ToDownloadList > TDVec;

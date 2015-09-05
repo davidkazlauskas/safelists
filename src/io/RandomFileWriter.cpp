@@ -21,15 +21,21 @@ struct RandomFileWriterImpl : public Messageable {
 
     static std::shared_ptr< RandomFileWriterImpl > spinNew() {
         auto result = std::make_shared< RandomFileWriterImpl >();
+        auto cpy = result; // being explicit... probably more than needed
         std::thread(
             [=]() {
-
+                cpy->processLoop(cpy);
             }
         ).detach();
         return result;
     }
 
 private:
+
+    void processLoop(const std::shared_ptr< RandomFileWriterImpl >& impl) {
+
+    }
+
     RandomFileWriteCache _writeCache;
     StackOverflow::Semaphore _sem;
     MessageCache _msgCache;

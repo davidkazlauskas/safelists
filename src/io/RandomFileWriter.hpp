@@ -18,6 +18,12 @@ struct RandomFileWriter {
     // >
     DUMMY_REG(WriteData,"RFW_WriteData");
 
+    // Clear cache. All handles removed
+    // and cache closed.
+    // Signature:
+    // < ClearCache >
+    DUMMY_REG(ClearCache,"RFW_ClearCache");
+
     // singleton
     static StrongMsgPtr make();
 };

@@ -38,6 +38,7 @@ SET( DOMAIN_SOURCES
     src/io/Interval.cpp
     src/io/AsyncDownloader.cpp
     src/io/SafeListDownloader.cpp
+    src/io/RandomFileWriter.cpp
     )
 
 include_directories(

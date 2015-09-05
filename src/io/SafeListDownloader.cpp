@@ -130,6 +130,7 @@ private:
         const char* FIRST_QUERY =
             "SELECT mirrors.id,file_size,link,file_path FROM mirrors"
             " LEFT OUTER JOIN to_download ON mirrors.id=to_download.id"
+            " WHERE status=0"
             " ORDER BY priority DESC, use_count ASC"
             " LIMIT %d;";
 

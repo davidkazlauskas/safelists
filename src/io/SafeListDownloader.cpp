@@ -109,9 +109,16 @@ private:
         typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
 
         VmfPtr genHandler() {
+            typedef SafeLists::AsyncDownloader AD;
             return SF::virtualMatchFunctorPtr(
-                SF::virtualMatch< int >(
-                    [](int) {} // dummy
+                SF::virtualMatch< AD::OutDownloadFinished >(
+                    [&](AD::OutDownloadFinished) {
+                        auto locked = _session.lock();
+                        if (nullptr != locked) {
+                            auto msg = SF::vpackPtr< FinishedDownload >(nullptr);
+                            locked->message(msg);
+                        }
+                    }
                 )
             );
         }

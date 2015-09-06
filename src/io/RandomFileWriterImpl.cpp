@@ -165,10 +165,11 @@ auto RandomFileWriteCache::getItem(const char* path,int64_t size) -> WriterPtr {
         return ref;
     }
 
+    auto copyResult = *out;
     std::swap(_vec[currCachePoint],_vec[outPos]);
 
     // move item forward to be cache hot
-    return *out;
+    return copyResult;
 }
 
 bool RandomFileWriteCache::isCached(const char* path) const {

@@ -112,9 +112,9 @@ private:
     };
 
     static int downloadQueryCallback(void* userdata,int column,char** header,char** value) {
-        SafeListDownloaderImpl& self = *reinterpret_cast<
-            SafeListDownloaderImpl* >(userdata);
-        TDVec& list = self._jobs;
+        auto& self = *reinterpret_cast<
+            std::shared_ptr<SafeListDownloaderImpl>* >(userdata);
+        TDVec& list = self->_jobs;
         auto newList = std::make_shared< ToDownloadList >(self);
         SA::add(list,newList);
         auto& back = list.back();
@@ -168,6 +168,7 @@ private:
             " LIMIT %d"
             " );";
 
+        auto implCpy = impl;
         do {
             // proc messages
 
@@ -179,7 +180,7 @@ private:
                     conn,
                     queryBuf,
                     &downloadQueryCallback,
-                    this,
+                    &implCpy,
                     &errMsg);
 
                 if (res != 0) {
@@ -218,7 +219,7 @@ private:
                     >(
                         nullptr,
                         std::move(intervals),
-                        [](int64_t pre,int64_t post) {
+                        [](const char* buf,int64_t pre,int64_t post) {
                             return true;
                         },
                         i

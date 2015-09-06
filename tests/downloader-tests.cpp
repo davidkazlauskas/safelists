@@ -4,6 +4,7 @@
 #include <boost/filesystem.hpp>
 #include <io/AsyncDownloader.hpp>
 #include <io/Interval.hpp>
+#include <io/RandomFileWriter.hpp>
 
 #include "catch.hpp"
 
@@ -82,5 +83,6 @@ TEST_CASE("safelist_downloader_example_download","[safelist_downloader]") {
     fs::create_directory(dlPath);
     fs::copy_file("exampleData/dlsessions/2/safelist_session",dlPathAbs);
 
-    auto writer = testDownloader();
+    auto downloader = testDownloader();
+    auto writer = SafeLists::RandomFileWriter::make();
 }

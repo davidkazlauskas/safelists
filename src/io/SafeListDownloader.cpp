@@ -224,6 +224,10 @@ private:
                         },
                         i
                     );
+
+                    i->_hasStarted = true;
+                    // TODO: send the message,
+                    // do something with buffer
                 }
             }
 

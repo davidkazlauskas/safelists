@@ -34,34 +34,6 @@ namespace {
 
 namespace SafeLists {
 
-struct SingleDownloadJob : public Messageable {
-    SingleDownloadJob(const StrongMsgPtr& session,int id) :
-        _session(session), _id(id), _handler(genHandler())
-    {}
-
-    void message(const std::shared_ptr< templatious::VirtualPack >& msg) override {
-        assert( false && "Async disabled for SingleDownloadJob." );
-    }
-
-    void message(templatious::VirtualPack& msg) override {
-        _handler->tryMatch(msg);
-    }
-private:
-    typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
-
-    VmfPtr genHandler() {
-        return SF::virtualMatchFunctorPtr(
-            SF::virtualMatch< int >(
-                [](int) {} // dummy
-            )
-        );
-    }
-
-    WeakMsgPtr _session;
-    int _id;
-    VmfPtr _handler;
-};
-
 struct SafeListDownloaderImpl : public Messageable {
     SafeListDownloaderImpl() = delete;
     SafeListDownloaderImpl(const SafeListDownloaderImpl&) = delete;
@@ -105,24 +77,51 @@ struct SafeListDownloaderImpl : public Messageable {
         return result;
     }
 private:
-    struct ToDownloadList {
+    struct ToDownloadList : public Messageable {
+        ToDownloadList(const StrongMsgPtr& session,int id) :
+            _session(session), _id(id), _handler(genHandler()),
+            _hasStarted(false), _hasEnded(false)
+        {}
+
+        void message(const std::shared_ptr< templatious::VirtualPack >& msg) override {
+            assert( false && "Async disabled for ToDownloadList." );
+        }
+
+        void message(templatious::VirtualPack& msg) override {
+            _handler->tryMatch(msg);
+        }
+
+        typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
+
+        VmfPtr genHandler() {
+            return SF::virtualMatchFunctorPtr(
+                SF::virtualMatch< int >(
+                    [](int) {} // dummy
+                )
+            );
+        }
+
+        WeakMsgPtr _session;
         int _id;
         int64_t _size;
         std::string _link;
         std::string _path;
-        std::shared_ptr< SingleDownloadJob > _downloadJob;
+        VmfPtr _handler;
+        bool _hasStarted;
+        bool _hasEnded;
     };
 
-    typedef std::vector< ToDownloadList > TDVec;
-
     static int downloadQueryCallback(void* userdata,int column,char** header,char** value) {
-        TDVec& list = *reinterpret_cast< TDVec* >(userdata);
-        SA::add(list,ToDownloadList());
+        SafeListDownloaderImpl& self = *reinterpret_cast<
+            SafeListDownloaderImpl* >(userdata);
+        TDVec& list = self._jobs;
+        auto newList = std::make_shared< ToDownloadList >();
+        SA::add(list,newList);
         auto& back = list.back();
-        back._id = std::atoi(value[0]);
-        back._size = std::stoi(value[1]);
-        back._link = std::atoi(value[2]);
-        back._path = std::atoi(value[3]);
+        newList->_id = std::atoi(value[0]);
+        newList->_size = std::stoi(value[1]);
+        newList->_link = std::atoi(value[2]);
+        newList->_path = std::atoi(value[3]);
         return 0;
     }
 
@@ -145,8 +144,6 @@ private:
                 }
             }
         );
-
-        TDVec toDownload;
 
         const int KEEP_NUM = 5;
 
@@ -174,7 +171,7 @@ private:
         do {
             // proc messages
 
-            auto currSize = SA::size(toDownload);
+            auto currSize = SA::size(_jobs);
             int diff = KEEP_NUM - currSize;
             if (diff > 0) {
                 sprintf(queryBuf,FIRST_QUERY,diff);
@@ -182,7 +179,7 @@ private:
                     conn,
                     queryBuf,
                     &downloadQueryCallback,
-                    &toDownload,
+                    this,
                     &errMsg);
 
                 if (res != 0) {
@@ -204,19 +201,14 @@ private:
                 assert( res == 0 && "Should werk milky..." );
             }
 
-            TEMPLATIOUS_FOREACH(auto& i,toDownload) {
-                if (nullptr == i._downloadJob) {
-                    i._downloadJob =
-                        std::make_shared< SingleDownloadJob >(
-                            impl,
-                            i._id
-                        );
+            TEMPLATIOUS_FOREACH(auto& i,_jobs) {
+                if (!i->_hasStarted) {
 
                     typedef std::function<
                         bool(const char*,int64_t,int64_t)
                     > ByteFunction;
 
-                    auto intervals = listForPath(i._path,i._size);
+                    auto intervals = listForPath(i->_path,i->_size);
                     typedef AsyncDownloader AD;
                     auto job = SF::vpackPtr<
                         AD::ScheduleDownload,
@@ -229,16 +221,18 @@ private:
                         [](int64_t pre,int64_t post) {
 
                         },
-                        i._downloadJob
+                        i
                     );
                 }
             }
 
             _sem.wait();
-        } while (SA::size(toDownload) > 0);
+        } while (SA::size(_jobs) > 0);
 
         isFinished = true;
     }
+
+    typedef std::vector< std::shared_ptr<ToDownloadList> > TDVec;
 
     std::string _path;
     StrongMsgPtr _fileWriter;
@@ -247,6 +241,7 @@ private:
     sqlite3* _currentConnection;
     MessageCache _cache;
     StackOverflow::Semaphore _sem;
+    TDVec _jobs;
 };
 
 StrongMsgPtr SafeListDownloader::startNew(

@@ -202,6 +202,8 @@ private:
                 }
             );
 
+            updateRemaining();
+
             auto currSize = SA::size(_jobs);
             int diff = KEEP_NUM - currSize;
             if (diff > 0) {
@@ -281,6 +283,17 @@ private:
         } while (SA::size(_jobs) > 0);
 
         isFinished = true;
+    }
+
+    void updateRemaining() {
+        SA::clear(
+            SF::filter(
+                _jobs,
+                [](const std::shared_ptr<ToDownloadList>& dl) {
+                    return dl->_hasEnded;
+                }
+            )
+        );
     }
 
     typedef std::vector< std::shared_ptr<ToDownloadList> > TDVec;

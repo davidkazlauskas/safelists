@@ -81,6 +81,7 @@ TEST_CASE("safelist_downloader_example_download","[safelist_downloader]") {
     std::string dlPathAbs = dlPath;
     dlPathAbs += "/safelist_session";
     namespace fs = boost::filesystem;
+    fs::remove_all(dlPath);
     fs::create_directory(dlPath);
     fs::copy_file("exampleData/dlsessions/2/safelist_session",dlPathAbs);
 

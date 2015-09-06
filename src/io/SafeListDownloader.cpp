@@ -113,6 +113,7 @@ private:
             return SF::virtualMatchFunctorPtr(
                 SF::virtualMatch< AD::OutDownloadFinished >(
                     [&](AD::OutDownloadFinished) {
+                        this->_hasEnded = true;
                         auto locked = _session.lock();
                         if (nullptr != locked) {
                             auto msg = SF::vpackPtr< FinishedDownload >(nullptr);

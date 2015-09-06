@@ -52,7 +52,7 @@ private:
                     int64_t start,int64_t end)
                 {
                 auto writer = _writeCache.getItem(path.c_str(),-1);
-                writer->write(data.get(),start,end);
+                writer->write(data.get(),start,end-start);
                 }
             ),
             SF::virtualMatch< RFW::ClearCache >(

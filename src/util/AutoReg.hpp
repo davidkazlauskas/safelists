@@ -30,6 +30,12 @@
         char _var;                                                                   \
     };
 
+// register for native only use
+#define DUMMY_REG_NATIVE(name)  \
+    struct name {                                                                    \
+        template <class Any> name(Any&&) {}                                          \
+    };
+
 namespace SafeLists {
 
 template <class T>

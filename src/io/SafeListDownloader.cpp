@@ -53,6 +53,7 @@ struct SafeListDownloaderImpl : public Messageable {
 
     void message(const std::shared_ptr< templatious::VirtualPack >& msg) override {
         _cache.enqueue(msg);
+        _sem.notify();
     }
 
     void message(templatious::VirtualPack& msg) override {

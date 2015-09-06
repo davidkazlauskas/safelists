@@ -18,13 +18,19 @@ namespace {
         }
         return true;
     }
+
+    StrongMsgPtr testDownloader() {
+        typedef SafeLists::AsyncDownloader AD;
+        static auto imitation = AD::createNew("imitation");
+        return imitation;
+    }
 }
 
 TEST_CASE("async_downloader_dummy","[async_downloader]") {
-    typedef SafeLists::AsyncDownloader AD;
-    auto downloader = AD::createNew("imitation");
+    auto downloader = testDownloader();
     typedef SafeLists::Interval Int;
     typedef SafeLists::IntervalList IntList;
+    typedef SafeLists::AsyncDownloader AD;
 
     std::unique_ptr< std::promise<void> > prom( new std::promise<void> );
     auto future = prom->get_future();
@@ -75,4 +81,6 @@ TEST_CASE("safelist_downloader_example_download","[safelist_downloader]") {
     namespace fs = boost::filesystem;
     fs::create_directory(dlPath);
     fs::copy_file("exampleData/dlsessions/2/safelist_session",dlPathAbs);
+
+    auto writer = testDownloader();
 }

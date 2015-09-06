@@ -212,14 +212,25 @@ private:
                             i._id
                         );
 
+                    typedef std::function<
+                        bool(const char*,int64_t,int64_t)
+                    > ByteFunction;
+
+                    auto intervals = listForPath(i._path,i._size);
                     typedef AsyncDownloader AD;
-                    //auto job = SF::vpackPtr<
-                        //AD::ScheduleDownload,
-                        //IntervalList,
-                        //ByteFunction,
-                        //std::weak_ptr< Messageable >
-                    //>(nullptr,
-                      //);
+                    auto job = SF::vpackPtr<
+                        AD::ScheduleDownload,
+                        IntervalList,
+                        ByteFunction,
+                        std::weak_ptr< Messageable >
+                    >(
+                        nullptr,
+                        std::move(intervals),
+                        [](int64_t pre,int64_t post) {
+
+                        },
+                        i._downloadJob
+                    );
                 }
             }
 

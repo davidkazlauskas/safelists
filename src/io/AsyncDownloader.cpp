@@ -323,6 +323,13 @@ namespace SafeLists {
                         const ByteFunction& func,
                         const std::weak_ptr< Messageable >& wmsg)
                     {
+                        if (!interval.isDefined()) {
+                            IntervalList predefined(Interval(0,77777));
+                            ImitationPtr newImitation(
+                                new DownloadJobImitation(std::move(predefined),func,wmsg) );
+                            SA::add(_imitationVector,std::move(newImitation));
+                            return;
+                        }
                         ImitationPtr newImitation(
                             new DownloadJobImitation(std::move(interval),func,wmsg) );
                         SA::add(_imitationVector,std::move(newImitation));

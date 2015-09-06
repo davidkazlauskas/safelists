@@ -1,6 +1,7 @@
 
 #include <templatious/FullPack.hpp>
 #include <templatious/detail/DynamicVirtualMatchFunctor.hpp>
+#include <boost/filesystem.hpp>
 #include <io/AsyncDownloader.hpp>
 #include <io/Interval.hpp>
 
@@ -68,5 +69,10 @@ TEST_CASE("async_downloader_dummy","[async_downloader]") {
 }
 
 TEST_CASE("safelist_downloader_example_download","[safelist_downloader]") {
-
+    const char* dlPath = "downloadtest1";
+    std::string dlPathAbs = dlPath;
+    dlPathAbs += "/safelist_session";
+    namespace fs = boost::filesystem;
+    fs::create_directory(dlPath);
+    fs::copy_file("exampleData/dlsessions/2/safelist_session",dlPathAbs);
 }

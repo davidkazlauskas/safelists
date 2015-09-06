@@ -280,8 +280,7 @@ private:
                     );
 
                     i->_hasStarted = true;
-                    // TODO: send the message,
-                    // do something with buffer
+                    _fileDownloader->message(job);
                 }
             }
 

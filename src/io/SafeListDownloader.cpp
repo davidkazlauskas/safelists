@@ -162,6 +162,12 @@ private:
         _currentConnection = conn;
         auto sqliteGuard = makeScopeGuard(
             [&]() {
+                auto locked = this->_toNotify.lock();
+                if (nullptr == locked) {
+                    auto msg = SF::vpack<
+                        SafeListDownloader::OutDone >(nullptr);
+                    locked->message(msg);
+                }
                 sqlite3_close(conn);
                 this->_currentConnection = nullptr;
                 if (isFinished) {

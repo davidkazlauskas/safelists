@@ -316,7 +316,12 @@ StrongMsgPtr SafeListDownloader::startNew(
         const StrongMsgPtr& toNotify
 )
 {
-    return nullptr;
+    return SafeListDownloaderImpl::startSession(
+        path,
+        fileWriter,
+        fileDownloader,
+        toNotify
+    );
 }
 
 }

@@ -7,6 +7,7 @@
 #include <util/Semaphore.hpp>
 #include <io/Interval.hpp>
 #include <io/AsyncDownloader.hpp>
+#include <io/RandomFileWriter.hpp>
 
 #include "SafeListDownloader.hpp"
 
@@ -193,6 +194,7 @@ private:
             " );";
 
         auto implCpy = impl;
+        auto writerCpy = this->_fileWriter;
         do {
             _cache.process(
                 [&](templatious::VirtualPack& pack) {
@@ -239,6 +241,8 @@ private:
 
                     auto intervals = listForPath(i->_path,i->_size);
                     typedef AsyncDownloader AD;
+                    auto pathCopy = i->_path;
+
                     auto job = SF::vpackPtr<
                         AD::ScheduleDownload,
                         IntervalList,
@@ -247,7 +251,21 @@ private:
                     >(
                         nullptr,
                         std::move(intervals),
-                        [](const char* buf,int64_t pre,int64_t post) {
+                        [=](const char* buf,int64_t pre,int64_t post) {
+                            typedef SafeLists::RandomFileWriter RFW;
+                            int64_t size = post - pre;
+                            std::unique_ptr< char[] > outBuf(
+                                new char[size]
+                            );
+
+                            memcpy(outBuf.get(),buf,size);
+                            auto message = SF::vpackPtr<
+                                RFW::WriteData,
+                                std::string,
+                                std::unique_ptr< char[] >,
+                                int64_t,int64_t
+                            >(nullptr,pathCopy,std::move(outBuf),pre,post);
+                            //writerCpy->message();
                             return true;
                         },
                         i

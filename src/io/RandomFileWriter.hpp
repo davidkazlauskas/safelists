@@ -18,10 +18,12 @@ struct RandomFileWriter {
     // >
     DUMMY_REG(WriteData,"RFW_WriteData");
 
-    // Clear cache. All handles removed
+    // Clear cache. All handles,
+    // or specified path removed
     // and cache closed.
     // Signature:
     // < ClearCache >
+    // < ClearCache, std::string (path) >
     DUMMY_REG(ClearCache,"RFW_ClearCache");
 
     // singleton

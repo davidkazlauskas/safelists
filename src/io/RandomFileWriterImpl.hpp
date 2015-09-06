@@ -53,6 +53,7 @@ struct RandomFileWriteCache {
     WriterPtr getItem(const char* path,int64_t size);
     bool isCached(const char* path) const;
     void clear();
+    void dropItem(const char* path);
 
     friend struct RandomFileWriteCacheImpl;
     typedef struct RandomFileWriteCacheImpl Helper;

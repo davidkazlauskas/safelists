@@ -59,6 +59,11 @@ private:
                 [=](RFW::ClearCache) {
                     this->_writeCache.clear();
                 }
+            ),
+            SF::virtualMatch< RFW::ClearCache, std::string >(
+                [=](RFW::ClearCache,const std::string& path) {
+                    this->_writeCache.dropItem(path.c_str());
+                }
             )
         );
     }

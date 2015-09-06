@@ -171,4 +171,15 @@ void RandomFileWriteCache::clear() {
     SM::set(nullptr,_vec);
 }
 
+void RandomFileWriteCache::dropItem(const char* path) {
+    auto flt =
+        SF::filter(
+            _vec,
+            [=](const WriterPtr& wptr) {
+                return path == wptr->_path;
+            }
+        );
+    SM::set( nullptr, flt );
+}
+
 }

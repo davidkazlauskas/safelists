@@ -31,7 +31,7 @@
     };
 
 // register for native only use
-#define DUMMY_REG_NATIVE(name)  \
+#define DUMMY_STRUCT_NATIVE(name)  \
     struct name {                                                                    \
         template <class Any> name(Any&&) {}                                          \
     };

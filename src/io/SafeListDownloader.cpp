@@ -78,13 +78,15 @@ struct SafeListDownloaderImpl : public Messageable {
         return result;
     }
 private:
+    DUMMY_STRUCT_NATIVE(FinishedDownload);
+
     typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
 
     VmfPtr genHandler() {
         return SF::virtualMatchFunctorPtr(
-            SF::virtualMatch< int >(
-                [](int) {
-                // dummy
+            SF::virtualMatch< FinishedDownload >(
+                [&](FinishedDownload) {
+                    // mainly to invoke semaphore, do nothing
                 }
             )
         );

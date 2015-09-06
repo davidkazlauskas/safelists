@@ -231,3 +231,21 @@ TEST_CASE("io_actor_random_file_writer","[io]") {
 
     REQUIRE( 0 == strcmp(str,buf) );
 }
+
+TEST_CASE("io_simple_read_write_create_dir","[io]") {
+    const char* inDirFile = "somedir/a.txt";
+    std::remove( inDirFile );
+
+    SafeLists::RandomFileWriteHandle handle(inDirFile,7);
+    handle.write("thetext",0,7);
+    char output[8];
+    handle.read(output,0,7);
+    output[7] = '\0';
+
+    std::string comp = output;
+    REQUIRE( comp == "thetext" );
+
+    REQUIRE( handle.getPath() == inDirFile );
+
+    std::remove( inDirFile );
+}

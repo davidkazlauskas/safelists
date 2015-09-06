@@ -50,7 +50,14 @@ struct SafeListDownloaderImpl : public Messageable {
         _fileDownloader(fileDownloader),
         _toNotify(toNotify),
         _handler(genHandler())
-    {}
+    {
+        // session directory
+        _sessionDir = path;
+        // screw microsoft
+        auto pos = _sessionDir.find_last_of('/');
+        // with slash at the end
+        _sessionDir.erase(pos + 1);
+    }
 
     void message(const std::shared_ptr< templatious::VirtualPack >& msg) override {
         _cache.enqueue(msg);
@@ -249,7 +256,7 @@ private:
 
                     auto intervals = listForPath(i->_path,i->_size);
                     typedef AsyncDownloader AD;
-                    auto pathCopy = i->_path;
+                    auto pathCopy = _sessionDir + i->_path;
 
                     auto job = SF::vpackPtr<
                         AD::ScheduleDownload,
@@ -304,6 +311,7 @@ private:
     typedef std::vector< std::shared_ptr<ToDownloadList> > TDVec;
 
     std::string _path;
+    std::string _sessionDir;
     StrongMsgPtr _fileWriter;
     StrongMsgPtr _fileDownloader;
     WeakMsgPtr _toNotify;

@@ -145,8 +145,8 @@ private:
         auto& back = list.back();
         newList->_id = std::atoi(value[0]);
         newList->_size = std::stoi(value[1]);
-        newList->_link = std::atoi(value[2]);
-        newList->_path = std::atoi(value[3]);
+        newList->_link = value[2];
+        newList->_path = value[3];
         return 0;
     }
 

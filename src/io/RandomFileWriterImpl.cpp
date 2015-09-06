@@ -40,6 +40,10 @@ namespace {
         }
         return true;
     }
+
+    void ensureDirectoryExists(const char* path) {
+
+    }
 }
 
 namespace SafeLists {
@@ -48,6 +52,7 @@ namespace SafeLists {
 RandomFileWriteHandle::RandomFileWriteHandle(const char* path,int64_t size)
     : _path(path), _size(size), _writeSize(0)
 {
+    ensureDirectoryExists(_path.c_str());
     FILE* handle = fopen(_path.c_str(),"r+");
     if (nullptr != handle) {
         fseek(handle,0,SEEK_END);

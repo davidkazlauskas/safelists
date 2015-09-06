@@ -78,8 +78,8 @@ struct SafeListDownloaderImpl : public Messageable {
     }
 private:
     struct ToDownloadList : public Messageable {
-        ToDownloadList(const StrongMsgPtr& session,int id) :
-            _session(session), _id(id), _handler(genHandler()),
+        ToDownloadList(const StrongMsgPtr& session) :
+            _session(session), _handler(genHandler()),
             _hasStarted(false), _hasEnded(false)
         {}
 
@@ -115,7 +115,7 @@ private:
         SafeListDownloaderImpl& self = *reinterpret_cast<
             SafeListDownloaderImpl* >(userdata);
         TDVec& list = self._jobs;
-        auto newList = std::make_shared< ToDownloadList >();
+        auto newList = std::make_shared< ToDownloadList >(self);
         SA::add(list,newList);
         auto& back = list.back();
         newList->_id = std::atoi(value[0]);
@@ -219,7 +219,7 @@ private:
                         nullptr,
                         std::move(intervals),
                         [](int64_t pre,int64_t post) {
-
+                            return true;
                         },
                         i
                     );

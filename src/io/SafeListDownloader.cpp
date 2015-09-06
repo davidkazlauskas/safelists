@@ -136,7 +136,7 @@ private:
         bool _hasEnded;
     };
 
-    static int downloadQueryCallback(void* userdata,int column,char** header,char** value) {
+    static int downloadQueryCallback(void* userdata,int column,char** value,char** header) {
         auto& self = *reinterpret_cast<
             std::shared_ptr<SafeListDownloaderImpl>* >(userdata);
         TDVec& list = self->_jobs;

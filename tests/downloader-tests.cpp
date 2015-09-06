@@ -105,5 +105,8 @@ TEST_CASE("safelist_downloader_example_download","[safelist_downloader]") {
         )
     );
 
+    auto handle =
+        SLD::startNew(dlPathAbs.c_str(),writer,downloader,notifier);
+
     future.wait();
 }

@@ -8,7 +8,10 @@ namespace SafeLists {
 
 struct SafeListDownloader {
 
-    DUMMY_REG(Download,"SLD_Download");
+    // do we need this?
+    //DUMMY_REG(Download,"SLD_Download");
+
+    DUMMY_REG(OutDone,"SLD_Done");
 
     static StrongMsgPtr startNew(
             const char* path,

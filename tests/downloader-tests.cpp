@@ -67,3 +67,6 @@ TEST_CASE("async_downloader_dummy","[async_downloader]") {
     REQUIRE( *success );
 }
 
+TEST_CASE("safelist_downloader_example_download","[safelist_downloader]") {
+
+}

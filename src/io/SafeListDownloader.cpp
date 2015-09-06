@@ -47,7 +47,8 @@ struct SafeListDownloaderImpl : public Messageable {
         _path(path),
         _fileWriter(fileWriter),
         _fileDownloader(fileDownloader),
-        _toNotify(toNotify)
+        _toNotify(toNotify),
+        _handler(genHandler())
     {}
 
     void message(const std::shared_ptr< templatious::VirtualPack >& msg) override {
@@ -77,6 +78,18 @@ struct SafeListDownloaderImpl : public Messageable {
         return result;
     }
 private:
+    typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
+
+    VmfPtr genHandler() {
+        return SF::virtualMatchFunctorPtr(
+            SF::virtualMatch< int >(
+                [](int) {
+                // dummy
+                }
+            )
+        );
+    }
+
     struct ToDownloadList : public Messageable {
         ToDownloadList(const StrongMsgPtr& session) :
             _session(session), _handler(genHandler()),
@@ -170,7 +183,11 @@ private:
 
         auto implCpy = impl;
         do {
-            // proc messages
+            _cache.process(
+                [&](templatious::VirtualPack& pack) {
+                    this->_handler->tryMatch(pack);
+                }
+            );
 
             auto currSize = SA::size(_jobs);
             int diff = KEEP_NUM - currSize;
@@ -247,6 +264,7 @@ private:
     MessageCache _cache;
     StackOverflow::Semaphore _sem;
     TDVec _jobs;
+    VmfPtr _handler;
 };
 
 StrongMsgPtr SafeListDownloader::startNew(

@@ -6,6 +6,7 @@
 #include <util/ScopeGuard.hpp>
 #include <util/Semaphore.hpp>
 #include <io/Interval.hpp>
+#include <io/AsyncDownloader.hpp>
 
 #include "SafeListDownloader.hpp"
 
@@ -19,17 +20,15 @@ namespace {
     {
         std::string listPath = path + ".ilist";
         std::ifstream target(listPath.c_str());
-        if (!target.is_open()) {
-            if (size > 0) {
-                return SafeLists::IntervalList(
-                    SafeLists::Interval(0,size)
-                );
-            } else {
-                return SafeLists::IntervalList(
-                    SafeLists::Interval()
-                );
-            }
+        if (!target.is_open() && size > 0) {
+            return SafeLists::IntervalList(
+                SafeLists::Interval(0,size)
+            );
         }
+
+        return SafeLists::IntervalList(
+            SafeLists::Interval()
+        );
     }
 }
 
@@ -213,9 +212,14 @@ private:
                             i._id
                         );
 
+                    typedef AsyncDownloader AD;
                     //auto job = SF::vpackPtr<
-
-                    //>();
+                        //AD::ScheduleDownload,
+                        //IntervalList,
+                        //ByteFunction,
+                        //std::weak_ptr< Messageable >
+                    //>(nullptr,
+                      //);
                 }
             }
 

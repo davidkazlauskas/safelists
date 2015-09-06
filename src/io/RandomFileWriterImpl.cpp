@@ -1,6 +1,7 @@
 
 #include <fstream>
 #include <templatious/FullPack.hpp>
+#include <boost/filesystem.hpp>
 
 #include "RandomFileWriterImpl.hpp"
 
@@ -42,7 +43,15 @@ namespace {
     }
 
     void ensureDirectoryExists(const char* path) {
-
+        std::string copy(path);
+        // use only unix type slashes,
+        // screw you microsoft.
+        auto pos = copy.find_last_of('/');
+        if (std::string::npos != pos) {
+            copy.erase(pos);
+            boost::filesystem::path dirPath(copy.c_str());
+            boost::filesystem::create_directory(dirPath);
+        }
     }
 }
 

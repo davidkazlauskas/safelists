@@ -233,7 +233,7 @@ TEST_CASE("io_actor_random_file_writer","[io]") {
 }
 
 TEST_CASE("io_simple_read_write_create_dir","[io]") {
-    const char* inDirFile = "somedir/a.txt";
+    const char* inDirFile = "somedir/moarstuff/a.txt";
     std::remove( inDirFile );
 
     SafeLists::RandomFileWriteHandle handle(inDirFile,7);

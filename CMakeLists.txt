@@ -2,6 +2,7 @@ cmake_minimum_required( VERSION 2.7 )
 project( SafeLists CXX )
 
 find_package(PkgConfig REQUIRED)
+find_package(Boost COMPONENTS system filesystem REQUIRED)
 
 pkg_check_modules(GTKMM gtkmm-3.0)
 
@@ -19,7 +20,8 @@ ADD_DEFINITIONS(
 SET( LIBINCLUDE_DIRS
     ${GTKMM_INCLUDE_DIRS}
     $ENV{TEMPLATIOUS_DIR}
-    ${PLUMBING_DIR} )
+    ${PLUMBING_DIR}
+    ${Boost_INCLUDE_DIRS} )
 
 SET( APPINCLUDE_DIRS
     ${SRC_DIR} )
@@ -70,7 +72,11 @@ add_custom_target( copy-lua-scripts ALL
     COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/src/lua ${CMAKE_BINARY_DIR}/lua )
 
 add_library( domain ${DOMAIN_SOURCES} )
-target_link_libraries( domain sqlite3 pthread )
+target_link_libraries( domain
+    sqlite3 pthread
+    ${Boost_FILESYSTEM_LIBRARY}
+    ${Boost_SYSTEM_LIBRARY}
+)
 
 SET( TEST_SOURCES
     tests/model-tests.cpp

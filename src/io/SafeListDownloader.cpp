@@ -265,7 +265,7 @@ private:
                                 std::unique_ptr< char[] >,
                                 int64_t,int64_t
                             >(nullptr,pathCopy,std::move(outBuf),pre,post);
-                            //writerCpy->message();
+                            writerCpy->message(message);
                             return true;
                         },
                         i

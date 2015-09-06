@@ -3,6 +3,7 @@
 #include <templatious/detail/DynamicVirtualMatchFunctor.hpp>
 #include <boost/filesystem.hpp>
 #include <io/AsyncDownloader.hpp>
+#include <io/SafeListDownloader.hpp>
 #include <io/Interval.hpp>
 #include <io/RandomFileWriter.hpp>
 
@@ -83,6 +84,26 @@ TEST_CASE("safelist_downloader_example_download","[safelist_downloader]") {
     fs::create_directory(dlPath);
     fs::copy_file("exampleData/dlsessions/2/safelist_session",dlPathAbs);
 
+    typedef SafeLists::SafeListDownloader SLD;
+
+    std::unique_ptr< std::promise<void> > promPtr(
+        new std::promise<void>()
+    );
+    auto rawCopy = promPtr.get();
+    auto future = promPtr->get_future();
     auto downloader = testDownloader();
     auto writer = SafeLists::RandomFileWriter::make();
+    auto notifier = std::make_shared<
+        SafeLists::MessageableMatchFunctor
+    >(
+        SF::virtualMatchFunctorPtr(
+            SF::virtualMatch< SLD::OutDone >(
+                [=](SLD::OutDone) {
+                    rawCopy->set_value();
+                }
+            )
+        )
+    );
+
+    future.wait();
 }

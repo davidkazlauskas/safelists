@@ -11,13 +11,16 @@ struct SafeListDownloader {
     // do we need this?
     //DUMMY_REG(Download,"SLD_Download");
 
+    // messaged out when download
+    // is done. Messaged as synchronous message
+    // from different thread.
     DUMMY_REG(OutDone,"SLD_Done");
 
     static StrongMsgPtr startNew(
-            const char* path,
-            const StrongMsgPtr& fileWriter,
-            const StrongMsgPtr& fileDownloader,
-            const StrongMsgPtr& toNotify
+        const char* path,
+        const StrongMsgPtr& fileWriter,
+        const StrongMsgPtr& fileDownloader,
+        const StrongMsgPtr& toNotify
     );
 };
 

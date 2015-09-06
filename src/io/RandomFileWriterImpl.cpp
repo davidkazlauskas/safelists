@@ -93,7 +93,7 @@ void RandomFileWriteHandle::write(const char* buffer,int64_t start,int64_t size)
     }
 
     auto outS = fseek(_handle,start,SEEK_SET);
-    auto outW = fwrite(buffer,size,1,_handle);
+    auto outW = fwrite(buffer,sizeof(char),size,_handle);
     assert( outS == 0 && outW > 0 );
 
     int64_t farthestOffset = start + size;

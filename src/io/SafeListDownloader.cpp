@@ -281,6 +281,7 @@ private:
                 auto pathCopy = _sessionDir + i->_path;
 
                 i->_list = intervals.clone();
+                auto rawJob = i.get();
                 auto job = SF::vpackPtr<
                     AD::ScheduleDownload,
                     IntervalList,
@@ -304,6 +305,7 @@ private:
                             int64_t,int64_t
                         >(nullptr,pathCopy,std::move(outBuf),pre,post);
                         writer->message(message);
+                        rawJob->_list.append(SafeLists::Interval(pre,post));
                         return true;
                     },
                     i

@@ -126,4 +126,20 @@ TEST_CASE("safelist_downloader_example_download","[safelist_downloader]") {
         SLD::startNew(dlPathAbs.c_str(),writer,downloader,notifier);
 
     future.wait();
+
+    bool result = true;
+    result &= isFileGood("downloadtest1/fileA",1048576);
+    REQUIRE( result );
+    result &= isFileGood("downloadtest1/fileB",2097152);
+    REQUIRE( result );
+    result &= isFileGood("downloadtest1/fileC",349525);
+    REQUIRE( result );
+    result &= isFileGood("downloadtest1/fileD",2446675);
+    REQUIRE( result );
+    result &= isFileGood("downloadtest1/fileE",5941925);
+    REQUIRE( result );
+    result &= isFileGood("downloadtest1/fldA/fileF",9437175);
+    REQUIRE( result );
+    result &= isFileGood("downloadtest1/fldA/fileG",77777);
+    REQUIRE( result );
 }

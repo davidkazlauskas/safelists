@@ -105,6 +105,7 @@ private:
     struct ToDownloadList : public Messageable {
         ToDownloadList(const StrongMsgPtr& session) :
             _session(session), _handler(genHandler()),
+            _list(SafeLists::Interval()),
             _hasStarted(false), _hasEnded(false)
         {}
 
@@ -141,6 +142,7 @@ private:
         std::string _link;
         std::string _path;
         VmfPtr _handler;
+        SafeLists::IntervalList _list;
         bool _hasStarted;
         bool _hasEnded;
     };

@@ -191,7 +191,8 @@ void RandomFileWriteCache::dropItem(const char* path) {
         SF::filter(
             _vec,
             [=](const WriterPtr& wptr) {
-                return path == wptr->_path;
+                return wptr != nullptr
+                    && path == wptr->_path;
             }
         );
     SM::set( nullptr, flt );

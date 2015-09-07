@@ -125,6 +125,10 @@ private:
                 SF::virtualMatch< AD::OutDownloadFinished >(
                     [&](AD::OutDownloadFinished) {
                         //printf("Plucked twanger! %s\n",_path.c_str());
+                        assert(
+                            this->_list.isFilled() &&
+                            "Whoa, cholo, lunch didn't finish yet?"
+                        );
                         this->_hasEnded = true;
                         auto locked = _session.lock();
                         if (nullptr != locked) {

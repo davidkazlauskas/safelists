@@ -183,28 +183,6 @@ private:
             }
         );
 
-        const int KEEP_NUM = 5;
-
-        char queryBuf[512];
-        char* errMsg = nullptr;
-        const char* FIRST_QUERY =
-            "SELECT mirrors.id,file_size,link,file_path FROM mirrors"
-            " LEFT OUTER JOIN to_download ON mirrors.id=to_download.id"
-            " WHERE status=0"
-            " ORDER BY priority DESC, use_count ASC"
-            " LIMIT %d;";
-
-        const char* UPDATE_STATUS_QUERY =
-            "UPDATE to_download"
-            " SET status=1"
-            " WHERE id IN"
-            " ("
-            " SELECT mirrors.id FROM mirrors"
-            " LEFT OUTER JOIN to_download ON mirrors.id=to_download.id"
-            " WHERE status=0"
-            " ORDER BY priority DESC, use_count ASC"
-            " LIMIT %d"
-            " );";
 
         auto implCpy = impl;
         auto writerCpy = this->_fileWriter;
@@ -216,36 +194,7 @@ private:
             );
 
             updateRemaining();
-
-            auto currSize = SA::size(_jobs);
-            int diff = KEEP_NUM - currSize;
-            if (diff > 0) {
-                sprintf(queryBuf,FIRST_QUERY,diff);
-                res = sqlite3_exec(
-                    conn,
-                    queryBuf,
-                    &downloadQueryCallback,
-                    &implCpy,
-                    &errMsg);
-
-                if (res != 0) {
-                    printf("Failed, pookie: %s\n",errMsg);
-                }
-                assert( res == 0 && "Should werk milky..." );
-
-                sprintf(queryBuf,UPDATE_STATUS_QUERY,diff);
-                res = sqlite3_exec(
-                    conn,
-                    queryBuf,
-                    nullptr,
-                    nullptr,
-                    &errMsg);
-
-                if (res != 0) {
-                    printf("Failed, pookie: %s\n",errMsg);
-                }
-                assert( res == 0 && "Should werk milky..." );
-            }
+            updateJobs(implCpy);
 
             TEMPLATIOUS_FOREACH(auto& i,_jobs) {
                 if (!i->_hasStarted) {
@@ -306,6 +255,62 @@ private:
                 }
             )
         );
+    }
+
+    void updateJobs(std::shared_ptr< SafeListDownloaderImpl >& impl) {
+        int res = 0;
+        const char* FIRST_QUERY =
+            "SELECT mirrors.id,file_size,link,file_path FROM mirrors"
+            " LEFT OUTER JOIN to_download ON mirrors.id=to_download.id"
+            " WHERE status=0"
+            " ORDER BY priority DESC, use_count ASC"
+            " LIMIT %d;";
+
+        const char* UPDATE_STATUS_QUERY =
+            "UPDATE to_download"
+            " SET status=1"
+            " WHERE id IN"
+            " ("
+            " SELECT mirrors.id FROM mirrors"
+            " LEFT OUTER JOIN to_download ON mirrors.id=to_download.id"
+            " WHERE status=0"
+            " ORDER BY priority DESC, use_count ASC"
+            " LIMIT %d"
+            " );";
+
+        char queryBuf[512];
+        char* errMsg = nullptr;
+        const int KEEP_NUM = 5;
+
+        auto currSize = SA::size(_jobs);
+        int diff = KEEP_NUM - currSize;
+        if (diff > 0) {
+            sprintf(queryBuf,FIRST_QUERY,diff);
+            res = sqlite3_exec(
+                _currentConnection,
+                queryBuf,
+                &downloadQueryCallback,
+                &impl,
+                &errMsg);
+
+            if (res != 0) {
+                printf("Failed, pookie: %s\n",errMsg);
+            }
+            assert( res == 0 && "Should werk milky..." );
+
+            sprintf(queryBuf,UPDATE_STATUS_QUERY,diff);
+            res = sqlite3_exec(
+                _currentConnection,
+                queryBuf,
+                nullptr,
+                nullptr,
+                &errMsg);
+
+            if (res != 0) {
+                printf("Failed, pookie: %s\n",errMsg);
+            }
+            assert( res == 0 && "Should werk milky..." );
+        }
     }
 
     typedef std::vector< std::shared_ptr<ToDownloadList> > TDVec;

@@ -178,22 +178,24 @@ private:
 
         auto implCpy = impl;
         auto writerCpy = this->_fileWriter;
-        for (;;) {
-            processMessages();
-            updateRemaining();
-            updateJobs(implCpy);
-            if (SA::size(_jobs) == 0) {
-                break;
-            }
-            scheduleJobs(writerCpy);
-
+        updateJobs(implCpy);
+        scheduleJobs(writerCpy);
+        do {
             _sem.wait();
-        }
+
+            updateJobs(implCpy);
+            scheduleJobs(writerCpy);
+            clearDoneJobs();
+            processMessages();
+        } while (SA::size(_jobs) > 0);
 
         _isFinished = true;
+        auto notify = _toNotify.lock();
+        auto msg = SF::vpack< SafeListDownloader::OutDone >( nullptr );
+        notify->message(msg);
     }
 
-    void updateRemaining() {
+    void clearDoneJobs() {
         SA::clear(
             SF::filter(
                 _jobs,
@@ -306,8 +308,8 @@ private:
         }
     }
 
-    void processMessages() {
-        _cache.process(
+    int processMessages() {
+        return _cache.process(
             [&](templatious::VirtualPack& pack) {
                 this->_handler->tryMatch(pack);
             }

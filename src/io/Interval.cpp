@@ -215,6 +215,12 @@ IntervalList::IntervalList(IntervalList&& other) :
     SA::clear(other._list);
 }
 
+IntervalList& IntervalList::operator=(IntervalList&& other) {
+    _emptyInterval = other._emptyInterval;
+    _list = std::move(other._list);
+    return *this;
+}
+
 IntervalList IntervalList::clone() const {
     IntervalList target(_emptyInterval);
     target._list = _list;

@@ -276,6 +276,7 @@ private:
                 typedef AsyncDownloader AD;
                 auto pathCopy = _sessionDir + i->_path;
 
+                i->_list = intervals.clone();
                 auto job = SF::vpackPtr<
                     AD::ScheduleDownload,
                     IntervalList,

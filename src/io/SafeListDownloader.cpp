@@ -187,12 +187,7 @@ private:
         auto implCpy = impl;
         auto writerCpy = this->_fileWriter;
         for (;;) {
-            _cache.process(
-                [&](templatious::VirtualPack& pack) {
-                    this->_handler->tryMatch(pack);
-                }
-            );
-
+            processMessages();
             updateRemaining();
             updateJobs(implCpy);
             if (SA::size(_jobs) == 0) {
@@ -317,6 +312,14 @@ private:
                 _fileDownloader->message(job);
             }
         }
+    }
+
+    void processMessages() {
+        _cache.process(
+            [&](templatious::VirtualPack& pack) {
+                this->_handler->tryMatch(pack);
+            }
+        );
     }
 
     typedef std::vector< std::shared_ptr<ToDownloadList> > TDVec;

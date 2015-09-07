@@ -1,4 +1,6 @@
 
+#include <fstream>
+
 #include <templatious/FullPack.hpp>
 #include <templatious/detail/DynamicVirtualMatchFunctor.hpp>
 #include <boost/filesystem.hpp>
@@ -74,6 +76,20 @@ TEST_CASE("async_downloader_dummy","[async_downloader]") {
     *success &= toDownload->isFilled();
 
     REQUIRE( *success );
+}
+
+namespace {
+    bool isFileGood(const char* path,int64_t size) {
+        std::ifstream in(path,std::ios::binary);
+        int64_t count = 0;
+        char ch;
+        while (in.get(ch)) {
+            if (ch != '7')
+                return false;
+            ++count;
+        }
+        return count == size;
+    }
 }
 
 TEST_CASE("safelist_downloader_example_download","[safelist_downloader]") {

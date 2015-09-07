@@ -49,7 +49,8 @@ struct SafeListDownloaderImpl : public Messageable {
         _fileWriter(fileWriter),
         _fileDownloader(fileDownloader),
         _toNotify(toNotify),
-        _handler(genHandler())
+        _handler(genHandler()),
+        _isFinished(false)
     {
         // session directory
         _sessionDir = path;
@@ -167,21 +168,10 @@ private:
                 "Todo, message to notify that session doesn't exist.");
         }
 
-        bool isFinished = false;
         _currentConnection = conn;
         auto sqliteGuard = makeScopeGuard(
             [&]() {
-                auto locked = this->_toNotify.lock();
-                if (nullptr == locked) {
-                    auto msg = SF::vpack<
-                        SafeListDownloader::OutDone >(nullptr);
-                    locked->message(msg);
-                }
-                sqlite3_close(conn);
-                this->_currentConnection = nullptr;
-                if (isFinished) {
-                    std::remove(_path.c_str());
-                }
+                this->cleanup();
             }
         );
 
@@ -200,7 +190,7 @@ private:
             _sem.wait();
         }
 
-        isFinished = true;
+        _isFinished = true;
     }
 
     void updateRemaining() {
@@ -324,6 +314,21 @@ private:
         );
     }
 
+    void cleanup() {
+        auto locked = this->_toNotify.lock();
+        if (nullptr == locked) {
+            auto msg = SF::vpack<
+                SafeListDownloader::OutDone >(nullptr);
+            locked->message(msg);
+        }
+        auto closeCpy = _currentConnection;
+        this->_currentConnection = nullptr;
+        sqlite3_close(closeCpy);
+        if (_isFinished) {
+            std::remove(_path.c_str());
+        }
+    }
+
     typedef std::vector< std::shared_ptr<ToDownloadList> > TDVec;
 
     std::string _path;
@@ -336,6 +341,7 @@ private:
     StackOverflow::Semaphore _sem;
     TDVec _jobs;
     VmfPtr _handler;
+    bool _isFinished;
 };
 
 StrongMsgPtr SafeListDownloader::startNew(

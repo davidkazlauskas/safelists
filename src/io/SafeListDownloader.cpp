@@ -122,6 +122,7 @@ private:
             return SF::virtualMatchFunctorPtr(
                 SF::virtualMatch< AD::OutDownloadFinished >(
                     [&](AD::OutDownloadFinished) {
+                        printf("Plucked twanger! %s\n",_path.c_str());
                         this->_hasEnded = true;
                         auto locked = _session.lock();
                         if (nullptr != locked) {
@@ -154,6 +155,7 @@ private:
         newList->_size = std::stoi(value[1]);
         newList->_link = value[2];
         newList->_path = value[3];
+        printf("Starting plucing... %s\n",newList->_path.c_str());
         return 0;
     }
 

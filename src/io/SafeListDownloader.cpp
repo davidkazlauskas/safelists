@@ -126,7 +126,7 @@ private:
                     [&](AD::OutDownloadFinished) {
                         //printf("Plucked twanger! %s\n",_path.c_str());
                         assert(
-                            this->_list.isFilled() &&
+                            !this->_list.isDefined() || this->_list.isFilled() &&
                             "Whoa, cholo, lunch didn't finish yet?"
                         );
                         this->_hasEnded = true;
@@ -305,7 +305,9 @@ private:
                             int64_t,int64_t
                         >(nullptr,pathCopy,std::move(outBuf),pre,post);
                         writer->message(message);
-                        rawJob->_list.append(SafeLists::Interval(pre,post));
+                        if (rawJob->_list.isDefined()) {
+                            rawJob->_list.append(SafeLists::Interval(pre,post));
+                        }
                         return true;
                     },
                     i

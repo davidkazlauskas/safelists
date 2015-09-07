@@ -103,7 +103,7 @@ private:
     }
 
     struct ToDownloadList : public Messageable {
-        ToDownloadList(const StrongMsgPtr& session) :
+        ToDownloadList(const std::shared_ptr< SafeListDownloaderImpl >& session) :
             _session(session), _handler(genHandler()),
             _list(SafeLists::Interval()),
             _hasStarted(false), _hasEnded(false)
@@ -140,7 +140,7 @@ private:
             );
         }
 
-        WeakMsgPtr _session;
+        std::weak_ptr< SafeListDownloaderImpl > _session;
         int _id;
         int64_t _size;
         std::string _link;

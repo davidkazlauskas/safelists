@@ -186,7 +186,7 @@ private:
 
         auto implCpy = impl;
         auto writerCpy = this->_fileWriter;
-        do {
+        for (;;) {
             _cache.process(
                 [&](templatious::VirtualPack& pack) {
                     this->_handler->tryMatch(pack);
@@ -195,53 +195,13 @@ private:
 
             updateRemaining();
             updateJobs(implCpy);
-
-            TEMPLATIOUS_FOREACH(auto& i,_jobs) {
-                if (!i->_hasStarted) {
-
-                    typedef std::function<
-                        bool(const char*,int64_t,int64_t)
-                    > ByteFunction;
-
-                    auto intervals = listForPath(i->_path,i->_size);
-                    typedef AsyncDownloader AD;
-                    auto pathCopy = _sessionDir + i->_path;
-
-                    auto job = SF::vpackPtr<
-                        AD::ScheduleDownload,
-                        IntervalList,
-                        ByteFunction,
-                        std::weak_ptr< Messageable >
-                    >(
-                        nullptr,
-                        std::move(intervals),
-                        [=](const char* buf,int64_t pre,int64_t post) {
-                            typedef SafeLists::RandomFileWriter RFW;
-                            int64_t size = post - pre;
-                            std::unique_ptr< char[] > outBuf(
-                                new char[size]
-                            );
-
-                            memcpy(outBuf.get(),buf,size);
-                            auto message = SF::vpackPtr<
-                                RFW::WriteData,
-                                std::string,
-                                std::unique_ptr< char[] >,
-                                int64_t,int64_t
-                            >(nullptr,pathCopy,std::move(outBuf),pre,post);
-                            writerCpy->message(message);
-                            return true;
-                        },
-                        i
-                    );
-
-                    i->_hasStarted = true;
-                    _fileDownloader->message(job);
-                }
+            if (SA::size(_jobs) == 0) {
+                break;
             }
+            scheduleJobs(writerCpy);
 
             _sem.wait();
-        } while (SA::size(_jobs) > 0);
+        }
 
         isFinished = true;
     }
@@ -310,6 +270,52 @@ private:
                 printf("Failed, pookie: %s\n",errMsg);
             }
             assert( res == 0 && "Should werk milky..." );
+        }
+    }
+
+    void scheduleJobs(std::shared_ptr< Messageable >& writer) {
+        TEMPLATIOUS_FOREACH(auto& i,_jobs) {
+            if (!i->_hasStarted) {
+
+                typedef std::function<
+                    bool(const char*,int64_t,int64_t)
+                > ByteFunction;
+
+                auto intervals = listForPath(i->_path,i->_size);
+                typedef AsyncDownloader AD;
+                auto pathCopy = _sessionDir + i->_path;
+
+                auto job = SF::vpackPtr<
+                    AD::ScheduleDownload,
+                    IntervalList,
+                    ByteFunction,
+                    std::weak_ptr< Messageable >
+                >(
+                    nullptr,
+                    std::move(intervals),
+                    [=](const char* buf,int64_t pre,int64_t post) {
+                        typedef SafeLists::RandomFileWriter RFW;
+                        int64_t size = post - pre;
+                        std::unique_ptr< char[] > outBuf(
+                            new char[size]
+                        );
+
+                        memcpy(outBuf.get(),buf,size);
+                        auto message = SF::vpackPtr<
+                            RFW::WriteData,
+                            std::string,
+                            std::unique_ptr< char[] >,
+                            int64_t,int64_t
+                        >(nullptr,pathCopy,std::move(outBuf),pre,post);
+                        writer->message(message);
+                        return true;
+                    },
+                    i
+                );
+
+                i->_hasStarted = true;
+                _fileDownloader->message(job);
+            }
         }
     }
 

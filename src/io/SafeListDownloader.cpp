@@ -132,8 +132,15 @@ private:
                         this->_hasEnded = true;
                         auto locked = _session.lock();
                         if (nullptr != locked) {
+                            typedef SafeLists::RandomFileWriter RFW;
                             auto msg = SF::vpackPtr< FinishedDownload >(nullptr);
+                            auto clearCache = SF::vpackPtr<
+                                RFW::ClearCache,
+                                std::string
+                            >(nullptr,this->_path);
+
                             locked->message(msg);
+                            locked->_fileWriter->message(clearCache);
                         }
                     }
                 )

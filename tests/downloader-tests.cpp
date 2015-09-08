@@ -126,6 +126,12 @@ TEST_CASE("safelist_downloader_example_download","[safelist_downloader]") {
         SLD::startNew(dlPathAbs.c_str(),writer,downloader,notifier);
 
     future.wait();
+    auto finishWriting = SF::vpackPtrCustom<
+        templatious::VPACK_WAIT,
+        SafeLists::RandomFileWriter::WaitWrites
+    >(nullptr);
+    writer->message(finishWriting);
+    finishWriting->wait();
 
     bool result = true;
     result &= isFileGood("downloadtest1/fileA",1048576);

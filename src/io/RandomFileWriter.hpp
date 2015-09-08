@@ -26,6 +26,12 @@ struct RandomFileWriter {
     // < ClearCache, std::string (path) >
     DUMMY_REG(ClearCache,"RFW_ClearCache");
 
+    // Dummy pack. Useful
+    // for waiting on writes
+    // sent previously before
+    // this pack.
+    DUMMY_REG(WaitWrites,"RFW_WaitWrites");
+
     // singleton
     static StrongMsgPtr make();
 };

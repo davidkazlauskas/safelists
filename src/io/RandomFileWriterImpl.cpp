@@ -58,7 +58,7 @@ namespace {
             if (fl::exists(dirPath) && isDir) {
                 fl::remove_all(dirPath);
             }
-            fl::create_directory(dirPath);
+            fl::create_directories(dirPath);
         }
     }
 }

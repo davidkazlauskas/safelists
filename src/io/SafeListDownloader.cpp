@@ -137,7 +137,7 @@ private:
                             auto clearCache = SF::vpackPtr<
                                 RFW::ClearCache,
                                 std::string
-                            >(nullptr,this->_path);
+                            >(nullptr,this->_absPath);
 
                             locked->message(msg);
                             locked->_fileWriter->message(clearCache);
@@ -152,6 +152,7 @@ private:
         int64_t _size;
         std::string _link;
         std::string _path;
+        std::string _absPath;
         VmfPtr _handler;
         SafeLists::IntervalList _list;
         bool _hasStarted;
@@ -169,6 +170,8 @@ private:
         newList->_size = std::stoi(value[1]);
         newList->_link = value[2];
         newList->_path = value[3];
+        newList->_absPath = self->_sessionDir;
+        newList->_absPath += newList->_path;
         //printf("Starting plucing... %s\n",newList->_path.c_str());
         return 0;
     }

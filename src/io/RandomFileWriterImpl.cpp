@@ -62,7 +62,7 @@ RandomFileWriteHandle::RandomFileWriteHandle(const char* path,int64_t size)
     : _path(path), _size(size), _writeSize(0)
 {
     ensureDirectoryExists(_path.c_str());
-    FILE* handle = fopen(_path.c_str(),"r+");
+    FILE* handle = fopen(_path.c_str(),"r+b");
     if (nullptr != handle) {
         fseek(handle,0,SEEK_END);
         int64_t realSize = ftell(handle);
@@ -73,7 +73,7 @@ RandomFileWriteHandle::RandomFileWriteHandle(const char* path,int64_t size)
         }
         _writeSize = realSize;
     } else {
-        handle = fopen(_path.c_str(),"w+");
+        handle = fopen(_path.c_str(),"w+b");
         if (_size > 0) {
             fseek(handle,_size - 1,SEEK_SET);
             fputc('7',handle);

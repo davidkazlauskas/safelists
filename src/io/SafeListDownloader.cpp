@@ -206,9 +206,6 @@ private:
         } while (SA::size(_jobs) > 0);
 
         _isFinished = true;
-        auto notify = _toNotify.lock();
-        auto msg = SF::vpack< SafeListDownloader::OutDone >( nullptr );
-        notify->message(msg);
     }
 
     void clearDoneJobs() {
@@ -346,8 +343,12 @@ private:
         }
         auto closeCpy = _currentConnection;
         this->_currentConnection = nullptr;
+
         sqlite3_close(closeCpy);
         if (_isFinished) {
+            auto notify = _toNotify.lock();
+            auto msg = SF::vpack< SafeListDownloader::OutDone >( nullptr );
+            notify->message(msg);
             std::remove(_path.c_str());
         }
     }

@@ -50,7 +50,11 @@ std::shared_ptr< GtkSessionTab > GtkSessionTab::makeNew() {
 GtkSessionTab::GtkSessionTab(Glib::RefPtr<Gtk::Builder>& bld) :
     _container(bld)
 {
+    _container->get_widget("sessionTab",_mainTab);
+}
 
+Gtk::Notebook* GtkSessionTab::getTabs() {
+    return _mainTab;
 }
 
 }

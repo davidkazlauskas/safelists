@@ -8,7 +8,7 @@ namespace SafeLists {
 
 struct GtkSessionWidget {
 
-    static std::shared_ptr< GtkSessionWidget > makeNew(const char* schemapath);
+    static std::shared_ptr< GtkSessionWidget > makeNew();
 private:
     GtkSessionWidget(Glib::RefPtr<Gtk::Builder>& bld) {
 

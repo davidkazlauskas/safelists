@@ -124,6 +124,10 @@ void GtkSessionTab::setModel(const StrongMsgPtr& model) {
     _weakModel = model;
 }
 
+void GtkSessionTab::fullModelUpdate() {
+
+}
+
 GtkSessionTab::~GtkSessionTab() {
     auto& dlCache = getDownloadBarCache();
     dlCache.cacheBuilder(_container);

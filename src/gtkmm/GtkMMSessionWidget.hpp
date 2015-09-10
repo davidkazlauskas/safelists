@@ -27,6 +27,7 @@ struct GtkSessionTab {
     ~GtkSessionTab();
     void addSession(const std::shared_ptr<GtkSessionWidget>& widget);
     void setModel(const StrongMsgPtr& model);
+    void fullModelUpdate();
 private:
     GtkSessionTab(Glib::RefPtr<Gtk::Builder>& bld);
 

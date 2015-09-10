@@ -27,6 +27,10 @@ namespace {
     }
 
     struct RefBuilderCache {
+        RefBuilderCache() {}
+        RefBuilderCache(const RefBuilderCache&) = delete;
+        RefBuilderCache(RefBuilderCache&&) = delete;
+
         void cacheSession(const Glib::RefPtr<Gtk::Builder>& bld) {
             LGuard g(_mtx);
             SA::add(_vec,bld);
@@ -48,6 +52,16 @@ namespace {
         std::mutex _mtx;
         Vec _vec;
     };
+
+    static RefBuilderCache& getSessionCache() {
+        static RefBuilderCache cache;
+        return cache;
+    }
+
+    static RefBuilderCache& getDownloadBarCache() {
+        static RefBuilderCache cache;
+        return cache;
+    }
 }
 
 namespace SafeLists {

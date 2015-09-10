@@ -6,6 +6,7 @@
 #include <LuaPlumbing/plumbing.hpp>
 #include <gtkmm/GtkMMRangerModel.hpp>
 #include <util/AutoReg.hpp>
+#include <gtkmm/GtkMMSessionWidget.hpp>
 
 TEMPLATIOUS_TRIPLET_STD;
 
@@ -238,7 +239,7 @@ struct GtkMainWindow : public Messageable {
         bld->get_widget("statusBarLabel",_statusBar);
         bld->get_widget("newDirectoryButton",_newDirBtn);
 
-        auto mdl = SafeLists::RangerTreeModel::create();
+        _sessionTab = SafeLists::GtkSessionTab::makeNew();
 
         _addNewBtn->signal_clicked().connect(
             sigc::mem_fun(*this,&GtkMainWindow::addNewButtonClicked)
@@ -676,6 +677,7 @@ private:
     int _lastSelectedDirId;
     // should contain two elements always
     std::vector<Gtk::TreeModel::iterator> _selectionStack;
+    std::shared_ptr< SafeLists::GtkSessionTab > _sessionTab;
 };
 
 struct GtkInputDialog : public Messageable {

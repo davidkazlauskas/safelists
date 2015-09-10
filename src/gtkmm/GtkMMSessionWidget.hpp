@@ -12,6 +12,8 @@ struct GtkSessionWidget {
 private:
     GtkSessionWidget(Glib::RefPtr<Gtk::Builder>& bld);
     Glib::RefPtr<Gtk::Builder> _container;
+
+    Gtk::Label* _sessionLabel;
 };
 
 }

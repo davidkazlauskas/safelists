@@ -64,7 +64,7 @@
         <property name="label" translatable="yes">CHILL YO</property>
       </object>
       <packing>
-        <property name="tab_expand">True</property>
+        <property name="tab_fill">False</property>
       </packing>
     </child>
     <child type="tab">

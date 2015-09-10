@@ -69,6 +69,10 @@ struct MainWindowInterface {
     // Signature: < InDeleteSelectedDir >
     DUMMY_REG(InDeleteSelectedDir,"MWI_InDeleteSelectedDir");
 
+    // Erase selected item
+    // Signature: < InRevealDownloads, bool (value) >
+    DUMMY_REG(InRevealDownloads,"MWI_InRevealDownloads");
+
     // query current directory id
     // Signature: < QueryCurrentDirId, int (output) >
     DUMMY_REG(QueryCurrentDirId,"MWI_QueryCurrentDirId");
@@ -241,6 +245,8 @@ struct GtkMainWindow : public Messageable {
         bld->get_widget("reavealerSessions",_revealerSessions);
 
         _sessionTab = SafeLists::GtkSessionTab::makeNew();
+        _revealerSessions->add(*_sessionTab->getTabs());
+        _revealerSessions->set_reveal_child(true);
 
         _addNewBtn->signal_clicked().connect(
             sigc::mem_fun(*this,&GtkMainWindow::addNewButtonClicked)
@@ -394,6 +400,11 @@ private:
                 [=](MWI::InDeleteSelectedDir) {
                     auto& toErase = _selectionStack[1];
                     _dirStore->erase(toErase);
+                }
+            ),
+            SF::virtualMatch< MWI::InRevealDownloads, bool >(
+                [=](MWI::InDeleteSelectedDir,bool value) {
+                    _revealerSessions->set_reveal_child(value);
                 }
             )
         );

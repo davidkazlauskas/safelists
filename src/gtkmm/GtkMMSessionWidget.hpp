@@ -9,9 +9,9 @@ namespace SafeLists {
 struct GtkSessionWidget {
 
     static std::shared_ptr< GtkSessionWidget > makeNew();
+    ~GtkSessionWidget();
 private:
     GtkSessionWidget(Glib::RefPtr<Gtk::Builder>& bld);
-    ~GtkSessionWidget();
     Glib::RefPtr<Gtk::Builder> _container;
 
     Gtk::Box* _mainBox;

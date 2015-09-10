@@ -122,6 +122,7 @@ void GtkSessionTab::addSession(const std::shared_ptr< GtkSessionWidget >& widget
 
 void GtkSessionTab::setModel(const StrongMsgPtr& model) {
     _weakModel = model;
+    fullModelUpdate();
 }
 
 void GtkSessionTab::fullModelUpdate() {

@@ -4,6 +4,7 @@
 #include <memory>
 #include <gtkmm.h>
 #include <LuaPlumbing/plumbing.hpp>
+#include <util/AutoReg.hpp>
 
 namespace SafeLists {
 
@@ -23,7 +24,10 @@ private:
 struct GtkSessionTab {
 
     struct ModelInterface {
-
+        // Query count of download sessions in model
+        // Signature:
+        // < QueryCount, int (out number) >
+        DUMMY_REG(QueryCount,"DLMDL_QueryCount");
     };
 
     static std::shared_ptr< GtkSessionTab > makeNew();

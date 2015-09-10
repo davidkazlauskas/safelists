@@ -92,9 +92,14 @@ GtkSessionWidget::~GtkSessionWidget() {
 }
 
 std::shared_ptr< GtkSessionTab > GtkSessionTab::makeNew() {
-    auto builder = Gtk::Builder::create();
-    auto& schema = loadDownloaderSchemaStatic();
-    builder->add_from_string(schema,"sessionTab");
+    auto& dlCache = getDownloadBarCache();
+
+    auto builder = dlCache.popBuilder();
+    if (0 == builder) {
+        builder = Gtk::Builder::create();
+        auto& schema = loadDownloaderSchemaStatic();
+        builder->add_from_string(schema,"sessionTab");
+    }
     std::shared_ptr< GtkSessionTab > res(new GtkSessionTab(builder));
     return res;
 }
@@ -103,6 +108,11 @@ GtkSessionTab::GtkSessionTab(Glib::RefPtr<Gtk::Builder>& bld) :
     _container(bld)
 {
     _container->get_widget("sessionTab",_mainTab);
+}
+
+GtkSessionTab::~GtkSessionTab() {
+    auto& dlCache = getDownloadBarCache();
+    dlCache.cacheBuilder(_container);
 }
 
 Gtk::Notebook* GtkSessionTab::getTabs() {

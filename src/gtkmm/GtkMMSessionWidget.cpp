@@ -110,6 +110,10 @@ GtkSessionTab::GtkSessionTab(Glib::RefPtr<Gtk::Builder>& bld) :
     _container->get_widget("sessionTab",_mainTab);
 }
 
+void GtkSessionTab::addSession(const std::shared_ptr< GtkSessionWidget >& widget) {
+
+}
+
 GtkSessionTab::~GtkSessionTab() {
     auto& dlCache = getDownloadBarCache();
     dlCache.cacheBuilder(_container);

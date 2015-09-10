@@ -23,8 +23,11 @@ struct GtkSessionTab {
     static std::shared_ptr< GtkSessionTab > makeNew();
     Gtk::Notebook* getTabs();
     ~GtkSessionTab();
+    void addSession(const std::shared_ptr<GtkSessionWidget>& widget);
 private:
     GtkSessionTab(Glib::RefPtr<Gtk::Builder>& bld);
+
+    std::vector< std::shared_ptr<GtkSessionWidget > > _sessions;
     Glib::RefPtr<Gtk::Builder> _container;
     Gtk::Notebook* _mainTab;
 };

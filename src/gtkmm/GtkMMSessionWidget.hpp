@@ -22,6 +22,10 @@ private:
 
 struct GtkSessionTab {
 
+    struct ModelInterface {
+
+    };
+
     static std::shared_ptr< GtkSessionTab > makeNew();
     Gtk::Notebook* getTabs();
     ~GtkSessionTab();

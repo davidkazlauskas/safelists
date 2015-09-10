@@ -1,5 +1,6 @@
 
 #include <fstream>
+#include <mutex>
 
 #include "GtkMMSessionWidget.hpp"
 
@@ -19,6 +20,16 @@ namespace {
     static const Glib::ustring& loadDownloaderSchemaStatic() {
         static Glib::ustring result = loadDownloaderSchema();
         return result;
+    }
+
+    static std::mutex& getMutexSessions() {
+        static std::mutex mtx;
+        return mtx;
+    }
+
+    static std::vector< Glib::RefPtr< Gtk::Builder > >& getCacheSessions() {
+        static std::vector< Glib::RefPtr< Gtk::Builder > > sessions;
+        return sessions;
     }
 }
 

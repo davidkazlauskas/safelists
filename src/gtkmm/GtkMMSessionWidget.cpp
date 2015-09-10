@@ -45,6 +45,20 @@ namespace {
         LGuard g(mtx);
         SA::add(vec,bld);
     }
+
+    static Glib::RefPtr<Gtk::Builder> popSession() {
+        auto& vec = getCacheSessions();
+        auto& mtx = getMutexSessions();
+
+        Glib::RefPtr< Gtk::Builder > result(0);
+        LGuard g(mtx);
+        if (SA::size(vec) == 0)
+            return result;
+
+        result = vec.back();
+        vec.pop_back();
+        return result;
+    }
 }
 
 namespace SafeLists {

@@ -120,6 +120,10 @@ void GtkSessionTab::addSession(const std::shared_ptr< GtkSessionWidget >& widget
     _mainTab->append_page(*raw,"Some stuff");
 }
 
+void GtkSessionTab::setModel(const StrongMsgPtr& model) {
+    _weakModel = model;
+}
+
 GtkSessionTab::~GtkSessionTab() {
     auto& dlCache = getDownloadBarCache();
     dlCache.cacheBuilder(_container);

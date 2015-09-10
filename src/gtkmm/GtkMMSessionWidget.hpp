@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <gtkmm.h>
+#include <LuaPlumbing/plumbing.hpp>
 
 namespace SafeLists {
 
@@ -25,12 +26,14 @@ struct GtkSessionTab {
     Gtk::Notebook* getTabs();
     ~GtkSessionTab();
     void addSession(const std::shared_ptr<GtkSessionWidget>& widget);
+    void setModel(const StrongMsgPtr& model);
 private:
     GtkSessionTab(Glib::RefPtr<Gtk::Builder>& bld);
 
     std::vector< std::shared_ptr<GtkSessionWidget > > _sessions;
     Glib::RefPtr<Gtk::Builder> _container;
     Gtk::Notebook* _mainTab;
+    WeakMsgPtr _weakModel;
 };
 
 }

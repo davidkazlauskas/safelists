@@ -2,7 +2,11 @@
 #include <fstream>
 #include <mutex>
 
+#include <templatious/FullPack.hpp>
+
 #include "GtkMMSessionWidget.hpp"
+
+TEMPLATIOUS_TRIPLET_STD;
 
 namespace {
     static Glib::ustring loadDownloaderSchema() {
@@ -30,6 +34,16 @@ namespace {
     static std::vector< Glib::RefPtr< Gtk::Builder > >& getCacheSessions() {
         static std::vector< Glib::RefPtr< Gtk::Builder > > sessions;
         return sessions;
+    }
+
+    typedef std::lock_guard< std::mutex > LGuard;
+
+    static void cacheSession(const Glib::RefPtr<Gtk::Builder>& bld) {
+        auto& vec = getCacheSessions();
+        auto& mtx = getMutexSessions();
+
+        LGuard g(mtx);
+        SA::add(vec,bld);
     }
 }
 

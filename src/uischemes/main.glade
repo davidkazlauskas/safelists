@@ -355,7 +355,6 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="transition_type">none</property>
-            <property name="reveal_child">True</property>
             <child>
               <placeholder/>
             </child>

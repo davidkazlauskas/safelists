@@ -5,6 +5,8 @@ setStatus = function(context,widget,text)
     context:message(widget,VSig("MWI_InSetStatusText"),VString(text))
 end
 
+revealDownloads = false
+
 initAll = function()
 
     local ctx = luaContext()
@@ -16,11 +18,14 @@ initAll = function()
 
     mainWindowPushButtonHandler = ctx:makeLuaMatchHandler(
         VMatch(function()
-            print("BALLIN, BALLIN")
             local mainModel = ctx:namedMesseagable("mainModel")
             local asyncSqlite = ctx:namedMesseagable("asyncSqliteCurrent")
             ctx:message(mainModel,
                 VSig("MMI_InLoadFolderTree"),VMsg(asyncSqlite),VMsg(mainWnd))
+            -- Testing, reveal
+            revealDownloads = not revealDownloads
+            ctx:message(mainWnd,
+                VSig("MWI_InRevealDownloads"),VBool(revealDownloads))
         end,"MWI_OutNewFileSignal"),
         VMatch(function(natpack,val)
             local inId = val:values()._2

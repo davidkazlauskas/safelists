@@ -246,7 +246,6 @@ struct GtkMainWindow : public Messageable {
 
         _sessionTab = SafeLists::GtkSessionTab::makeNew();
         _revealerSessions->add(*_sessionTab->getTabs());
-        _revealerSessions->set_reveal_child(true);
 
         _addNewBtn->signal_clicked().connect(
             sigc::mem_fun(*this,&GtkMainWindow::addNewButtonClicked)

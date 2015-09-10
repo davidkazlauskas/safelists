@@ -238,6 +238,7 @@ struct GtkMainWindow : public Messageable {
         bld->get_widget("deleteDirButton",_deleteDirBtn);
         bld->get_widget("statusBarLabel",_statusBar);
         bld->get_widget("newDirectoryButton",_newDirBtn);
+        bld->get_widget("reavealerSessions",_revealerSessions);
 
         _sessionTab = SafeLists::GtkSessionTab::makeNew();
 
@@ -654,6 +655,7 @@ private:
     Gtk::Button* _deleteDirBtn;
     Gtk::Button* _newDirBtn;
     Gtk::Label* _statusBar;
+    Gtk::Revealer* _revealerSessions;
     ModelColumns _mdl;
 
     VmfPtr _messageHandler;

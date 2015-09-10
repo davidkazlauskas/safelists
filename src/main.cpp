@@ -69,9 +69,13 @@ struct MainWindowInterface {
     // Signature: < InDeleteSelectedDir >
     DUMMY_REG(InDeleteSelectedDir,"MWI_InDeleteSelectedDir");
 
-    // Erase selected item
+    // Reveal download session
     // Signature: < InRevealDownloads, bool (value) >
     DUMMY_REG(InRevealDownloads,"MWI_InRevealDownloads");
+
+    // Set model for download widgets
+    // Signature: < InSetDownloadModel, StrongMsgPtr (model) >
+    DUMMY_REG(InSetDownloadModel,"MWI_InSetDownloadModel");
 
     // query current directory id
     // Signature: < QueryCurrentDirId, int (output) >

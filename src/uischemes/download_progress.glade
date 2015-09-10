@@ -55,6 +55,7 @@
     </child>
   </object>
   <object class="GtkNotebook" id="sessionTab">
+    <property name="height_request">250</property>
     <property name="visible">True</property>
     <property name="can_focus">True</property>
     <child>

@@ -139,6 +139,9 @@ void GtkSessionTab::fullModelUpdate() {
     assert( queryCount.useCount() > 0 && "Pack was unused..." );
 
     int total = queryCount.fGet<1>();
+    TEMPLATIOUS_REPEAT( total ) {
+        addSession( GtkSessionWidget::makeNew() );
+    }
 }
 
 GtkSessionTab::~GtkSessionTab() {

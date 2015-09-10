@@ -146,6 +146,14 @@ initAll = function()
 
     ctx:message(mainWnd,VSig("MWI_InAttachListener"),VMsg(mainWindowPushButtonHandler))
 
+
+    downloadUpdateModel = ctx:makeLuaMatchHandler(
+        VMatch(function(natPack)
+            natpack:setSlot(2,2)
+        end,"DLMDL_QueryCount","int")
+    )
+    ctx:message(mainWnd,VSig("MWI_InSetDownloadModel"),VMsg(downloadUpdateModel))
+
 end
 initAll()
 initAll = nil

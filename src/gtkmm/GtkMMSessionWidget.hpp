@@ -10,9 +10,7 @@ struct GtkSessionWidget {
 
     static std::shared_ptr< GtkSessionWidget > makeNew();
 private:
-    GtkSessionWidget(Glib::RefPtr<Gtk::Builder>& bld) {
-
-    }
+    GtkSessionWidget(Glib::RefPtr<Gtk::Builder>& bld);
 };
 
 }

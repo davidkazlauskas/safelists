@@ -27,5 +27,9 @@ std::shared_ptr< GtkSessionWidget > GtkSessionWidget::makeNew() {
     return res;
 }
 
+GtkSessionWidget::GtkSessionWidget(Glib::RefPtr<Gtk::Builder>& bld) {
+
+}
+
 }
 

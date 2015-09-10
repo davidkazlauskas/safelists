@@ -31,12 +31,12 @@ namespace {
         RefBuilderCache(const RefBuilderCache&) = delete;
         RefBuilderCache(RefBuilderCache&&) = delete;
 
-        void cacheSession(const Glib::RefPtr<Gtk::Builder>& bld) {
+        void cacheBuilder(const Glib::RefPtr<Gtk::Builder>& bld) {
             LGuard g(_mtx);
             SA::add(_vec,bld);
         }
 
-        Glib::RefPtr<Gtk::Builder> popSession() {
+        Glib::RefPtr<Gtk::Builder> popBuilder() {
             Glib::RefPtr< Gtk::Builder > result(0);
             LGuard g(_mtx);
             if (SA::size(_vec) == 0)
@@ -67,9 +67,14 @@ namespace {
 namespace SafeLists {
 
 std::shared_ptr< GtkSessionWidget > GtkSessionWidget::makeNew() {
-    auto builder = Gtk::Builder::create();
-    auto& schema = loadDownloaderSchemaStatic();
-    builder->add_from_string(schema,"mainBox");
+    auto& sessCache = getSessionCache();
+
+    auto builder = sessCache.popBuilder();
+    if (0 == builder) {
+        builder = Gtk::Builder::create();
+        auto& schema = loadDownloaderSchemaStatic();
+        builder->add_from_string(schema,"mainBox");
+    }
     std::shared_ptr< GtkSessionWidget > res(new GtkSessionWidget(builder));
     return res;
 }

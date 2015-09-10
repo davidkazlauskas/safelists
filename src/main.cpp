@@ -410,6 +410,11 @@ private:
                 [=](MWI::InDeleteSelectedDir,bool value) {
                     _revealerSessions->set_reveal_child(value);
                 }
+            ),
+            SF::virtualMatch< MWI::InSetDownloadModel, StrongMsgPtr >(
+                [=](MWI::InSetDownloadModel,const StrongMsgPtr& msg) {
+                    this->_sessionTab->setModel(msg);
+                }
             )
         );
     }

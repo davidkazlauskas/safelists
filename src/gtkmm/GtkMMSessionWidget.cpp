@@ -23,7 +23,8 @@ std::shared_ptr< GtkSessionWidget > GtkSessionWidget::makeNew() {
     auto builder = Gtk::Builder::create();
     static auto schema = loadDownloaderSchema();
     builder->add_from_string(schema);
-    return nullptr;
+    std::shared_ptr< GtkSessionWidget > res(new GtkSessionWidget(builder));
+    return res;
 }
 
 }

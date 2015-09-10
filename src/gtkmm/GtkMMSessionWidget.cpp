@@ -130,6 +130,15 @@ void GtkSessionTab::fullModelUpdate() {
     if (nullptr == locked) {
         return;
     }
+
+    typedef ModelInterface MI;
+    auto queryCount = SF::vpack< MI::QueryCount, int >(
+        nullptr, -1
+    );
+    locked->message(queryCount);
+    assert( queryCount.useCount() > 0 && "Pack was unused..." );
+
+    int total = queryCount.fGet<1>();
 }
 
 GtkSessionTab::~GtkSessionTab() {

@@ -26,39 +26,28 @@ namespace {
         return result;
     }
 
-    static std::mutex& getMutexSessions() {
-        static std::mutex mtx;
-        return mtx;
-    }
+    struct RefBuilderCache {
+        void cacheSession(const Glib::RefPtr<Gtk::Builder>& bld) {
+            LGuard g(_mtx);
+            SA::add(_vec,bld);
+        }
 
-    static std::vector< Glib::RefPtr< Gtk::Builder > >& getCacheSessions() {
-        static std::vector< Glib::RefPtr< Gtk::Builder > > sessions;
-        return sessions;
-    }
+        Glib::RefPtr<Gtk::Builder> popSession() {
+            Glib::RefPtr< Gtk::Builder > result(0);
+            LGuard g(_mtx);
+            if (SA::size(_vec) == 0)
+                return result;
 
-    typedef std::lock_guard< std::mutex > LGuard;
-
-    static void cacheSession(const Glib::RefPtr<Gtk::Builder>& bld) {
-        auto& vec = getCacheSessions();
-        auto& mtx = getMutexSessions();
-
-        LGuard g(mtx);
-        SA::add(vec,bld);
-    }
-
-    static Glib::RefPtr<Gtk::Builder> popSession() {
-        auto& vec = getCacheSessions();
-        auto& mtx = getMutexSessions();
-
-        Glib::RefPtr< Gtk::Builder > result(0);
-        LGuard g(mtx);
-        if (SA::size(vec) == 0)
+            result = _vec.back();
+            _vec.pop_back();
             return result;
-
-        result = vec.back();
-        vec.pop_back();
-        return result;
-    }
+        }
+    private:
+        typedef std::lock_guard< std::mutex > LGuard;
+        typedef std::vector< Glib::RefPtr< Gtk::Builder > > Vec;
+        std::mutex _mtx;
+        Vec _vec;
+    };
 }
 
 namespace SafeLists {

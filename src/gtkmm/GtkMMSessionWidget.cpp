@@ -125,7 +125,10 @@ void GtkSessionTab::setModel(const StrongMsgPtr& model) {
 }
 
 void GtkSessionTab::fullModelUpdate() {
-
+    auto locked = _weakModel.lock();
+    if (nullptr == locked) {
+        return;
+    }
 }
 
 GtkSessionTab::~GtkSessionTab() {

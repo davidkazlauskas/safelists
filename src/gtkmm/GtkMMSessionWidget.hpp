@@ -17,6 +17,14 @@ private:
     Gtk::Label* _sessionLabel;
 };
 
+struct GtkSessionTab {
+
+    static std::shared_ptr< GtkSessionTab > makeNew();
+private:
+    GtkSessionTab(Glib::RefPtr<Gtk::Builder>& bld);
+    Glib::RefPtr<Gtk::Builder> _container;
+};
+
 }
 
 #endif /* end of include guard: GTKMMSESSIONWIDGET_SD2Z0QLJ */

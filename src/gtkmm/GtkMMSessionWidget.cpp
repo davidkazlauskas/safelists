@@ -15,14 +15,19 @@ namespace {
         );
         return theContent.c_str();
     }
+
+    static const Glib::ustring& loadDownloaderSchemaStatic() {
+        static Glib::ustring result = loadDownloaderSchema();
+        return result;
+    }
 }
 
 namespace SafeLists {
 
 std::shared_ptr< GtkSessionWidget > GtkSessionWidget::makeNew() {
     auto builder = Gtk::Builder::create();
-    static auto schema = loadDownloaderSchema();
-    builder->add_from_string(schema);
+    auto& schema = loadDownloaderSchemaStatic();
+    builder->add_from_string(schema,"mainBox");
     std::shared_ptr< GtkSessionWidget > res(new GtkSessionWidget(builder));
     return res;
 }
@@ -32,6 +37,20 @@ GtkSessionWidget::GtkSessionWidget(Glib::RefPtr<Gtk::Builder>& bld) :
 {
     _container->get_widget("mainBox",_mainBox);
     _container->get_widget("sessionLabel",_sessionLabel);
+}
+
+std::shared_ptr< GtkSessionTab > GtkSessionTab::makeNew() {
+    auto builder = Gtk::Builder::create();
+    auto& schema = loadDownloaderSchemaStatic();
+    builder->add_from_string(schema,"sessionTab");
+    std::shared_ptr< GtkSessionTab > res(new GtkSessionTab(builder));
+    return res;
+}
+
+GtkSessionTab::GtkSessionTab(Glib::RefPtr<Gtk::Builder>& bld) :
+    _container(bld)
+{
+
 }
 
 }

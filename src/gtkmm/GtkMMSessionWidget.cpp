@@ -30,6 +30,7 @@ std::shared_ptr< GtkSessionWidget > GtkSessionWidget::makeNew() {
 GtkSessionWidget::GtkSessionWidget(Glib::RefPtr<Gtk::Builder>& bld) :
     _container(bld)
 {
+    _container->get_widget("mainBox",_mainBox);
     _container->get_widget("sessionLabel",_sessionLabel);
 }
 

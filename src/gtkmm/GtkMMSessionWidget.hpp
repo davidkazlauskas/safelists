@@ -13,6 +13,7 @@ private:
     GtkSessionWidget(Glib::RefPtr<Gtk::Builder>& bld);
     Glib::RefPtr<Gtk::Builder> _container;
 
+    Gtk::Box* _mainBox;
     Gtk::Label* _sessionLabel;
 };
 

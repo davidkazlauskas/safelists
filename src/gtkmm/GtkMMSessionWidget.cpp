@@ -86,6 +86,11 @@ GtkSessionWidget::GtkSessionWidget(Glib::RefPtr<Gtk::Builder>& bld) :
     _container->get_widget("sessionLabel",_sessionLabel);
 }
 
+GtkSessionWidget::~GtkSessionWidget() {
+    auto& sessCache = getSessionCache();
+    sessCache.cacheBuilder(_container);
+}
+
 std::shared_ptr< GtkSessionTab > GtkSessionTab::makeNew() {
     auto builder = Gtk::Builder::create();
     auto& schema = loadDownloaderSchemaStatic();

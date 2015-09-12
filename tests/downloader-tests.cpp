@@ -10,6 +10,7 @@
 #include <io/RandomFileWriter.hpp>
 #include <io/SafeListDownloaderFactory.hpp>
 #include <model/AsyncSqlite.hpp>
+#include <util/ScopeGuard.hpp>
 
 #include <sqlite3.h>
 
@@ -154,17 +155,46 @@ TEST_CASE("safelist_downloader_example_download","[safelist_downloader]") {
     REQUIRE( result );
 }
 
+struct EnsureContTrack {
+    int _row;
+    bool _value;
+};
+
+int ensureContCallback(void* data,int count,char** values,char** header) {
+    EnsureContTrack& track = *reinterpret_cast<EnsureContTrack*>(data);
+
+    return 0;
+}
+
 bool ensureContentsOfExample2Session(const char* path) {
     sqlite3* sess = nullptr;
     sqlite3_open(path,&sess);
-    if (nullptr == sess)
+    if (nullptr == sess) {
         return false;
+    }
 
     auto guard = SCOPE_GUARD_LC(
         sqlite3_close(sess);
     );
 
-    return true;
+    EnsureContTrack t;
+    t._row = 0;
+    t._value = true;
+
+    char* errMsg = nullptr;
+    int res = sqlite3_exec(
+        sess,
+        "SELECT * FROM to_download;",
+        &ensureContCallback,
+        &t,
+        &errMsg
+    );
+
+    if (res != SQLITE_OK || errMsg != nullptr) {
+        return false;
+    }
+
+    return t._value;
 }
 
 TEST_CASE("safelist_create_session","[safelist_downloader]") {

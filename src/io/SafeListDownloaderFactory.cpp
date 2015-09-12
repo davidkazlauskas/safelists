@@ -46,6 +46,7 @@ namespace {
 
     struct DlSessionData {
         sqlite3* _conn;
+        sqlite3_stmt* _statement;
     };
 
     int insertDownloadSessionCallback(void* data,int size,char** values,char** headers) {
@@ -85,6 +86,13 @@ namespace {
 
         DlSessionData data;
         data._conn = result;
+        data._statement = statement;
+
+        auto freeStmt = SafeLists::makeScopeGuard(
+            [&]() {
+                sqlite3_finalize(statement);
+            }
+        );
 
         // todo, compile insert
         sqlite3_exec(result,"BEGIN;",nullptr,nullptr,&err);

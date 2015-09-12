@@ -8,6 +8,17 @@ namespace SafeLists {
 
 struct SafeListDownloaderFactory {
 
+    // Create new download, which will notify
+    // messeagable object asynchronously.
+    // Signature:
+    // <
+    //   InNewAsync,
+    //   std::string (path),
+    //   StrongMsgPtr (notify object),
+    //   StrongMsgPtr (out session)
+    // >
+    DUMMY_REG(InNewAsync,"SLDF_InNewAsync");
+
     static StrongMsgPtr createNew();
 };
 

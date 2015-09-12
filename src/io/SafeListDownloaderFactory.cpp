@@ -118,6 +118,16 @@ namespace {
     }
 
     void saveDbToFileAndClose(sqlite3* sqlite,const char* path) {
+        sqlite3* toWrite = nullptr;
+        int res = sqlite3_open(path,&toWrite);
+        assert( res == 0 && nullptr != toWrite && "MEREN!" );
+        auto closeGuard = SCOPE_GUARD(
+            [&]() {
+                sqlite3_close(toWrite);
+            }
+        );
+
+
     }
 }
 

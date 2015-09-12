@@ -192,6 +192,16 @@ private:
                     }
                 }
             ),
+            SF::virtualMatch<
+                AsyncSqlite::ArbitraryOperation,
+                std::function<void(sqlite3*)>
+            >(
+                [=](AsyncSqlite::ArbitraryOperation,
+                    const std::function<void(sqlite3*)>& session)
+                {
+                    session(_sqlite);
+                }
+            ),
             SF::virtualMatch< AsyncSqlite::DummyWait >(
                 [](AsyncSqlite::DummyWait) {}
             ),

@@ -31,6 +31,13 @@ struct AsyncSqlite {
     // >
     DUMMY_STRUCT(ExecuteOutSnapshot);
 
+    // perform arbitrary operation
+    // Signature:
+    // <
+    //     std::function< void(sqlite3*) > // function to use
+    // >
+    DUMMY_STRUCT(ArbitraryOperation);
+
     // query something and receive single
     // number from first row and first column
     // Signature: <

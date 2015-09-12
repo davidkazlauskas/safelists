@@ -9,6 +9,20 @@
 TEMPLATIOUS_TRIPLET_STD;
 
 namespace {
+    const char* DL_SESSION_SCHEMA =
+        "id INTEGER PRIMARY KEY,    "
+        "   link text,              "
+        "   use_count INT           "
+        ");                         "
+        "CREATE TABLE to_download ( "
+        "   id INTEGER PRIMARY KEY, "
+        "   file_path text,         "
+        "   file_size INT,          "
+        "   file_hash_256 text,     "
+        "   status INT DEFAULT 0,   "
+        "   priority INT DEFAULT 10 "
+        ");                         ";
+
     // returns in memory database
     // which needs to be saved to file.
     sqlite3* createDownloadSession(sqlite3* connection) {

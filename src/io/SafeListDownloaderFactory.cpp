@@ -83,10 +83,8 @@ namespace {
             assert( false && "Mitch, please!" );
         }
 
-        auto scopeGuard = SafeLists::makeScopeGuard(
-            [&]() {
-                sqlite3_close(result);
-            }
+        auto scopeGuard = SCOPE_GUARD_LC(
+            sqlite3_close(result);
         );
 
         sqlite3_stmt* statement = nullptr;
@@ -103,10 +101,8 @@ namespace {
         data._conn = result;
         data._statement = statement;
 
-        auto freeStmt = SafeLists::makeScopeGuard(
-            [&]() {
-                sqlite3_finalize(statement);
-            }
+        auto freeStmt = SCOPE_GUARD_LC(
+            sqlite3_finalize(statement);
         );
 
         sqlite3_exec(result,"BEGIN;",nullptr,nullptr,&err);

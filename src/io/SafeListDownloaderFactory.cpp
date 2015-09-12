@@ -46,8 +46,10 @@ private:
             >(
                 [](SLDF::CreateSession,
                    StrongMsgPtr& asyncSqlite,
+                   StrongMsgPtr& notifyWhenDone,
                    const std::string& path)
                 {
+                    WeakMsgPtr notify = notifyWhenDone;
                 }
             )
         );

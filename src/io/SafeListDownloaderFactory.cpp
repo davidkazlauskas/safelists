@@ -39,12 +39,18 @@ namespace {
         ")  "
         "ON dir_id=d_id; ";
 
+    const char* DL_INSERT_TO_SESSION =
+        "INSERT INTO to_download "
+        " (id,file_path,file_size,file_hash_256,status,priority)"
+        " VALUES (?1,?2,?3,?4,?5,?6);";
+
     struct DlSessionData {
         sqlite3* _conn;
     };
 
     int insertDownloadSessionCallback(void* data,int size,char** values,char** headers) {
         DlSessionData& dldata = *reinterpret_cast<DlSessionData*>(data);
+        sqlite3* sess = dldata._conn;
         return 0;
     }
 
@@ -66,6 +72,16 @@ namespace {
                 sqlite3_close(result);
             }
         );
+
+        sqlite3_stmt* statement = nullptr;
+        res = sqlite3_prepare(
+            result,
+            DL_INSERT_TO_SESSION,
+            strlen(DL_INSERT_TO_SESSION),
+            &statement,
+            nullptr
+        );
+        assert( 0 == res && "You're kidding?" );
 
         // todo, compile insert
         sqlite3_exec(result,"BEGIN;",nullptr,nullptr,&err);

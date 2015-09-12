@@ -1,4 +1,6 @@
 
+#include <sqlite3.h>
+
 #include <templatious/FullPack.hpp>
 #include <io/SafeListDownloader.hpp>
 
@@ -51,6 +53,27 @@ private:
                    const std::string& path)
                 {
                     WeakMsgPtr notify = notifyWhenDone;
+
+                    typedef std::function<void(sqlite3*)> Sig;
+
+                    auto asyncMessage = SF::vpackPtrWCallback<
+                        Sig
+                    >(
+                        [=](const TEMPLATIOUS_VPCORE<Sig>& pack) {
+                            auto locked = notify.lock();
+                            if (nullptr == locked) {
+                                return;
+                            }
+
+                            auto notifyMsg = SF::vpackPtr<
+                                SLDF::OutCreateSessionDone
+                            >(nullptr);
+                            locked->message(notifyMsg);
+                        },
+                        [=](sqlite3* connection) {
+
+                        }
+                    );
                 }
             )
         );

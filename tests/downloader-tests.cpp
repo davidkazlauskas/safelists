@@ -171,15 +171,16 @@ int ensureContCallback(void* data,int count,char** values,char** header) {
     char buf[64];
     sprintf(buf,"%d",track._row);
 
-    char aLetter = 'a' + (track._row / 26);
-    char bLetter = 'a' + (track._row % 26) - 1;
+    char aLetter = 'a' + ((track._row - 1) / 26);
+    char bLetter = 'a' + ((track._row - 1) % 26);
 
     track._value &= 0 == strcmp(values[0],buf);
     sprintf(buf,"root/%c%c.txt",aLetter,bLetter);
     track._value &= 0 == strcmp(values[1],buf);
-    //track._value &= 0 == strcmp(values[1],"1");
-
-    printf("%s -> %s\n",buf,values[1]);
+    track._value &= 0 == strcmp(values[2],"7");
+    track._value &= 0 == strcmp(values[3],"9439b3263276f9bdfc5574ed7a404ccd2f0e9b3a4b034cbb5eb78d0dac9dbb3d");
+    track._value &= 0 == strcmp(values[4],"0");
+    track._value &= 0 == strcmp(values[5],"10");
 
     return track._value ? 0 : 1;
 }

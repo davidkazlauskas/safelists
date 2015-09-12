@@ -57,12 +57,12 @@ namespace {
         sqlite3* sess = dldata._conn;
         sqlite3_stmt* stmt = dldata._statement;
 
-        auto b1 = sqlite3_bind_text(stmt,1,values[0],-1,nullptr);
-        auto b2 = sqlite3_bind_text(stmt,2,values[1],-1,nullptr);
-        auto b3 = sqlite3_bind_text(stmt,3,values[2],-1,nullptr);
-        auto b4 = sqlite3_bind_text(stmt,4,values[3],-1,nullptr);
-        auto b5 = sqlite3_bind_int64(stmt,5,0);
-        auto b6 = sqlite3_bind_int64(stmt,6,10);
+        sqlite3_bind_text(stmt,1,values[0],-1,nullptr);
+        sqlite3_bind_text(stmt,2,values[1],-1,nullptr);
+        sqlite3_bind_text(stmt,3,values[2],-1,nullptr);
+        sqlite3_bind_text(stmt,4,values[3],-1,nullptr);
+        sqlite3_bind_int64(stmt,5,0);
+        sqlite3_bind_int64(stmt,6,10);
 
         auto stat = sqlite3_step(stmt);
         if (stat != SQLITE_DONE) {

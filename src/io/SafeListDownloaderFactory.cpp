@@ -51,7 +51,7 @@ namespace {
 
     const char* DL_INSERT_MIRROR =
         "INSERT INTO mirrors "
-        " (file_id,link,use_count) "
+        " (id,link,use_count) "
         " VALUES (?1,?2,?3);";
 
     struct DlSessionData {
@@ -121,26 +121,42 @@ namespace {
             sqlite3_close(result);
         );
 
-        sqlite3_stmt* statement = nullptr;
+        sqlite3_stmt* statementFiles = nullptr;
         res = sqlite3_prepare_v2(
             result,
             DL_INSERT_TO_SESSION,
             strlen(DL_INSERT_TO_SESSION),
-            &statement,
+            &statementFiles,
             nullptr
         );
         assert( 0 == res && "You're kidding?" );
 
         DlSessionData data;
         data._conn = result;
-        data._statement = statement;
+        data._statement = statementFiles;
 
-        auto freeStmt = SCOPE_GUARD_LC(
-            sqlite3_finalize(statement);
+        auto freeStmtFiles = SCOPE_GUARD_LC(
+            sqlite3_finalize(statementFiles);
+        );
+
+        sqlite3_stmt* statementMirrors = nullptr;
+        res = sqlite3_prepare_v2(
+            result,
+            DL_INSERT_MIRROR,
+            strlen(DL_INSERT_MIRROR),
+            &statementMirrors,
+            nullptr
+        );
+        assert( 0 == res && "You're kidding? MIRRORS?" );
+        auto freeStmtMirr = SCOPE_GUARD_LC(
+            sqlite3_finalize(statementMirrors);
         );
 
         sqlite3_exec(result,"BEGIN;",nullptr,nullptr,&err);
         res = sqlite3_exec(connection,DL_SELECT_ABS_PATHS,&insertDownloadSessionCallback,&data,&err);
+        assert( res == 0 &&  nullptr == err && "BOO!" );
+        data._statement = statementMirrors;
+        res = sqlite3_exec(connection,DL_SELECT_MIRRORS,&insertDownloadMirrorCallback,&data,&err);
         assert( res == 0 &&  nullptr == err && "BOO!" );
         sqlite3_exec(result,"END;",nullptr,nullptr,&err);
 

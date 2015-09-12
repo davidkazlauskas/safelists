@@ -116,6 +116,9 @@ namespace {
 
         return result;
     }
+
+    void saveDbToFileAndClose(sqlite3* sqlite,const char* path) {
+    }
 }
 
 namespace SafeLists {
@@ -182,6 +185,12 @@ private:
                         },
                         [=](sqlite3* connection) {
                             sqlite3* memSession = createDownloadSession(connection);
+                            auto closeGuard = SCOPE_GUARD(
+                                [&]() {
+                                    sqlite3_close(memSession);
+                                }
+                            );
+                            saveDbToFileAndClose(memSession,path.c_str());
                         }
                     );
                 }

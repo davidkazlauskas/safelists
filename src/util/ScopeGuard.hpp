@@ -36,4 +36,6 @@ auto makeScopeGuard(T&& t)
 
 }
 
+#define SCOPE_GUARD(stuff) ::SafeLists::makeScopeGuard(stuff)
+
 #endif /* end of include guard: SCOPEGUARD_AZYV9OGO */

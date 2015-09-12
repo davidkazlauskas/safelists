@@ -50,9 +50,21 @@ namespace {
     };
 
     int insertDownloadSessionCallback(void* data,int size,char** values,char** headers) {
+        assert( 4 == size && "Huh?" );
         DlSessionData& dldata = *reinterpret_cast<DlSessionData*>(data);
         sqlite3* sess = dldata._conn;
         sqlite3_stmt* stmt = dldata._statement;
+
+        sqlite3_bind_text(stmt,1,values[0],-1,nullptr);
+        sqlite3_bind_text(stmt,2,values[1],-1,nullptr);
+        sqlite3_bind_text(stmt,3,values[2],-1,nullptr);
+        sqlite3_bind_text(stmt,4,values[3],-1,nullptr);
+        sqlite3_bind_int64(stmt,5,0);
+        sqlite3_bind_int64(stmt,6,10);
+
+        auto stat = sqlite3_step(stmt);
+        assert( stat == SQLITE_DONE && "OH CMON!" );
+
         return 0;
     }
 

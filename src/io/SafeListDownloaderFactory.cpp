@@ -107,7 +107,6 @@ namespace {
             }
         );
 
-        // todo, compile insert
         sqlite3_exec(result,"BEGIN;",nullptr,nullptr,&err);
         res = sqlite3_exec(connection,DL_SELECT_ABS_PATHS,&insertDownloadSessionCallback,&data,&err);
         assert( res == 0 &&  nullptr != err && "BOO!" );

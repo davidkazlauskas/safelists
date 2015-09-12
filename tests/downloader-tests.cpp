@@ -154,6 +154,10 @@ TEST_CASE("safelist_downloader_example_download","[safelist_downloader]") {
     REQUIRE( result );
 }
 
+bool ensureContentsOfExample2Session(const char* path) {
+    return false;
+}
+
 TEST_CASE("safelist_create_session","[safelist_downloader]") {
     const char* dlPath = "downloadtest1";
     std::string dlPathAbs = dlPath;
@@ -197,15 +201,6 @@ TEST_CASE("safelist_create_session","[safelist_downloader]") {
     sldf->message(msg);
     future.wait();
 
-    std::unique_ptr< bool > victim(new bool(true));
-    auto rawVictim = victim.get();
-    auto ensureContents = SF::vpackPtrCustom<
-        templatious::VPACK_WAIT,
-        AsyncSqlite::ArbitraryOperation,
-        std::function<void(sqlite3*)>
-    >(
-        nullptr,
-        [=](sqlite3* db) {
-        }
-    );
+    bool res = ensureContentsOfExample2Session(dlPathAbs.c_str());
+    REQUIRE( res );
 }

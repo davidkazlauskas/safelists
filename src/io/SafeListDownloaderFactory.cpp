@@ -52,6 +52,7 @@ namespace {
     int insertDownloadSessionCallback(void* data,int size,char** values,char** headers) {
         DlSessionData& dldata = *reinterpret_cast<DlSessionData*>(data);
         sqlite3* sess = dldata._conn;
+        sqlite3_stmt* stmt = dldata._statement;
         return 0;
     }
 

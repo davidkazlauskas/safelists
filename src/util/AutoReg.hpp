@@ -38,6 +38,8 @@
 
 namespace SafeLists {
 
+typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
+
 template <class T>
 struct TypeRegger {
     static const char s_sideEffect;

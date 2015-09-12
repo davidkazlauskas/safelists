@@ -4,6 +4,7 @@
 #include <templatious/FullPack.hpp>
 #include <io/SafeListDownloader.hpp>
 #include <util/ScopeGuard.hpp>
+#include <model/AsyncSqlite.hpp>
 
 #include "SafeListDownloaderFactory.hpp"
 
@@ -192,7 +193,7 @@ private:
                     typedef std::function<void(sqlite3*)> Sig;
 
                     auto asyncMessage = SF::vpackPtrWCallback<
-                        Sig
+                        AsyncSqlite::ArbitraryOperation, Sig
                     >(
                         [=](const TEMPLATIOUS_VPCORE<Sig>& pack) {
                             auto locked = notify.lock();
@@ -205,6 +206,7 @@ private:
                             >(nullptr);
                             locked->message(notifyMsg);
                         },
+                        nullptr,
                         [=](sqlite3* connection) {
                             sqlite3* memSession = createDownloadSession(connection);
                             auto closeGuard = SCOPE_GUARD_LC(

@@ -12,6 +12,15 @@ struct SafeListDownloaderFactoryImpl : public Messageable {
     SafeListDownloaderFactoryImpl() : _handler(genHandler())
     {}
 
+    void message(const std::shared_ptr< templatious::VirtualPack >& msg) override {
+        assert( false &&
+            "Asynchronous messages disabled for SafeListDownloaderFactoryImpl." );
+    }
+
+    void message(templatious::VirtualPack& msg) override {
+        _handler->tryMatch(msg);
+    }
+
 private:
     VmfPtr genHandler() {
         typedef SafeListDownloaderFactory SLDF;

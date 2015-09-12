@@ -42,6 +42,7 @@ private:
             SF::virtualMatch<
                 SLDF::CreateSession,
                 StrongMsgPtr,
+                StrongMsgPtr,
                 std::string
             >(
                 [](SLDF::CreateSession,

@@ -164,12 +164,22 @@ int ensureContCallback(void* data,int count,char** values,char** header) {
     EnsureContTrack& track = *reinterpret_cast<EnsureContTrack*>(data);
 
     track._value &= count == 6;
+    if (!track._value) return 1;
+
     ++track._row;
 
     char buf[64];
     sprintf(buf,"%d",track._row);
 
+    char aLetter = 'a' + (track._row / 26);
+    char bLetter = 'a' + (track._row % 26) - 1;
+
     track._value &= 0 == strcmp(values[0],buf);
+    sprintf(buf,"root/%c%c.txt",aLetter,bLetter);
+    track._value &= 0 == strcmp(values[1],buf);
+    //track._value &= 0 == strcmp(values[1],"1");
+
+    printf("%s -> %s\n",buf,values[1]);
 
     return track._value ? 0 : 1;
 }
@@ -202,7 +212,7 @@ bool ensureContentsOfExample2Session(const char* path) {
         return false;
     }
 
-    t._value &= t._row == 656;
+    t._value &= t._row == 676;
 
     return t._value;
 }

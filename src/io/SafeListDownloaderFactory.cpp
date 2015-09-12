@@ -27,7 +27,7 @@ namespace {
         ");                         ";
 
     const char* DL_SELECT_ABS_PATHS =
-        "SELECT file_id, path_name, file_size, file_hash_256    "
+        "SELECT file_id, path_name || '/' || file_name, file_size, file_hash_256    "
         "FROM files "
         "LEFT OUTER JOIN    "
         "(  "

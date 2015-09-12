@@ -155,7 +155,16 @@ TEST_CASE("safelist_downloader_example_download","[safelist_downloader]") {
 }
 
 bool ensureContentsOfExample2Session(const char* path) {
-    return false;
+    sqlite3* sess = nullptr;
+    sqlite3_open(path,&sess);
+    if (nullptr == sess)
+        return false;
+
+    auto guard = SCOPE_GUARD_LC(
+        sqlite3_close(sess);
+    );
+
+    return true;
 }
 
 TEST_CASE("safelist_create_session","[safelist_downloader]") {

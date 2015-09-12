@@ -171,7 +171,7 @@ TEST_CASE("safelist_create_session","[safelist_downloader]") {
     auto future = prPtr->get_future();
     auto rawPrPtr = prPtr.get();
     typedef SafeLists::SafeListDownloaderFactory SLDF;
-    MessageableMatchFunctorWAsync handler(
+    auto handler = std::make_shared< MessageableMatchFunctorWAsync >(
         SF::virtualMatchFunctorPtr(
             SF::virtualMatch< SLDF::OutCreateSessionDone >(
                 [=](SLDF::OutCreateSessionDone) {

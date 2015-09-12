@@ -46,7 +46,7 @@ private:
 };
 
 StrongMsgPtr SafeListDownloaderFactory::createNew() {
-    return nullptr;
+    return std::make_shared< SafeListDownloaderFactoryImpl >();
 }
 
 }

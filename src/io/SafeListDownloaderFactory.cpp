@@ -119,13 +119,27 @@ namespace {
 
     void saveDbToFileAndClose(sqlite3* sqlite,const char* path) {
         sqlite3* toWrite = nullptr;
+        sqlite3_backup* backup = nullptr;
         int res = sqlite3_open(path,&toWrite);
         assert( res == 0 && nullptr != toWrite && "MEREN!" );
         auto closeGuard = SCOPE_GUARD_LC(
             sqlite3_close(toWrite);
         );
 
+        backup = sqlite3_backup_init(toWrite,"main",sqlite,"main");
+        assert( nullptr != backup && "MEREN YO!" );
+        auto bCloseGuard = SCOPE_GUARD_LC(
+            sqlite3_backup_finish(backup);
+        );
 
+        do {
+            res = sqlite3_backup_step(backup,7);
+            if (res == SQLITE_BUSY || SQLITE_LOCKED ) {
+                sqlite3_sleep(250);
+            }
+        } while (res == SQLITE_OK || SQLITE_BUSY || SQLITE_LOCKED );
+
+        assert( res == SQLITE_DONE && "YOU GOTTA BE DONE MAN! I HATE ERRORS!" );
     }
 }
 

@@ -8,6 +8,8 @@
 #include <io/SafeListDownloader.hpp>
 #include <io/Interval.hpp>
 #include <io/RandomFileWriter.hpp>
+#include <io/SafeListDownloaderFactory.hpp>
+#include <model/AsyncSqlite.hpp>
 
 #include "catch.hpp"
 
@@ -148,4 +150,48 @@ TEST_CASE("safelist_downloader_example_download","[safelist_downloader]") {
     REQUIRE( result );
     result &= isFileGood("downloadtest1/fldA/fileG",77777);
     REQUIRE( result );
+}
+
+TEST_CASE("safelist_create_session","[safelist_downloader]") {
+    const char* dlPath = "downloadtest1";
+    std::string dlPathAbs = dlPath;
+    dlPathAbs += "/safelist_session";
+    namespace fs = boost::filesystem;
+    fs::remove_all(dlPath);
+    fs::create_directory(dlPath);
+
+    using namespace SafeLists;
+
+    auto asyncSqlite = AsyncSqlite::createNew(
+        "exampleData/example2.safelist");
+
+    std::unique_ptr< std::promise<void> > prPtr(
+        new std::promise<void>
+    );
+    auto future = prPtr->get_future();
+    auto rawPrPtr = prPtr.get();
+    typedef SafeLists::SafeListDownloaderFactory SLDF;
+    MessageableMatchFunctorWAsync handler(
+        SF::virtualMatchFunctorPtr(
+            SF::virtualMatch< SLDF::OutCreateSessionDone >(
+                [=](SLDF::OutCreateSessionDone) {
+                    rawPrPtr->set_value();
+                }
+            )
+        )
+    );
+    auto sldf = SLDF::createNew();
+    auto msg = SF::vpack<
+        SLDF::CreateSession,
+        StrongMsgPtr,
+        StrongMsgPtr,
+        std::string
+    >(
+        nullptr,
+        asyncSqlite,
+        handler,
+        dlPathAbs
+    );
+    sldf->message(msg);
+    future.wait();
 }

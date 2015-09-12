@@ -58,4 +58,12 @@ void MessageableMatchFunctor::message(templatious::VirtualPack& msg) {
     _handler->tryMatch(msg);
 }
 
+void MessageableMatchFunctorWAsync::message(const std::shared_ptr< templatious::VirtualPack >& msg) {
+    _handler->tryMatch(*msg);
+}
+
+void MessageableMatchFunctorWAsync::message(templatious::VirtualPack& msg) {
+    _handler->tryMatch(msg);
+}
+
 }

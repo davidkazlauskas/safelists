@@ -68,6 +68,23 @@ private:
     VmfPtr _handler;
 };
 
+struct MessageableMatchFunctorWAsync : public Messageable {
+    typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
+
+    MessageableMatchFunctorWAsync() = delete;
+    MessageableMatchFunctorWAsync(MessageableMatchFunctorWAsync&&) = delete;
+    MessageableMatchFunctorWAsync(const MessageableMatchFunctorWAsync&) = delete;
+
+    MessageableMatchFunctorWAsync(VmfPtr&& ptr) :
+        _handler(std::move(ptr)) {}
+
+    void message(const std::shared_ptr< templatious::VirtualPack >& msg) override;
+    void message(templatious::VirtualPack& msg) override;
+
+private:
+    VmfPtr _handler;
+};
+
 }
 
 #endif /* end of include guard: AUTOREG_PYXSMU4M */

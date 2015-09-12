@@ -24,13 +24,13 @@ namespace {
         ");                         ";
 
     const char* DL_SELECT_DIRECTORIES =
-        "WITH RECURSIVE                                                                    "
-        "children(d_id,d_name) AS (                                                        "
-        "   SELECT dir_id,dir_name FROM directories WHERE dir_name='root' AND dir_id=1     "
-        "   UNION ALL                                                                      "
-        "   SELECT dir_id,children.d_name || '/' || dir_name                               "
-        "   FROM directories JOIN children ON directories.dir_parent=children.d_id         "
-        ") SELECT d_id,d_name FROM children;                                               ";
+       "WITH RECURSIVE  "
+       "children(d_id,path_name) AS (   "
+       "   SELECT dir_id,dir_name FROM directories WHERE dir_name='root' AND dir_id=1   "
+       "   UNION ALL    "
+       "   SELECT dir_id,children.path_name || '/' || dir_name  "
+       "   FROM directories JOIN children ON directories.dir_parent=children.d_id   "
+       ") SELECT d_id,path_name FROM children;  ";
 
     // returns in memory database
     // which needs to be saved to file.

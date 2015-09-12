@@ -49,6 +49,11 @@ namespace {
         " (id,file_path,file_size,file_hash_256,status,priority)"
         " VALUES (?1,?2,?3,?4,?5,?6);";
 
+    const char* DL_INSERT_MIRROR =
+        "INSERT INTO mirrors "
+        " (file_id,link,use_count) "
+        " VALUES (?1,?2,?3);";
+
     struct DlSessionData {
         sqlite3* _conn;
         sqlite3_stmt* _statement;
@@ -73,6 +78,27 @@ namespace {
             printf("Error inserting session values: %s\n",outErr);
         }
         assert( stat == SQLITE_DONE && "OH CMON!" );
+        sqlite3_reset(stmt);
+
+        return 0;
+    }
+
+    int insertDownloadMirrorCallback(void* data,int size,char** values,char** headers) {
+        assert( 3 == size && "Huh??" );
+        DlSessionData& dldata = *reinterpret_cast<DlSessionData*>(data);
+        sqlite3* sess = dldata._conn;
+        sqlite3_stmt* stmt = dldata._statement;
+
+        sqlite3_bind_text(stmt,1,values[0],-1,nullptr);
+        sqlite3_bind_text(stmt,2,values[1],-1,nullptr);
+        sqlite3_bind_text(stmt,3,values[2],-1,nullptr);
+
+        auto stat = sqlite3_step(stmt);
+        if (stat != SQLITE_DONE) {
+            auto outErr = sqlite3_errmsg(sess);
+            printf("Error inserting mirror values: %s\n",outErr);
+        }
+        assert( stat == SQLITE_DONE && "OH CMON! REALY?" );
         sqlite3_reset(stmt);
 
         return 0;

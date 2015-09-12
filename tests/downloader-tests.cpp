@@ -195,6 +195,9 @@ int ensureContCallback2(void* data,int count,char** values,char** header) {
 
     char buf[64];
     sprintf(buf,"%d",track._row);
+    track._value &= 0 == strcmp(values[0],buf);
+    track._value &= 0 == strcmp(values[1],"test");
+    track._value &= 0 == strcmp(values[2],"0");
 
     return track._value ? 0 : 1;
 }

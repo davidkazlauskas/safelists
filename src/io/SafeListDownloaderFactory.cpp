@@ -1,5 +1,6 @@
 
 #include <templatious/FullPack.hpp>
+#include <io/SafeListDownloader.hpp>
 
 #include "SafeListDownloaderFactory.hpp"
 

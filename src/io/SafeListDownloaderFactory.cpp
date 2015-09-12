@@ -28,6 +28,13 @@ namespace {
     sqlite3* createDownloadSession(sqlite3* connection) {
         sqlite3* result = nullptr;
         sqlite3_open(":memory:",&result);
+        assert( nullptr != result && "Aww, cmon, I really need to handle this?" );
+        char* err = nullptr;
+        int res = sqlite3_exec(result,DL_SESSION_SCHEMA,nullptr,nullptr,&err);
+        if (res != 0 && nullptr != err) {
+            printf("Sqlite err: %s\n",err);
+            assert( false && "Mitch, please!" );
+        }
         return result;
     }
 }

@@ -185,6 +185,12 @@ int ensureContCallback(void* data,int count,char** values,char** header) {
     return track._value ? 0 : 1;
 }
 
+int ensureContCallback2(void* data,int count,char** values,char** header) {
+    EnsureContTrack& track = *reinterpret_cast<EnsureContTrack*>(data);
+
+    return track._value ? 0 : 1;
+}
+
 bool ensureContentsOfExample2Session(const char* path) {
     sqlite3* sess = nullptr;
     sqlite3_open(path,&sess);

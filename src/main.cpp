@@ -86,8 +86,6 @@ struct MainWindowInterface {
     DUMMY_REG(QueryCurrentDirName,"MWI_QueryCurrentDirName");
 };
 
-void registerSqliteInFactory(templatious::DynVPackFactoryBuilder& bld);
-
 #define ASYNC_OUT_SNAP_SIGNATURE \
     ASql::ExecuteOutSnapshot, \
     std::string, \
@@ -826,8 +824,6 @@ templatious::DynVPackFactory makeVfactory() {
 
     LuaContext::registerPrimitives(bld);
 
-    registerSqliteInFactory(bld);
-
     SafeLists::traverseTypes(
         [&](const char* name,const templatious::TypeNode* node) {
             bld.attachNode(name,node);
@@ -860,15 +856,5 @@ int main(int argc,char** argv) {
     ctx->addMesseagableWeak("asyncSqliteCurrent",asyncSqlite);
     ctx->doFile("lua/main.lua");
     app->run(mainWnd->getWindow(),argc,argv);
-}
-
-typedef templatious::TypeNodeFactory TNF;
-
-#define ATTACH_NAMED_DUMMY(factory,name,type)   \
-    factory.attachNode(name,TNF::makeDummyNode< type >(name))
-
-void registerSqliteInFactory(templatious::DynVPackFactoryBuilder& bld) {
-    typedef SafeLists::AsyncSqlite ASql;
-    ATTACH_NAMED_DUMMY(bld,"ASQL_Execute",ASql::Execute);
 }
 

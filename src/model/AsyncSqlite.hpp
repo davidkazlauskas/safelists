@@ -3,6 +3,7 @@
 
 #include <LuaPlumbing/plumbing.hpp>
 #include <util/DummyStruct.hpp>
+#include <util/AutoReg.hpp>
 
 namespace SafeLists {
 
@@ -17,7 +18,7 @@ struct AsyncSqlite {
     // < Execute, const char* sql >
     // < Execute, std::string >
     // < Execute, const char* sql, SqliteCallbackSimple >
-    DUMMY_STRUCT(Execute);
+    DUMMY_REG(Execute,"ASQL_Execute");
 
     // query something and receive table
     // snapshot

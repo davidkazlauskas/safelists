@@ -195,7 +195,9 @@ private:
                     auto asyncMessage = SF::vpackPtrWCallback<
                         AsyncSqlite::ArbitraryOperation, Sig
                     >(
-                        [=](const TEMPLATIOUS_VPCORE<Sig>& pack) {
+                        [=](const TEMPLATIOUS_VPCORE<
+                                AsyncSqlite::ArbitraryOperation, Sig
+                            >& pack) {
                             auto locked = notify.lock();
                             if (nullptr == locked) {
                                 return;

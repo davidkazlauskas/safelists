@@ -121,10 +121,8 @@ namespace {
         sqlite3* toWrite = nullptr;
         int res = sqlite3_open(path,&toWrite);
         assert( res == 0 && nullptr != toWrite && "MEREN!" );
-        auto closeGuard = SCOPE_GUARD(
-            [&]() {
-                sqlite3_close(toWrite);
-            }
+        auto closeGuard = SCOPE_GUARD_LC(
+            sqlite3_close(toWrite);
         );
 
 
@@ -195,10 +193,8 @@ private:
                         },
                         [=](sqlite3* connection) {
                             sqlite3* memSession = createDownloadSession(connection);
-                            auto closeGuard = SCOPE_GUARD(
-                                [&]() {
-                                    sqlite3_close(memSession);
-                                }
+                            auto closeGuard = SCOPE_GUARD_LC(
+                                sqlite3_close(memSession);
                             );
                             saveDbToFileAndClose(memSession,path.c_str());
                         }

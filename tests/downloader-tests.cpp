@@ -11,6 +11,8 @@
 #include <io/SafeListDownloaderFactory.hpp>
 #include <model/AsyncSqlite.hpp>
 
+#include <sqlite3.h>
+
 #include "catch.hpp"
 
 TEMPLATIOUS_TRIPLET_STD;
@@ -194,4 +196,16 @@ TEST_CASE("safelist_create_session","[safelist_downloader]") {
     );
     sldf->message(msg);
     future.wait();
+
+    std::unique_ptr< bool > victim(new bool(true));
+    auto rawVictim = victim.get();
+    auto ensureContents = SF::vpackPtrCustom<
+        templatious::VPACK_WAIT,
+        AsyncSqlite::ArbitraryOperation,
+        std::function<void(sqlite3*)>
+    >(
+        nullptr,
+        [=](sqlite3* db) {
+        }
+    );
 }

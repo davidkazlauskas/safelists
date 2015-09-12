@@ -9,6 +9,9 @@ namespace SafeLists {
 
 struct SafeListDownloaderFactoryImpl : public Messageable {
 
+    SafeListDownloaderFactoryImpl() : _handler(genHandler())
+    {}
+
 private:
     VmfPtr genHandler() {
         typedef SafeListDownloaderFactory SLDF;

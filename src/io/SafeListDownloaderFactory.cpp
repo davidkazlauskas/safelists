@@ -3,6 +3,7 @@
 
 #include <templatious/FullPack.hpp>
 #include <io/SafeListDownloader.hpp>
+#include <util/ScopeGuard.hpp>
 
 #include "SafeListDownloaderFactory.hpp"
 
@@ -38,6 +39,15 @@ namespace {
         ")  "
         "ON dir_id=d_id; ";
 
+    struct DlSessionData {
+        sqlite3* _conn;
+    };
+
+    int insertDownloadSessionCallback(void* data,int size,char** values,char** headers) {
+        DlSessionData& dldata = *reinterpret_cast<DlSessionData*>(data);
+        return 0;
+    }
+
     // returns in memory database
     // which needs to be saved to file.
     sqlite3* createDownloadSession(sqlite3* connection) {
@@ -50,6 +60,19 @@ namespace {
             printf("Sqlite err: %s\n",err);
             assert( false && "Mitch, please!" );
         }
+
+        auto scopeGuard = SafeLists::makeScopeGuard(
+            [&]() {
+                sqlite3_close(result);
+            }
+        );
+
+        // todo, compile insert
+        sqlite3_exec(result,"BEGIN;",nullptr,nullptr,&err);
+        sqlite3_exec(result,"END;",nullptr,nullptr,&err);
+
+        scopeGuard.dismiss();
+
         return result;
     }
 }

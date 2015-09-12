@@ -32,12 +32,22 @@ private:
                 StrongMsgPtr, // to notify
                 StrongMsgPtr // out object
             >(
-                [=](SLDF::InNewAsync,
+                [](SLDF::InNewAsync,
                     const std::string& path,
                     const StrongMsgPtr& toNotify,
                     StrongMsgPtr& output)
                 {
-
+                }
+            ),
+            SF::virtualMatch<
+                SLDF::CreateSession,
+                StrongMsgPtr,
+                std::string
+            >(
+                [](SLDF::CreateSession,
+                   StrongMsgPtr& asyncSqlite,
+                   const std::string& path)
+                {
                 }
             )
         );

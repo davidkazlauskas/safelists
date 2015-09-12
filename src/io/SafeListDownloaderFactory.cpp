@@ -137,10 +137,10 @@ namespace {
 
         do {
             res = sqlite3_backup_step(backup,7);
-            if (res == SQLITE_BUSY || SQLITE_LOCKED ) {
+            if ( res == SQLITE_BUSY || res == SQLITE_LOCKED ) {
                 sqlite3_sleep(250);
             }
-        } while (res == SQLITE_OK || SQLITE_BUSY || SQLITE_LOCKED );
+        } while (res == SQLITE_OK || res == SQLITE_BUSY || res == SQLITE_LOCKED );
 
         assert( res == SQLITE_DONE && "YOU GOTTA BE DONE MAN! I HATE ERRORS!" );
     }

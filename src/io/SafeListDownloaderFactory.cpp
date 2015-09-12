@@ -8,6 +8,16 @@
 
 TEMPLATIOUS_TRIPLET_STD;
 
+namespace {
+    // returns in memory database
+    // which needs to be saved to file.
+    sqlite3* createDownloadSession(sqlite3* connection) {
+        sqlite3* result = nullptr;
+        sqlite3_open(":memory:",&result);
+        return result;
+    }
+}
+
 namespace SafeLists {
 
 struct SafeListDownloaderFactoryImpl : public Messageable {
@@ -71,7 +81,7 @@ private:
                             locked->message(notifyMsg);
                         },
                         [=](sqlite3* connection) {
-
+                            sqlite3* memSession = createDownloadSession(connection);
                         }
                     );
                 }

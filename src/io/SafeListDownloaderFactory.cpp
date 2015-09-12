@@ -213,6 +213,7 @@ private:
                             saveDbToFileAndClose(memSession,path.c_str());
                         }
                     );
+                    asyncSqlite->message(asyncMessage);
                 }
             )
         );

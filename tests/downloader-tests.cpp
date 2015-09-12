@@ -163,7 +163,15 @@ struct EnsureContTrack {
 int ensureContCallback(void* data,int count,char** values,char** header) {
     EnsureContTrack& track = *reinterpret_cast<EnsureContTrack*>(data);
 
-    return 0;
+    track._value &= count == 6;
+    ++track._row;
+
+    char buf[64];
+    sprintf(buf,"%d",track._row);
+
+    track._value &= 0 == strcmp(values[0],buf);
+
+    return track._value ? 0 : 1;
 }
 
 bool ensureContentsOfExample2Session(const char* path) {
@@ -193,6 +201,8 @@ bool ensureContentsOfExample2Session(const char* path) {
     if (res != SQLITE_OK || errMsg != nullptr) {
         return false;
     }
+
+    t._value &= t._row == 656;
 
     return t._value;
 }

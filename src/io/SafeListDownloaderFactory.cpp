@@ -12,7 +12,8 @@ TEMPLATIOUS_TRIPLET_STD;
 
 namespace {
     const char* DL_SESSION_SCHEMA =
-        "id INTEGER PRIMARY KEY,    "
+        "CREATE TABLE mirrors (     "
+        "   id INTEGER PRIMARY KEY, "
         "   link text,              "
         "   use_count INT           "
         ");                         "

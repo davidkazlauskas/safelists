@@ -381,6 +381,7 @@ private:
     }
 
     typedef std::vector< std::shared_ptr<ToDownloadList> > TDVec;
+    typedef std::vector< DownloadCacheItem > CacheVec;
 
     std::string _path;
     std::string _sessionDir;
@@ -391,6 +392,7 @@ private:
     MessageCache _cache;
     StackOverflow::Semaphore _sem;
     TDVec _jobs;
+    CacheVec _jobCache;
     VmfPtr _handler;
     int _sqliteRevision;
     bool _isFinished;

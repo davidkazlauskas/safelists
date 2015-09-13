@@ -194,16 +194,19 @@ private:
     static int downloadQueryCallback(void* userdata,int column,char** value,char** header) {
         auto& self = *reinterpret_cast<
             std::shared_ptr<SafeListDownloaderImpl>* >(userdata);
-        TDVec& list = self->_jobs;
-        auto newList = std::make_shared< ToDownloadList >(self);
-        SA::add(list,newList);
+        CacheVec& list = self->_jobCache;
+        SA::add(list,DownloadCacheItem());
         auto& back = list.back();
-        newList->_id = std::atoi(value[0]);
-        newList->_size = std::stoi(value[1]);
-        newList->_link = value[2];
-        newList->_path = value[3];
-        newList->_absPath = self->_sessionDir;
-        newList->_absPath += newList->_path;
+        //newList->_id = std::atoi(value[0]);
+        //newList->_size = std::stoi(value[1]);
+        //newList->_link = value[2];
+        //newList->_path = value[3];
+        //newList->_absPath = self->_sessionDir;
+        //newList->_absPath += newList->_path;
+        back._mirrorId = std::atoi(value[0]);
+        back._size = std::atoi(value[1]);
+        back._url = value[2];
+        back._path = value[3];
         //printf("Starting plucing... %s\n",newList->_path.c_str());
         return 0;
     }

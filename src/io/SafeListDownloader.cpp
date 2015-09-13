@@ -290,7 +290,7 @@ private:
         std::vector<int>& toMarkStarted)
     {
         refillCache(impl);
-        scheduleFromCache(toMarkStarted);
+        scheduleFromCache(impl,toMarkStarted);
     }
 
     void refillCache(std::shared_ptr< SafeListDownloaderImpl >& impl) {
@@ -323,13 +323,16 @@ private:
         }
     }
 
-    void scheduleFromCache(std::vector<int>& toDrop) {
+    void scheduleFromCache(
+        std::shared_ptr< SafeListDownloaderImpl >& self,
+        std::vector<int>& toDrop)
+    {
         const int KEEP_NUM = 5;
         auto currSize = SA::size(_jobs);
         int diff = KEEP_NUM - currSize;
         while (diff > 0 && _jobCachePoint < SA::size(_jobCache)) {
             TDVec& list = this->_jobs;
-            auto newList = std::make_shared< ToDownloadList >();
+            auto newList = std::make_shared< ToDownloadList >(self);
             SA::add(list,newList);
 
             auto& cacheItem = _jobCache[_jobCachePoint];

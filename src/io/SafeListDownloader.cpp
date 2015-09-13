@@ -359,20 +359,12 @@ private:
     }
 
     void cleanup() {
-        auto locked = this->_toNotify.lock();
-        if (nullptr == locked) {
-            auto msg = SF::vpack<
-                SafeListDownloader::OutDone >(nullptr);
-            locked->message(msg);
-        }
         auto closeCpy = _currentConnection;
         this->_currentConnection = nullptr;
 
         sqlite3_close(closeCpy);
         if (_isFinished) {
-            auto notify = _toNotify.lock();
-            auto msg = SF::vpack< SafeListDownloader::OutDone >( nullptr );
-            notify->message(msg);
+            notifyObserver<SafeListDownloader::OutDone>(nullptr);
             std::remove(_path.c_str());
         }
     }

@@ -147,9 +147,25 @@ initAll = function()
             local asyncSqlite = ctx:namedMesseagable("asyncSqliteCurrent")
             local handler = ctx:makeLuaMatchHandler(
                 VMatch(function()
-                    print('safelist session dun!')
+                    print('Downloaded!')
+                end,"SLD_OutDone"),
+                VMatch(function(natpack,val)
+                    local valTree = val:values()
+                    print('Starting... ' .. valTree._2)
+                end,"SLD_OutStarted","int"),
+                VMatch(function()
+                    print('Safelist session dun! Downloading...')
+                    local dlHandle = ctx:messageRetValues(dlFactory,
+                        VSig("SLDF_InNewAsync"),
+                        VString("downloadtest1/safelist_session"),
+                        VMsg(currDlSessionHandler),
+                        VMsg(nil)
+                    )._4
+                    assert( dlHandle ~= nil )
                 end,"SLDF_OutCreateSessionDone")
             )
+
+            currDlSessionHandler = handler
             ctx:message(dlFactory,
                 VSig("SLDF_CreateSession"),
                 VMsg(asyncSqlite),

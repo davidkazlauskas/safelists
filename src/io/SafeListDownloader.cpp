@@ -226,6 +226,7 @@ private:
         auto writerCpy = this->_fileWriter;
         updateJobs(implCpy,toMarkStarted);
         scheduleJobs(writerCpy);
+        markStartedInDb(toMarkStarted);
         do {
             _sem.wait();
 

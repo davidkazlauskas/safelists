@@ -62,6 +62,12 @@ struct SafeListDownloaderImpl : public Messageable {
         _sessionDir.erase(pos + 1);
     }
 
+    template <class... Types,class... Args>
+    void notifyObserver(Args&&... args) {
+        static_assert(sizeof...(Types) == sizeof...(Args),
+            "Type mismatch cholo.");
+    }
+
     void message(const std::shared_ptr< templatious::VirtualPack >& msg) override {
         _cache.enqueue(msg);
         _sem.notify();

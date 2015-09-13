@@ -52,6 +52,8 @@ struct SafeListDownloaderImpl : public Messageable {
         _toNotify(toNotify),
         _handler(genHandler()),
         _sqliteRevision(0),
+        _currentCacheRevision(-1),
+        _jobCachePoint(0),
         _isFinished(false),
         _isAsync(notifyAsAsync)
     {
@@ -197,12 +199,6 @@ private:
         CacheVec& list = self->_jobCache;
         SA::add(list,DownloadCacheItem());
         auto& back = list.back();
-        //newList->_id = std::atoi(value[0]);
-        //newList->_size = std::stoi(value[1]);
-        //newList->_link = value[2];
-        //newList->_path = value[3];
-        //newList->_absPath = self->_sessionDir;
-        //newList->_absPath += newList->_path;
         back._mirrorId = std::atoi(value[0]);
         back._size = std::atoi(value[1]);
         back._url = value[2];
@@ -226,16 +222,20 @@ private:
             }
         );
 
+        std::vector< int > toMarkStarted;
 
         auto implCpy = impl;
         auto writerCpy = this->_fileWriter;
-        updateJobs(implCpy);
+        updateJobs(implCpy,toMarkStarted);
         scheduleJobs(writerCpy);
         do {
             _sem.wait();
 
-            updateJobs(implCpy);
+            SA::clear(toMarkStarted);
+
+            updateJobs(implCpy,toMarkStarted);
             scheduleJobs(writerCpy);
+            markStartedInDb(toMarkStarted);
             clearDoneJobs();
             processMessages();
         } while (SA::size(_jobs) > 0);
@@ -254,8 +254,52 @@ private:
         );
     }
 
-    void updateJobs(std::shared_ptr< SafeListDownloaderImpl >& impl) {
+    void markStartedInDb(std::vector<int>& toMarkStarted) {
+        // TODO: optimize for multiple ids... maybe?
+        // Probably doesn't matter...
+        const char* MARK_STARTED_STRING =
+            "UPDATE to_download"
+            " SET status=1"
+            " WHERE id=%d;";
+        char buf[512];
         int res = 0;
+        char* errMsg = nullptr;
+        sqlite3_exec(
+            _currentConnection,"BEGIN;",
+            nullptr,nullptr,&errMsg);
+        TEMPLATIOUS_FOREACH(int i,toMarkStarted) {
+            sprintf(buf,MARK_STARTED_STRING,i);
+            res = sqlite3_exec(
+                _currentConnection,
+                buf,
+                nullptr,
+                nullptr,
+                &errMsg);
+            if (res != 0) {
+                printf("Failed, pookie: %s\n",errMsg);
+            }
+            assert( res == 0 && "Should werk milky..." );
+        }
+        sqlite3_exec(
+            _currentConnection,"COMMIT;",
+            nullptr,nullptr,&errMsg);
+    }
+
+    void updateJobs(
+        std::shared_ptr< SafeListDownloaderImpl >& impl,
+        std::vector<int>& toMarkStarted)
+    {
+        refillCache(impl);
+        scheduleFromCache(toMarkStarted);
+    }
+
+    void refillCache(std::shared_ptr< SafeListDownloaderImpl >& impl) {
+        int res = 0;
+        const int CACHE_HIT_NUM = 128;
+
+        char queryBuf[512];
+        char* errMsg = nullptr;
+
         const char* FIRST_QUERY =
             "SELECT mirrors.id,file_size,link,file_path FROM mirrors"
             " LEFT OUTER JOIN to_download ON mirrors.id=to_download.id"
@@ -263,50 +307,44 @@ private:
             " ORDER BY priority DESC, use_count ASC"
             " LIMIT %d;";
 
-        const char* UPDATE_STATUS_QUERY =
-            "UPDATE to_download"
-            " SET status=1"
-            " WHERE id IN"
-            " ("
-            " SELECT mirrors.id FROM mirrors"
-            " LEFT OUTER JOIN to_download ON mirrors.id=to_download.id"
-            " WHERE status=0"
-            " ORDER BY priority DESC, use_count ASC"
-            " LIMIT %d"
-            " );";
-
-        char queryBuf[512];
-        char* errMsg = nullptr;
-        const int KEEP_NUM = 5;
-
-        auto currSize = SA::size(_jobs);
-        int diff = KEEP_NUM - currSize;
-        if (diff > 0) {
-            sprintf(queryBuf,FIRST_QUERY,diff);
+        if (_currentCacheRevision < _sqliteRevision ||
+            _jobCachePoint == SA::size(_jobCache))
+        {
+            SA::clear(_jobCache);
+            sprintf(queryBuf,FIRST_QUERY,CACHE_HIT_NUM);
             res = sqlite3_exec(
                 _currentConnection,
                 queryBuf,
                 &downloadQueryCallback,
                 &impl,
                 &errMsg);
+            _currentCacheRevision = _sqliteRevision;
+            _jobCachePoint = 0;
+        }
+    }
 
-            if (res != 0) {
-                printf("Failed, pookie: %s\n",errMsg);
-            }
-            assert( res == 0 && "Should werk milky..." );
+    void scheduleFromCache(std::vector<int>& toDrop) {
+        const int KEEP_NUM = 5;
+        auto currSize = SA::size(_jobs);
+        int diff = KEEP_NUM - currSize;
+        while (diff > 0 && _jobCachePoint < SA::size(_jobCache)) {
+            TDVec& list = this->_jobs;
+            auto newList = std::make_shared< ToDownloadList >();
+            SA::add(list,newList);
 
-            sprintf(queryBuf,UPDATE_STATUS_QUERY,diff);
-            res = sqlite3_exec(
-                _currentConnection,
-                queryBuf,
-                nullptr,
-                nullptr,
-                &errMsg);
+            auto& cacheItem = _jobCache[_jobCachePoint];
+            ++_jobCachePoint;
+            newList->_id = cacheItem._mirrorId;
+            newList->_size = cacheItem._size;
+            newList->_link = cacheItem._url;
+            newList->_path = cacheItem._path;
+            newList->_absPath = this->_sessionDir;
+            newList->_absPath += newList->_path;
 
-            if (res != 0) {
-                printf("Failed, pookie: %s\n",errMsg);
-            }
-            assert( res == 0 && "Should werk milky..." );
+            SA::add(toDrop,cacheItem._mirrorId);
+
+            currSize = SA::size(_jobs);
+            diff = KEEP_NUM - currSize;
         }
     }
 
@@ -398,6 +436,8 @@ private:
     CacheVec _jobCache;
     VmfPtr _handler;
     int _sqliteRevision;
+    int _currentCacheRevision;
+    int _jobCachePoint;
     bool _isFinished;
     bool _isAsync;
 };

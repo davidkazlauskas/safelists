@@ -184,6 +184,13 @@ private:
         bool _hasEnded;
     };
 
+    struct DownloadCacheItem {
+        int _mirrorId;
+        int64_t _size;
+        std::string _url;
+        std::string _path;
+    };
+
     static int downloadQueryCallback(void* userdata,int column,char** value,char** header) {
         auto& self = *reinterpret_cast<
             std::shared_ptr<SafeListDownloaderImpl>* >(userdata);

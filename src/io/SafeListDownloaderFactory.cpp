@@ -27,15 +27,15 @@ namespace {
         ");                         ";
 
     const char* DL_SELECT_ABS_PATHS =
-        "SELECT file_id, path_name || '/' || file_name, file_size, file_hash_256    "
+        "SELECT file_id, path_name || file_name, file_size, file_hash_256    "
         "FROM files "
         "LEFT OUTER JOIN    "
         "(  "
         "   WITH RECURSIVE  "
         "   children(d_id,path_name) AS (   "
-        "      SELECT dir_id,dir_name FROM directories WHERE dir_name='root' AND dir_id=1   "
+        "      SELECT dir_id,'' FROM directories WHERE dir_name='root' AND dir_id=1   "
         "      UNION ALL    "
-        "      SELECT dir_id,children.path_name || '/' || dir_name  "
+        "      SELECT dir_id,children.path_name || dir_name || '/'  "
         "      FROM directories JOIN children ON directories.dir_parent=children.d_id   "
         "   ) SELECT d_id,path_name FROM children   "
         ")  "

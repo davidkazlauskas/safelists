@@ -88,8 +88,15 @@ SET( TEST_SOURCES
     tests/util-tests.cpp
 )
 
+SET( DUMB_HASH_SOURCES
+    src/dumbhash.cpp
+)
+
 add_executable( all-tests ${TEST_SOURCES} )
 target_link_libraries( all-tests domain )
+
+add_executable( dumbhash256 ${TEST_SOURCES} )
+target_link_libraries( dumbhash256 domain )
 
 add_library( gtkspec ${GTK_SOURCES} )
 target_link_libraries( gtkspec domain ${GTKMM_LIBRARIES} )

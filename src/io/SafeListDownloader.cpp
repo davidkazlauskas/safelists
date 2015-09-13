@@ -66,6 +66,20 @@ struct SafeListDownloaderImpl : public Messageable {
     void notifyObserver(Args&&... args) {
         static_assert(sizeof...(Types) == sizeof...(Args),
             "Type mismatch cholo.");
+        auto locked = _toNotify.lock();
+        if (nullptr == locked) {
+            return;
+        }
+
+        if (!_isAsync) {
+            auto msg = SF::vpack<Types...>(
+                std::forward<Args>(args)...);
+            locked->message(msg);
+        } else {
+            auto msg = SF::vpackPtr<Types...>(
+                std::forward<Args>(args)...);
+            locked->message(msg);
+        }
     }
 
     void message(const std::shared_ptr< templatious::VirtualPack >& msg) override {

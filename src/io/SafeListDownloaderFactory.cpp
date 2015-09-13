@@ -5,6 +5,8 @@
 #include <io/SafeListDownloader.hpp>
 #include <util/ScopeGuard.hpp>
 #include <model/AsyncSqlite.hpp>
+#include <io/AsyncDownloader.hpp>
+#include <io/RandomFileWriter.hpp>
 
 #include "SafeListDownloaderFactory.hpp"
 
@@ -222,6 +224,18 @@ private:
                     const StrongMsgPtr& toNotify,
                     StrongMsgPtr& output)
                 {
+                    // singleton
+                    auto writer =
+                        SafeLists::RandomFileWriter::make();
+                    static auto downloader =
+                        SafeLists::AsyncDownloader::createNew("imitation");
+                    auto result = SafeListDownloader::startNew(
+                                    path.c_str(),
+                                    writer,
+                                    downloader,
+                                    toNotify,
+                                    true);
+                    output = result;
                 }
             ),
             SF::virtualMatch<

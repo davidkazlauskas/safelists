@@ -326,7 +326,7 @@ private:
         std::shared_ptr< SafeListDownloaderImpl >& self,
         std::vector<int>& toDrop)
     {
-        const int KEEP_NUM = 5;
+        const int KEEP_NUM = 25;
         auto currSize = SA::size(_jobs);
         int diff = KEEP_NUM - currSize;
         while (diff > 0 && _jobCachePoint < SA::size(_jobCache)) {

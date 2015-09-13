@@ -51,6 +51,7 @@ struct SafeListDownloaderImpl : public Messageable {
         _fileDownloader(fileDownloader),
         _toNotify(toNotify),
         _handler(genHandler()),
+        _sqliteRevision(0),
         _isFinished(false),
         _isAsync(notifyAsAsync)
     {
@@ -384,6 +385,7 @@ private:
     StackOverflow::Semaphore _sem;
     TDVec _jobs;
     VmfPtr _handler;
+    int _sqliteRevision;
     bool _isFinished;
     bool _isAsync;
 };

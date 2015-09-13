@@ -7,6 +7,7 @@
 #include <gtkmm/GtkMMRangerModel.hpp>
 #include <util/AutoReg.hpp>
 #include <gtkmm/GtkMMSessionWidget.hpp>
+#include <io/SafeListDownloaderFactory.hpp>
 
 TEMPLATIOUS_TRIPLET_STD;
 
@@ -872,6 +873,9 @@ int main(int argc,char** argv) {
     auto ctx = LuaContext::makeContext("lua/plumbing.lua");
     ctx->setFactory(vFactory());
 
+    auto dlFactory = SafeLists::
+        SafeListDownloaderFactory::createNew();
+
     auto builder = Gtk::Builder::create();
     builder->add_from_file("uischemes/main.glade");
     auto asyncSqlite = SafeLists::AsyncSqlite::createNew("exampleData/example2.safelist");
@@ -882,6 +886,7 @@ int main(int argc,char** argv) {
     ctx->addMesseagableWeak("singleInputDialog",singleInputDialog);
     ctx->addMesseagableWeak("mainModel",mainModel);
     ctx->addMesseagableWeak("asyncSqliteCurrent",asyncSqlite);
+    ctx->addMesseagableStrong("dlSessionFactory",dlFactory);
     ctx->doFile("lua/main.lua");
     app->run(mainWnd->getWindow(),argc,argv);
 }

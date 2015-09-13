@@ -345,7 +345,10 @@ private:
                 );
 
                 i->_hasStarted = true;
+                int theId = i->_id;
                 _fileDownloader->message(job);
+                notifyObserver< SafeListDownloader::OutStarted, int >(
+                    nullptr,theId);
             }
         }
     }

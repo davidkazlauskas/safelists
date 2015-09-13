@@ -29,7 +29,8 @@ struct SafeListDownloader {
         const char* path,
         const StrongMsgPtr& fileWriter,
         const StrongMsgPtr& fileDownloader,
-        const StrongMsgPtr& toNotify
+        const StrongMsgPtr& toNotify,
+        bool notifyAsAsync = false
     );
 };
 

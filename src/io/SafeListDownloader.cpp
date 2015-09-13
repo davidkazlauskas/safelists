@@ -43,14 +43,16 @@ struct SafeListDownloaderImpl : public Messageable {
         const char* path,
         const StrongMsgPtr& fileWriter,
         const StrongMsgPtr& fileDownloader,
-        const StrongMsgPtr& toNotify
+        const StrongMsgPtr& toNotify,
+        bool notifyAsAsync
     ) :
         _path(path),
         _fileWriter(fileWriter),
         _fileDownloader(fileDownloader),
         _toNotify(toNotify),
         _handler(genHandler()),
-        _isFinished(false)
+        _isFinished(false),
+        _isAsync(notifyAsAsync)
     {
         // session directory
         _sessionDir = path;
@@ -73,13 +75,15 @@ struct SafeListDownloaderImpl : public Messageable {
         const char* path,
         const StrongMsgPtr& fileWriter,
         const StrongMsgPtr& fileDownloader,
-        const StrongMsgPtr& toNotify)
+        const StrongMsgPtr& toNotify,
+        bool notifyAsAsync)
     {
         auto result = std::make_shared< SafeListDownloaderImpl >(
             path,
             fileWriter,
             fileDownloader,
-            toNotify);
+            toNotify,
+            notifyAsAsync);
         std::thread(
             [=]() {
                 result->mainLoop(result);
@@ -366,20 +370,23 @@ private:
     TDVec _jobs;
     VmfPtr _handler;
     bool _isFinished;
+    bool _isAsync;
 };
 
 StrongMsgPtr SafeListDownloader::startNew(
         const char* path,
         const StrongMsgPtr& fileWriter,
         const StrongMsgPtr& fileDownloader,
-        const StrongMsgPtr& toNotify
+        const StrongMsgPtr& toNotify,
+        bool notifyAsAsync
 )
 {
     return SafeListDownloaderImpl::startSession(
         path,
         fileWriter,
         fileDownloader,
-        toNotify
+        toNotify,
+        notifyAsAsync
     );
 }
 

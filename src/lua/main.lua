@@ -141,7 +141,22 @@ initAll = function()
 
             ctx:message(dialog,VSig("INDLG_InSetNotifier"),VMsg(handler))
             showOrHide(true)
-        end,"MWI_OutNewDirButtonClicked")
+        end,"MWI_OutNewDirButtonClicked"),
+        VMatch(function()
+            local dlFactory = ctx:namedMesseagable("dlSessionFactory")
+            local asyncSqlite = ctx:namedMesseagable("asyncSqliteCurrent")
+            local handler = ctx:makeLuaMatchHandler(
+                VMatch(function()
+                    print('safelist session dun!')
+                end,"SLDF_OutCreateSessionDone")
+            )
+            ctx:message(dlFactory,
+                VSig("SLDF_CreateSession"),
+                VMsg(asyncSqlite),
+                VMsg(handler),
+                VString("downloadtest1/safelist_session")
+            )
+        end,"MWI_OutDownloadSafelistButtonClicked")
     )
 
     ctx:message(mainWnd,VSig("MWI_InAttachListener"),VMsg(mainWindowPushButtonHandler))

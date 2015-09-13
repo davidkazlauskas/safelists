@@ -35,6 +35,10 @@ struct MainWindowInterface {
     // In lua: MWI_OutNewDirButtonClicked
     DUMMY_REG(OutNewDirButtonClicked,"MWI_OutNewDirButtonClicked");
 
+    // emitted when new directory button clicked
+    // In lua: MWI_OutNewDirButtonClicked
+    DUMMY_REG(OutDownloadSafelistButtonClicked,"MWI_OutDownloadSafelistButtonClicked");
+
     // emit to attach listener
     // In lua: MWI_InAttachListener
     // Signature: < InAttachListener, StrongMsgPtr >
@@ -224,8 +228,15 @@ private:
 };
 
 
+#define BIND_GTK_BUTTON(gladeName,memberName,funcName)  \
+    bld->get_widget(gladeName,memberName);  \
+    memberName->signal_clicked().connect(   \
+        sigc::mem_fun(*this,funcName)       \
+    );
 
 struct GtkMainWindow : public Messageable {
+
+    typedef MainWindowInterface MWI;
 
     GtkMainWindow(Glib::RefPtr<Gtk::Builder>& bld) :
         _left(nullptr),
@@ -245,6 +256,9 @@ struct GtkMainWindow : public Messageable {
         bld->get_widget("statusBarLabel",_statusBar);
         bld->get_widget("newDirectoryButton",_newDirBtn);
         bld->get_widget("reavealerSessions",_revealerSessions);
+        BIND_GTK_BUTTON("downloadButton",
+            _dlSafelistBtn,
+            &GtkMainWindow::downloadButtonClicked);
 
         _sessionTab = SafeLists::GtkSessionTab::makeNew();
         _revealerSessions->add(*_sessionTab->getTabs());
@@ -305,7 +319,6 @@ private:
     typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
 
     VmfPtr genHandler() {
-        typedef MainWindowInterface MWI;
         typedef GenericMesseagableInterface GMI;
         return SF::virtualMatchFunctorPtr(
             SF::virtualMatch< MWI::InAttachListener, StrongMsgPtr >(
@@ -632,6 +645,14 @@ private:
         _notifierCache.notify(msg);
     }
 
+    template <class... Types,class... Args>
+    void notifySingleThreaded(Args&&... args) {
+        auto msg = SF::vpack<Types...>(
+            std::forward<Args>(args)...
+        );
+        _notifierCache.notify(msg);
+    }
+
     void deleteDirButtonClicked() {
         auto msg = SF::vpack< MainWindowInterface::OutDeleteDirButtonClicked >(nullptr);
         _notifierCache.notify(msg);
@@ -659,6 +680,12 @@ private:
         _right->set_model(_fileStore);
     }
 
+    void downloadButtonClicked() {
+        notifySingleThreaded<
+            MWI::OutDownloadSafelistButtonClicked
+        >(nullptr);
+    }
+
     void pushToSelectionStack(Gtk::TreeModel::iterator& iter) {
         _selectionStack[0] = _selectionStack[1];
         _selectionStack[1] = iter;
@@ -671,6 +698,7 @@ private:
     Gtk::Button* _moveDirBtn;
     Gtk::Button* _deleteDirBtn;
     Gtk::Button* _newDirBtn;
+    Gtk::Button* _dlSafelistBtn;
     Gtk::Label* _statusBar;
     Gtk::Revealer* _revealerSessions;
     ModelColumns _mdl;

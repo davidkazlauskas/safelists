@@ -146,13 +146,13 @@ initAll = function()
             local dlFactory = ctx:namedMesseagable("dlSessionFactory")
             local asyncSqlite = ctx:namedMesseagable("asyncSqliteCurrent")
             local handler = ctx:makeLuaMatchHandler(
-                VMatch(function()
-                    print('Downloaded!')
-                end,"SLD_OutDone"),
                 VMatch(function(natpack,val)
                     local valTree = val:values()
                     print('Starting... ' .. valTree._2)
                 end,"SLD_OutStarted","int"),
+                VMatch(function()
+                    print('Downloaded!')
+                end,"SLD_OutDone"),
                 VMatch(function()
                     print('Safelist session dun! Downloading...')
                     local dlHandle = ctx:messageRetValues(dlFactory,

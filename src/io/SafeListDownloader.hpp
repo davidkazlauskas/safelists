@@ -16,7 +16,7 @@ struct SafeListDownloader {
     // from different thread.
     // Signature:
     // < OutDone >
-    DUMMY_REG(OutDone,"SLD_Done");
+    DUMMY_REG(OutDone,"SLD_OutDone");
 
     // messaged when download is started.
     // Signature:

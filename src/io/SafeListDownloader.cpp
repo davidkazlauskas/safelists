@@ -216,10 +216,8 @@ private:
         }
 
         _currentConnection = conn;
-        auto sqliteGuard = makeScopeGuard(
-            [&]() {
-                this->cleanup();
-            }
+        auto sqliteGuard = SCOPE_GUARD_LC(
+            this->cleanup();
         );
 
         std::vector< int > toMarkStarted;

@@ -14,7 +14,16 @@ struct SafeListDownloader {
     // messaged out when download
     // is done. Messaged as synchronous message
     // from different thread.
+    // Signature:
+    // < OutDone >
     DUMMY_REG(OutDone,"SLD_Done");
+
+    // messaged when download is started.
+    // Signature:
+    // <
+    //    OutStarted, int (fileid)
+    // >
+    DUMMY_REG(OutStarted,"SLD_OutStarted");
 
     static StrongMsgPtr startNew(
         const char* path,

@@ -201,6 +201,11 @@ namespace SafeLists {
             const std::chrono::high_resolution_clock::time_point& sessionStart
         )
         {
+            if (SA::size(_imitationVector) == 0) {
+                // nothing to do
+                return;
+            }
+
             static auto referencePoint = std::chrono::high_resolution_clock::now();
             auto deadline = sessionStart + std::chrono::milliseconds( DOWNLOAD_PERIODICITY_MS );
             int64_t thisPumpStart = std::chrono::duration_cast<

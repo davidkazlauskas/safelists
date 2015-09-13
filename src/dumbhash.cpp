@@ -4,14 +4,14 @@
 #include <util/DumbHash.hpp>
 
 int main(int argc,char* argv[]) {
-    if (argc != 1) {
+    if (argc != 2) {
         std::cout << "Usage: dumbhash256 [filename]" << std::endl;
         return 1;
     }
 
-    std::ifstream input(argv[0],std::ios::binary);
+    std::ifstream input(argv[1],std::ios::binary);
     if (!input.is_open()) {
-        std::cout << "Cannot open file " << argv[0] << std::endl;
+        std::cout << "Cannot open file " << argv[1] << std::endl;
         return 1;
     }
 

@@ -167,6 +167,7 @@ VmfPtr GtkSessionTab::genHandler() {
     return SF::virtualMatchFunctorPtr(
         SF::virtualMatch< MI::InFullUpdate >(
             [=](MI::InFullUpdate) {
+                this->fullModelUpdate();
             }
         )
     );

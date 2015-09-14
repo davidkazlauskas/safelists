@@ -3,6 +3,7 @@
 #include <mutex>
 
 #include <templatious/FullPack.hpp>
+#include <LuaPlumbing/messageable.hpp>
 
 #include "GtkMMSessionWidget.hpp"
 
@@ -151,6 +152,24 @@ GtkSessionTab::~GtkSessionTab() {
 
 Gtk::Notebook* GtkSessionTab::getTabs() {
     return _mainTab;
+}
+
+void GtkSessionTab::message(const std::shared_ptr< templatious::VirtualPack >& msg) {
+    assert( false && "Can't touch this." );
+}
+
+void GtkSessionTab::message(templatious::VirtualPack& msg) {
+    _handler->tryMatch(msg);
+}
+
+VmfPtr GtkSessionTab::genHandler() {
+    typedef GtkSessionTab::ModelInterface MI;
+    return SF::virtualMatchFunctorPtr(
+        SF::virtualMatch< MI::InFullUpdate >(
+            [=](MI::InFullUpdate) {
+            }
+        )
+    );
 }
 
 }

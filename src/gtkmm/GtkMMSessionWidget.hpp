@@ -21,14 +21,22 @@ private:
     Gtk::Label* _sessionLabel;
 };
 
-struct GtkSessionTab {
+struct GtkSessionTab : public Messageable {
 
     struct ModelInterface {
         // Query count of download sessions in model
         // Signature:
         // < QueryCount, int (out number) >
         DUMMY_REG(QueryCount,"DLMDL_QueryCount");
+
+        // Perform full gui update
+        // Signature:
+        // < InFullUpdate >
+        DUMMY_REG(InFullUpdate,"DLMDL_InFullUpdate");
     };
+
+    void message(const std::shared_ptr< templatious::VirtualPack >& msg) override;
+    void message(templatious::VirtualPack& msg) override;
 
     static std::shared_ptr< GtkSessionTab > makeNew();
     Gtk::Notebook* getTabs();
@@ -39,10 +47,13 @@ struct GtkSessionTab {
 private:
     GtkSessionTab(Glib::RefPtr<Gtk::Builder>& bld);
 
+    VmfPtr genHandler();
+
     std::vector< std::shared_ptr<GtkSessionWidget > > _sessions;
     Glib::RefPtr<Gtk::Builder> _container;
     Gtk::Notebook* _mainTab;
     WeakMsgPtr _weakModel;
+    VmfPtr _handler;
 };
 
 }

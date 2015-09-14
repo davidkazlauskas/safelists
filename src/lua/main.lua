@@ -196,7 +196,7 @@ initAll = function()
 
     downloadUpdateModel = ctx:makeLuaMatchHandler(
         VMatch(function(natPack)
-            natPack:setSlot(2,VInt(2))
+            natPack:setSlot(2,VInt( #DownloadsModel.sessions ))
         end,"DLMDL_QueryCount","int")
     )
     ctx:message(mainWnd,VSig("MWI_InSetDownloadModel"),VMsg(downloadUpdateModel))

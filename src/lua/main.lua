@@ -7,6 +7,22 @@ end
 
 revealDownloads = false
 
+DownloadsModel = {
+    sessions = {},
+    progressTotal = 0,
+    currentSession = 0
+}
+
+function DownloadsModel:newSession(o)
+    o.currentSession = o.currentSession + 1
+    local theSession = o.currentSession
+    sessions[theSession] = {
+        progress = 0,
+        downloadTable = {}
+    }
+    return sessions[theSession]
+end
+
 initAll = function()
 
     local ctx = luaContext()

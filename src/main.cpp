@@ -317,6 +317,26 @@ struct GtkMainWindow : public Messageable {
 
 private:
 
+    struct DrawUpdater {
+
+        DrawUpdater() = delete;
+        DrawUpdater(const DrawUpdater&) = delete;
+        DrawUpdater(DrawUpdater&&) = delete;
+
+        DrawUpdater(
+            const std::shared_ptr< GtkMainWindow >& mwnd,
+            int periodicity = 100) : // 100 ms
+            _mwndPtr(mwnd) {}
+
+        std::shared_ptr< DrawUpdater > spinNew(const std::shared_ptr< GtkMainWindow >& mwnd) {
+            auto res = std::make_shared< DrawUpdater >(mwnd);
+            return res;
+        }
+
+    private:
+        std::weak_ptr< GtkMainWindow > _mwndPtr;
+    };
+
     typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
 
     VmfPtr genHandler() {
@@ -733,6 +753,7 @@ private:
     // should contain two elements always
     std::vector<Gtk::TreeModel::iterator> _selectionStack;
     std::shared_ptr< SafeLists::GtkSessionTab > _sessionTab;
+    std::weak_ptr< GtkMainWindow > _myself;
 };
 
 struct GtkInputDialog : public Messageable {

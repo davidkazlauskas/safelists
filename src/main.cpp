@@ -322,16 +322,11 @@ private:
     VmfPtr genHandler() {
         typedef GenericMesseagableInterface GMI;
         return SF::virtualMatchFunctorPtr(
-            SF::virtualMatch< MWI::InAttachListener, StrongMsgPtr >(
-                [=](MWI::InAttachListener,const StrongMsgPtr& ptr) {
-                    this->_notifierCache.add(ptr);
-                }
-            ),
             SF::virtualMatch<
-                GMI::InAttachToEventLoop, std::function<bool()>
+                GMI::OutRequestUpdate
             >(
-                [=](GMI::InAttachToEventLoop,std::function<bool()>& func) {
-                    this->_callbackCache.attach(func);
+                [=](GMI::OutRequestUpdate) {
+                    // todo, queue draw
                 }
             ),
             SF::virtualMatch<
@@ -420,6 +415,18 @@ private:
             SF::virtualMatch< MWI::InRevealDownloads, bool >(
                 [=](MWI::InDeleteSelectedDir,bool value) {
                     _revealerSessions->set_reveal_child(value);
+                }
+            ),
+            SF::virtualMatch< MWI::InAttachListener, StrongMsgPtr >(
+                [=](MWI::InAttachListener,const StrongMsgPtr& ptr) {
+                    this->_notifierCache.add(ptr);
+                }
+            ),
+            SF::virtualMatch<
+                GMI::InAttachToEventLoop, std::function<bool()>
+            >(
+                [=](GMI::InAttachToEventLoop,std::function<bool()>& func) {
+                    this->_callbackCache.attach(func);
                 }
             ),
             SF::virtualMatch< MWI::InSetDownloadModel, StrongMsgPtr >(

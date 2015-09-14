@@ -6,6 +6,7 @@
 #include <LuaPlumbing/plumbing.hpp>
 #include <gtkmm/GtkMMRangerModel.hpp>
 #include <util/AutoReg.hpp>
+#include <util/Semaphore.hpp>
 #include <gtkmm/GtkMMSessionWidget.hpp>
 #include <io/SafeListDownloaderFactory.hpp>
 
@@ -315,6 +316,11 @@ struct GtkMainWindow : public Messageable {
         _messageCache.enqueue(msg);
     }
 
+    static void spinUpdater(const std::shared_ptr< GtkMainWindow >& mwnd) {
+        auto res = DrawUpdater::spinNew(mwnd);
+        mwnd->_drawUpdater = res;
+    }
+
 private:
 
     struct DrawUpdater {
@@ -324,18 +330,73 @@ private:
         DrawUpdater(DrawUpdater&&) = delete;
 
         DrawUpdater(
-            const std::shared_ptr< GtkMainWindow >& mwnd,
-            int periodicity = 100) : // 100 ms
-            _mwndPtr(mwnd) {}
+            const std::shared_ptr< GtkMainWindow >& mwnd) : // 100 ms
+            _mwndPtr(mwnd),
+            _scheduledTime(-1)
+        {}
 
-        std::shared_ptr< DrawUpdater > spinNew(const std::shared_ptr< GtkMainWindow >& mwnd) {
+        static std::shared_ptr< DrawUpdater > spinNew(const std::shared_ptr< GtkMainWindow >& mwnd) {
             auto res = std::make_shared< DrawUpdater >(mwnd);
+            std::weak_ptr< GtkMainWindow > weakCpy = mwnd;
+            std::thread(
+                [=]() {
+                    // reference point
+                    auto& ref = referencePoint();
+                    for (;;) {
+                        res->_sem.wait();
+                        int64_t scheduledCpy = res->_scheduledTime;
+                        if (scheduledCpy > 0) {
+                            auto now = std::chrono::high_resolution_clock::now();
+                            auto millisApart = std::chrono::duration_cast<
+                                std::chrono::milliseconds
+                            >(now - ref).count();
+                            auto diff = scheduledCpy - millisApart;
+                            if (diff > 0) {
+                                std::this_thread::sleep_for(
+                                    std::chrono::milliseconds(diff)
+                                );
+                                auto l = weakCpy.lock();
+                                if (nullptr == l) {
+                                    return;
+                                }
+                                printf("Enqued...\n");
+                                l->_wnd->queue_draw();
+                                res->_scheduledTime = -1;
+                            }
+                        }
+                    }
+                }
+            ).detach();
             return res;
+        }
+
+        void scheduleUpdate(int afterMillis) {
+            auto now = std::chrono::high_resolution_clock::now();
+            auto& ref = referencePoint();
+            auto millisApart = std::chrono::duration_cast<
+                std::chrono::milliseconds
+            >(now - ref).count();
+
+            int64_t predicted = millisApart + afterMillis;
+            if (_scheduledTime < 0) {
+                _scheduledTime = predicted;
+            }
+            _sem.notify();
+        }
+
+        static const std::chrono::high_resolution_clock::time_point&
+            referencePoint()
+        {
+            static auto result = std::chrono::high_resolution_clock::now();
+            return result;
         }
 
     private:
         std::weak_ptr< GtkMainWindow > _mwndPtr;
+        StackOverflow::Semaphore _sem;
+        int64_t _scheduledTime;
     };
+
 
     typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
 
@@ -346,7 +407,11 @@ private:
                 GMI::OutRequestUpdate
             >(
                 [=](GMI::OutRequestUpdate) {
-                    // todo, queue draw
+                    auto locked = _drawUpdater.lock();
+                    if (nullptr != locked) {
+                        printf("Schedulin!\n");
+                        locked->scheduleUpdate(100);
+                    }
                 }
             ),
             SF::virtualMatch<
@@ -754,6 +819,7 @@ private:
     std::vector<Gtk::TreeModel::iterator> _selectionStack;
     std::shared_ptr< SafeLists::GtkSessionTab > _sessionTab;
     std::weak_ptr< GtkMainWindow > _myself;
+    std::weak_ptr<DrawUpdater> _drawUpdater;
 };
 
 struct GtkInputDialog : public Messageable {
@@ -908,6 +974,7 @@ int main(int argc,char** argv) {
     builder->add_from_file("uischemes/main.glade");
     auto asyncSqlite = SafeLists::AsyncSqlite::createNew("exampleData/example2.safelist");
     auto mainWnd = std::make_shared< GtkMainWindow >(builder);
+    GtkMainWindow::spinUpdater(mainWnd);
     auto singleInputDialog = std::make_shared< GtkInputDialog >(builder);
     auto mainModel = std::make_shared< MainModel >();
     ctx->addMesseagableWeak("mainWindow",mainWnd);

@@ -90,6 +90,10 @@ struct MainWindowInterface {
     // query current directory name
     // Signature: < QueryCurrentDirName, std::string (output) >
     DUMMY_REG(QueryCurrentDirName,"MWI_QueryCurrentDirName");
+
+    // query session widget
+    // Signature: < QueryDownloadSessionWidget, StrongMsgPtr >
+    DUMMY_REG(QueryDownloadSessionWidget,"MWI_QueryDownloadSessionWidget");
 };
 
 #define ASYNC_OUT_SNAP_SIGNATURE \
@@ -516,6 +520,11 @@ private:
             SF::virtualMatch< MWI::InSetDownloadModel, StrongMsgPtr >(
                 [=](MWI::InSetDownloadModel,const StrongMsgPtr& msg) {
                     this->_sessionTab->setModel(msg);
+                }
+            ),
+            SF::virtualMatch< MWI::QueryDownloadSessionWidget, StrongMsgPtr >(
+                [=](MWI::InSetDownloadModel,StrongMsgPtr& msg) {
+                    msg = this->_sessionTab;
                 }
             )
         );

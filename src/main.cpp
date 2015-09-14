@@ -359,7 +359,7 @@ private:
                                 if (nullptr == l) {
                                     return;
                                 }
-                                printf("Enqued...\n");
+                                //printf("Enqued...\n");
                                 l->_wnd->queue_draw();
                                 res->_scheduledTime = -1;
                             }
@@ -409,7 +409,6 @@ private:
                 [=](GMI::OutRequestUpdate) {
                     auto locked = _drawUpdater.lock();
                     if (nullptr != locked) {
-                        printf("Schedulin!\n");
                         locked->scheduleUpdate(100);
                     }
                 }

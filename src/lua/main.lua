@@ -6,6 +6,7 @@ setStatus = function(context,widget,text)
 end
 
 revealDownloads = false
+sessionWidget = nil
 
 DownloadsModel = {
     sessions = {},
@@ -29,6 +30,8 @@ initAll = function()
     local mainWnd = ctx:namedMesseagable("mainWindow")
 
     ctx:attachContextTo(mainWnd)
+    sessionWidget = ctx:messageRetValues(mainWnd,
+        VSig("MWI_QueryDownloadSessionWidget"),VMsg(nil))._2
 
     currentDirId = -1
 

@@ -243,14 +243,23 @@ private:
     }
 
     void clearDoneJobs() {
-        SA::clear(
+        typedef SafeListDownloader SLD;
+
+        auto flt =
             SF::filter(
                 _jobs,
                 [](const std::shared_ptr<ToDownloadList>& dl) {
                     return dl->_hasEnded;
                 }
-            )
-        );
+            );
+
+        TEMPLATIOUS_FOREACH(auto& i,flt) {
+            notifyObserver< SLD::OutSingleDone, int >(
+                nullptr, i->_id
+            );
+        }
+
+        SA::clear(flt);
     }
 
     void markStartedInDb(std::vector<int>& toMarkStarted) {

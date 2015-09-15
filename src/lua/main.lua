@@ -170,9 +170,15 @@ initAll = function()
                     local newKey = valTree._2
                     print('Starting... ' .. valTree._2)
                     DownloadsModel.sessions[newKey] = newKey
-                    ctx:message(sessionWidget,
-                        VSig("DLMDL_InFullUpdate"))
+                    --ctx:message(sessionWidget,
+                        --VSig("DLMDL_InFullUpdate"))
                 end,"SLD_OutStarted","int"),
+                VMatch(function(natpack,val)
+                    local valTree = val:values()
+                    local delKey = valTree._2
+                    print('Ended! ' .. delKey)
+                    DownloadsModel.sessions[delKey] = nil
+                end,"SLD_OutSingleDone","int"),
                 VMatch(function()
                     print('Downloaded!')
                 end,"SLD_OutDone"),

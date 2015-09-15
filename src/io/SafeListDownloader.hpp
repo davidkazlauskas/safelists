@@ -25,6 +25,13 @@ struct SafeListDownloader {
     // >
     DUMMY_REG(OutStarted,"SLD_OutStarted");
 
+    // messaged when download is started.
+    // Signature:
+    // <
+    //    OutSingleDone, int (fileid)
+    // >
+    DUMMY_REG(OutSingleDone,"SLD_OutSingleDone");
+
     static StrongMsgPtr startNew(
         const char* path,
         const StrongMsgPtr& fileWriter,

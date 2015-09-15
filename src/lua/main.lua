@@ -30,6 +30,7 @@ function updateSessionWidget()
         return
     end
 
+    local ctx = luaContext()
     ctx:message(wgt,
         VSig("DLMDL_InFullUpdate"))
 end

@@ -15,31 +15,29 @@ TEMPLATIOUS_TRIPLET_STD;
 struct MainWindowInterface {
     // emitted when new file creation
     // is requested.
-    // In lua: MWI_OutNewFileSignal
     DUMMY_REG(OutNewFileSignal,"MWI_OutNewFileSignal");
 
     // emitted when move button is
     // pressed.
-    // In lua: MWI_OutMoveButtonClicked
     DUMMY_REG(OutMoveButtonClicked,"MWI_OutMoveButtonClicked");
 
     // emitted when new file creation
     // is requested.
-    // In lua: MWI_OutDirChangedSignal
     DUMMY_REG(OutDirChangedSignal,"MWI_OutDirChangedSignal");
 
     // emitted when delete dir button clicked
     // is requested.
-    // In lua: MWI_OutDeleteDirButtonClicked
     DUMMY_REG(OutDeleteDirButtonClicked,"MWI_OutDeleteDirButtonClicked");
 
     // emitted when new directory button clicked
-    // In lua: MWI_OutNewDirButtonClicked
     DUMMY_REG(OutNewDirButtonClicked,"MWI_OutNewDirButtonClicked");
 
     // emitted when new directory button clicked
-    // In lua: MWI_OutNewDirButtonClicked
     DUMMY_REG(OutDownloadSafelistButtonClicked,"MWI_OutDownloadSafelistButtonClicked");
+
+    // emitted in draw routine after async messages processed,
+    // yet still in overloaded draw method
+    DUMMY_REG(OutDrawEnd,"MWI_OutDrawEnd");
 
     // emit to attach listener
     // In lua: MWI_InAttachListener
@@ -719,6 +717,8 @@ private:
                 this->_messageHandler->tryMatch(pack);
             }
         );
+        auto msg = SF::vpack< MWI::OutDrawEnd >(nullptr);
+        _notifierCache.notify(msg);
         return false;
     }
 

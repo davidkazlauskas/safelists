@@ -37,6 +37,9 @@ initAll = function()
 
     mainWindowPushButtonHandler = ctx:makeLuaMatchHandler(
         VMatch(function()
+            print('Draw ended!')
+        end,"MWI_OutDrawEnd"),
+        VMatch(function()
             local mainModel = ctx:namedMesseagable("mainModel")
             local asyncSqlite = ctx:namedMesseagable("asyncSqliteCurrent")
             ctx:message(mainModel,

@@ -140,8 +140,17 @@ void GtkSessionTab::fullModelUpdate() {
     assert( queryCount.useCount() > 0 && "Pack was unused..." );
 
     int total = queryCount.fGet<1>();
-    TEMPLATIOUS_REPEAT( total ) {
-        addSession( GtkSessionWidget::makeNew() );
+    int diff = SA::size(_sessions) - total;
+    while (diff != 0) {
+        if (diff < 0) {
+            addSession( GtkSessionWidget::makeNew() );
+            ++diff;
+        } else {
+            // need new method for this...
+            _mainTab->remove_page(-1);
+            _sessions.pop_back();
+            --diff;
+        }
     }
 }
 

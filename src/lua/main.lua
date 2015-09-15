@@ -24,6 +24,16 @@ function DownloadsModel:newSession(o)
     return sessions[theSession]
 end
 
+function updateSessionWidget()
+    local wgt = sessionWidget
+    if (nil == wgt) then
+        return
+    end
+
+    ctx:message(wgt,
+        VSig("DLMDL_InFullUpdate"))
+end
+
 initAll = function()
 
     local ctx = luaContext()
@@ -37,6 +47,7 @@ initAll = function()
 
     mainWindowPushButtonHandler = ctx:makeLuaMatchHandler(
         VMatch(function()
+            updateSessionWidget()
             print('Draw ended!')
         end,"MWI_OutDrawEnd"),
         VMatch(function()
@@ -173,8 +184,6 @@ initAll = function()
                     local newKey = valTree._2
                     print('Starting... ' .. valTree._2)
                     DownloadsModel.sessions[newKey] = newKey
-                    --ctx:message(sessionWidget,
-                        --VSig("DLMDL_InFullUpdate"))
                 end,"SLD_OutStarted","int"),
                 VMatch(function(natpack,val)
                     local valTree = val:values()

@@ -31,6 +31,7 @@ function enumerateTable(table)
         res[index] = v
         index = index + 1
     end
+    return res
 end
 
 function DownloadsModel:newSession()

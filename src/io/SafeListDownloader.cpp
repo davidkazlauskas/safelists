@@ -55,7 +55,8 @@ struct SafeListDownloaderImpl : public Messageable {
         _currentCacheRevision(-1),
         _jobCachePoint(0),
         _isFinished(false),
-        _isAsync(notifyAsAsync)
+        _isAsync(notifyAsAsync),
+        _count(0)
     {
         // session directory
         _sessionDir = path;

@@ -89,11 +89,16 @@ GtkDownloadItem::GtkDownloadItem(Glib::RefPtr<Gtk::Builder>& bld) :
 {
     _container->get_widget("downloadItemLabel",_theLabel);
     _container->get_widget("downloadItemProgressBar",_theProgressBar);
+    _container->get_widget("singleDownloadWidget",_mainBox);
 }
 
 GtkDownloadItem::~GtkDownloadItem() {
     auto& dlBarCache = getDownloadBarCache();
     dlBarCache.cacheBuilder(_container);
+}
+
+Gtk::Box* GtkDownloadItem::getMainBox() {
+    return _mainBox;
 }
 
 std::shared_ptr< GtkSessionWidget > GtkSessionWidget::makeNew() {

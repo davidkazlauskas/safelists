@@ -8,6 +8,17 @@
 
 namespace SafeLists {
 
+struct GtkDownloadItem {
+    static std::shared_ptr< GtkDownloadItem > makeNew();
+    ~GtkDownloadItem();
+private:
+    GtkDownloadItem(Glib::RefPtr<Gtk::Builder>& bld);
+
+    Glib::RefPtr<Gtk::Builder> _container;
+    Gtk::Label* _theLabel;
+    Gtk::ProgressBar* _theProgressBar;
+};
+
 struct GtkSessionWidget {
 
     static std::shared_ptr< GtkSessionWidget > makeNew();

@@ -59,6 +59,11 @@ namespace {
         return cache;
     }
 
+    static RefBuilderCache& getSessionTabCache() {
+        static RefBuilderCache cache;
+        return cache;
+    }
+
     static RefBuilderCache& getDownloadBarCache() {
         static RefBuilderCache cache;
         return cache;
@@ -66,6 +71,30 @@ namespace {
 }
 
 namespace SafeLists {
+
+std::shared_ptr< GtkDownloadItem > GtkDownloadItem::makeNew() {
+    auto& dlBarCache = getDownloadBarCache();
+    auto builder = dlBarCache.popBuilder();
+    if (0 == builder) {
+        builder = Gtk::Builder::create();
+        auto& schema = loadDownloaderSchemaStatic();
+        builder->add_from_string(schema,"singleDownloadWidget");
+    }
+    std::shared_ptr< GtkDownloadItem > res(new GtkDownloadItem(builder));
+    return res;
+}
+
+GtkDownloadItem::GtkDownloadItem(Glib::RefPtr<Gtk::Builder>& bld) :
+    _container(bld)
+{
+    _container->get_widget("downloadItemLabel",_theLabel);
+    _container->get_widget("downloadItemProgressBar",_theProgressBar);
+}
+
+GtkDownloadItem::~GtkDownloadItem() {
+    auto& dlBarCache = getDownloadBarCache();
+    dlBarCache.cacheBuilder(_container);
+}
 
 std::shared_ptr< GtkSessionWidget > GtkSessionWidget::makeNew() {
     auto& sessCache = getSessionCache();
@@ -101,7 +130,7 @@ void GtkSessionWidget::setDownloadBoxCount(int number) {
 }
 
 std::shared_ptr< GtkSessionTab > GtkSessionTab::makeNew() {
-    auto& dlCache = getDownloadBarCache();
+    auto& dlCache = getSessionTabCache();
 
     auto builder = dlCache.popBuilder();
     if (0 == builder) {
@@ -168,7 +197,7 @@ void GtkSessionTab::fullModelUpdate() {
 }
 
 GtkSessionTab::~GtkSessionTab() {
-    auto& dlCache = getDownloadBarCache();
+    auto& dlCache = getSessionTabCache();
     dlCache.cacheBuilder(_container);
 }
 

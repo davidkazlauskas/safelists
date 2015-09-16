@@ -239,27 +239,35 @@ private:
             processMessages();
         } while (SA::size(_jobs) > 0);
 
+        assert( 0 == _count && "FAILER!" );
         _isFinished = true;
     }
 
     void clearDoneJobs() {
         typedef SafeListDownloader SLD;
 
-        auto flt =
+        SM::traverse(
+            [=](std::shared_ptr<ToDownloadList>& dl) {
+                bool didEnd = dl->_hasEnded;
+                if (didEnd) {
+                    --_count;
+                    notifyObserver< SLD::OutSingleDone, int >(
+                        nullptr, dl->_id
+                    );
+                    dl = nullptr;
+                }
+            },
+            _jobs
+        );
+
+        SA::clear(
             SF::filter(
                 _jobs,
                 [](const std::shared_ptr<ToDownloadList>& dl) {
-                    return dl->_hasEnded;
+                    return nullptr == dl;
                 }
-            );
-
-        TEMPLATIOUS_FOREACH(auto& i,flt) {
-            notifyObserver< SLD::OutSingleDone, int >(
-                nullptr, i->_id
-            );
-        }
-
-        SA::clear(flt);
+            )
+        );
     }
 
     void markStartedInDb(std::vector<int>& toMarkStarted) {
@@ -409,6 +417,7 @@ private:
                 _fileDownloader->message(job);
                 notifyObserver< SafeListDownloader::OutStarted, int >(
                     nullptr,theId);
+                ++_count;
             }
         }
     }
@@ -451,6 +460,7 @@ private:
     int _jobCachePoint;
     bool _isFinished;
     bool _isAsync;
+    int _count;
 };
 
 StrongMsgPtr SafeListDownloader::startNew(

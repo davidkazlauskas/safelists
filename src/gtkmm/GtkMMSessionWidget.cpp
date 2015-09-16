@@ -96,6 +96,10 @@ Gtk::Box* GtkSessionWidget::getMainBox() {
     return _mainBox;
 }
 
+void GtkSessionWidget::setDownloadBoxCount(int number) {
+
+}
+
 std::shared_ptr< GtkSessionTab > GtkSessionTab::makeNew() {
     auto& dlCache = getDownloadBarCache();
 

@@ -13,6 +13,7 @@ struct GtkSessionWidget {
     static std::shared_ptr< GtkSessionWidget > makeNew();
     ~GtkSessionWidget();
     Gtk::Box* getMainBox();
+    void setDownloadBoxCount(int number);
 private:
     GtkSessionWidget(Glib::RefPtr<Gtk::Builder>& bld);
     Glib::RefPtr<Gtk::Builder> _container;

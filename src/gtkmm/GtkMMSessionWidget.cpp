@@ -210,6 +210,8 @@ void GtkSessionTab::fullModelUpdate() {
         >(nullptr,i,-1);
         locked->message(queryCurrentSessionCount);
         assert( queryCurrentSessionCount.useCount() > 0 && "Pack was unused..." );
+        int theCount = queryCurrentSessionCount.fGet<2>();
+        _sessions[i]->setDownloadBoxCount(theCount);
     }
 }
 

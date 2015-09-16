@@ -140,7 +140,7 @@ void GtkSessionWidget::setDownloadBoxCount(int number) {
             _sessionList->append(*newOne->getMainBox());
         } else {
             auto& back = _dlItems.back();
-            _sessionList->remove(*back.getMainBox());
+            _sessionList->remove(*back->getMainBox());
             _dlItems.pop_back();
         }
     }

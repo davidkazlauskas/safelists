@@ -136,8 +136,13 @@ void GtkSessionWidget::setDownloadBoxCount(int number) {
     while (diff != 0) {
         if (diff < 0) {
             auto newOne = GtkDownloadItem::makeNew();
+            auto mb = newOne->getMainBox();
             SA::add(_dlItems,newOne);
-            _sessionList->append(*newOne->getMainBox());
+            if (0 != mb->get_parent()) {
+                mb->reparent(*_sessionList);
+            } else {
+                _sessionList->add(*newOne->getMainBox());
+            }
             ++diff;
         } else {
             auto& back = _dlItems.back();

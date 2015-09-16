@@ -46,12 +46,16 @@ function DownloadsModel:newSession()
 end
 
 function DownloadsModel:enumerateSessions()
-    enumerated = enumerateTable(self.sessions)
+    self.enumerated = enumerateTable(self.sessions)
 end
 
 function DownloadsModel:dropSession(sess)
     self.sessions[sess.key] = nil
     self:enumerateSessions()
+end
+
+function DownloadsModel:sessionCount()
+    return #self.enumerated
 end
 
 function updateSessionWidget()

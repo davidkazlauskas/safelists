@@ -10,18 +10,48 @@ sessionWidget = nil
 
 DownloadsModel = {
     sessions = {},
+    enumerated = {},
     progressTotal = 0,
     currentSession = 0
 }
 
-function DownloadsModel:newSession(o)
-    o.currentSession = o.currentSession + 1
-    local theSession = o.currentSession
-    sessions[theSession] = {
-        progress = 0,
-        downloadTable = {}
+function newDownload(path)
+    local res = {
+        filePath=path,
+        progress=0,
+        speed=0 -- bytes/sec
     }
-    return sessions[theSession]
+    return res
+end
+
+function enumerateTable(table)
+    local res = {}
+    local index = 1
+    for k,v in pairs(table) do
+        res[index] = v
+        index = index + 1
+    end
+end
+
+function DownloadsModel:newSession()
+    self.currentSession = self.currentSession + 1
+    local theSession = self.currentSession
+    self.sessions[theSession] = {
+        progress = 0,
+        downloadTable = {},
+        key = theSession
+    }
+    self:enumerateSessions()
+    return self.sessions[theSession]
+end
+
+function DownloadsModel:enumerateSessions()
+    enumerated = enumerateTable(self.sessions)
+end
+
+function DownloadsModel:dropSession(sess)
+    self.sessions[sess.key] = nil
+    self:enumerateSessions()
 end
 
 function updateSessionWidget()
@@ -179,21 +209,23 @@ initAll = function()
         VMatch(function()
             local dlFactory = ctx:namedMesseagable("dlSessionFactory")
             local asyncSqlite = ctx:namedMesseagable("asyncSqliteCurrent")
+            local currSess = DownloadsModel:newSession()
             local handler = ctx:makeLuaMatchHandler(
                 VMatch(function(natpack,val)
                     local valTree = val:values()
                     local newKey = valTree._2
                     print('Starting... ' .. valTree._2)
-                    DownloadsModel.sessions[newKey] = newKey
+                    currSess.downloadTable[newKey] = newDownload("somePath")
                 end,"SLD_OutStarted","int"),
                 VMatch(function(natpack,val)
                     local valTree = val:values()
                     local delKey = valTree._2
                     print('Ended! ' .. delKey)
-                    DownloadsModel.sessions[delKey] = nil
+                    currSess.downloadTable[delKey] = nil
                 end,"SLD_OutSingleDone","int"),
                 VMatch(function()
                     print('Downloaded!')
+                    DownloadsModel:dropSession(currSess)
                 end,"SLD_OutDone"),
                 VMatch(function()
                     print('Safelist session dun! Downloading...')

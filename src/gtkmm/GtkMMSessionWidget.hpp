@@ -30,7 +30,7 @@ struct GtkSessionWidget {
 private:
     GtkSessionWidget(Glib::RefPtr<Gtk::Builder>& bld);
     Glib::RefPtr<Gtk::Builder> _container;
-    std::vector< GtkDownloadItem > _dlItems;
+    std::vector< std::shared_ptr<GtkDownloadItem> > _dlItems;
 
     Gtk::Box* _mainBox;
     Gtk::ListBox* _sessionList;

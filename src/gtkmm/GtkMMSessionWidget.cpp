@@ -152,6 +152,15 @@ void GtkSessionTab::fullModelUpdate() {
             --diff;
         }
     }
+
+
+    TEMPLATIOUS_0_TO_N(i,total) {
+        auto queryCurrentSessionCount = SF::vpack<
+            MI::QuerySessionDownloadCount, int, int
+        >(nullptr,i,-1);
+        locked->message(queryCurrentSessionCount);
+        assert( queryCurrentSessionCount.useCount() > 0 && "Pack was unused..." );
+    }
 }
 
 GtkSessionTab::~GtkSessionTab() {

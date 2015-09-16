@@ -29,6 +29,11 @@ struct GtkSessionTab : public Messageable {
         // < QueryCount, int (out number) >
         DUMMY_REG(QueryCount,"DLMDL_QueryCount");
 
+        // Query count of downloads for single session in model
+        // Signature:
+        // < QuerySessionDownloadCount, int (sess num), int (out count) >
+        DUMMY_REG(QuerySessionDownloadCount,"DLMDL_QuerySessionDownloadCount");
+
         // Perform full gui update
         // Signature:
         // < InFullUpdate >

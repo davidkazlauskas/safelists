@@ -132,7 +132,18 @@ Gtk::Box* GtkSessionWidget::getMainBox() {
 }
 
 void GtkSessionWidget::setDownloadBoxCount(int number) {
-
+    int diff = SA::size(_dlItems) - number;
+    while (diff != 0) {
+        if (diff < 0) {
+            auto newOne = GtkDownloadItem::makeNew();
+            SA::add(_dlItems,newOne);
+            _sessionList->append(*newOne->getMainBox());
+        } else {
+            auto& back = _dlItems.back();
+            _sessionList->remove(*back.getMainBox());
+            _dlItems.pop_back();
+        }
+    }
 }
 
 std::shared_ptr< GtkSessionTab > GtkSessionTab::makeNew() {

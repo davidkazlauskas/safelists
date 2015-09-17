@@ -134,7 +134,9 @@ private:
         ToDownloadList(const std::shared_ptr< SafeListDownloaderImpl >& session) :
             _session(session), _handler(genHandler()),
             _list(SafeLists::Interval()),
-            _hasStarted(false), _hasEnded(false)
+            _hasStarted(false), _hasEnded(false),
+            _progressDone(0),
+            _progressReported(0)
         {}
 
         void message(const std::shared_ptr< templatious::VirtualPack >& msg) override {
@@ -185,6 +187,8 @@ private:
         SafeLists::IntervalList _list;
         bool _hasStarted;
         bool _hasEnded;
+        int64_t _progressDone;
+        int64_t _progressReported;
     };
 
     struct DownloadCacheItem {
@@ -410,6 +414,7 @@ private:
                         if (rawJob->_list.isDefined()) {
                             rawJob->_list.append(SafeLists::Interval(pre,post));
                         }
+                        rawJob->_progressDone += size;
                         return true;
                     },
                     i

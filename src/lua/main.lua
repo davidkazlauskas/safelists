@@ -289,6 +289,10 @@ initAll = function()
 
 
     downloadUpdateModel = ctx:makeLuaMatchHandler(
+        VMatch(function(natPack,vtree)
+            natPack:setSlot(4,VString("Peanut butter jelly time"))
+            natPack:setSlot(5,VDouble(0.77))
+        end,"DLMDL_QueryDownloadLabelAndProgress","int","int","string","double"),
         VMatch(function(natPack)
             natPack:setSlot(2,VInt( DownloadsModel:sessionCount() ))
         end,"DLMDL_QueryCount","int"),

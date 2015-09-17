@@ -41,6 +41,12 @@ SingleSession = {
         enumerateDownloads = function(self)
             self.downloadEnum =
                 enumerateTable(self.downloadTable)
+        end,
+        nthDownloadPath = function(self,nthelement)
+            return self.downloadEnum[nthelement].filePath
+        end,
+        activeDownloadCount = function(self)
+            return #self.downloadEnum
         end
     }
 }

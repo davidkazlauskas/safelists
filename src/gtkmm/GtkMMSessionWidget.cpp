@@ -160,7 +160,7 @@ void GtkSessionWidget::setDownloadBoxCount(int number) {
             auto& back = _dlItems.back();
             auto raw = back->getMainBox();
             auto p = raw->get_parent();
-            if (0 != p && p == _sessionList) {
+            if (0 != p && p != _sessionList) {
                 _sessionList->remove(*p);
                 raw->unparent();
             }

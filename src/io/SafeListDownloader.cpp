@@ -227,6 +227,8 @@ private:
 
         std::vector< int > toMarkStarted;
 
+        _lastUpdate = std::chrono::high_resolution_clock::now();
+
         auto implCpy = impl;
         auto writerCpy = this->_fileWriter;
         updateJobs(implCpy,toMarkStarted);
@@ -403,6 +405,7 @@ private:
                 typedef AsyncDownloader AD;
                 auto pathCopy = _sessionDir + i->_path;
 
+                const int UPDATE_MILLISECONDS = 100;
                 i->_list = intervals.clone();
                 auto rawJob = i.get();
                 auto job = SF::vpackPtr<
@@ -432,6 +435,13 @@ private:
                             rawJob->_list.append(SafeLists::Interval(pre,post));
                         }
                         rawJob->_progressDone += size;
+                        auto lu = this->_lastUpdate;
+                        auto now = std::chrono::high_resolution_clock::now();
+                        if (now > lu) {
+                            lu += std::chrono::milliseconds(UPDATE_MILLISECONDS);
+                            this->_lastUpdate = lu;
+                            this->_sem.notify();
+                        }
                         return true;
                     },
                     i
@@ -488,6 +498,7 @@ private:
     bool _isFinished;
     bool _isAsync;
     int _count;
+    std::chrono::high_resolution_clock::time_point _lastUpdate;
 };
 
 StrongMsgPtr SafeListDownloader::startNew(

@@ -15,14 +15,35 @@ DownloadsModel = {
     currentSession = 0
 }
 
-function newDownload(path)
-    local res = {
-        filePath=path,
-        progress=0,
-        speed=0 -- bytes/sec
+SingleDownload = {
+    newDownload = function (id,path)
+        local res = {
+            id=id,
+            filePath=path,
+            progress=0,
+            speed=0 -- bytes/sec
+        }
+        return res
+    end
+}
+
+SingleSession = {
+    __index = {
+        addDownload = function(self,id,path)
+            self.downloadTable[id] =
+                SingleDownload.newDownload(id,path)
+            self:enumerateDownloads()
+        end,
+        removeDownload = function(self,id)
+            self.downloadTable[id] = nil
+            self:enumerateDownloads()
+        end,
+        enumerateDownloads = function(self)
+            self.downloadEnum =
+                enumerateTable(self.downloadTable)
+        end
     }
-    return res
-end
+}
 
 function enumerateTable(table)
     local res = {}
@@ -37,13 +58,16 @@ end
 function DownloadsModel:newSession()
     self.currentSession = self.currentSession + 1
     local theSession = self.currentSession
-    self.sessions[theSession] = {
+    local res = {
         progress = 0,
         downloadTable = {},
+        downloadEnum = {},
         key = theSession
     }
+    setmetatable(res,SingleSession)
+    self.sessions[theSession] = res
     self:enumerateSessions()
-    return self.sessions[theSession]
+    return res
 end
 
 function DownloadsModel:enumerateSessions()
@@ -219,15 +243,16 @@ initAll = function()
                 VMatch(function(natpack,val)
                     local valTree = val:values()
                     local newKey = valTree._2
+                    local newPath = valTree._3
                     print('Starting... ' .. valTree._2)
-                    currSess.downloadTable[newKey] = newDownload("somePath")
+                    currSess:addDownload(newKey,newPath)
                 end,"SLD_OutStarted","int","string"),
                 VMatch(function(natpack,val)
                     local valTree = val:values()
                     local delKey = valTree._2
                     print('Ended! ' .. delKey)
-                    currSess.downloadTable[delKey] = nil
-                end,"SLD_OutSingleDone","int","string"),
+                    currSess:removeDownload(delKey)
+                end,"SLD_OutSingleDone","int"),
                 VMatch(function()
                     print('Downloaded!')
                     DownloadsModel:dropSession(currSess)

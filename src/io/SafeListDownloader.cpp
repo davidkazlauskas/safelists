@@ -253,10 +253,9 @@ private:
                 if (didEnd) {
                     --_count;
                     notifyObserver<
-                        SLD::OutSingleDone, int,
-                        std::string
+                        SLD::OutSingleDone, int
                     >(
-                        nullptr, dl->_id, dl->_path
+                        nullptr, dl->_id
                     );
                     dl = nullptr;
                 }

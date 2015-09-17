@@ -5,6 +5,16 @@ setStatus = function(context,widget,text)
     context:message(widget,VSig("MWI_InSetStatusText"),VString(text))
 end
 
+function enumerateTable(table)
+    local res = {}
+    local index = 0
+    for k,v in pairs(table) do
+        index = index + 1
+        res[index] = v
+    end
+    return res
+end
+
 revealDownloads = false
 sessionWidget = nil
 
@@ -16,22 +26,31 @@ DownloadsModel = {
 }
 
 SingleDownload = {
-    newDownload = function (id,path)
-        local res = {
-            id=id,
-            filePath=path,
-            progress=0,
-            speed=0 -- bytes/sec
-        }
-        return res
-    end
+    __index = {
+        newDownload = function (id,path)
+            local res = {
+                id=id,
+                filePath=path,
+                progress=0,
+                speed=0 -- bytes/sec
+            }
+            setmetatable(res,SingleDownload)
+            return res
+        end,
+        getProgress = function(self)
+            return self.progress
+        end,
+        getPath = function(self)
+            return self.filePath
+        end
+    }
 }
 
 SingleSession = {
     __index = {
         addDownload = function(self,id,path)
             self.downloadTable[id] =
-                SingleDownload.newDownload(id,path)
+                SingleDownload.__index.newDownload(id,path)
             self:enumerateDownloads()
         end,
         removeDownload = function(self,id)
@@ -42,24 +61,14 @@ SingleSession = {
             self.downloadEnum =
                 enumerateTable(self.downloadTable)
         end,
-        nthDownloadPath = function(self,nthelement)
-            return self.downloadEnum[nthelement].filePath
+        nthDownload = function(self,nthelement)
+            return self.downloadEnum[nthelement]
         end,
         activeDownloadCount = function(self)
             return #self.downloadEnum
         end
     }
 }
-
-function enumerateTable(table)
-    local res = {}
-    local index = 1
-    for k,v in pairs(table) do
-        res[index] = v
-        index = index + 1
-    end
-    return res
-end
 
 function DownloadsModel:newSession()
     self.currentSession = self.currentSession + 1
@@ -87,6 +96,10 @@ end
 
 function DownloadsModel:sessionCount()
     return #self.enumerated
+end
+
+function DownloadsModel:nthSession(num)
+    return self.enumerated[num]
 end
 
 function updateSessionWidget()
@@ -290,15 +303,25 @@ initAll = function()
 
     downloadUpdateModel = ctx:makeLuaMatchHandler(
         VMatch(function(natPack,vtree)
-            natPack:setSlot(4,VString("Peanut butter jelly time"))
-            natPack:setSlot(5,VDouble(0.77))
+            local values = vtree:values()
+            local sessNum = values._2 + 1
+            local dlNum = values._3 + 1
+            -- man, that lua inconsitency with
+            -- 1 based arrays drives me nuts
+
+            local sess = DownloadsModel:nthSession(sessNum)
+            local download = sess:nthDownload(dlNum)
+
+            natPack:setSlot(4,VString(download:getPath()))
+            natPack:setSlot(5,VDouble(download:getProgress()))
         end,"DLMDL_QueryDownloadLabelAndProgress","int","int","string","double"),
         VMatch(function(natPack)
             natPack:setSlot(2,VInt( DownloadsModel:sessionCount() ))
         end,"DLMDL_QueryCount","int"),
         VMatch(function(natPack,vtree)
-            --local index = vtree:values()._2
-            natPack:setSlot(3,VInt(3))
+            local sessN = vtree:values()._2 + 1
+            local sess = DownloadsModel:nthSession(sessN)
+            natPack:setSlot(3,VInt(sess:activeDownloadCount()))
         end,"DLMDL_QuerySessionDownloadCount","int","int")
     )
     ctx:message(mainWnd,VSig("MWI_InSetDownloadModel"),VMsg(downloadUpdateModel))

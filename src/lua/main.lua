@@ -334,7 +334,6 @@ initAll = function()
             local sessN = vtree:values()._2 + 1
             local sess = DownloadsModel:nthSession(sessN)
             local count = sess:activeDownloadCount()
-            print("Active count: " .. count)
             natPack:setSlot(3,VInt(count))
         end,"DLMDL_QuerySessionDownloadCount","int","int")
     )

@@ -50,6 +50,13 @@ struct GtkSessionTab : public Messageable {
         // < QuerySessionDownloadCount, int (sess num), int (out count) >
         DUMMY_REG(QuerySessionDownloadCount,"DLMDL_QuerySessionDownloadCount");
 
+        // Query download label and progress
+        // Signature:
+        // < QueryDownloadLabel, int (session), int (download),
+        //     std::string (out label), double (out progress 0 to 1)
+        // >
+        DUMMY_REG(QueryDownloadLabelAndProgress,"DLMDL_QueryDownloadLabelAndProgress");
+
         // Perform full gui update
         // Signature:
         // < InFullUpdate >

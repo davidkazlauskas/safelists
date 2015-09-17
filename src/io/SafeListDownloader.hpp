@@ -34,7 +34,7 @@ struct SafeListDownloader {
 
     // messaged when progress moved
     // Signature:
-    // < OutProgressUpdate, double (bytes done), double (bytes total) >
+    // < OutProgressUpdate, int (id), double (bytes done), double (bytes total) >
     DUMMY_REG(OutProgressUpdate,"SLD_OutProgressUpdate");
 
     static StrongMsgPtr startNew(

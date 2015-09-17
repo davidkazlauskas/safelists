@@ -42,6 +42,9 @@ SingleDownload = {
         end,
         getPath = function(self)
             return self.filePath
+        end,
+        setProgress = function(self,progress)
+            self.progress = progress
         end
     }
 }
@@ -66,6 +69,9 @@ SingleSession = {
         end,
         activeDownloadCount = function(self)
             return #self.downloadEnum
+        end,
+        keyDownload = function(self,key)
+            return self.downloadTable[key]
         end
     }
 }
@@ -259,6 +265,12 @@ initAll = function()
             local asyncSqlite = ctx:namedMesseagable("asyncSqliteCurrent")
             local currSess = DownloadsModel:newSession()
             local handler = ctx:makeLuaMatchHandler(
+                VMatch(function(natPack,val)
+                    local values = val:values()
+                    local dl = currSess:keyDownload(values._2)
+                    local ratio = values._3 / values._4
+                    dl:setProgress(ratio)
+                end,"SLD_OutProgressUpdate","int","double","double"),
                 VMatch(function(natpack,val)
                     local valTree = val:values()
                     local newKey = valTree._2

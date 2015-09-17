@@ -221,13 +221,13 @@ initAll = function()
                     local newKey = valTree._2
                     print('Starting... ' .. valTree._2)
                     currSess.downloadTable[newKey] = newDownload("somePath")
-                end,"SLD_OutStarted","int"),
+                end,"SLD_OutStarted","int","string"),
                 VMatch(function(natpack,val)
                     local valTree = val:values()
                     local delKey = valTree._2
                     print('Ended! ' .. delKey)
                     currSess.downloadTable[delKey] = nil
-                end,"SLD_OutSingleDone","int"),
+                end,"SLD_OutSingleDone","int","string"),
                 VMatch(function()
                     print('Downloaded!')
                     DownloadsModel:dropSession(currSess)

@@ -252,8 +252,11 @@ private:
                 bool didEnd = dl->_hasEnded;
                 if (didEnd) {
                     --_count;
-                    notifyObserver< SLD::OutSingleDone, int >(
-                        nullptr, dl->_id
+                    notifyObserver<
+                        SLD::OutSingleDone, int,
+                        std::string
+                    >(
+                        nullptr, dl->_id, dl->_path
                     );
                     dl = nullptr;
                 }
@@ -416,8 +419,10 @@ private:
                 i->_hasStarted = true;
                 int theId = i->_id;
                 _fileDownloader->message(job);
-                notifyObserver< SafeListDownloader::OutStarted, int >(
-                    nullptr,theId);
+                notifyObserver<
+                    SafeListDownloader::OutStarted,
+                    int, std::string
+                >(nullptr,theId,i->_path);
                 ++_count;
             }
         }

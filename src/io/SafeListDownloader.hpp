@@ -21,14 +21,14 @@ struct SafeListDownloader {
     // messaged when download is started.
     // Signature:
     // <
-    //    OutStarted, int (fileid)
+    //    OutStarted, int (fileid), std::string (path)
     // >
     DUMMY_REG(OutStarted,"SLD_OutStarted");
 
     // messaged when download is started.
     // Signature:
     // <
-    //    OutSingleDone, int (fileid)
+    //    OutSingleDone, int (fileid), std::string (path)
     // >
     DUMMY_REG(OutSingleDone,"SLD_OutSingleDone");
 

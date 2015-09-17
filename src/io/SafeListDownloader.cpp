@@ -238,7 +238,7 @@ private:
             markStartedInDb(toMarkStarted);
             clearDoneJobs();
             processMessages();
-        } while (SA::size(_jobs) > 0);
+        } while (SA::size(_jobs) > 0 || SA::size(_jobCache) > 0);
 
         assert( 0 == _count && "FAILER!" );
         _isFinished = true;

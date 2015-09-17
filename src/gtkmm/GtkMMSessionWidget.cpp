@@ -101,6 +101,14 @@ Gtk::Box* GtkDownloadItem::getMainBox() {
     return _mainBox;
 }
 
+Gtk::Label* GtkDownloadItem::getLabel() {
+    return _theLabel;
+}
+
+Gtk::ProgressBar* GtkDownloadItem::getProgressBar() {
+    return _theProgressBar;
+}
+
 std::shared_ptr< GtkSessionWidget > GtkSessionWidget::makeNew() {
     auto& sessCache = getSessionCache();
 
@@ -151,6 +159,10 @@ void GtkSessionWidget::setDownloadBoxCount(int number) {
             --diff;
         }
     }
+}
+
+GtkDownloadItem* GtkSessionWidget::nthItem(int num) {
+    return _dlItems[num].get();
 }
 
 std::shared_ptr< GtkSessionTab > GtkSessionTab::makeNew() {
@@ -219,6 +231,20 @@ void GtkSessionTab::fullModelUpdate() {
         assert( queryCurrentSessionCount.useCount() > 0 && "Pack was unused..." );
         int theCount = queryCurrentSessionCount.fGet<2>();
         _sessions[i]->setDownloadBoxCount(theCount);
+
+        TEMPLATIOUS_0_TO_N(j,theCount) {
+            auto queryLabelAndProgress = SF::vpack<
+                MI::QueryDownloadLabelAndProgress,
+                int,int,std::string,double
+            >(nullptr,i,j,"",-1);
+            locked->message(queryLabelAndProgress);
+            assert( queryLabelAndProgress.useCount() > 0 && "Pack was unused..." );
+            auto item = _sessions[i]->nthItem(j);
+            item->getLabel()->set_label(
+                queryLabelAndProgress.fGet<3>().c_str());
+            item->getProgressBar()->set_fraction(
+                queryLabelAndProgress.fGet<4>());
+        }
     }
 }
 

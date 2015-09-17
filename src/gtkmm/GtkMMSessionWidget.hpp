@@ -12,6 +12,8 @@ struct GtkDownloadItem {
     static std::shared_ptr< GtkDownloadItem > makeNew();
     ~GtkDownloadItem();
     Gtk::Box* getMainBox();
+    Gtk::Label* getLabel();
+    Gtk::ProgressBar* getProgressBar();
 private:
     GtkDownloadItem(Glib::RefPtr<Gtk::Builder>& bld);
 
@@ -27,6 +29,7 @@ struct GtkSessionWidget {
     ~GtkSessionWidget();
     Gtk::Box* getMainBox();
     void setDownloadBoxCount(int number);
+    GtkDownloadItem* nthItem();
 private:
     GtkSessionWidget(Glib::RefPtr<Gtk::Builder>& bld);
     Glib::RefPtr<Gtk::Builder> _container;

@@ -147,6 +147,10 @@ void GtkSessionWidget::setDownloadBoxCount(int number) {
             auto mb = newOne->getMainBox();
             SA::add(_dlItems,newOne);
             if (0 != mb->get_parent()) {
+                auto parent = mb->get_parent();
+                if (parent != _sessionList) {
+                    _sessionList->remove(*parent);
+                }
                 mb->reparent(*_sessionList);
             } else {
                 _sessionList->add(*newOne->getMainBox());
@@ -154,7 +158,12 @@ void GtkSessionWidget::setDownloadBoxCount(int number) {
             ++diff;
         } else {
             auto& back = _dlItems.back();
-            _sessionList->remove(*back->getMainBox());
+            auto raw = back->getMainBox();
+            auto p = raw->get_parent();
+            if (0 != p && p == _sessionList) {
+                _sessionList->remove(*p);
+                raw->unparent();
+            }
             _dlItems.pop_back();
             --diff;
         }

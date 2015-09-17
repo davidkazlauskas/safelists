@@ -32,6 +32,11 @@ struct SafeListDownloader {
     // >
     DUMMY_REG(OutSingleDone,"SLD_OutSingleDone");
 
+    // messaged when progress moved
+    // Signature:
+    // < OutProgressUpdate, double (bytes done), double (bytes total) >
+    DUMMY_REG(OutProgressUpdate,"SLD_OutProgressUpdate");
+
     static StrongMsgPtr startNew(
         const char* path,
         const StrongMsgPtr& fileWriter,

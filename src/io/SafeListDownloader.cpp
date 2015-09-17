@@ -240,12 +240,29 @@ private:
             updateJobs(implCpy,toMarkStarted);
             scheduleJobs(writerCpy);
             markStartedInDb(toMarkStarted);
+            jobStatusUpdate();
             clearDoneJobs();
             processMessages();
         } while (SA::size(_jobs) > 0 || SA::size(_jobCache) > 0);
 
         assert( 0 == _count && "FAILER!" );
         _isFinished = true;
+    }
+
+    void jobStatusUpdate() {
+        TEMPLATIOUS_FOREACH(auto& i,_jobs) {
+            int64_t done = i->_progressDone;
+            int64_t reported = i->_progressReported;
+            if (done > reported) {
+                int64_t size = i->_size;
+                int id = i->_id;
+                i->_progressReported = done;
+                notifyObserver<
+                    SafeListDownloader::OutProgressUpdate,
+                    int, double, double
+                >(nullptr,id,done,size);
+            }
+        }
     }
 
     void clearDoneJobs() {

@@ -994,7 +994,6 @@ int main(int argc,char** argv) {
 
     auto builder = Gtk::Builder::create();
     builder->add_from_file("uischemes/main.glade");
-    auto asyncSqlite = SafeLists::AsyncSqlite::createNew("exampleData/example2.safelist");
     auto mainWnd = std::make_shared< GtkMainWindow >(builder);
     GtkMainWindow::spinUpdater(mainWnd);
     auto singleInputDialog = std::make_shared< GtkInputDialog >(builder);
@@ -1003,7 +1002,6 @@ int main(int argc,char** argv) {
     ctx->addMesseagableWeak("mainWindow",mainWnd);
     ctx->addMesseagableWeak("singleInputDialog",singleInputDialog);
     ctx->addMesseagableWeak("mainModel",mainModel);
-    ctx->addMesseagableWeak("asyncSqliteCurrent",asyncSqlite);
     ctx->addMesseagableStrong("dlSessionFactory",dlFactory);
     ctx->addMesseagableStrong("asyncSqliteFactory",asyncSqliteFactory);
     ctx->doFile("lua/main.lua");

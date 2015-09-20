@@ -17,6 +17,7 @@ end
 
 revealDownloads = false
 sessionWidget = nil
+currentAsyncSqlite = nil
 
 DownloadsModel = {
     sessions = {},
@@ -137,7 +138,10 @@ initAll = function()
         end,"MWI_OutDrawEnd"),
         VMatch(function()
             local mainModel = ctx:namedMesseagable("mainModel")
-            local asyncSqlite = ctx:namedMesseagable("asyncSqliteCurrent")
+            local asyncSqlite = currentAsyncSqlite
+            if (messageablesEqual(VMsgNil(),asyncSqlite)) then
+                return
+            end
             ctx:message(mainModel,
                 VSig("MMI_InLoadFolderTree"),VMsg(asyncSqlite),VMsg(mainWnd))
             -- Testing, reveal
@@ -154,8 +158,11 @@ initAll = function()
                     return
                 end
 
+                local asyncSqlite = currentAsyncSqlite
+                if (messageablesEqual(VMsgNil(),asyncSqlite)) then
+                    return
+                end
                 local mainWnd = ctx:namedMesseagable("mainWindow")
-                local asyncSqlite = ctx:namedMesseagable("asyncSqliteCurrent")
                 local mainModel = ctx:namedMesseagable("mainModel")
                 local outRes = ctx:messageRetValues(mainWnd,VSig("MWI_InMoveChildUnderParent"),VInt(-1))._2
                 if (outRes == 1) then
@@ -178,7 +185,10 @@ initAll = function()
             end
 
             local mainModel = ctx:namedMesseagable("mainModel")
-            local asyncSqlite = ctx:namedMesseagable("asyncSqliteCurrent")
+            local asyncSqlite = currentAsyncSqlite
+            if (messageablesEqual(VMsgNil(),asyncSqlite)) then
+                return
+            end
             ctx:message(mainModel,
                 VSig("MMI_InLoadFileList"),VInt(inId),
                 VMsg(asyncSqlite),VMsg(mainWnd))
@@ -198,7 +208,10 @@ initAll = function()
                 if (currentDirId == 1) then
                     setStatus(ctx,mainWnd,"Root cannot be deleted.")
                 end
-                local asyncSqlite = ctx:namedMesseagable("asyncSqliteCurrent")
+                local asyncSqlite = currentAsyncSqlite
+                if (messageablesEqual(VMsgNil(),asyncSqlite)) then
+                    return
+                end
                 ctx:messageAsync(asyncSqlite,
                     VSig("ASQL_Execute"),
                     VString("DELETE FROM directories WHERE dir_id=" .. currentDirId .. ";"))
@@ -237,7 +250,10 @@ initAll = function()
                         return
                     end
 
-                    local asyncSqlite = ctx:namedMesseagable("asyncSqliteCurrent")
+                    local asyncSqlite = currentAsyncSqlite
+                    if (messageablesEqual(VMsgNil(),asyncSqlite)) then
+                        return
+                    end
                     local mainWnd = ctx:namedMesseagable("mainWindow")
                     local mainModel = ctx:namedMesseagable("mainModel")
                     ctx:messageAsync(
@@ -262,7 +278,10 @@ initAll = function()
         end,"MWI_OutNewDirButtonClicked"),
         VMatch(function()
             local dlFactory = ctx:namedMesseagable("dlSessionFactory")
-            local asyncSqlite = ctx:namedMesseagable("asyncSqliteCurrent")
+            local asyncSqlite = currentAsyncSqlite
+            if (messageablesEqual(VMsgNil(),asyncSqlite)) then
+                return
+            end
             local currSess = DownloadsModel:newSession()
             local handler = ctx:makeLuaMatchHandler(
                 VMatch(function(natPack,val)
@@ -309,6 +328,10 @@ initAll = function()
             )
         end,"MWI_OutDownloadSafelistButtonClicked"),
         VMatch(function()
+            local factory = ctx:namedMesseagable("asyncSqliteFactory")
+            currentAsyncSqlite = ctx:messageRetValues(factory,
+                VSig("ASQLF_CreateNew"),
+                VString("exampleData/example2.safelist"),VMsg(nil))._3
             print('button blast!')
         end,"MWI_OutOpenSafelistButtonClicked")
     )

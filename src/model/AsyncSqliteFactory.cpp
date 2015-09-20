@@ -19,7 +19,8 @@ namespace SafeLists {
         VmfPtr genHandler() {
             return SF::virtualMatchFunctorPtr(
                 SF::virtualMatch< AsyncSqliteFactory::CreateNew, const std::string >(
-                    [=](AsyncSqliteFactory::CreateNew,const std::string path) {
+                    [=](AsyncSqliteFactory::CreateNew,const std::string& path) {
+
                     }
                 )
             );

@@ -1,5 +1,7 @@
 #include "AsyncSqliteFactory.hpp"
 
+#include <model/AsyncSqlite.hpp>
+
 TEMPLATIOUS_TRIPLET_STD;
 
 namespace SafeLists {
@@ -18,9 +20,16 @@ namespace SafeLists {
 
         VmfPtr genHandler() {
             return SF::virtualMatchFunctorPtr(
-                SF::virtualMatch< AsyncSqliteFactory::CreateNew, const std::string >(
-                    [=](AsyncSqliteFactory::CreateNew,const std::string& path) {
-
+                SF::virtualMatch<
+                    AsyncSqliteFactory::CreateNew,
+                    const std::string,
+                    StrongMsgPtr
+                >(
+                    [=](AsyncSqliteFactory::CreateNew,
+                        const std::string& path,
+                        StrongMsgPtr& out)
+                    {
+                        out = AsyncSqlite::createNew(path.c_str());
                     }
                 )
             );

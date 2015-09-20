@@ -9,6 +9,7 @@
 #include <util/Semaphore.hpp>
 #include <gtkmm/GtkMMSessionWidget.hpp>
 #include <io/SafeListDownloaderFactory.hpp>
+#include <model/AsyncSqliteFactory.hpp>
 
 TEMPLATIOUS_TRIPLET_STD;
 
@@ -997,12 +998,14 @@ int main(int argc,char** argv) {
     auto mainWnd = std::make_shared< GtkMainWindow >(builder);
     GtkMainWindow::spinUpdater(mainWnd);
     auto singleInputDialog = std::make_shared< GtkInputDialog >(builder);
+    auto asyncSqliteFactory = SafeLists::AsyncSqliteFactory::createNew();
     auto mainModel = std::make_shared< MainModel >();
     ctx->addMesseagableWeak("mainWindow",mainWnd);
     ctx->addMesseagableWeak("singleInputDialog",singleInputDialog);
     ctx->addMesseagableWeak("mainModel",mainModel);
     ctx->addMesseagableWeak("asyncSqliteCurrent",asyncSqlite);
     ctx->addMesseagableStrong("dlSessionFactory",dlFactory);
+    ctx->addMesseagableStrong("asyncSqliteFactory",asyncSqliteFactory);
     ctx->doFile("lua/main.lua");
     app->run(mainWnd->getWindow(),argc,argv);
 }

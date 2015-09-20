@@ -307,7 +307,10 @@ initAll = function()
                 VMsg(handler),
                 VString("downloadtest1/safelist_session")
             )
-        end,"MWI_OutDownloadSafelistButtonClicked")
+        end,"MWI_OutDownloadSafelistButtonClicked"),
+        VMatch(function()
+            print('button blast!')
+        end,"MWI_OutOpenSafelistButtonClicked")
     )
 
     ctx:message(mainWnd,VSig("MWI_InAttachListener"),VMsg(mainWindowPushButtonHandler))

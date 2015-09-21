@@ -906,6 +906,7 @@ struct GtkDialogService : public Messageable {
 
                     Glib::RefPtr<Gtk::FileFilter> filter = Gtk::FileFilter::create();
                     filter->add_pattern(wildcard.c_str());
+                    dlg.set_filter(filter);
 
                     int result = dlg.run();
                     if (Gtk::RESPONSE_OK == result) {

@@ -335,7 +335,7 @@ initAll = function()
                 VMsg(mainWnd),
                 VString("Select safelist to open."),
                 VString("*.safelist"),
-                VString("empty"))
+                VString(""))
 
             local outPath = outVal._6
             if (outPath ~= "") then

@@ -337,12 +337,16 @@ initAll = function()
                 VString(""))
 
             local outPath = outVal._5
-            print("ENDGAME " .. outPath)
             if (outPath ~= "") then
                 local factory = ctx:namedMesseagable("asyncSqliteFactory")
+                local mainModel = ctx:namedMesseagable("mainModel")
+
                 currentAsyncSqlite = ctx:messageRetValues(factory,
                     VSig("ASQLF_CreateNew"),
                     VString(outPath),VMsg(nil))._3
+
+                ctx:message(mainModel,
+                    VSig("MMI_InLoadFolderTree"),VMsg(currentAsyncSqlite),VMsg(mainWnd))
             end
             print('button blast!')
         end,"MWI_OutOpenSafelistButtonClicked")

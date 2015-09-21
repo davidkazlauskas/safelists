@@ -328,7 +328,6 @@ initAll = function()
             )
         end,"MWI_OutDownloadSafelistButtonClicked"),
         VMatch(function()
-            local factory = ctx:namedMesseagable("asyncSqliteFactory")
             local dialogService = ctx:namedMesseagable("dialogService")
             local outVal = ctx:messageRetValues(dialogService,
                 VSig("GDS_FileChooserDialog"),
@@ -337,8 +336,10 @@ initAll = function()
                 VString("*.safelist"),
                 VString(""))
 
-            local outPath = outVal._6
+            local outPath = outVal._5
+            print("ENDGAME " .. outPath)
             if (outPath ~= "") then
+                local factory = ctx:namedMesseagable("asyncSqliteFactory")
                 currentAsyncSqlite = ctx:messageRetValues(factory,
                     VSig("ASQLF_CreateNew"),
                     VString(outPath),VMsg(nil))._3

@@ -1075,11 +1075,13 @@ int main(int argc,char** argv) {
     auto singleInputDialog = std::make_shared< GtkInputDialog >(builder);
     auto asyncSqliteFactory = SafeLists::AsyncSqliteFactory::createNew();
     auto mainModel = std::make_shared< MainModel >();
+    auto dialogService = std::make_shared< GtkDialogService >();
     ctx->addMesseagableWeak("mainWindow",mainWnd);
     ctx->addMesseagableWeak("singleInputDialog",singleInputDialog);
     ctx->addMesseagableWeak("mainModel",mainModel);
     ctx->addMesseagableStrong("dlSessionFactory",dlFactory);
     ctx->addMesseagableStrong("asyncSqliteFactory",asyncSqliteFactory);
+    ctx->addMesseagableStrong("dialogService",dialogService);
     ctx->doFile("lua/main.lua");
     app->run(mainWnd->getWindow(),argc,argv);
 }

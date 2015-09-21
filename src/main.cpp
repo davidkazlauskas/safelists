@@ -13,6 +13,13 @@
 
 TEMPLATIOUS_TRIPLET_STD;
 
+struct GenericGtkWindowInterface {
+    // query gtk window
+    // Signature:
+    // < GetGtkWindow, GtkWindow* (outres) >
+    DUMMY_STRUCT(GetGtkWindow);
+};
+
 struct MainWindowInterface {
     // emitted when new file creation
     // is requested.
@@ -531,6 +538,11 @@ private:
                 [=](MWI::InSetDownloadModel,StrongMsgPtr& msg) {
                     msg = this->_sessionTab;
                 }
+            ),
+            SF::virtualMatch< GenericGtkWindowInterface::GetGtkWindow, Gtk::Window* >(
+                [=](GenericGtkWindowInterface::GetGtkWindow,Gtk::Window*& ptr) {
+                    ptr = this->_wnd.get();
+                }
             )
         );
     }
@@ -842,6 +854,70 @@ private:
     std::shared_ptr< SafeLists::GtkSessionTab > _sessionTab;
     std::weak_ptr< GtkMainWindow > _myself;
     std::weak_ptr<DrawUpdater> _drawUpdater;
+};
+
+struct GtkDialogService : public Messageable {
+    GtkDialogService() : _handler(genHandler()) {}
+
+    // Open file chooser
+    // Signature:
+    // <
+    //  FileChooserDialog,
+    //  StrongMsgPtr (parent window),
+    //  std::string (title),
+    //  std::string (wildcard),
+    //  std::string (output path, empty if none)
+    // >
+    DUMMY_REG(FileChooserDialog,"GDS_FileChooserDialog");
+
+    void message(templatious::VirtualPack& msg) override {
+        _handler->tryMatch(msg);
+    }
+
+    void message(const std::shared_ptr< templatious::VirtualPack >& msg) override {
+        assert( false && "Single threaded messaging only." );
+    }
+
+    SafeLists::VmfPtr genHandler() {
+        return SF::virtualMatchFunctorPtr(
+            SF::virtualMatch<
+                FileChooserDialog,
+                StrongMsgPtr,
+                std::string,
+                std::string,
+                std::string
+            >(
+                [=](FileChooserDialog,
+                    const StrongMsgPtr& window,
+                    const std::string& title,
+                    const std::string& wildcard,
+                    std::string& out)
+                {
+                    Gtk::FileChooserDialog dlg(title.c_str(),Gtk::FILE_CHOOSER_ACTION_OPEN);
+                    auto queryTransient = SF::vpack<
+                        GenericGtkWindowInterface::GetGtkWindow,
+                        Gtk::Window*
+                    >(nullptr,nullptr);
+                    window->message(queryTransient);
+                    assert( queryTransient.useCount() > 0 && "No transient cholo..." );
+                    dlg.set_transient_for(*queryTransient.fGet<1>());
+                    dlg.add_button("_Cancel",Gtk::RESPONSE_CANCEL);
+                    dlg.add_button("Ok",Gtk::RESPONSE_OK);
+
+                    int result = dlg.run();
+                    if (Gtk::RESPONSE_OK == result) {
+                        out = dlg.get_filename();
+                        return;
+                    }
+
+                    out = "";
+                }
+            )
+        );
+    }
+
+private:
+    SafeLists::VmfPtr _handler;
 };
 
 struct GtkInputDialog : public Messageable {

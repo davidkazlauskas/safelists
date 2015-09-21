@@ -904,6 +904,9 @@ struct GtkDialogService : public Messageable {
                     dlg.add_button("_Cancel",Gtk::RESPONSE_CANCEL);
                     dlg.add_button("Ok",Gtk::RESPONSE_OK);
 
+                    Glib::RefPtr<Gtk::FileFilter> filter = Gtk::FileFilter::create();
+                    filter->add_pattern(wildcard.c_str());
+
                     int result = dlg.run();
                     if (Gtk::RESPONSE_OK == result) {
                         out = dlg.get_filename();

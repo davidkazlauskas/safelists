@@ -116,6 +116,10 @@ struct MainWindowInterface {
 
 
     // popup model
+    // Show popup menu.
+    // Signature:
+    // < PopupMenuModel_ShowMenu, StrongMsgPtr (model) >
+    DUMMY_REG(PopupMenuModel_ShowMenu,"MWI_PMM_ShowMenu");
     //
     // Query total items in menu
     // Signature:
@@ -565,12 +569,20 @@ private:
                     msg = this->_sessionTab;
                 }
             ),
+            SF::virtualMatch< MWI::PopupMenuModel_ShowMenu, StrongMsgPtr >(
+                [=](MWI::PopupMenuModel_ShowMenu,const StrongMsgPtr& model) {
+                    this->showPopupMenu(model);
+                }
+            ),
             SF::virtualMatch< GenericGtkWindowInterface::GetGtkWindow, Gtk::Window* >(
                 [=](GenericGtkWindowInterface::GetGtkWindow,Gtk::Window*& ptr) {
                     ptr = this->_wnd.get();
                 }
             )
         );
+    }
+
+    void showPopupMenu(const StrongMsgPtr& model) {
     }
 
     bool hasIterUnder(Gtk::TreeModel::iterator& parent,Gtk::TreeModel::iterator& child) {

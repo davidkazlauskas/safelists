@@ -386,11 +386,13 @@ initAll = function()
                 VMatch(function(natpack,val)
                     local num = val:values()._2 + 1
                     natpack.setSlot(3,VString(menuModel[num]))
-                end,"MWI_PMM_QueryItem")
+                end,"MWI_PMM_QueryItem"),
                 VMatch(function(natpack,val)
                     natpack.setSlot(2,VInt(#menuModel))
                 end,"MWI_PMM_QueryCount","int")
             )
+
+            ctx:message(mainWnd,VSig("MWI_PMM_ShowMenu"),VMsg(menuModelHandler))
         end,"MWI_OutRightClickFolderList")
     )
 

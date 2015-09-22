@@ -588,6 +588,30 @@ private:
     }
 
     void showPopupMenu(const StrongMsgPtr& model) {
+        auto count = SF::vpack< MWI::PopupMenuModel_QueryCount, int >(nullptr,-1);
+        model->message(count);
+        assert( count.useCount() > 0 );
+
+        auto item = SF::vpack< MWI::PopupMenuModel_QueryItem, int, std::string>(
+            nullptr, -1, "");
+
+        int total = count.fGet<1>();
+        assert( total > 0 && "Menu should be shown with something..." );
+
+        Gtk::Menu menu;
+        TEMPLATIOUS_0_TO_N(i,total) {
+            int prevCount = item.useCount();
+            item.fGet<1>() = i;
+            model->message(item);
+            assert( item.useCount() > prevCount );
+
+            auto managed = Gtk::manage(
+                new Gtk::MenuItem(item.fGet<2>().c_str(),true));
+            menu.append(*managed);
+            menu.accelerate(*_wnd);
+        }
+
+        menu.show_all();
     }
 
     bool hasIterUnder(Gtk::TreeModel::iterator& parent,Gtk::TreeModel::iterator& child) {

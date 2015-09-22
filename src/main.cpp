@@ -46,6 +46,11 @@ struct MainWindowInterface {
     // emitted when open safelist button is clicked
     DUMMY_REG(OutOpenSafelistButtonClicked,"MWI_OutOpenSafelistButtonClicked");
 
+    // emitted when show downloads button is clicked
+    // Signature:
+    // < OutShowDownloadsToggled, bool (state) >
+    DUMMY_REG(OutShowDownloadsToggled,"MWI_OutShowDownloadsToggled");
+
     // emitted in draw routine after async messages processed,
     // yet still in overloaded draw method
     DUMMY_REG(OutDrawEnd,"MWI_OutDrawEnd");
@@ -277,6 +282,9 @@ struct GtkMainWindow : public Messageable {
         BIND_GTK_BUTTON("openSafelistButton",
             _openSafelistBtn,
             &GtkMainWindow::openSafelistClicked);
+        BIND_GTK_BUTTON("showDownloadsButton",
+            _showDownloadsBtn,
+            &GtkMainWindow::showDownloadsButtonClicked);
 
         _sessionTab = SafeLists::GtkSessionTab::makeNew();
         _revealerSessions->add(*_sessionTab->getTabs());
@@ -812,6 +820,14 @@ private:
         >(nullptr);
     }
 
+    void showDownloadsButtonClicked() {
+        bool res = _showDownloadsBtn->get_active();
+        notifySingleThreaded<
+            MWI::OutShowDownloadsToggled,
+            bool
+        >(nullptr,res);
+    }
+
     void pushToSelectionStack(Gtk::TreeModel::iterator& iter) {
         _selectionStack[0] = _selectionStack[1];
         _selectionStack[1] = iter;
@@ -826,6 +842,7 @@ private:
     Gtk::Button* _newDirBtn;
     Gtk::Button* _openSafelistBtn;
     Gtk::Button* _dlSafelistBtn;
+    Gtk::ToggleButton* _showDownloadsBtn;
     Gtk::Label* _statusBar;
     Gtk::Revealer* _revealerSessions;
     ModelColumns _mdl;

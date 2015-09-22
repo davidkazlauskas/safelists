@@ -161,10 +161,6 @@ initAll = function()
             end
             ctx:message(mainModel,
                 VSig("MMI_InLoadFolderTree"),VMsg(asyncSqlite),VMsg(mainWnd))
-            -- Testing, reveal
-            revealDownloads = not revealDownloads
-            ctx:message(mainWnd,
-                VSig("MWI_InRevealDownloads"),VBool(revealDownloads))
         end,"MWI_OutNewFileSignal"),
         VMatch(function(natpack,val)
             local inId = val:values()._2
@@ -374,7 +370,15 @@ initAll = function()
                     VSig("MMI_InLoadFolderTree"),VMsg(currentAsyncSqlite),VMsg(mainWnd))
             end
             print('button blast!')
-        end,"MWI_OutOpenSafelistButtonClicked")
+        end,"MWI_OutOpenSafelistButtonClicked"),
+        VMatch(function(natPack,val)
+            local thisState = val:values()._2
+            if (thisState ~= prevToggleState) then
+                prevToggleState = thisState
+                ctx:message(mainWnd,
+                    VSig("MWI_InRevealDownloads"),VBool(thisState))
+            end
+        end,"MWI_OutShowDownloadsToggled","bool")
     )
 
     ctx:message(mainWnd,VSig("MWI_InAttachListener"),VMsg(mainWindowPushButtonHandler))

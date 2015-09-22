@@ -6,24 +6,13 @@
 #include <LuaPlumbing/messageable.hpp>
 
 #include "GtkMMSessionWidget.hpp"
+#include <gtkmm/GtkMMFileString.hpp>
 
 TEMPLATIOUS_TRIPLET_STD;
 
 namespace {
-    static Glib::ustring loadDownloaderSchema() {
-        const char* PATH = "uischemes/download_progress.glade";
-        std::ifstream ifs(PATH);
-        std::string theContent;
-        theContent.reserve(256 * 256);
-        theContent.assign(
-            std::istreambuf_iterator<char>(ifs),
-            std::istreambuf_iterator<char>()
-        );
-        return theContent.c_str();
-    }
-
     static const Glib::ustring& loadDownloaderSchemaStatic() {
-        static Glib::ustring result = loadDownloaderSchema();
+        static Glib::ustring result = SafeLists::readFile("uischemes/download_progress.glade");
         return result;
     }
 

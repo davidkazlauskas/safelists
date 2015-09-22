@@ -592,6 +592,8 @@ private:
         model->message(count);
         assert( count.useCount() > 0 );
 
+        this->_popupModel = model;
+
         auto item = SF::vpack< MWI::PopupMenuModel_QueryItem, int, std::string>(
             nullptr, -1, "");
 
@@ -611,12 +613,26 @@ private:
 
             auto managed = Gtk::manage(
                 new Gtk::MenuItem(item.fGet<2>().c_str(),true));
+            managed->set_data("index",reinterpret_cast<void*>(i));
+            managed->signal_activate().connect(
+                    sigc::mem_fun(*this,&GtkMainWindow::selectedItem));
             _popupMenu.append(*managed);
         }
 
         _popupMenu.accelerate(*_wnd);
         _popupMenu.show_all();
         _popupMenu.popup(3,gtk_get_current_event_time());
+    }
+
+    void selectedItem() {
+        assert( nullptr != _popupModel && "Caught me off guard bro..." );
+
+        auto selected = _popupMenu.get_active();
+        auto data = selected->get_data("index");
+        int idx = *reinterpret_cast<int*>(&data);
+        auto msg = SF::vpack< MWI::PopupMenuModel_OutSelected, int >(nullptr,idx);
+        _popupModel->message(msg);
+        _popupModel = nullptr;
     }
 
     bool hasIterUnder(Gtk::TreeModel::iterator& parent,Gtk::TreeModel::iterator& child) {
@@ -942,6 +958,7 @@ private:
 
     // Menu
     Gtk::Menu _popupMenu;
+    StrongMsgPtr _popupModel;
 
     // STATE
     int _lastSelectedDirId;

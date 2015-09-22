@@ -406,7 +406,7 @@ initAll = function()
             local menuModelHandler = makePopupMenuModel(
                 ctx,menuModel,
                 function(result)
-
+                    print("Right click item: " .. result)
                 end
             )
             ctx:message(mainWnd,VSig("MWI_PMM_ShowMenu"),VMsg(menuModelHandler))

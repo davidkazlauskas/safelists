@@ -184,6 +184,7 @@ private:
         std::string _dumbHash256;
         std::string _path;
         std::string _absPath;
+        SafeLists::DumbHash256 _hasher;
         VmfPtr _handler;
         SafeLists::IntervalList _list;
         bool _hasStarted;
@@ -427,13 +428,24 @@ private:
                             new char[size]
                         );
 
-                        memcpy(outBuf.get(),buf,size);
+                        auto rawBuf = outBuf.get();
+                        memcpy(rawBuf,buf,size);
                         auto message = SF::vpackPtr<
                             RFW::WriteData,
                             std::string,
                             std::unique_ptr< char[] >,
                             int64_t,int64_t
                         >(nullptr,pathCopy,std::move(outBuf),pre,post);
+
+                        // HASH IT FIRST
+                        auto rng = SF::seqL<int64_t>(pre,post);
+                        SM::traverse< true >(
+                            [&](int which,int64_t curr) {
+                                rawJob->_hasher.add(curr,rawBuf[which]);
+                            },
+                            rng
+                        );
+
                         writer->message(message);
                         if (rawJob->_list.isDefined()) {
                             rawJob->_list.append(SafeLists::Interval(pre,post));

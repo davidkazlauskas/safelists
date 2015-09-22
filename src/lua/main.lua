@@ -23,7 +23,9 @@ DownloadsModel = {
     sessions = {},
     enumerated = {},
     progressTotal = 0,
-    currentSession = 0
+    currentSession = 0,
+    revisionNum = 0,
+    revisionUpdateNum = 0
 }
 
 SingleDownload = {
@@ -109,15 +111,30 @@ function DownloadsModel:nthSession(num)
     return self.enumerated[num]
 end
 
+function DownloadsModel:incRevision()
+    self.revisionNum = self.revisionNum + 1
+end
+
+function DownloadsModel:tagUpdate()
+    self.revisionUpdateNum = self.revisionNum
+end
+
+function DownloadsModel:isDirty()
+    return self.revisionUpdateNum ~= self.revisionNum
+end
+
 function updateSessionWidget()
     local wgt = sessionWidget
     if (nil == wgt) then
         return
     end
 
-    local ctx = luaContext()
-    ctx:message(wgt,
-        VSig("DLMDL_InFullUpdate"))
+    if (DownloadsModel:isDirty()) then
+        print('Update fired!')
+        local ctx = luaContext()
+        ctx:message(wgt,
+            VSig("DLMDL_InFullUpdate"))
+    end
 end
 
 initAll = function()
@@ -288,6 +305,7 @@ initAll = function()
                     local values = val:values()
                     local dl = currSess:keyDownload(values._2)
                     local ratio = values._3 / values._4
+                    DownloadsModel:incRevision()
                     dl:setProgress(ratio)
                 end,"SLD_OutProgressUpdate","int","double","double"),
                 VMatch(function(natpack,val)
@@ -295,16 +313,19 @@ initAll = function()
                     local newKey = valTree._2
                     local newPath = valTree._3
                     print('Starting... ' .. valTree._2)
+                    DownloadsModel:incRevision()
                     currSess:addDownload(newKey,newPath)
                 end,"SLD_OutStarted","int","string"),
                 VMatch(function(natpack,val)
                     local valTree = val:values()
                     local delKey = valTree._2
                     print('Ended! ' .. delKey)
+                    DownloadsModel:incRevision()
                     currSess:removeDownload(delKey)
                 end,"SLD_OutSingleDone","int"),
                 VMatch(function()
                     print('Downloaded!')
+                    DownloadsModel:incRevision()
                     DownloadsModel:dropSession(currSess)
                 end,"SLD_OutDone"),
                 VMatch(function(natPack,val)

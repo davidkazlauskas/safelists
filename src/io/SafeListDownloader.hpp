@@ -37,6 +37,11 @@ struct SafeListDownloader {
     // < OutProgressUpdate, int (id), double (bytes done), double (bytes total) >
     DUMMY_REG(OutProgressUpdate,"SLD_OutProgressUpdate");
 
+    // messaged when hash is updated
+    // Signature:
+    // < OutHashUpdate, int (id), std::string (hash) >
+    DUMMY_REG(OutHashUpdate,"SLD_OutHashUpdate");
+
     static StrongMsgPtr startNew(
         const char* path,
         const StrongMsgPtr& fileWriter,

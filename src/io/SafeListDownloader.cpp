@@ -181,6 +181,7 @@ private:
         int _id;
         int64_t _size;
         std::string _link;
+        std::string _dumbHash256;
         std::string _path;
         std::string _absPath;
         VmfPtr _handler;
@@ -196,6 +197,7 @@ private:
         int64_t _size;
         std::string _url;
         std::string _path;
+        std::string _dumbHash256;
     };
 
     static int downloadQueryCallback(void* userdata,int column,char** value,char** header) {
@@ -208,6 +210,7 @@ private:
         back._size = std::atoi(value[1]);
         back._url = value[2];
         back._path = value[3];
+        back._dumbHash256 = value[4] != nullptr ? value[4] : "";
         //printf("Starting plucing... %s\n",newList->_path.c_str());
         return 0;
     }
@@ -343,7 +346,7 @@ private:
         char* errMsg = nullptr;
 
         const char* FIRST_QUERY =
-            "SELECT mirrors.id,file_size,link,file_path FROM mirrors"
+            "SELECT mirrors.id,file_size,link,file_path,file_hash_256 FROM mirrors"
             " LEFT OUTER JOIN to_download ON mirrors.id=to_download.id"
             " WHERE status=0"
             " ORDER BY priority DESC, use_count ASC"
@@ -383,6 +386,7 @@ private:
             newList->_size = cacheItem._size;
             newList->_link = cacheItem._url;
             newList->_path = cacheItem._path;
+            newList->_dumbHash256 = cacheItem._dumbHash256;
             newList->_absPath = this->_sessionDir;
             newList->_absPath += newList->_path;
 

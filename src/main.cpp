@@ -1177,6 +1177,11 @@ static templatious::DynVPackFactory* vFactory() {
     return &fact;
 }
 
+const Glib::ustring& mainUiSchema() {
+    static Glib::ustring res = SafeLists::readFile("uischemes/main.glade");
+    return res;
+}
+
 int main(int argc,char** argv) {
     auto app = Gtk::Application::create(argc,argv);
 
@@ -1187,7 +1192,7 @@ int main(int argc,char** argv) {
         SafeListDownloaderFactory::createNew();
 
     auto builder = Gtk::Builder::create();
-    builder->add_from_file("uischemes/main.glade");
+    builder->add_from_string(mainUiSchema());
     auto mainWnd = std::make_shared< GtkMainWindow >(builder);
     GtkMainWindow::spinUpdater(mainWnd);
     auto singleInputDialog = std::make_shared< GtkInputDialog >(builder);

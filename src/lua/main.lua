@@ -15,6 +15,28 @@ function enumerateTable(table)
     return res
 end
 
+-- on select function receives integer option selected,
+-- -1 if none
+function makePopupMenuModel(context,table,onSelectFunction)
+    local theModel = table
+
+    local menuModelHandler = context:makeLuaMatchHandler(
+        VMatch(function(natpack,val)
+            local num = val:values()._2 + 1
+            natpack.setSlot(3,VString(theModel[num]))
+        end,"MWI_PMM_QueryItem"),
+        VMatch(function(natpack,val)
+            natpack.setSlot(2,VInt(#theModel))
+        end,"MWI_PMM_QueryCount","int"),
+        VMatch(function(natPack,val)
+            local res = val:values()._2
+            onSelectFunction(res)
+        end,"MWI_PMM_OutSelected","int")
+    )
+
+    return menuModelHandler
+end
+
 revealDownloads = false
 sessionWidget = nil
 currentAsyncSqlite = nil
@@ -381,17 +403,12 @@ initAll = function()
         end,"MWI_OutShowDownloadsToggled","bool"),
         VMatch(function()
             local menuModel = { "Move", "Delete", "Rename" }
+            local menuModelHandler = makePopupMenuModel(
+                ctx,menuModel,
+                function(result)
 
-            local menuModelHandler = ctx:makeLuaMatchHandler(
-                VMatch(function(natpack,val)
-                    local num = val:values()._2 + 1
-                    natpack.setSlot(3,VString(menuModel[num]))
-                end,"MWI_PMM_QueryItem"),
-                VMatch(function(natpack,val)
-                    natpack.setSlot(2,VInt(#menuModel))
-                end,"MWI_PMM_QueryCount","int")
+                end
             )
-
             ctx:message(mainWnd,VSig("MWI_PMM_ShowMenu"),VMsg(menuModelHandler))
         end,"MWI_OutRightClickFolderList")
     )

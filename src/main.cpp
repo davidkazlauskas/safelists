@@ -130,6 +130,11 @@ struct MainWindowInterface {
     // Siganture:
     // < PopupMenuModel_QueryItem, int (which), std::string (out) >
     DUMMY_REG(PopupMenuModel_QueryItem,"MWI_PMM_QueryItem");
+    //
+    // Emitted when item is selected.
+    // Signature:
+    // < PopupMenuModel_OutSelected, int (out) >
+    DUMMY_REG(PopupMenuModel_OutSelected,"MWI_PMM_OutSelected");
 };
 
 #define ASYNC_OUT_SNAP_SIGNATURE \

@@ -286,6 +286,7 @@ struct GtkMainWindow : public Messageable {
     typedef MainWindowInterface MWI;
 
     GtkMainWindow(Glib::RefPtr<Gtk::Builder>& bld) :
+        _builder(bld),
         _left(nullptr),
         _right(nullptr),
         _messageHandler(genHandler()),
@@ -921,6 +922,8 @@ private:
         _selectionStack[0] = _selectionStack[1];
         _selectionStack[1] = iter;
     }
+
+    Glib::RefPtr< Gtk::Builder > _builder;
 
     Gtk::Window* _wnd;
     Gtk::TreeView* _left;

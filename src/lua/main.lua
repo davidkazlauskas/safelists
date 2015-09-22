@@ -307,6 +307,10 @@ initAll = function()
                     print('Downloaded!')
                     DownloadsModel:dropSession(currSess)
                 end,"SLD_OutDone"),
+                VMatch(function(natPack,val)
+                    local hash = val:values()._3
+                    print("New hash update: |" .. hash .. "|")
+                end,"SLD_OutHashUpdate","int","string"),
                 VMatch(function()
                     print('Safelist session dun! Downloading...')
                     local dlHandle = ctx:messageRetValues(dlFactory,

@@ -113,6 +113,19 @@ struct MainWindowInterface {
     // query session widget
     // Signature: < QueryDownloadSessionWidget, StrongMsgPtr >
     DUMMY_REG(QueryDownloadSessionWidget,"MWI_QueryDownloadSessionWidget");
+
+
+    // popup model
+    //
+    // Query total items in menu
+    // Signature:
+    // < PopupMenuModel_QueryCount, int (out) >
+    DUMMY_REG(PopupMenuModel_QueryCount,"MWI_PMM_QueryCount");
+    //
+    // Query item.
+    // Siganture:
+    // < PopupMenuModel_QueryItem, int (which), std::string (out) >
+    DUMMY_REG(PopupMenuModel_QueryItem,"MWI_PMM_QueryItem");
 };
 
 #define ASYNC_OUT_SNAP_SIGNATURE \

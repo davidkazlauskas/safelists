@@ -380,7 +380,17 @@ initAll = function()
             end
         end,"MWI_OutShowDownloadsToggled","bool"),
         VMatch(function()
-            print('Right click!')
+            local menuModel = { "Move", "Delete", "Rename" }
+
+            local menuModelHandler = ctx:makeLuaMatchHandler(
+                VMatch(function(natpack,val)
+                    local num = val:values()._2 + 1
+                    natpack.setSlot(3,VString(menuModel[num]))
+                end,"MWI_PMM_QueryItem")
+                VMatch(function(natpack,val)
+                    natpack.setSlot(2,VInt(#menuModel))
+                end,"MWI_PMM_QueryCount","int")
+            )
         end,"MWI_OutRightClickFolderList")
     )
 

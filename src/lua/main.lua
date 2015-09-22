@@ -378,7 +378,10 @@ initAll = function()
                 ctx:message(mainWnd,
                     VSig("MWI_InRevealDownloads"),VBool(thisState))
             end
-        end,"MWI_OutShowDownloadsToggled","bool")
+        end,"MWI_OutShowDownloadsToggled","bool"),
+        VMatch(function()
+            print('Right click!')
+        end,"MWI_OutRightClickFolderList")
     )
 
     ctx:message(mainWnd,VSig("MWI_InAttachListener"),VMsg(mainWindowPushButtonHandler))

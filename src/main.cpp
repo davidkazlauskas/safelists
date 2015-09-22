@@ -598,7 +598,11 @@ private:
         int total = count.fGet<1>();
         assert( total > 0 && "Menu should be shown with something..." );
 
-        Gtk::Menu menu;
+        auto children = _popupMenu.get_children();
+        TEMPLATIOUS_FOREACH(auto& i,children) {
+            _popupMenu.remove(*i);
+        }
+
         TEMPLATIOUS_0_TO_N(i,total) {
             int prevCount = item.useCount();
             item.fGet<1>() = i;
@@ -607,11 +611,12 @@ private:
 
             auto managed = Gtk::manage(
                 new Gtk::MenuItem(item.fGet<2>().c_str(),true));
-            menu.append(*managed);
+            _popupMenu.append(*managed);
         }
 
-        menu.accelerate(*_wnd);
-        menu.show_all();
+        _popupMenu.accelerate(*_wnd);
+        _popupMenu.show_all();
+        _popupMenu.popup(3,gtk_get_current_event_time());
     }
 
     bool hasIterUnder(Gtk::TreeModel::iterator& parent,Gtk::TreeModel::iterator& child) {
@@ -934,6 +939,9 @@ private:
     // FILES
     FileTreeColumns _fileColumns;
     Glib::RefPtr<Gtk::ListStore> _fileStore;
+
+    // Menu
+    Gtk::Menu _popupMenu;
 
     // STATE
     int _lastSelectedDirId;

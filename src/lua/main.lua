@@ -23,10 +23,10 @@ function makePopupMenuModel(context,table,onSelectFunction)
     local menuModelHandler = context:makeLuaMatchHandler(
         VMatch(function(natpack,val)
             local num = val:values()._2 + 1
-            natpack.setSlot(3,VString(theModel[num]))
+            natpack:setSlot(3,VString(theModel[num]))
         end,"MWI_PMM_QueryItem"),
         VMatch(function(natpack,val)
-            natpack.setSlot(2,VInt(#theModel))
+            natpack:setSlot(2,VInt(#theModel))
         end,"MWI_PMM_QueryCount","int"),
         VMatch(function(natPack,val)
             local res = val:values()._2

@@ -608,9 +608,9 @@ private:
             auto managed = Gtk::manage(
                 new Gtk::MenuItem(item.fGet<2>().c_str(),true));
             menu.append(*managed);
-            menu.accelerate(*_wnd);
         }
 
+        menu.accelerate(*_wnd);
         menu.show_all();
     }
 

@@ -278,13 +278,26 @@ private:
             [=](std::shared_ptr<ToDownloadList>& dl) {
                 bool didEnd = dl->_hasEnded;
                 if (didEnd) {
+                    auto guard = SCOPE_GUARD_LC(
+                        dl = nullptr;
+                    );
+
                     --_count;
                     notifyObserver<
                         SLD::OutSingleDone, int
                     >(
                         nullptr, dl->_id
                     );
-                    dl = nullptr;
+
+                    char buf[128];
+                    dl->_hasher.toString(buf);
+                    if (dl->_dumbHash256 != buf) {
+                        notifyObserver<
+                            SLD::OutHashUpdate,
+                            int,
+                            std::string
+                        >(nullptr,dl->_id,buf);
+                    }
                 }
             },
             _jobs

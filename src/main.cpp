@@ -291,10 +291,7 @@ struct GtkMainWindow : public Messageable {
         _messageHandler(genHandler()),
         _lastSelectedDirId(-1)
     {
-        Gtk::Window* outWnd = nullptr;
-        bld->get_widget("window1",outWnd);
-        _wnd.reset( outWnd );
-
+        bld->get_widget("window1",_wnd);
         bld->get_widget("treeview1",_right);
         bld->get_widget("treeview3",_left);
         bld->get_widget("addNewBtn",_addNewBtn);
@@ -581,7 +578,7 @@ private:
             ),
             SF::virtualMatch< GenericGtkWindowInterface::GetGtkWindow, Gtk::Window* >(
                 [=](GenericGtkWindowInterface::GetGtkWindow,Gtk::Window*& ptr) {
-                    ptr = this->_wnd.get();
+                    ptr = this->_wnd;
                 }
             )
         );
@@ -925,7 +922,7 @@ private:
         _selectionStack[1] = iter;
     }
 
-    std::unique_ptr< Gtk::Window > _wnd;
+    Gtk::Window* _wnd;
     Gtk::TreeView* _left;
     Gtk::TreeView* _right;
     Gtk::Button* _addNewBtn;

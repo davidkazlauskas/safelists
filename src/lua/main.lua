@@ -198,6 +198,15 @@ initAll = function()
 
     currentDirId = -1
 
+    setButtonsEnabled(
+        ctx,mainWnd,
+        false,
+        "addNewBtn",
+        "newDirectoryButton",
+        "downloadButton",
+        "newDirectoryButton"
+    )
+
     mainWindowPushButtonHandler = ctx:makeLuaMatchHandler(
         VMatch(function()
             updateSessionWidget()

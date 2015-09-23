@@ -193,8 +193,6 @@ initAll = function()
     local mainWnd = ctx:namedMesseagable("mainWindow")
 
     local safelistDependantWigets = {
-        "addNewBtn",
-        "newDirectoryButton",
         "downloadButton",
         "newDirectoryButton"
     }
@@ -415,7 +413,8 @@ initAll = function()
                     VString(outPath),VMsg(nil))._3
 
                 ctx:message(mainModel,
-                    VSig("MMI_InLoadFolderTree"),VMsg(currentAsyncSqlite),VMsg(mainWnd))
+                    VSig("MMI_InLoadFolderTree"),
+                    VMsg(currentAsyncSqlite),VMsg(mainWnd))
                 onSafelistState()
             end
             print('button blast!')

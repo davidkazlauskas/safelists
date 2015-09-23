@@ -300,7 +300,6 @@ struct GtkMainWindow : public Messageable {
         registerAndGetWidget("window1",_wnd);
         registerAndGetWidget("treeview1",_right);
         registerAndGetWidget("treeview3",_left);
-        registerAndGetWidget("addNewBtn",_addNewBtn);
         registerAndGetWidget("statusBarLabel",_statusBar);
         registerAndGetWidget("newDirectoryButton",_newDirBtn);
         registerAndGetWidget("reavealerSessions",_revealerSessions);
@@ -316,10 +315,6 @@ struct GtkMainWindow : public Messageable {
 
         _sessionTab = SafeLists::GtkSessionTab::makeNew();
         _revealerSessions->add(*_sessionTab->getTabs());
-
-        _addNewBtn->signal_clicked().connect(
-            sigc::mem_fun(*this,&GtkMainWindow::addNewButtonClicked)
-        );
 
         _newDirBtn->signal_clicked().connect(
             sigc::mem_fun(*this,&GtkMainWindow::newDirButtonClicked)
@@ -860,11 +855,6 @@ private:
         }
     }
 
-    void addNewButtonClicked() {
-        auto msg = SF::vpack< MainWindowInterface::OutNewFileSignal >(nullptr);
-        _notifierCache.notify(msg);
-    }
-
     template <class... Types,class... Args>
     void notifySingleThreaded(Args&&... args) {
         auto msg = SF::vpack<Types...>(
@@ -937,7 +927,6 @@ private:
     Gtk::Window* _wnd;
     Gtk::TreeView* _left;
     Gtk::TreeView* _right;
-    Gtk::Button* _addNewBtn;
     Gtk::Button* _newDirBtn;
     Gtk::Button* _openSafelistBtn;
     Gtk::Button* _dlSafelistBtn;

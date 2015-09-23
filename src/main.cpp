@@ -298,8 +298,8 @@ struct GtkMainWindow : public Messageable {
         _lastSelectedDirId(-1)
     {
         registerAndGetWidget("window1",_wnd);
-        registerAndGetWidget("treeview1",_right);
-        registerAndGetWidget("treeview3",_left);
+        registerAndGetWidget("fileList",_right);
+        registerAndGetWidget("dirList",_left);
         registerAndGetWidget("statusBarLabel",_statusBar);
         registerAndGetWidget("newDirectoryButton",_newDirBtn);
         registerAndGetWidget("reavealerSessions",_revealerSessions);

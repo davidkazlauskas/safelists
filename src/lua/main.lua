@@ -176,7 +176,7 @@ function updateSessionWidget()
     end
 end
 
-function setButtonsEnabled(context,wnd,value,...)
+function setWidgetsEnabled(context,wnd,value,...)
     local values = {...}
     for k, v in pairs(values) do
         context:message(wnd,
@@ -193,12 +193,14 @@ initAll = function()
     local mainWnd = ctx:namedMesseagable("mainWindow")
 
     local safelistDependantWigets = {
+        "dirList",
+        "fileList",
         "downloadButton",
         "newDirectoryButton"
     }
 
     local noSafelistState = function()
-        setButtonsEnabled(
+        setWidgetsEnabled(
             ctx,mainWnd,
             false,
             unpack(safelistDependantWigets)
@@ -206,7 +208,7 @@ initAll = function()
     end
 
     local onSafelistState = function()
-        setButtonsEnabled(
+        setWidgetsEnabled(
             ctx,mainWnd,
             true,
             unpack(safelistDependantWigets)

@@ -204,7 +204,8 @@ initAll = function()
         VMatch(function(natpack,val)
             local inId = val:values()._2
 
-            if (currentDirId > 0) then
+            if (currentDirId > 0 and shouldMoveDir == true) then
+                shouldMoveDir = false
                 ctx:message(mainWnd,VSig("MWI_InSetStatusText"),VString(""))
                 if (inId == currentDirId) then
                     return
@@ -404,6 +405,7 @@ initAll = function()
                                 ctx:message(mainWnd,
                                     VSig("MWI_InSetStatusText"),
                                     VString("Press on node under which to move"))
+                                shouldMoveDir = true
                             end
                         end),
                         arrayBranch("Delete",function()

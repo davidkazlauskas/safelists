@@ -283,61 +283,6 @@ initAll = function()
                 VMsg(asyncSqlite),VMsg(mainWnd))
         end,"MWI_OutDirChangedSignal","int"),
         VMatch(function()
-            local dialog = ctx:namedMesseagable("singleInputDialog")
-
-            local showOrHide = function(val)
-                ctx:message(dialog,VSig("INDLG_InShowDialog"),VBool(val))
-            end
-
-            local dirName = ctx:messageRetValues(mainWnd,VSig("MWI_QueryCurrentDirName"),VString("?"))._2
-            local dirId = ctx:messageRetValues(mainWnd,VSig("MWI_QueryCurrentDirId"),VInt(-7))._2
-
-            if (dirName == "[unselected]") then
-                setStatus(ctx,mainWnd,"No directory was selected to create new one.")
-                return
-            end
-
-            ctx:message(dialog,VSig("INDLG_InSetLabel"),VString(
-                "Specify new folder name to create under " .. dirName .. "."
-            ))
-
-            local handler = ctx:makeLuaMatchHandler(
-                VMatch(function()
-                    print("Ok!")
-                    local outName = ctx:messageRetValues(dialog,VSig("INDLG_QueryInput"),VString("?"))._2
-                    -- more thorough user input check should be performed
-                    if (outName == "") then
-                        setStatus(ctx,mainWnd,"Some directory name must be specified.")
-                        return
-                    end
-
-                    local asyncSqlite = currentAsyncSqlite
-                    if (messageablesEqual(VMsgNil(),asyncSqlite)) then
-                        return
-                    end
-                    local mainWnd = ctx:namedMesseagable("mainWindow")
-                    local mainModel = ctx:namedMesseagable("mainModel")
-                    ctx:messageAsync(
-                        asyncSqlite,
-                        VSig("ASQL_Execute"),
-                        VString("INSERT INTO directories (dir_name,dir_parent)"
-                            .. " VALUES ('" .. outName .. "'," .. dirId .. ");")
-                    )
-                    -- todo: optimize, don't reload all
-                    ctx:message(mainModel,
-                        VSig("MMI_InLoadFolderTree"),VMsg(asyncSqlite),VMsg(mainWnd))
-                    showOrHide(false)
-                end,"INDLG_OutOkClicked"),
-                VMatch(function()
-                    print("Cancel!")
-                    showOrHide(false)
-                end,"INDLG_OutCancelClicked")
-            )
-
-            ctx:message(dialog,VSig("INDLG_InSetNotifier"),VMsg(handler))
-            showOrHide(true)
-        end,"MWI_OutNewDirButtonClicked"),
-        VMatch(function()
             local dlFactory = ctx:namedMesseagable("dlSessionFactory")
             local asyncSqlite = currentAsyncSqlite
             if (messageablesEqual(VMsgNil(),asyncSqlite)) then
@@ -470,7 +415,59 @@ initAll = function()
                             assert( false , "Rename not implemented cholo" )
                         end),
                         arrayBranch("New directory",function()
-                            assert( false , "New dir not implemented, CHOLO" )
+                            local dialog = ctx:namedMesseagable("singleInputDialog")
+
+                            local showOrHide = function(val)
+                                ctx:message(dialog,VSig("INDLG_InShowDialog"),VBool(val))
+                            end
+
+                            local dirName = ctx:messageRetValues(mainWnd,VSig("MWI_QueryCurrentDirName"),VString("?"))._2
+                            local dirId = ctx:messageRetValues(mainWnd,VSig("MWI_QueryCurrentDirId"),VInt(-7))._2
+
+                            if (dirName == "[unselected]") then
+                                setStatus(ctx,mainWnd,"No directory was selected to create new one.")
+                                return
+                            end
+
+                            ctx:message(dialog,VSig("INDLG_InSetLabel"),VString(
+                                "Specify new folder name to create under " .. dirName .. "."
+                            ))
+
+                            local handler = ctx:makeLuaMatchHandler(
+                                VMatch(function()
+                                    print("Ok!")
+                                    local outName = ctx:messageRetValues(dialog,VSig("INDLG_QueryInput"),VString("?"))._2
+                                    -- more thorough user input check should be performed
+                                    if (outName == "") then
+                                        setStatus(ctx,mainWnd,"Some directory name must be specified.")
+                                        return
+                                    end
+
+                                    local asyncSqlite = currentAsyncSqlite
+                                    if (messageablesEqual(VMsgNil(),asyncSqlite)) then
+                                        return
+                                    end
+                                    local mainWnd = ctx:namedMesseagable("mainWindow")
+                                    local mainModel = ctx:namedMesseagable("mainModel")
+                                    ctx:messageAsync(
+                                        asyncSqlite,
+                                        VSig("ASQL_Execute"),
+                                        VString("INSERT INTO directories (dir_name,dir_parent)"
+                                            .. " VALUES ('" .. outName .. "'," .. dirId .. ");")
+                                    )
+                                    -- todo: optimize, don't reload all
+                                    ctx:message(mainModel,
+                                        VSig("MMI_InLoadFolderTree"),VMsg(asyncSqlite),VMsg(mainWnd))
+                                    showOrHide(false)
+                                end,"INDLG_OutOkClicked"),
+                                VMatch(function()
+                                    print("Cancel!")
+                                    showOrHide(false)
+                                end,"INDLG_OutCancelClicked")
+                            )
+
+                            ctx:message(dialog,VSig("INDLG_InSetNotifier"),VMsg(handler))
+                            showOrHide(true)
                         end)
                     )
                 end

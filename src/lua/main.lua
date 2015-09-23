@@ -428,7 +428,7 @@ initAll = function()
             end
         end,"MWI_OutShowDownloadsToggled","bool"),
         VMatch(function()
-            local menuModel = { "Move", "Delete", "Rename" }
+            local menuModel = { "New directory", "Move", "Delete", "Rename" }
             local menuModelHandler = makePopupMenuModel(
                 ctx,menuModel,
                 function(result)
@@ -466,6 +466,9 @@ initAll = function()
                         end),
                         arrayBranch("Rename",function()
                             print('renamed.')
+                        end),
+                        arrayBranch("New directory",function()
+                            assert( false , "New dir not implemented, CHOLO" )
                         end)
                     )
                 end

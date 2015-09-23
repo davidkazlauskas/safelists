@@ -297,8 +297,6 @@ struct GtkMainWindow : public Messageable {
         bld->get_widget("treeview1",_right);
         bld->get_widget("treeview3",_left);
         bld->get_widget("addNewBtn",_addNewBtn);
-        bld->get_widget("moveButton",_moveDirBtn);
-        bld->get_widget("deleteDirButton",_deleteDirBtn);
         bld->get_widget("statusBarLabel",_statusBar);
         bld->get_widget("newDirectoryButton",_newDirBtn);
         bld->get_widget("reavealerSessions",_revealerSessions);
@@ -317,14 +315,6 @@ struct GtkMainWindow : public Messageable {
 
         _addNewBtn->signal_clicked().connect(
             sigc::mem_fun(*this,&GtkMainWindow::addNewButtonClicked)
-        );
-
-        _moveDirBtn->signal_clicked().connect(
-            sigc::mem_fun(*this,&GtkMainWindow::moveButtonClicked)
-        );
-
-        _deleteDirBtn->signal_clicked().connect(
-            sigc::mem_fun(*this,&GtkMainWindow::deleteDirButtonClicked)
         );
 
         _newDirBtn->signal_clicked().connect(
@@ -847,21 +837,11 @@ private:
         _notifierCache.notify(msg);
     }
 
-    void moveButtonClicked() {
-        auto msg = SF::vpack< MainWindowInterface::OutMoveButtonClicked >(nullptr);
-        _notifierCache.notify(msg);
-    }
-
     template <class... Types,class... Args>
     void notifySingleThreaded(Args&&... args) {
         auto msg = SF::vpack<Types...>(
             std::forward<Args>(args)...
         );
-        _notifierCache.notify(msg);
-    }
-
-    void deleteDirButtonClicked() {
-        auto msg = SF::vpack< MainWindowInterface::OutDeleteDirButtonClicked >(nullptr);
         _notifierCache.notify(msg);
     }
 
@@ -930,8 +910,6 @@ private:
     Gtk::TreeView* _left;
     Gtk::TreeView* _right;
     Gtk::Button* _addNewBtn;
-    Gtk::Button* _moveDirBtn;
-    Gtk::Button* _deleteDirBtn;
     Gtk::Button* _newDirBtn;
     Gtk::Button* _openSafelistBtn;
     Gtk::Button* _dlSafelistBtn;

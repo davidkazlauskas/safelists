@@ -107,6 +107,10 @@ struct MainWindowInterface {
     // Signature: < InSetWidgetEnabled, std::string (name), bool (value) >
     DUMMY_REG(InSetWidgetEnabled,"MWI_InSetWidgetEnabled");
 
+    // Set widget text
+    // Signature: < InSetWidgetText, std::string(name), std::string (text) >
+    DUMMY_REG(InSetWidgetText,"MWI_InSetWidgetText");
+
     // query current directory id
     // Signature: < QueryCurrentDirId, int (output) >
     DUMMY_REG(QueryCurrentDirId,"MWI_QueryCurrentDirId");
@@ -301,6 +305,7 @@ struct GtkMainWindow : public Messageable {
         registerAndGetWidget("fileList",_right);
         registerAndGetWidget("dirList",_left);
         registerAndGetWidget("statusBarLabel",_statusBar);
+        registerAndGetWidget("safelistRevisionLabel",_safelistRevisionLbl);
         registerAndGetWidget("reavealerSessions",_revealerSessions);
         BIND_GTK_BUTTON("downloadButton",
             _dlSafelistBtn,
@@ -485,6 +490,21 @@ private:
                     auto wgt = this->retrieveWidget(name.c_str());
                     if (nullptr != wgt) {
                         wgt->set_sensitive(val);
+                    } else {
+                        assert( false && "You did not just drop a no name widget on me bro..." );
+                    }
+                }
+            ),
+            SF::virtualMatch< MWI::InSetWidgetText, const std::string, const std::string >(
+                [=](MWI::InSetWidgetText,const std::string& name,const std::string& text) {
+                    auto wgt = this->retrieveWidget(name.c_str());
+                    if (nullptr != wgt) {
+                        auto downcast = dynamic_cast< Gtk::Label* >(wgt);
+                        if (nullptr != downcast) {
+                            downcast->set_text(text.c_str());
+                        } else {
+                            assert( false && "No downcast pookie..." );
+                        }
                     } else {
                         assert( false && "You did not just drop a no name widget on me bro..." );
                     }
@@ -921,6 +941,7 @@ private:
     Gtk::Button* _dlSafelistBtn;
     Gtk::ToggleButton* _showDownloadsBtn;
     Gtk::Label* _statusBar;
+    Gtk::Label* _safelistRevisionLbl;
     Gtk::Revealer* _revealerSessions;
     ModelColumns _mdl;
 

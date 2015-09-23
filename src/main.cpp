@@ -103,6 +103,10 @@ struct MainWindowInterface {
     // Signature: < InSetDownloadModel, StrongMsgPtr (model) >
     DUMMY_REG(InSetDownloadModel,"MWI_InSetDownloadModel");
 
+    // Enable/disable widget.
+    // Signature: < InSetWidgetEnabled, std::string (name), bool (value) >
+    DUMMY_REG(InSetWidgetEnabled,"MWI_InSetWidgetEnabled");
+
     // query current directory id
     // Signature: < QueryCurrentDirId, int (output) >
     DUMMY_REG(QueryCurrentDirId,"MWI_QueryCurrentDirId");

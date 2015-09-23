@@ -490,6 +490,14 @@ private:
                     this->_statusBar->set_text(text.c_str());
                 }
             ),
+            SF::virtualMatch< MWI::InSetWidgetEnabled, const std::string, const bool >(
+                [=](MWI::InSetWidgetEnabled,const std::string& name,bool val) {
+                    auto wgt = this->retrieveWidget(name.c_str());
+                    if (nullptr != wgt) {
+                        wgt->set_sensitive(val);
+                    }
+                }
+            ),
             SF::virtualMatch< MWI::QueryCurrentDirId, int >(
                 [=](MWI::QueryCurrentDirId,int& outId) {
                     auto selection = _dirSelection->get_selected();

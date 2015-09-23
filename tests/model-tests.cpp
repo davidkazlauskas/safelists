@@ -368,3 +368,44 @@ TEST_CASE("model_async_sqlite_single_row","[model]") {
         REQUIRE( pack->fGet<2>() == "Tom|1" );
     }
 }
+
+TEST_CASE("model_async_sqlite_single_num","[model]") {
+    auto msg = AsyncSqlite::createNew(":memory:");
+
+    {
+        static const char* query =
+            "CREATE TABLE Friends(Id INTEGER PRIMARY KEY, Name TEXT);"
+            "INSERT INTO Friends(Name) VALUES ('Tom');"
+            "INSERT INTO Friends(Name) VALUES ('Rebecca');"
+            "INSERT INTO Friends(Name) VALUES ('Jim');"
+            "INSERT INTO Friends(Name) VALUES ('Roger');"
+            "INSERT INTO Friends(Name) VALUES ('Robert');";
+
+        auto pack = SF::vpackPtrCustom< templatious::VPACK_WAIT,
+             AsyncSqlite::Execute, const char*
+        >(
+            nullptr, query
+        );
+        msg->message(pack);
+
+        pack->wait();
+    }
+
+    {
+        static const char* query =
+            "SELECT COUNT(*) FROM FRIENDS;";
+
+        auto pack = SF::vpackPtrCustom<
+            templatious::VPACK_WAIT,
+            AsyncSqlite::OutSingleNum,
+            const std::string,
+            int,
+            bool
+        >(nullptr,query,-1,false);
+        msg->message(pack);
+        pack->wait();
+
+        REQUIRE( pack->fGet<3>() );
+        REQUIRE( pack->fGet<2>() == 5 );
+    }
+}

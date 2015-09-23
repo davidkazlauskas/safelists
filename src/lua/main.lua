@@ -195,8 +195,7 @@ initAll = function()
     local safelistDependantWigets = {
         "dirList",
         "fileList",
-        "downloadButton",
-        "newDirectoryButton"
+        "downloadButton"
     }
 
     local noSafelistState = function()

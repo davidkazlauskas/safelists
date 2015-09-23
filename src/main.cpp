@@ -301,7 +301,6 @@ struct GtkMainWindow : public Messageable {
         registerAndGetWidget("fileList",_right);
         registerAndGetWidget("dirList",_left);
         registerAndGetWidget("statusBarLabel",_statusBar);
-        registerAndGetWidget("newDirectoryButton",_newDirBtn);
         registerAndGetWidget("reavealerSessions",_revealerSessions);
         BIND_GTK_BUTTON("downloadButton",
             _dlSafelistBtn,
@@ -315,10 +314,6 @@ struct GtkMainWindow : public Messageable {
 
         _sessionTab = SafeLists::GtkSessionTab::makeNew();
         _revealerSessions->add(*_sessionTab->getTabs());
-
-        _newDirBtn->signal_clicked().connect(
-            sigc::mem_fun(*this,&GtkMainWindow::newDirButtonClicked)
-        );
 
         _wnd->signal_draw().connect(
             sigc::mem_fun(*this,&GtkMainWindow::onDraw)
@@ -863,11 +858,6 @@ private:
         _notifierCache.notify(msg);
     }
 
-    void newDirButtonClicked() {
-        auto msg = SF::vpack< MainWindowInterface::OutNewDirButtonClicked >(nullptr);
-        _notifierCache.notify(msg);
-    }
-
     bool leftListClicked(GdkEventButton* event) {
         if ( (event->type == GDK_BUTTON_PRESS) && (event->button) == 3 ) {
             notifySingleThreaded< MainWindowInterface::OutRightClickFolderList >(nullptr);
@@ -927,7 +917,6 @@ private:
     Gtk::Window* _wnd;
     Gtk::TreeView* _left;
     Gtk::TreeView* _right;
-    Gtk::Button* _newDirBtn;
     Gtk::Button* _openSafelistBtn;
     Gtk::Button* _dlSafelistBtn;
     Gtk::ToggleButton* _showDownloadsBtn;

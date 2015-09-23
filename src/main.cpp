@@ -495,6 +495,8 @@ private:
                     auto wgt = this->retrieveWidget(name.c_str());
                     if (nullptr != wgt) {
                         wgt->set_sensitive(val);
+                    } else {
+                        assert( false && "You did not just drop a no name widget on me bro..." );
                     }
                 }
             ),

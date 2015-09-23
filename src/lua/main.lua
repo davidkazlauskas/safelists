@@ -304,6 +304,7 @@ initAll = function()
                     VString("UPDATE directories SET dir_parent=" .. inId
                         .. " WHERE dir_id=" .. currentDirId .. ";"))
                     currentDirId = -1
+                updateRevision()
                 return
             end
 
@@ -442,6 +443,7 @@ initAll = function()
                                     VString("DELETE FROM directories WHERE dir_id=" .. currentDirId .. ";"))
                                 ctx:message(mainWnd,VSig("MWI_InDeleteSelectedDir"))
                                 currentDirId = -1
+                                updateRevision()
                             else
                                 setStatus(ctx,mainWnd,"No directory selected.")
                             end
@@ -493,6 +495,7 @@ initAll = function()
                                     -- todo: optimize, don't reload all
                                     ctx:message(mainModel,
                                         VSig("MMI_InLoadFolderTree"),VMsg(asyncSqlite),VMsg(mainWnd))
+                                        updateRevision()
                                     showOrHide(false)
                                 end,"INDLG_OutOkClicked"),
                                 VMatch(function()

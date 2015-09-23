@@ -331,6 +331,19 @@ struct GtkMainWindow : public Messageable {
         _selectionStack.resize(2);
     }
 
+    void registerAndGetWidget(const char* name,Gtk::Widget*& out) {
+        _builder->get_widget(name,out);
+        _wgtMap.insert(std::pair<std::string,Gtk::Widget*>(name,out));
+    }
+
+    Gtk::Widget* retrieveWidget(const char* name) {
+        auto found = _wgtMap.find(name);
+        if (found != _wgtMap.end()) {
+            return found->second;
+        }
+        return nullptr;
+    }
+
     class ModelColumns : public Gtk::TreeModel::ColumnRecord {
     public:
         ModelColumns() {
@@ -917,6 +930,8 @@ private:
     Gtk::Label* _statusBar;
     Gtk::Revealer* _revealerSessions;
     ModelColumns _mdl;
+
+    std::map< std::string, Gtk::Widget* > _wgtMap;
 
     VmfPtr _messageHandler;
 

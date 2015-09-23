@@ -277,7 +277,7 @@ private:
 
 
 #define BIND_GTK_BUTTON(gladeName,memberName,funcName)  \
-    bld->get_widget(gladeName,memberName);  \
+    registerAndGetWidget(gladeName,memberName);  \
     memberName->signal_clicked().connect(   \
         sigc::mem_fun(*this,funcName)       \
     );
@@ -293,13 +293,13 @@ struct GtkMainWindow : public Messageable {
         _messageHandler(genHandler()),
         _lastSelectedDirId(-1)
     {
-        bld->get_widget("window1",_wnd);
-        bld->get_widget("treeview1",_right);
-        bld->get_widget("treeview3",_left);
-        bld->get_widget("addNewBtn",_addNewBtn);
-        bld->get_widget("statusBarLabel",_statusBar);
-        bld->get_widget("newDirectoryButton",_newDirBtn);
-        bld->get_widget("reavealerSessions",_revealerSessions);
+        registerAndGetWidget("window1",_wnd);
+        registerAndGetWidget("treeview1",_right);
+        registerAndGetWidget("treeview3",_left);
+        registerAndGetWidget("addNewBtn",_addNewBtn);
+        registerAndGetWidget("statusBarLabel",_statusBar);
+        registerAndGetWidget("newDirectoryButton",_newDirBtn);
+        registerAndGetWidget("reavealerSessions",_revealerSessions);
         BIND_GTK_BUTTON("downloadButton",
             _dlSafelistBtn,
             &GtkMainWindow::downloadButtonClicked);
@@ -331,7 +331,8 @@ struct GtkMainWindow : public Messageable {
         _selectionStack.resize(2);
     }
 
-    void registerAndGetWidget(const char* name,Gtk::Widget*& out) {
+    template <class T>
+    void registerAndGetWidget(const char* name,T*& out) {
         _builder->get_widget(name,out);
         _wgtMap.insert(std::pair<std::string,Gtk::Widget*>(name,out));
     }

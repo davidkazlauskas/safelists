@@ -244,7 +244,7 @@ initAll = function()
                     VString("safelistRevisionLabel"),VString(outRes))
             end,
             VSig("ASQL_OutSingleRow"),VString(
-                "SELECT revision_number,datetime(modification_date,'unixepoch')" ..
+                "SELECT revision_number,datetime(modification_date,'unixepoch','localtime')" ..
                 " FROM metadata;"
             ),VString("empty"),VBool(false))
     end

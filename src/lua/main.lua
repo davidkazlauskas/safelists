@@ -37,6 +37,23 @@ function makePopupMenuModel(context,table,onSelectFunction)
     return menuModelHandler
 end
 
+function arrayBranch(value,func)
+    return {
+        value=value,
+        func=func
+    }
+end
+
+function arraySwitch(value,table,...)
+    local branches = {...}
+    local toFind = table[value]
+    for k,v in pairs(branches) do
+        if v.value == toFind then
+            return v.func()
+        end
+    end
+end
+
 revealDownloads = false
 sessionWidget = nil
 currentAsyncSqlite = nil
@@ -406,7 +423,17 @@ initAll = function()
             local menuModelHandler = makePopupMenuModel(
                 ctx,menuModel,
                 function(result)
-                    print("Right click item: " .. result)
+                    arraySwitch(result+1,menuModel,
+                        arrayBranch("Move",function()
+                            print('moved.')
+                        end),
+                        arrayBranch("Delete",function()
+                            print('deleted.')
+                        end),
+                        arrayBranch("Rename",function()
+                            print('renamed.')
+                        end)
+                    )
                 end
             )
             ctx:message(mainWnd,VSig("MWI_PMM_ShowMenu"),VMsg(menuModelHandler))

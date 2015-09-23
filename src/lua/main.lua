@@ -246,25 +246,6 @@ initAll = function()
                 VMsg(asyncSqlite),VMsg(mainWnd))
         end,"MWI_OutDirChangedSignal","int"),
         VMatch(function()
-            currentDirId = ctx:messageRetValues(mainWnd,VSig("MWI_QueryCurrentDirId"),VInt(-7))._2
-            if (currentDirId ~= -1) then
-                if (currentDirId == 1) then
-                    setStatus(ctx,mainWnd,"Root cannot be deleted.")
-                end
-                local asyncSqlite = currentAsyncSqlite
-                if (messageablesEqual(VMsgNil(),asyncSqlite)) then
-                    return
-                end
-                ctx:messageAsync(asyncSqlite,
-                    VSig("ASQL_Execute"),
-                    VString("DELETE FROM directories WHERE dir_id=" .. currentDirId .. ";"))
-                ctx:message(mainWnd,VSig("MWI_InDeleteSelectedDir"))
-                currentDirId = -1
-            else
-                setStatus(ctx,mainWnd,"No directory selected.")
-            end
-        end,"MWI_OutDeleteDirButtonClicked"),
-        VMatch(function()
             local dialog = ctx:namedMesseagable("singleInputDialog")
 
             local showOrHide = function(val)

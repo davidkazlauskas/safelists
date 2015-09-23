@@ -48,6 +48,16 @@ struct AsyncSqlite {
     // >
     DUMMY_STRUCT(OutSingleNum);
 
+    // query something and receive single
+    // row result separated by '|' pipes.
+    // Signature: <
+    //     OutSingleNum,
+    //     std::string (query),
+    //     std::string (output),
+    //     bool (did succeed)
+    // >
+    DUMMY_REG(OutSingleRow,"ASQL_OutSingleRow");
+
     // query this message to ensure you're
     // performing action after another
     // using templatious virtual pack wait

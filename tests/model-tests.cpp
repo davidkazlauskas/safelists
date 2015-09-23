@@ -327,3 +327,44 @@ TEST_CASE("model_sqlite_ranger_count","[model]") {
     REQUIRE( 5 == sharedRanger->numRows() );
     REQUIRE( 2 == sharedRanger->numColumns() );
 }
+
+TEST_CASE("model_async_sqlite_single_row","[model]") {
+    auto msg = AsyncSqlite::createNew(":memory:");
+
+    {
+        static const char* query =
+            "CREATE TABLE Friends(Id INTEGER PRIMARY KEY, Name TEXT);"
+            "INSERT INTO Friends(Name) VALUES ('Tom');"
+            "INSERT INTO Friends(Name) VALUES ('Rebecca');"
+            "INSERT INTO Friends(Name) VALUES ('Jim');"
+            "INSERT INTO Friends(Name) VALUES ('Roger');"
+            "INSERT INTO Friends(Name) VALUES ('Robert');";
+
+        auto pack = SF::vpackPtrCustom< templatious::VPACK_WAIT,
+             AsyncSqlite::Execute, const char*
+        >(
+            nullptr, query
+        );
+        msg->message(pack);
+
+        pack->wait();
+    }
+
+    {
+        static const char* query =
+            "SELECT Name,Id FROM FRIENDS LIMIT 1;";
+
+        auto pack = SF::vpackPtrCustom<
+            templatious::VPACK_WAIT,
+            AsyncSqlite::OutSingleRow,
+            const std::string,
+            std::string,
+            bool
+        >(nullptr,query,"",false);
+        msg->message(pack);
+        pack->wait();
+
+        REQUIRE( pack->fGet<3>() );
+        REQUIRE( pack->fGet<2>() == "Tom|1" );
+    }
+}

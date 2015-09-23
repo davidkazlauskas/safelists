@@ -97,6 +97,14 @@ private:
         bool& _success;
     };
 
+    struct HolderSingleRow {
+        HolderSingleRow(std::string& out)
+            : _out(out), _rev(0) {}
+
+        std::string& _out;
+        int _rev;
+    };
+
     static int sqliteFuncExec(
         void* data,
         int cnt,
@@ -113,14 +121,33 @@ private:
     static int sqliteFuncSingleOut(
         void* data,
         int cnt,
-        char** header,
-        char** value
+        char** value,
+        char** header
     )
     {
         HolderSingleNum& hld = *reinterpret_cast<
             HolderSingleNum* >(data);
-        hld._out = std::atoi(value[1]);
+        hld._out = std::atoi(value[0]);
         hld._success = true;
+        return 1;
+    }
+
+    static int sqliteFuncSingleRowOut(
+        void* data,
+        int cnt,
+        char** value,
+        char** header
+    )
+    {
+        HolderSingleRow& hld = *reinterpret_cast<
+            HolderSingleRow* >(data);
+        assert( cnt > 0 && "Oh, cmon milky! Can't you select something?" );
+        hld._out = value[0];
+        for (int i = 1; i < cnt; ++i) {
+            hld._out += "|";
+            hld._out += value[i];
+        }
+        ++hld._rev;
         return 1;
     }
 
@@ -189,6 +216,17 @@ private:
                     if (h._success) {
                         out = h._out;
                         succeeded = h._success;
+                    }
+                }
+            ),
+            SF::virtualMatch< AS::OutSingleRow, const std::string, std::string, bool >(
+                [=](AS::OutSingleNum, const std::string& query,std::string& out,bool& succeeded) {
+                    HolderSingleRow h(out);
+                    sqlite3_exec(this->_sqlite,query.c_str(),&sqliteFuncSingleRowOut,&h,nullptr);
+                    if (h._rev == 1) {
+                        succeeded = true;
+                    } else {
+                        succeeded = false;
                     }
                 }
             ),

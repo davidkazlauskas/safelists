@@ -465,7 +465,7 @@ initAll = function()
                             end
                         end),
                         arrayBranch("Rename",function()
-                            print('renamed.')
+                            assert( false , "Rename not implemented cholo" )
                         end),
                         arrayBranch("New directory",function()
                             assert( false , "New dir not implemented, CHOLO" )

@@ -247,15 +247,6 @@ initAll = function()
         end,"MWI_OutDirChangedSignal","int"),
         VMatch(function()
             currentDirId = ctx:messageRetValues(mainWnd,VSig("MWI_QueryCurrentDirId"),VInt(-7))._2
-            print("Selected dir: " .. currentDirId)
-            if (currentDirId ~= -1) then
-                ctx:message(mainWnd,
-                    VSig("MWI_InSetStatusText"),
-                    VString("Press on node under which to move"))
-            end
-        end,"MWI_OutMoveButtonClicked"),
-        VMatch(function()
-            currentDirId = ctx:messageRetValues(mainWnd,VSig("MWI_QueryCurrentDirId"),VInt(-7))._2
             if (currentDirId ~= -1) then
                 if (currentDirId == 1) then
                     setStatus(ctx,mainWnd,"Root cannot be deleted.")

@@ -425,7 +425,14 @@ initAll = function()
                 function(result)
                     arraySwitch(result+1,menuModel,
                         arrayBranch("Move",function()
-                            print('moved.')
+                            currentDirId = ctx:messageRetValues(mainWnd,
+                                VSig("MWI_QueryCurrentDirId"),VInt(-7))._2
+                            print("Selected dir: " .. currentDirId)
+                            if (currentDirId ~= -1) then
+                                ctx:message(mainWnd,
+                                    VSig("MWI_InSetStatusText"),
+                                    VString("Press on node under which to move"))
+                            end
                         end),
                         arrayBranch("Delete",function()
                             print('deleted.')

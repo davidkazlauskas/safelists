@@ -15,6 +15,20 @@ function enumerateTable(table)
     return res
 end
 
+-- LUA HAS NO SPLIT STRING FUNCTION? ARE YOU SERIOUS?
+function string:split(delimiter)
+  local result = { }
+  local from = 1
+  local delim_from, delim_to = string.find( self, delimiter, from )
+  while delim_from do
+    table.insert( result, string.sub( self, from , delim_from-1 ) )
+    from = delim_to + 1
+    delim_from, delim_to = string.find( self, delimiter, from )
+  end
+  table.insert( result, string.sub( self, from ) )
+  return result
+end
+
 -- on select function receives integer option selected,
 -- -1 if none
 function makePopupMenuModel(context,table,onSelectFunction)
@@ -214,6 +228,27 @@ initAll = function()
         )
     end
 
+    local updateRevision = function()
+        local sess = currentAsyncSqlite
+        assert( nil ~= sess, "Sess is null for revision read..." )
+        ctx:messageAsyncWCallback(sess,
+            function(out)
+                local values = out:values()
+                local succeeded = values._4
+                local outString = values._3
+                assert( succeeded, "Great success!" )
+                local split = outString:split("|")
+                local outRes = "Safelist revision: " .. split[1] ..
+                    ", last modification date: " .. split[2]
+                ctx:message(mainWnd,VSig("MWI_InSetWidgetText"),
+                    VString("safelistRevisionLabel"),VString(outRes))
+            end,
+            VSig("ASQL_OutSingleRow"),VString(
+                "SELECT revision_number,datetime(modification_date,'unixepoch')" ..
+                " FROM metadata;"
+            ),VString("empty"),VBool(false))
+    end
+
     noSafelistState()
 
     ctx:attachContextTo(mainWnd)
@@ -362,6 +397,7 @@ initAll = function()
                     VSig("MMI_InLoadFolderTree"),
                     VMsg(currentAsyncSqlite),VMsg(mainWnd))
                 onSafelistState()
+                updateRevision()
             end
             print('button blast!')
         end,"MWI_OutOpenSafelistButtonClicked"),

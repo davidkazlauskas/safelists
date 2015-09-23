@@ -426,7 +426,24 @@ initAll = function()
                             end
                         end),
                         arrayBranch("Delete",function()
-                            print('deleted.')
+                            currentDirId = ctx:messageRetValues(mainWnd,VSig("MWI_QueryCurrentDirId"),VInt(-7))._2
+                            if (currentDirId ~= -1) then
+                                if (currentDirId == 1) then
+                                    setStatus(ctx,mainWnd,"Root cannot be deleted.")
+                                    return
+                                end
+                                local asyncSqlite = currentAsyncSqlite
+                                if (messageablesEqual(VMsgNil(),asyncSqlite)) then
+                                    return
+                                end
+                                ctx:messageAsync(asyncSqlite,
+                                    VSig("ASQL_Execute"),
+                                    VString("DELETE FROM directories WHERE dir_id=" .. currentDirId .. ";"))
+                                ctx:message(mainWnd,VSig("MWI_InDeleteSelectedDir"))
+                                currentDirId = -1
+                            else
+                                setStatus(ctx,mainWnd,"No directory selected.")
+                            end
                         end),
                         arrayBranch("Rename",function()
                             print('renamed.')

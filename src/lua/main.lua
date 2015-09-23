@@ -192,20 +192,36 @@ initAll = function()
     local ctx = luaContext()
     local mainWnd = ctx:namedMesseagable("mainWindow")
 
+    local safelistDependantWigets = {
+        "addNewBtn",
+        "newDirectoryButton",
+        "downloadButton",
+        "newDirectoryButton"
+    }
+
+    local noSafelistState = function()
+        setButtonsEnabled(
+            ctx,mainWnd,
+            false,
+            unpack(safelistDependantWigets)
+        )
+    end
+
+    local onSafelistState = function()
+        setButtonsEnabled(
+            ctx,mainWnd,
+            true,
+            unpack(safelistDependantWigets)
+        )
+    end
+
+    noSafelistState()
+
     ctx:attachContextTo(mainWnd)
     sessionWidget = ctx:messageRetValues(mainWnd,
         VSig("MWI_QueryDownloadSessionWidget"),VMsg(nil))._2
 
     currentDirId = -1
-
-    setButtonsEnabled(
-        ctx,mainWnd,
-        false,
-        "addNewBtn",
-        "newDirectoryButton",
-        "downloadButton",
-        "newDirectoryButton"
-    )
 
     mainWindowPushButtonHandler = ctx:makeLuaMatchHandler(
         VMatch(function()
@@ -400,6 +416,7 @@ initAll = function()
 
                 ctx:message(mainModel,
                     VSig("MMI_InLoadFolderTree"),VMsg(currentAsyncSqlite),VMsg(mainWnd))
+                onSafelistState()
             end
             print('button blast!')
         end,"MWI_OutOpenSafelistButtonClicked"),

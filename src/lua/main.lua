@@ -171,6 +171,10 @@ function DownloadsModel:nthSession(num)
     return self.enumerated[num]
 end
 
+function DownloadsModel:nthSessionNum(num)
+    return self.enumerated[num].key
+end
+
 function DownloadsModel:incRevision()
     self.revisionNum = self.revisionNum + 1
 end
@@ -631,7 +635,8 @@ initAll = function()
         end,"DLMDL_QuerySessionDownloadCount","int","int"),
         VMatch(function(natPack,vtree)
             local sessN = vtree:values()._2 + 1
-            local theLabel = "Session #" .. sessN
+            local theLabel = "Session #" ..
+                DownloadsModel:nthSessionNum(sessN)
             natPack:setSlot(3,VString(theLabel))
         end,"DLMDL_QuerySessionTitle","int","string")
     )

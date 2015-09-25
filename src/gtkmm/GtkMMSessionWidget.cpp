@@ -249,10 +249,9 @@ void GtkSessionTab::fullModelUpdate() {
 
         locked->message(querySessionTitle);
         assert( querySessionTitle.useCount() > 0 && "Pack was unused..." );
-        auto lbl = static_cast<Gtk::Label*>(_mainTab->get_tab_label(*_mainTab->get_nth_page(i)));
+        auto lbl = static_cast<Gtk::Label*>(
+            _mainTab->get_tab_label(*_mainTab->get_nth_page(i)));
         lbl->set_text(querySessionTitle.fGet<2>().c_str());
-        //_sessions[i]->getSessionTitle()->set_text(
-            //querySessionTitle.fGet<2>().c_str());
 
         TEMPLATIOUS_0_TO_N(j,theCount) {
             queryLabelAndProgress.fGet<2>() = j;

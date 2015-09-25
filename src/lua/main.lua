@@ -669,6 +669,9 @@ initAll = function()
             local sess = DownloadsModel:nthSession(sessN)
             local done = sess:doneDownloads()
             local total = sess:totalDownloads()
+            if (total == 0) then
+                total = 1
+            end
             local prog = done / total
             local progRounded = tonumber(
                 string.format("%.2f",prog * 100))

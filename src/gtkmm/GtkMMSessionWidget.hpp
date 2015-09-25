@@ -60,6 +60,11 @@ struct GtkSessionTab : public Messageable {
         // >
         DUMMY_REG(QueryDownloadLabelAndProgress,"DLMDL_QueryDownloadLabelAndProgress");
 
+        // Query session title
+        // Signature:
+        // < QuerySessionTitle, int (session), std::string (out title) >
+        DUMMY_REG(QuerySessionTitle,"DLMDL_QuerySessionTitle");
+
         // Perform full gui update
         // Signature:
         // < InFullUpdate >

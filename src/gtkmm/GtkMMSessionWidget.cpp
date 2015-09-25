@@ -224,8 +224,13 @@ void GtkSessionTab::fullModelUpdate() {
     auto queryCurrentSessionCount = SF::vpack<
         MI::QuerySessionDownloadCount, int, int
     >(nullptr,-1,-1);
+    auto queryLabelAndProgress = SF::vpack<
+        MI::QueryDownloadLabelAndProgress,
+        int,int,std::string,double
+    >(nullptr,-1,-1,"",-1);
     TEMPLATIOUS_0_TO_N(i,total) {
         queryCurrentSessionCount.fGet<1>() = i;
+        queryLabelAndProgress.fGet<1>() = i;
 
         locked->message(queryCurrentSessionCount);
         assert( queryCurrentSessionCount.useCount() > 0 && "Pack was unused..." );
@@ -233,10 +238,7 @@ void GtkSessionTab::fullModelUpdate() {
         _sessions[i]->setDownloadBoxCount(theCount);
 
         TEMPLATIOUS_0_TO_N(j,theCount) {
-            auto queryLabelAndProgress = SF::vpack<
-                MI::QueryDownloadLabelAndProgress,
-                int,int,std::string,double
-            >(nullptr,i,j,"",-1);
+            queryLabelAndProgress.fGet<2>() = j;
             locked->message(queryLabelAndProgress);
             assert( queryLabelAndProgress.useCount() > 0 && "Pack was unused..." );
             auto item = _sessions[i]->nthItem(j);

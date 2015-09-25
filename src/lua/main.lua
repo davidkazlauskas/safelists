@@ -397,6 +397,7 @@ initAll = function()
             downloadPath = downloadPath .. "/safelist_session"
 
             local currSess = DownloadsModel:newSession()
+            local currDlSessionHandler = nil
             local handler = ctx:makeLuaMatchHandler(
                 VMatch(function(natPack,val)
                     local values = val:values()

@@ -7,9 +7,25 @@
     <property name="can_focus">False</property>
     <property name="orientation">vertical</property>
     <child>
-      <object class="GtkListBox" id="downloadArea">
+      <object class="GtkScrolledWindow" id="scrolledSessionWindow">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
+        <property name="can_focus">True</property>
+        <property name="hscrollbar_policy">never</property>
+        <property name="vscrollbar_policy">always</property>
+        <property name="kinetic_scrolling">False</property>
+        <child>
+          <object class="GtkViewport" id="scrolledSessionViewport">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="shadow_type">out</property>
+            <child>
+              <object class="GtkListBox" id="downloadArea">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+              </object>
+            </child>
+          </object>
+        </child>
       </object>
       <packing>
         <property name="expand">True</property>

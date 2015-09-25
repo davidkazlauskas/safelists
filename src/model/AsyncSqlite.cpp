@@ -29,53 +29,35 @@ static_assert( SQLITE_VERSION_NUMBER >= 3008012, "Sqlite has to be at least 3.8.
 
 namespace SafeLists {
 
-struct AsyncSqliteImpl : public Messageable {
+struct AsyncSqliteImpl {
+
+    // Turn off and close database,
+    // should be issued only by
+    // AsyncSqliteProxy
+    DUMMY_STRUCT(Shutdown);
 
     AsyncSqliteImpl(const char* path) :
         _keepGoing(true),
-        _handler(genHandler())
+        _handler(genHandler()),
+        _path(path),
+        _sqlite(nullptr)
     {
-        int rc = sqlite3_open(path,&_sqlite);
-        assert( rc == SQLITE_OK );
     }
 
     ~AsyncSqliteImpl() {
-        _keepGoing = false;
-        _sem.notify();
-        auto fut = _finished.get_future();
-        fut.get();
         sqlite3_close(_sqlite);
     }
 
-    void message(templatious::VirtualPack& pack) {
-        _g.assertThread();
-        _handler->tryMatch(pack);
-    }
-
-    void message(const StrongPackPtr& pack) {
+    void enqueueMessage(const StrongPackPtr& pack) {
         _cache.enqueue(pack);
         _sem.notify();
     }
 
     void mainLoop(const std::shared_ptr< AsyncSqliteImpl >& myself) {
-
-        struct FinishGuard {
-            FinishGuard(std::promise<void>* prom) :
-                _prom(prom) {}
-
-            ~FinishGuard() {
-                _prom->set_value();
-            }
-
-            std::promise<void>* _prom;
-        };
-
-        FinishGuard g(&_finished);
+        int rc = sqlite3_open(_path.c_str(),&_sqlite);
+        assert( rc == SQLITE_OK );
 
         while (_keepGoing) {
-            if (myself.unique()) {
-                return;
-            }
             _sem.wait();
             _cache.process(
                 [=](templatious::VirtualPack& p) {
@@ -243,8 +225,8 @@ private:
             SF::virtualMatch< AsyncSqlite::DummyWait >(
                 [](AsyncSqlite::DummyWait) {}
             ),
-            SF::virtualMatch< AsyncSqlite::Shutdown >(
-                [=](AsyncSqlite::Shutdown) {
+            SF::virtualMatch< AsyncSqliteImpl::Shutdown >(
+                [=](AsyncSqliteImpl::Shutdown) {
                     this->_keepGoing = false;
                     this->_sem.notify();
                 }
@@ -257,22 +239,57 @@ private:
     MessageCache _cache;
     VmfPtr _handler;
     ThreadGuard _g;
-    std::promise<void> _finished;
+    std::string _path;
 
     sqlite3* _sqlite;
 };
 
-StrongMsgPtr AsyncSqlite::createNew(const char* name) {
-    std::promise< StrongMsgPtr > out;
-    auto fut = out.get_future();
+struct AsyncSqliteProxy : public Messageable {
+    void message(templatious::VirtualPack& pack) {
+        assert( false && "Synchronous messages are disabled." );
+    }
 
-    std::thread([&]() {
-        auto outPtr = std::make_shared< AsyncSqliteImpl >(name);
-        out.set_value(outPtr);
+    void message(const StrongPackPtr& pack) {
+        auto locked = _weakPtr.lock();
+        assert( nullptr != locked &&
+            "Not cool bro, shouldn't be destroyed...");
+        locked->enqueueMessage(pack);
+    }
+
+    ~AsyncSqliteProxy() {
+        auto locked = _weakPtr.lock();
+        assert( nullptr != locked
+            && "I should have destroyed it..." );
+        auto terminateMsg = SF::vpackPtr<
+            AsyncSqliteImpl::Shutdown
+        >(nullptr);
+        locked->enqueueMessage(terminateMsg);
+    }
+
+    // if things go well, this could be
+    // ptimized to use raw pointer...
+    std::weak_ptr< AsyncSqliteImpl > _weakPtr;
+};
+
+StrongMsgPtr AsyncSqlite::createNew(const char* name) {
+    typedef std::promise< std::shared_ptr<AsyncSqliteImpl> > Prom;
+    std::unique_ptr< Prom > promPtr(new Prom());
+    auto fut = promPtr->get_future();
+
+    auto proxy = std::make_shared< AsyncSqliteProxy >();
+
+    auto promRaw = promPtr.get();
+
+    std::string nameCpy = name;
+    std::thread([=]() {
+        auto outPtr = std::make_shared< AsyncSqliteImpl >(
+            nameCpy.c_str());
+        promRaw->set_value(outPtr);
         outPtr->mainLoop(outPtr);
     }).detach();
 
-    return fut.get();
+    proxy->_weakPtr = fut.get();
+    return proxy;
 }
 
 }

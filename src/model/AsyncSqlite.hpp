@@ -9,9 +9,6 @@ namespace SafeLists {
 
 struct AsyncSqlite {
 
-    // Turn off and close database
-    DUMMY_STRUCT(Shutdown);
-
     typedef std::function< void(int,char**,char**) > SqliteCallbackSimple;
     // query statement
     // Signature:

@@ -383,14 +383,12 @@ initAll = function()
                     local valTree = val:values()
                     local newKey = valTree._2
                     local newPath = valTree._3
-                    print('Starting... ' .. valTree._2)
                     DownloadsModel:incRevision()
                     currSess:addDownload(newKey,newPath)
                 end,"SLD_OutStarted","int","string"),
                 VMatch(function(natpack,val)
                     local valTree = val:values()
                     local delKey = valTree._2
-                    print('Ended! ' .. delKey)
                     DownloadsModel:incRevision()
                     currSess:removeDownload(delKey)
                 end,"SLD_OutSingleDone","int"),
@@ -403,7 +401,6 @@ initAll = function()
                     local values = val:values()
                     local hash = values._3
                     local asyncSqlite = currentAsyncSqlite
-                    print("New hash update: |" .. hash .. "|")
                     if (nil == asyncSqlite) then
                         return
                     end

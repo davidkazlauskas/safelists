@@ -42,6 +42,11 @@ struct SafeListDownloader {
     // < OutHashUpdate, int (id), std::string (hash) >
     DUMMY_REG(OutHashUpdate,"SLD_OutHashUpdate");
 
+    // messaged when file size is updated
+    // Signature:
+    // < OutSizeUpdate, int (id), double (size) >
+    DUMMY_REG(OutSizeUpdate,"SLD_OutSizeUpdate");
+
     static StrongMsgPtr startNew(
         const char* path,
         const StrongMsgPtr& fileWriter,

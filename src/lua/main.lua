@@ -431,6 +431,20 @@ initAll = function()
                         VString(""),
                         VBool(false))
                 end,"SLD_OutHashUpdate","int","string"),
+                VMatch(function(natPack,out)
+                    local val = out:values()
+                    local asyncSqlite = currentAsyncSqlite
+                    local id = val._2
+                    local newSize = val._3
+                    -- size collision already checked with assert
+                    ctx:messageAsync(
+                        asyncSqlite,
+                        VSig("ASQL_Execute"),
+                        VString("UPDATE files SET file_size='"
+                            .. newSize .. "' WERE file_id='" .. id .. "';")
+                    )
+                    updateRevision()
+                end,"SLD_OutSizeUpdate","int","double"),
                 VMatch(function()
                     print('Safelist session dun! Downloading...')
                     local dlHandle = ctx:messageRetValues(dlFactory,

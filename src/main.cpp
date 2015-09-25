@@ -991,6 +991,16 @@ struct GtkDialogService : public Messageable {
     // >
     DUMMY_REG(FileChooserDialog,"GDS_FileChooserDialog");
 
+    // Open directory chooser
+    // Signature:
+    // <
+    //  DirChooserDialog,
+    //  StrongMsgPtr (parent window),
+    //  std::string (title),
+    //  std::string (output path, empty if none)
+    // >
+    DUMMY_REG(DirChooserDialog,"GDS_DirChooserDialog");
+
     void message(templatious::VirtualPack& msg) override {
         _handler->tryMatch(msg);
     }

@@ -628,7 +628,12 @@ initAll = function()
             local sess = DownloadsModel:nthSession(sessN)
             local count = sess:activeDownloadCount()
             natPack:setSlot(3,VInt(count))
-        end,"DLMDL_QuerySessionDownloadCount","int","int")
+        end,"DLMDL_QuerySessionDownloadCount","int","int"),
+        VMatch(function(natPack,vtree)
+            local sessN = vtree:values()._2 + 1
+            local theLabel = "Session #" .. sessN
+            natPack:setSlot(3,VString(theLabel))
+        end,"DLMDL_QuerySessionTitle","int","string")
     )
     ctx:message(mainWnd,VSig("MWI_InSetDownloadModel"),VMsg(downloadUpdateModel))
 

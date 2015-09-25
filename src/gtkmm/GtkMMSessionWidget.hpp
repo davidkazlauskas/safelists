@@ -30,6 +30,7 @@ struct GtkSessionWidget {
     Gtk::Box* getMainBox();
     void setDownloadBoxCount(int number);
     GtkDownloadItem* nthItem(int num);
+    Gtk::Label* getSessionTitle();
 private:
     GtkSessionWidget(Glib::RefPtr<Gtk::Builder>& bld);
     Glib::RefPtr<Gtk::Builder> _container;

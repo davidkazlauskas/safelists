@@ -163,6 +163,10 @@ GtkDownloadItem* GtkSessionWidget::nthItem(int num) {
     return _dlItems[num].get();
 }
 
+Gtk::Label* GtkSessionWidget::getSessionTitle() {
+    return this->_sessionLabel;
+}
+
 std::shared_ptr< GtkSessionTab > GtkSessionTab::makeNew() {
     auto& dlCache = getSessionTabCache();
 
@@ -228,14 +232,27 @@ void GtkSessionTab::fullModelUpdate() {
         MI::QueryDownloadLabelAndProgress,
         int,int,std::string,double
     >(nullptr,-1,-1,"",-1);
+    auto querySessionTitle = SF::vpack<
+        MI::QuerySessionTitle,
+        int, std::string
+    >(nullptr,-1,"");
     TEMPLATIOUS_0_TO_N(i,total) {
-        queryCurrentSessionCount.fGet<1>() = i;
-        queryLabelAndProgress.fGet<1>() = i;
+        SM::set(i,
+            queryCurrentSessionCount.fGet<1>(),
+            queryLabelAndProgress.fGet<1>(),
+            querySessionTitle.fGet<1>());
 
         locked->message(queryCurrentSessionCount);
         assert( queryCurrentSessionCount.useCount() > 0 && "Pack was unused..." );
         int theCount = queryCurrentSessionCount.fGet<2>();
         _sessions[i]->setDownloadBoxCount(theCount);
+
+        locked->message(querySessionTitle);
+        assert( querySessionTitle.useCount() > 0 && "Pack was unused..." );
+        auto lbl = static_cast<Gtk::Label*>(_mainTab->get_tab_label(*_mainTab->get_nth_page(i)));
+        lbl->set_text(querySessionTitle.fGet<2>().c_str());
+        //_sessions[i]->getSessionTitle()->set_text(
+            //querySessionTitle.fGet<2>().c_str());
 
         TEMPLATIOUS_0_TO_N(j,theCount) {
             queryLabelAndProgress.fGet<2>() = j;

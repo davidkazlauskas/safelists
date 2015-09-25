@@ -319,10 +319,30 @@ initAll = function()
         end,"MWI_OutDirChangedSignal","int"),
         VMatch(function()
             local dlFactory = ctx:namedMessageable("dlSessionFactory")
+            local dialogService = ctx:namedMessageable("dialogService")
             local asyncSqlite = currentAsyncSqlite
             if (messageablesEqual(VMsgNil(),asyncSqlite)) then
+                assert( false, "Didn't expect download request" ..
+                    " with null safelist.")
                 return
             end
+
+            local outVal = ctx:messageRetValues(dialogService,
+                VSig("GDS_DirChooserDialog"),
+                VMsg(mainWnd),
+                VString("Select download location."),
+                VString(""))
+
+            local downloadPath = outVal._4
+            if (downloadPath == "") then
+                return
+            end
+
+            assert( downloadPath[#downloadPath] ~= "/",
+                "Don't expect slash at the end." )
+
+            downloadPath = downloadPath .. "/safelist_session"
+
             local currSess = DownloadsModel:newSession()
             local handler = ctx:makeLuaMatchHandler(
                 VMatch(function(natPack,val)
@@ -360,7 +380,7 @@ initAll = function()
                     print('Safelist session dun! Downloading...')
                     local dlHandle = ctx:messageRetValues(dlFactory,
                         VSig("SLDF_InNewAsync"),
-                        VString("downloadtest1/safelist_session"),
+                        VString(downloadPath),
                         VMsg(currDlSessionHandler),
                         VMsg(nil)
                     )._4
@@ -373,7 +393,7 @@ initAll = function()
                 VSig("SLDF_CreateSession"),
                 VMsg(asyncSqlite),
                 VMsg(handler),
-                VString("downloadtest1/safelist_session")
+                VString(downloadPath)
             )
         end,"MWI_OutDownloadSafelistButtonClicked"),
         VMatch(function()

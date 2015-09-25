@@ -373,8 +373,39 @@ initAll = function()
                     DownloadsModel:dropSession(currSess)
                 end,"SLD_OutDone"),
                 VMatch(function(natPack,val)
-                    local hash = val:values()._3
+                    local values = val:values()
+                    local hash = values._3
+                    local asyncSqlite = currentAsyncSqlite
                     print("New hash update: |" .. hash .. "|")
+                    if (nil == asyncSqlite) then
+                        return
+                    end
+
+                    local id = values._2
+
+                    ctx:messageAsyncWCallback(asyncSqlite,
+                        function (out)
+                            local outVal = out:values()
+
+                            print("Queried hash: " .. id .. " -> " .. outVal._3)
+
+                            assert( outVal._4, "Query failed..." )
+                            assert( outVal._3 == "", "Hash collision, hash is different."
+                                .. " (todo: handle this case)" )
+
+                            ctx:messageAsync(
+                                asyncSqlite,
+                                VSig("ASQL_Execute"),
+                                VString("UPDATE files SET file_hash_256='"
+                                    .. hash .. "' WHERE file_id='" .. id .. "';")
+                            )
+                            updateRevision()
+                        end,
+                        VSig("ASQL_OutSingleRow"),
+                        VString("SELECT file_hash_256 FROM files WHERE file_id='"
+                            .. id .. "';"),
+                        VString(""),
+                        VBool(false))
                 end,"SLD_OutHashUpdate","int","string"),
                 VMatch(function()
                     print('Safelist session dun! Downloading...')

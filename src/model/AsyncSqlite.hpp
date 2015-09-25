@@ -43,7 +43,7 @@ struct AsyncSqlite {
     //     int (number),
     //     bool (did succeed)
     // >
-    DUMMY_STRUCT(OutSingleNum);
+    DUMMY_REG(OutSingleNum,"ASQL_OutSingleNum");
 
     // query something and receive single
     // row result separated by '|' pipes.

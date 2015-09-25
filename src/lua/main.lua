@@ -72,6 +72,13 @@ revealDownloads = false
 sessionWidget = nil
 currentAsyncSqlite = nil
 
+FrameEndFunctions = {}
+
+HashRevisionModel = {
+    hashRevisionUpdate = 0,
+    hashRevisionDrawingUpdate = 0
+}
+
 DownloadsModel = {
     sessions = {},
     enumerated = {},
@@ -229,6 +236,21 @@ initAll = function()
     end
 
     local updateRevision = function()
+        HashRevisionModel.hashRevisionUpdate =
+            HashRevisionModel.hashRevisionUpdate + 1
+        FrameEndFunctions[2]()
+    end
+
+    local updateRevisionGui = function()
+        if (HashRevisionModel.hashRevisionUpdate ==
+            HashRevisionModel.hashRevisionDrawingUpdate)
+        then
+            return
+        end
+
+        HashRevisionModel.hashRevisionDrawingUpdate =
+            HashRevisionModel.hashRevisionUpdate
+
         local sess = currentAsyncSqlite
         assert( nil ~= sess, "Sess is null for revision read..." )
         ctx:messageAsyncWCallback(sess,
@@ -249,6 +271,9 @@ initAll = function()
             ),VString("empty"),VBool(false))
     end
 
+    table.insert(FrameEndFunctions,updateRevisionGui)
+    table.insert(FrameEndFunctions,updateSessionWidget)
+
     noSafelistState()
 
     ctx:attachContextTo(mainWnd)
@@ -259,7 +284,9 @@ initAll = function()
 
     mainWindowPushButtonHandler = ctx:makeLuaMatchHandler(
         VMatch(function()
-            updateSessionWidget()
+            for k,v in ipairs(FrameEndFunctions) do
+                v()
+            end
             print('Draw ended!')
         end,"MWI_OutDrawEnd"),
         VMatch(function()

@@ -454,7 +454,7 @@ private:
     typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
 
     VmfPtr genHandler() {
-        typedef GenericMesseagableInterface GMI;
+        typedef GenericMessageableInterface GMI;
         return SF::virtualMatchFunctorPtr(
             SF::virtualMatch<
                 GMI::OutRequestUpdate
@@ -1206,12 +1206,12 @@ int main(int argc,char** argv) {
     auto asyncSqliteFactory = SafeLists::AsyncSqliteFactory::createNew();
     auto mainModel = std::make_shared< MainModel >();
     auto dialogService = std::make_shared< GtkDialogService >();
-    ctx->addMesseagableWeak("mainWindow",mainWnd);
-    ctx->addMesseagableWeak("singleInputDialog",singleInputDialog);
-    ctx->addMesseagableWeak("mainModel",mainModel);
-    ctx->addMesseagableStrong("dlSessionFactory",dlFactory);
-    ctx->addMesseagableStrong("asyncSqliteFactory",asyncSqliteFactory);
-    ctx->addMesseagableStrong("dialogService",dialogService);
+    ctx->addMessageableWeak("mainWindow",mainWnd);
+    ctx->addMessageableWeak("singleInputDialog",singleInputDialog);
+    ctx->addMessageableWeak("mainModel",mainModel);
+    ctx->addMessageableStrong("dlSessionFactory",dlFactory);
+    ctx->addMessageableStrong("asyncSqliteFactory",asyncSqliteFactory);
+    ctx->addMessageableStrong("dialogService",dialogService);
     ctx->doFile("lua/main.lua");
     app->run(mainWnd->getWindow(),argc,argv);
 }

@@ -204,7 +204,7 @@ end
 initAll = function()
 
     local ctx = luaContext()
-    local mainWnd = ctx:namedMesseagable("mainWindow")
+    local mainWnd = ctx:namedMessageable("mainWindow")
 
     local safelistDependantWigets = {
         "dirList",
@@ -263,7 +263,7 @@ initAll = function()
             print('Draw ended!')
         end,"MWI_OutDrawEnd"),
         VMatch(function()
-            local mainModel = ctx:namedMesseagable("mainModel")
+            local mainModel = ctx:namedMessageable("mainModel")
             local asyncSqlite = currentAsyncSqlite
             if (messageablesEqual(VMsgNil(),asyncSqlite)) then
                 return
@@ -285,8 +285,8 @@ initAll = function()
                 if (messageablesEqual(VMsgNil(),asyncSqlite)) then
                     return
                 end
-                local mainWnd = ctx:namedMesseagable("mainWindow")
-                local mainModel = ctx:namedMesseagable("mainModel")
+                local mainWnd = ctx:namedMessageable("mainWindow")
+                local mainModel = ctx:namedMessageable("mainModel")
                 local outRes = ctx:messageRetValues(mainWnd,VSig("MWI_InMoveChildUnderParent"),VInt(-1))._2
                 if (outRes == 1) then
                     setStatus(ctx,mainWnd,"Directory to move is parent of selected directory.")
@@ -308,7 +308,7 @@ initAll = function()
                 return
             end
 
-            local mainModel = ctx:namedMesseagable("mainModel")
+            local mainModel = ctx:namedMessageable("mainModel")
             local asyncSqlite = currentAsyncSqlite
             if (messageablesEqual(VMsgNil(),asyncSqlite)) then
                 return
@@ -318,7 +318,7 @@ initAll = function()
                 VMsg(asyncSqlite),VMsg(mainWnd))
         end,"MWI_OutDirChangedSignal","int"),
         VMatch(function()
-            local dlFactory = ctx:namedMesseagable("dlSessionFactory")
+            local dlFactory = ctx:namedMessageable("dlSessionFactory")
             local asyncSqlite = currentAsyncSqlite
             if (messageablesEqual(VMsgNil(),asyncSqlite)) then
                 return
@@ -377,7 +377,7 @@ initAll = function()
             )
         end,"MWI_OutDownloadSafelistButtonClicked"),
         VMatch(function()
-            local dialogService = ctx:namedMesseagable("dialogService")
+            local dialogService = ctx:namedMessageable("dialogService")
             local outVal = ctx:messageRetValues(dialogService,
                 VSig("GDS_FileChooserDialog"),
                 VMsg(mainWnd),
@@ -387,8 +387,8 @@ initAll = function()
 
             local outPath = outVal._5
             if (outPath ~= "") then
-                local factory = ctx:namedMesseagable("asyncSqliteFactory")
-                local mainModel = ctx:namedMesseagable("mainModel")
+                local factory = ctx:namedMessageable("asyncSqliteFactory")
+                local mainModel = ctx:namedMessageable("mainModel")
 
                 currentAsyncSqlite = ctx:messageRetValues(factory,
                     VSig("ASQLF_CreateNew"),
@@ -452,7 +452,7 @@ initAll = function()
                             assert( false , "Rename not implemented cholo" )
                         end),
                         arrayBranch("New directory",function()
-                            local dialog = ctx:namedMesseagable("singleInputDialog")
+                            local dialog = ctx:namedMessageable("singleInputDialog")
 
                             local showOrHide = function(val)
                                 ctx:message(dialog,VSig("INDLG_InShowDialog"),VBool(val))
@@ -484,8 +484,8 @@ initAll = function()
                                     if (messageablesEqual(VMsgNil(),asyncSqlite)) then
                                         return
                                     end
-                                    local mainWnd = ctx:namedMesseagable("mainWindow")
-                                    local mainModel = ctx:namedMesseagable("mainModel")
+                                    local mainWnd = ctx:namedMessageable("mainWindow")
+                                    local mainModel = ctx:namedMessageable("mainModel")
                                     ctx:messageAsync(
                                         asyncSqlite,
                                         VSig("ASQL_Execute"),

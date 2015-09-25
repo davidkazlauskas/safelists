@@ -9,7 +9,7 @@ namespace SafeLists {
 struct SafeListDownloaderFactory {
 
     // Create new download, which will notify
-    // messeagable object asynchronously.
+    // messageable object asynchronously.
     // Signature:
     // <
     //   InNewAsync,
@@ -31,7 +31,7 @@ struct SafeListDownloaderFactory {
     DUMMY_REG(CreateSession,"SLDF_CreateSession");
 
     // sent out when CreateSession finishes
-    // to passed messeagable.
+    // to passed messageable.
     // Signature:
     // < OutCreateSessionDone >
     DUMMY_REG(OutCreateSessionDone,"SLDF_OutCreateSessionDone");

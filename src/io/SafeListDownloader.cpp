@@ -298,6 +298,20 @@ private:
                             std::string
                         >(nullptr,dl->_id,buf);
                     }
+
+                    int64_t sizeDone = dl->_progressDone;
+                    int64_t sizePrelim = dl->_size;
+                    if (sizePrelim == -1) {
+                        notifyObserver<
+                            SLD::OutSizeUpdate,
+                            int,
+                            double
+                        >(nullptr,dl->_id,sizeDone);
+                    } else {
+                        assert( sizeDone == sizePrelim &&
+                            "Unhandled case, what if reported"
+                            " size doesn't match actual?");
+                    }
                 }
             },
             _jobs

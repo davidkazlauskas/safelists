@@ -1018,7 +1018,7 @@ struct GtkDialogService : public Messageable {
                 std::string,
                 std::string
             >(
-                [=](FileChooserDialog,
+                [](FileChooserDialog,
                     const StrongMsgPtr& window,
                     const std::string& title,
                     const std::string& wildcard,
@@ -1046,6 +1046,19 @@ struct GtkDialogService : public Messageable {
                     }
 
                     out = "";
+                }
+            ),
+            SF::virtualMatch<
+                DirChooserDialog,
+                StrongMsgPtr,
+                const std::string,
+                std::string
+            >(
+                [](DirChooserDialog,
+                   const StrongMsgPtr&,
+                   const std::string& title,
+                   std::string& outRes)
+                {
                 }
             )
         );

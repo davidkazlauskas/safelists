@@ -216,6 +216,25 @@ private:
         return 0;
     }
 
+    static int getTotalCallback(void* userdata,int column,char** values,char** headers) {
+        int& ref = *reinterpret_cast<int*>(userdata);
+        ref = std::atoi(values[0]);
+        return 0;
+    }
+
+    void notifyTotalDownloads() {
+        int out;
+        char* errMsg = nullptr;
+        sqlite3_exec(_currentConnection,
+            "SELECT COUNT(*) FROM to_download;",
+            &getTotalCallback,
+            &out,&errMsg);
+        notifyObserver<
+            SafeListDownloader::OutTotalDownloads,
+            int
+        >(nullptr,out);
+    }
+
     void mainLoop(const std::shared_ptr< SafeListDownloaderImpl >& impl) {
         sqlite3* conn = nullptr;
         int res = sqlite3_open(_path.c_str(),&conn);
@@ -228,6 +247,8 @@ private:
         auto sqliteGuard = SCOPE_GUARD_LC(
             this->cleanup();
         );
+
+        notifyTotalDownloads();
 
         std::vector< int > toMarkStarted;
 

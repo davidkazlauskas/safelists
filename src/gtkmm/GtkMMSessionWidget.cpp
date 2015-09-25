@@ -117,6 +117,7 @@ GtkSessionWidget::GtkSessionWidget(Glib::RefPtr<Gtk::Builder>& bld) :
     _container->get_widget("mainBox",_mainBox);
     _container->get_widget("downloadArea",_sessionList);
     _container->get_widget("sessionLabel",_sessionLabel);
+    _container->get_widget("sessionProgressbar",_sessionProgressBar);
 }
 
 GtkSessionWidget::~GtkSessionWidget() {
@@ -163,8 +164,12 @@ GtkDownloadItem* GtkSessionWidget::nthItem(int num) {
     return _dlItems[num].get();
 }
 
-Gtk::Label* GtkSessionWidget::getSessionTitle() {
+Gtk::Label* GtkSessionWidget::getSessionLabel() {
     return this->_sessionLabel;
+}
+
+Gtk::ProgressBar* GtkSessionWidget::getSessionProgress() {
+    return this->_sessionProgressBar;
 }
 
 std::shared_ptr< GtkSessionTab > GtkSessionTab::makeNew() {
@@ -189,7 +194,7 @@ GtkSessionTab::GtkSessionTab(Glib::RefPtr<Gtk::Builder>& bld) :
 void GtkSessionTab::addSession(const std::shared_ptr< GtkSessionWidget >& widget) {
     SA::add(_sessions,widget);
     auto raw = widget->getMainBox();
-    _mainTab->append_page(*raw,"Some stuff");
+    _mainTab->append_page(*raw,"");
 }
 
 void GtkSessionTab::setModel(const StrongMsgPtr& model) {
@@ -236,11 +241,18 @@ void GtkSessionTab::fullModelUpdate() {
         MI::QuerySessionTitle,
         int, std::string
     >(nullptr,-1,"");
+    auto querySessionProgress = SF::vpack<
+        MI::QuerySessionTotalProgress,
+        int,
+        std::string,
+        double
+    >(nullptr,-1,"",-1);
     TEMPLATIOUS_0_TO_N(i,total) {
         SM::set(i,
             queryCurrentSessionCount.fGet<1>(),
             queryLabelAndProgress.fGet<1>(),
-            querySessionTitle.fGet<1>());
+            querySessionTitle.fGet<1>(),
+            querySessionProgress.fGet<1>());
 
         locked->message(queryCurrentSessionCount);
         assert( queryCurrentSessionCount.useCount() > 0 && "Pack was unused..." );
@@ -252,6 +264,14 @@ void GtkSessionTab::fullModelUpdate() {
         auto lbl = static_cast<Gtk::Label*>(
             _mainTab->get_tab_label(*_mainTab->get_nth_page(i)));
         lbl->set_text(querySessionTitle.fGet<2>().c_str());
+
+        locked->message(querySessionProgress);
+        assert( querySessionProgress.useCount() > 0 && "Pack was unused..." );
+        auto& progLabel = querySessionProgress.fGet<2>();
+        double progFraction = querySessionProgress.fGet<3>();
+
+        _sessions[i]->getSessionLabel()->set_text(progLabel.c_str());
+        _sessions[i]->getSessionProgress()->set_fraction(progFraction);
 
         TEMPLATIOUS_0_TO_N(j,theCount) {
             queryLabelAndProgress.fGet<2>() = j;

@@ -83,6 +83,7 @@ DownloadsModel = {
     sessions = {},
     enumerated = {},
     progressTotal = 0,
+    progressDone = 0,
     currentSession = 0,
     revisionNum = 0,
     revisionUpdateNum = 0
@@ -121,6 +122,7 @@ SingleSession = {
         end,
         removeDownload = function(self,id)
             self.downloadTable[id] = nil
+            self.doneDownloadsNum = self.doneDownloadsNum + 1
             self:enumerateDownloads()
         end,
         enumerateDownloads = function(self)
@@ -133,6 +135,15 @@ SingleSession = {
         activeDownloadCount = function(self)
             return #self.downloadEnum
         end,
+        doneDownloads = function(self)
+            return self.doneDownloadsNum
+        end,
+        totalDownloads = function(self)
+            return self.totalDownloadsNum
+        end,
+        setTotalDownloads = function(self,num)
+            self.totalDownloadsNum = num
+        end,
         keyDownload = function(self,key)
             return self.downloadTable[key]
         end
@@ -141,8 +152,11 @@ SingleSession = {
 
 function DownloadsModel:newSession()
     self.currentSession = self.currentSession + 1
+    self.progressDone = self.progressDone + 1
     local theSession = self.currentSession
     local res = {
+        totalDownloadsNum = 0,
+        doneDownloadsNum = 0,
         progress = 0,
         downloadTable = {},
         downloadEnum = {},
@@ -160,7 +174,15 @@ end
 
 function DownloadsModel:dropSession(sess)
     self.sessions[sess.key] = nil
+    self.progressTotal = self.progressTotal + 1
     self:enumerateSessions()
+end
+
+function DownloadsModel:totalProgress()
+    if (self.progressTotal == 0) then
+        return self.progressTotal
+    end
+    return self.progressDone / self.progressTotal
 end
 
 function DownloadsModel:sessionCount()
@@ -415,8 +437,6 @@ initAll = function()
                         function (out)
                             local outVal = out:values()
 
-                            print("Queried hash: " .. id .. " -> " .. outVal._3)
-
                             assert( outVal._4, "Query failed..." )
                             assert( outVal._3 == "", "Hash collision, hash is different."
                                 .. " (todo: handle this case)" )
@@ -458,7 +478,12 @@ initAll = function()
                         VMsg(nil)
                     )._4
                     assert( dlHandle ~= nil )
-                end,"SLDF_OutCreateSessionDone")
+                end,"SLDF_OutCreateSessionDone"),
+                VMatch(function(natPack,val)
+                    local vals = val:values()
+                    print("The total: " .. vals._2)
+                    currSess:setTotalDownloads(vals._2)
+                end,"SLDF_OutTotalDownloads","int")
             )
 
             currDlSessionHandler = handler
@@ -638,7 +663,21 @@ initAll = function()
             local theLabel = "Session #" ..
                 DownloadsModel:nthSessionNum(sessN)
             natPack:setSlot(3,VString(theLabel))
-        end,"DLMDL_QuerySessionTitle","int","string")
+        end,"DLMDL_QuerySessionTitle","int","string"),
+        VMatch(function(natPack,vtree)
+            local sessN = vtree:values()._2 + 1
+            local sess = DownloadsModel:nthSession(sessN)
+            local done = sess:doneDownloads()
+            local total = sess:totalDownloads()
+            local prog = done / total
+            local progRounded = tonumber(
+                string.format("%.2f",prog * 100))
+            local theLabel = done .. " out of "
+                .. total .. " downloads done (" ..
+                progRounded .. "%)"
+            natPack:setSlot(3,VString(theLabel))
+            natPack:setSlot(4,VDouble(prog))
+        end,"DLMDL_QuerySessionTotalProgress","int","string","double")
     )
     ctx:message(mainWnd,VSig("MWI_InSetDownloadModel"),VMsg(downloadUpdateModel))
 

@@ -30,7 +30,8 @@ struct GtkSessionWidget {
     Gtk::Box* getMainBox();
     void setDownloadBoxCount(int number);
     GtkDownloadItem* nthItem(int num);
-    Gtk::Label* getSessionTitle();
+    Gtk::Label* getSessionLabel();
+    Gtk::ProgressBar* getSessionProgress();
 private:
     GtkSessionWidget(Glib::RefPtr<Gtk::Builder>& bld);
     Glib::RefPtr<Gtk::Builder> _container;
@@ -39,6 +40,7 @@ private:
     Gtk::Box* _mainBox;
     Gtk::ListBox* _sessionList;
     Gtk::Label* _sessionLabel;
+    Gtk::ProgressBar* _sessionProgressBar;
 };
 
 struct GtkSessionTab : public Messageable {
@@ -65,6 +67,11 @@ struct GtkSessionTab : public Messageable {
         // Signature:
         // < QuerySessionTitle, int (session), std::string (out title) >
         DUMMY_REG(QuerySessionTitle,"DLMDL_QuerySessionTitle");
+
+        // Query session title
+        // Signature:
+        // < QuerySessionTotalProgress, int (session), std::string (out title), double (progress) >
+        DUMMY_REG(QuerySessionTotalProgress,"DLMDL_QuerySessionTotalProgress");
 
         // Perform full gui update
         // Signature:

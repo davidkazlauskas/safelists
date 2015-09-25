@@ -221,10 +221,12 @@ void GtkSessionTab::fullModelUpdate() {
     }
 
 
+    auto queryCurrentSessionCount = SF::vpack<
+        MI::QuerySessionDownloadCount, int, int
+    >(nullptr,-1,-1);
     TEMPLATIOUS_0_TO_N(i,total) {
-        auto queryCurrentSessionCount = SF::vpack<
-            MI::QuerySessionDownloadCount, int, int
-        >(nullptr,i,-1);
+        queryCurrentSessionCount.fGet<1>() = i;
+
         locked->message(queryCurrentSessionCount);
         assert( queryCurrentSessionCount.useCount() > 0 && "Pack was unused..." );
         int theCount = queryCurrentSessionCount.fGet<2>();

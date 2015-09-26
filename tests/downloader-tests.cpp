@@ -296,3 +296,75 @@ TEST_CASE("safelist_create_session","[safelist_downloader]") {
     bool res = ensureContentsOfExample2Session(dlPathAbs.c_str());
     REQUIRE( res );
 }
+
+TEST_CASE("safelist_partial_download","[safelist_downloader]") {
+    const char* dlPath = "downloadtest1";
+    std::string dlPathAbs = dlPath;
+    dlPathAbs += "/safelist_session";
+    namespace fs = boost::filesystem;
+    fs::remove_all(dlPath);
+    fs::create_directory(dlPath);
+    fs::copy_file("exampleData/dlsessions/2/safelist_session",dlPathAbs);
+
+    typedef SafeLists::SafeListDownloader SLD;
+
+    std::unique_ptr< std::promise<void> > promPtr(
+        new std::promise<void>()
+    );
+    auto rawCopy = promPtr.get();
+    auto future = promPtr->get_future();
+    auto downloader = testDownloader();
+    auto writer = SafeLists::RandomFileWriter::make();
+    auto notifier = std::make_shared<
+        SafeLists::MessageableMatchFunctor
+    >(
+        SF::virtualMatchFunctorPtr(
+            SF::virtualMatch< SLD::OutDone >(
+                [=](SLD::OutDone) {
+                    {
+                        sqlite3* sess = nullptr;
+                        auto out = sqlite3_open(dlPathAbs.c_str(),&sess);
+                        auto guard = SCOPE_GUARD_LC( sqlite3_close(sess); );
+                        sqlite3_exec(
+                            sess,
+                            "UPDATE to_download SET status=2;"
+                            " UPDATE to_download SET status=1 WHERE id>1 AND id < 7;",
+                            nullptr,
+                            nullptr,
+                            nullptr
+                        );
+                    }
+
+                    rawCopy->set_value();
+                }
+            )
+        )
+    );
+
+    auto handle =
+        SLD::startNew(dlPathAbs.c_str(),writer,downloader,notifier);
+
+    future.wait();
+    auto finishWriting = SF::vpackPtrCustom<
+        templatious::VPACK_WAIT,
+        SafeLists::RandomFileWriter::WaitWrites
+    >(nullptr);
+    writer->message(finishWriting);
+    finishWriting->wait();
+
+    bool result = true;
+    result &= isFileGood("downloadtest1/fileA",1048576);
+    REQUIRE( result );
+    result &= !fs::exists("downloadtest1/fileB");
+    REQUIRE( result );
+    result &= !fs::exists("downloadtest1/fileC");
+    REQUIRE( result );
+    result &= !fs::exists("downloadtest1/fileD");
+    REQUIRE( result );
+    result &= !fs::exists("downloadtest1/fileE");
+    REQUIRE( result );
+    result &= !fs::exists("downloadtest1/fldA/fileF");
+    REQUIRE( result );
+    result &= isFileGood("downloadtest1/fldA/fileG",77777);
+    REQUIRE( result );
+}

@@ -260,7 +260,11 @@ private:
 
         auto implCpy = impl;
         auto writerCpy = this->_fileWriter;
-        updateJobs(implCpy,toMarkStarted);
+        bool resumeSuccess =
+            updateJobsToResumeDownloads(implCpy,toMarkStarted);
+        if (!resumeSuccess) {
+            updateJobs(implCpy,toMarkStarted);
+        }
         scheduleJobs(writerCpy);
         markStartedInDb(toMarkStarted);
         do {

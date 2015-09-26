@@ -317,6 +317,22 @@ private:
                 bool didEnd = dl->_hasEnded;
                 if (didEnd) {
                     auto guard = SCOPE_GUARD_LC(
+                        char buf[256];
+                        sprintf(
+                            buf,
+                            "UPDATE to_download"
+                            " SET status=2 WHERE id=%d;",
+                            dl->_id
+                        );
+
+                        char* errMsg = nullptr;
+                        int res = sqlite3_exec(
+                            _currentConnection,buf,
+                            nullptr,nullptr,&errMsg);
+
+                        assert( res == 0 && errMsg == nullptr &&
+                            "Oh, cmon!" );
+
                         dl = nullptr;
                     );
 

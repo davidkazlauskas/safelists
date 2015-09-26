@@ -306,6 +306,19 @@ TEST_CASE("safelist_partial_download","[safelist_downloader]") {
     fs::create_directory(dlPath);
     fs::copy_file("exampleData/dlsessions/2/safelist_session",dlPathAbs);
 
+    {
+        sqlite3* sess = nullptr;
+        auto out = sqlite3_open(dlPathAbs.c_str(),&sess);
+        auto guard = SCOPE_GUARD_LC( sqlite3_close(sess); );
+        sqlite3_exec(
+            sess,
+            "UPDATE to_download SET status=2;"
+            " UPDATE to_download SET status=1 WHERE id=1 OR id=7;", nullptr,
+            nullptr,
+            nullptr
+        );
+    }
+
     typedef SafeLists::SafeListDownloader SLD;
 
     std::unique_ptr< std::promise<void> > promPtr(
@@ -321,20 +334,6 @@ TEST_CASE("safelist_partial_download","[safelist_downloader]") {
         SF::virtualMatchFunctorPtr(
             SF::virtualMatch< SLD::OutDone >(
                 [=](SLD::OutDone) {
-                    {
-                        sqlite3* sess = nullptr;
-                        auto out = sqlite3_open(dlPathAbs.c_str(),&sess);
-                        auto guard = SCOPE_GUARD_LC( sqlite3_close(sess); );
-                        sqlite3_exec(
-                            sess,
-                            "UPDATE to_download SET status=2;"
-                            " UPDATE to_download SET status=1 WHERE id>1 AND id < 7;",
-                            nullptr,
-                            nullptr,
-                            nullptr
-                        );
-                    }
-
                     rawCopy->set_value();
                 }
             )

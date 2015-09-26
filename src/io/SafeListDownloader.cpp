@@ -135,6 +135,7 @@ private:
             _session(session), _handler(genHandler()),
             _list(SafeLists::Interval()),
             _hasStarted(false), _hasEnded(false),
+            _isResumed(false),
             _progressDone(0),
             _progressReported(0)
         {}
@@ -189,6 +190,7 @@ private:
         SafeLists::IntervalList _list;
         bool _hasStarted;
         bool _hasEnded;
+        bool _isResumed;
         int64_t _progressDone;
         int64_t _progressReported;
     };
@@ -199,6 +201,7 @@ private:
         std::string _url;
         std::string _path;
         std::string _dumbHash256;
+        bool _isResumed;
     };
 
     static int downloadQueryCallback(void* userdata,int column,char** value,char** header) {
@@ -212,6 +215,7 @@ private:
         back._url = value[2];
         back._path = value[3];
         back._dumbHash256 = value[4] != nullptr ? value[4] : "";
+        back._isResumed = false;
         //printf("Starting plucing... %s\n",newList->_path.c_str());
         return 0;
     }
@@ -432,6 +436,32 @@ private:
         scheduleFromCache(impl,toMarkStarted);
     }
 
+    bool updateJobsToResumeDownloads(
+        std::shared_ptr< SafeListDownloaderImpl >& impl,
+        std::vector<int>& toMarkStarted
+    )
+    {
+        const char* REFILL_QUERY_RESUME =
+            "SELECT mirrors.id,file_size,link,file_path,file_hash_256 FROM mirrors"
+            " LEFT OUTER JOIN to_download ON mirrors.id=to_download.id"
+            " WHERE status=1"
+            " ORDER BY priority DESC, use_count ASC"
+            " LIMIT %d;";
+
+        assert( SA::size(_jobCache) == 0 && "WRONG" );
+
+        refillCache(impl,REFILL_QUERY_RESUME);
+        if (SA::size(_jobCache) > 0) {
+            TEMPLATIOUS_FOREACH(auto& i,_jobCache) {
+                i._isResumed = true;
+            }
+            scheduleFromCache(impl,toMarkStarted);
+            return true;
+        }
+
+        return false;
+    }
+
     void refillCache(std::shared_ptr< SafeListDownloaderImpl >& impl,
             const char* query)
     {
@@ -478,8 +508,11 @@ private:
             newList->_dumbHash256 = cacheItem._dumbHash256;
             newList->_absPath = this->_sessionDir;
             newList->_absPath += newList->_path;
+            newList->_isResumed = cacheItem._isResumed;
 
-            SA::add(toDrop,cacheItem._mirrorId);
+            if (!cacheItem._isResumed) {
+                SA::add(toDrop,cacheItem._mirrorId);
+            }
 
             currSize = SA::size(_jobs);
             diff = KEEP_NUM - currSize;

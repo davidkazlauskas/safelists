@@ -8,6 +8,8 @@
 #include <io/AsyncDownloader.hpp>
 #include <io/RandomFileWriter.hpp>
 
+#include <boost/filesystem.hpp>
+
 #include "SafeListDownloaderFactory.hpp"
 
 TEMPLATIOUS_TRIPLET_STD;
@@ -271,6 +273,11 @@ private:
                         },
                         nullptr,
                         [=](sqlite3* connection) {
+                            bool exists = boost::filesystem::exists(path.c_str());
+                            if (exists) {
+                                return;
+                            }
+
                             sqlite3* memSession = createDownloadSession(connection);
                             auto closeGuard = SCOPE_GUARD_LC(
                                 sqlite3_close(memSession);

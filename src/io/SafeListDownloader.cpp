@@ -295,6 +295,23 @@ private:
     void clearDoneJobs() {
         typedef SafeListDownloader SLD;
 
+        { // scope guard to close transaction
+        sqlite3_exec(
+            _currentConnection,
+            "BEGIN;",
+            nullptr,
+            nullptr,
+            nullptr);
+
+        auto endTransaction = SCOPE_GUARD_LC(
+            sqlite3_exec(
+                _currentConnection,
+                "COMMIT;",
+                nullptr,
+                nullptr,
+                nullptr);
+        );
+
         SM::traverse(
             [=](std::shared_ptr<ToDownloadList>& dl) {
                 bool didEnd = dl->_hasEnded;
@@ -337,6 +354,9 @@ private:
             },
             _jobs
         );
+
+        // sqlite end transaction
+        }
 
         SA::clear(
             SF::filter(

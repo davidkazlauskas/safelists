@@ -484,7 +484,7 @@ void IntervalList::randomEmptyIntervals(int64_t size,const IntervalReceiveFuncti
         int64_t remaining = size - sizeShipped;
         auto point = generator() % SA::size(list);
         auto picked = SA::iterAt(list,point);
-        while (picked->isEmpty() && picked != end) {
+        while (picked != end && picked->isEmpty()) {
             ++picked;
         }
         if (picked != end) {

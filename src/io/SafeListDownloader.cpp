@@ -260,7 +260,9 @@ private:
         scheduleJobs(writerCpy);
         markStartedInDb(toMarkStarted);
         do {
-            _sem.wait();
+            if (SA::size(_jobs) > 0) {
+                _sem.wait();
+            }
 
             SA::clear(toMarkStarted);
 

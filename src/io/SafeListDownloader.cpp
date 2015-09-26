@@ -226,7 +226,7 @@ private:
         int out;
         char* errMsg = nullptr;
         sqlite3_exec(_currentConnection,
-            "SELECT COUNT(*) FROM to_download;",
+            "SELECT COUNT(*) FROM to_download WHERE status<2;",
             &getTotalCallback,
             &out,&errMsg);
         notifyObserver<

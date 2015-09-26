@@ -421,29 +421,31 @@ private:
         std::shared_ptr< SafeListDownloaderImpl >& impl,
         std::vector<int>& toMarkStarted)
     {
-        refillCache(impl);
-        scheduleFromCache(impl,toMarkStarted);
-    }
-
-    void refillCache(std::shared_ptr< SafeListDownloaderImpl >& impl) {
-        int res = 0;
-        const int CACHE_HIT_NUM = 128;
-
-        char queryBuf[512];
-        char* errMsg = nullptr;
-
-        const char* FIRST_QUERY =
+        const char* REFILL_QUERY =
             "SELECT mirrors.id,file_size,link,file_path,file_hash_256 FROM mirrors"
             " LEFT OUTER JOIN to_download ON mirrors.id=to_download.id"
             " WHERE status=0"
             " ORDER BY priority DESC, use_count ASC"
             " LIMIT %d;";
 
+        refillCache(impl,REFILL_QUERY);
+        scheduleFromCache(impl,toMarkStarted);
+    }
+
+    void refillCache(std::shared_ptr< SafeListDownloaderImpl >& impl,
+            const char* query)
+    {
+        int res = 0;
+        const int CACHE_HIT_NUM = 128;
+
+        char queryBuf[512];
+        char* errMsg = nullptr;
+
         if (_currentCacheRevision < _sqliteRevision ||
             _jobCachePoint == SA::size(_jobCache))
         {
             SA::clear(_jobCache);
-            sprintf(queryBuf,FIRST_QUERY,CACHE_HIT_NUM);
+            sprintf(queryBuf,query,CACHE_HIT_NUM);
             res = sqlite3_exec(
                 _currentConnection,
                 queryBuf,

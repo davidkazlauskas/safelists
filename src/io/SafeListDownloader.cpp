@@ -271,6 +271,7 @@ private:
         std::string _path;
         std::string _absPath;
         SafeLists::DumbHash256 _hasher;
+        SafeLists::DumbHash256 _hasherBackup;
         VmfPtr _handler;
         SafeLists::IntervalList _list;
         std::mutex _listMutex;
@@ -384,6 +385,7 @@ private:
         TEMPLATIOUS_FOREACH(auto& i,_jobs) {
             std::unique_lock< std::mutex > ul(i->_listMutex);
             auto clone = i->_list.clone();
+            auto hashCopy = i->_hasherBackup;
             ul.unlock();
 
             if (!clone.isFilled()) {
@@ -693,6 +695,7 @@ private:
                             if (rawJob->_list.isDefined()) {
                                 rawJob->_list.append(SafeLists::Interval(pre,post));
                             }
+                            rawJob->_hasherBackup = rawJob->_hasher;
                         }
                         rawJob->_progressDone += size;
                         auto lu = this->_lastUpdate;

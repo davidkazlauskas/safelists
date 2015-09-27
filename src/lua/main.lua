@@ -82,10 +82,12 @@ ObjectRetainer = {
             self.table[id] = nil
         end,
         new = function()
-            return {
+            local res = {
                 count = 0,
                 table = {}
             }
+            setmetatable(res,ObjectRetainer)
+            return res
         end
     }
 }

@@ -9,11 +9,15 @@
 #include <io/AsyncDownloader.hpp>
 #include <io/RandomFileWriter.hpp>
 
+#include <boost/filesystem.hpp>
+
 #include "SafeListDownloader.hpp"
 
 TEMPLATIOUS_TRIPLET_STD;
 
 namespace {
+    namespace fs = boost::filesystem;
+
     SafeLists::IntervalList listForPath(
         const std::string& path,
         int64_t size
@@ -27,9 +31,31 @@ namespace {
             );
         }
 
+        // make purely atomic
+        if (target.is_open()) {
+            return SafeLists::readIntervalList(
+                target
+            );
+        }
+
         return SafeLists::IntervalList(
             SafeLists::Interval()
         );
+    }
+
+    void writeIntervalListAtomic(
+        const std::string& path,
+        const SafeLists::IntervalList& theList)
+    {
+        std::string tmpPath = path + ".ilist.tmp";
+        std::string ilistPath = path + ".ilist";
+        { // open write and close file
+            std::ofstream os(tmpPath.c_str(),std::ios::binary);
+            SafeLists::writeIntervalList(theList,os);
+        }
+
+        fs::remove(ilistPath.c_str());
+        fs::rename(tmpPath,ilistPath);
     }
 }
 

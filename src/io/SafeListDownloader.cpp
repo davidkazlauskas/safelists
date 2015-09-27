@@ -23,21 +23,61 @@ namespace {
         int64_t size
     )
     {
+        // frontend should prevent adding files
+        // with these names (.ilist, .ilist.tmp)
         std::string listPath = path + ".ilist";
-        std::ifstream target(listPath.c_str());
-        if (!target.is_open() && size > 0) {
+        std::string tmpPath = path + ".ilist.tmp";
+        bool tmpExists = fs::exists(tmpPath.c_str());
+        bool normalExists = fs::exists(listPath.c_str());
+
+        // no ilist exists yet, assume new
+        if (!normalExists && !tmpExists && size > 0) {
             return SafeLists::IntervalList(
                 SafeLists::Interval(0,size)
             );
         }
-
-        // make purely atomic
-        if (target.is_open()) {
-            return SafeLists::readIntervalList(
-                target
-            );
+        // other common case, atomic write succeded
+        else if (normalExists && !tmpExists) {
+            std::ifstream target(listPath.c_str());
+            if (target.is_open()) {
+                return SafeLists::readIntervalList(
+                    target
+                );
+            } else {
+                assert( false && "Whoa, black magic [0], didn't expect that." );
+            }
+        }
+        // atomic write of intervals attempted but
+        // didn't finish, read from the uncorrupted
+        // but remove temporary
+        else if (normalExists && tmpExists) {
+            fs::remove(tmpPath.c_str());
+            std::ifstream target(listPath.c_str());
+            if (target.is_open()) {
+                return SafeLists::readIntervalList(
+                    target
+                );
+            } else {
+                assert( false && "Whoa, black magic [1], didn't expect that." );
+            }
+        }
+        // temporary write succeded and normal
+        // removed, meaning, tmp finished successfully,
+        // finish moving and read from moved.
+        else if (!normalExists && tmpExists) {
+            fs::rename(tmpPath.c_str(),listPath.c_str());
+            std::ifstream target(listPath.c_str());
+            if (target.is_open()) {
+                return SafeLists::readIntervalList(
+                    target
+                );
+            } else {
+                assert( false && "Whoa, black magic [2], didn't expect that." );
+            }
         }
 
+        // return an empty interval, we have no
+        // idea about file sizes.
         return SafeLists::IntervalList(
             SafeLists::Interval()
         );

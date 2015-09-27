@@ -391,13 +391,15 @@ private:
 
     void updateIntervalsForJobs() {
         TEMPLATIOUS_FOREACH(auto& i,_jobs) {
-            std::unique_lock< std::mutex > ul(i->_listMutex);
-            auto clone = i->_list.clone();
-            auto hashCopy = i->_hasherBackup;
-            ul.unlock();
+            if (!i->_hasEnded) {
+                std::unique_lock< std::mutex > ul(i->_listMutex);
+                auto clone = i->_list.clone();
+                auto hashCopy = i->_hasherBackup;
+                ul.unlock();
 
-            if (!clone.isFilled()) {
-                writeIntervalListAtomic(i->_absPath,clone,hashCopy);
+                if (!clone.isFilled()) {
+                    writeIntervalListAtomic(i->_absPath,clone,hashCopy);
+                }
             }
         }
     }

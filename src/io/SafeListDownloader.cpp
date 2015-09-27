@@ -94,7 +94,11 @@ namespace {
             SafeLists::writeIntervalList(theList,os);
         }
 
+        // only one normal is removed we can be
+        // sured tmpPath was finished writing
         fs::remove(ilistPath.c_str());
+        // move tmpPath to a normal path to be
+        // read in case of power outage.
         fs::rename(tmpPath,ilistPath);
     }
 }

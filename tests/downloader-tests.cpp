@@ -34,6 +34,15 @@ namespace {
         return imitation;
     }
 
+    void writeList(const char* path,const std::vector<char>& list) {
+        auto file = fopen(path,"w");
+        auto g = SCOPE_GUARD_LC(
+            fclose(file);
+        );
+
+        fwrite(list.data(),SA::size(list),1,file);
+    }
+
     std::vector<char> fileE_list() {
         std::vector<char> buf(424);
         buf[0] = 4; buf[1] = -102; buf[2] = 55; buf[3] = 55;

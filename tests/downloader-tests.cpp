@@ -71,6 +71,10 @@ namespace {
         auto file = readFile(path);
         bool isGood = true;
 
+        if (lst.range().size() != SA::size(file)) {
+            return false;
+        }
+
         lst.traverseFilled(
             [&](const SafeLists::Interval& i) {
                 auto seq = SF::seqL<int64_t>(i.start(),i.end());

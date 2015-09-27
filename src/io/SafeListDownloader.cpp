@@ -649,6 +649,7 @@ private:
 
                 SafeLists::DumbHash256 dh;
                 auto intervals = listForPath(i->_absPath,i->_size,dh);
+                i->_hasher = dh;
                 if (!intervals.isEmpty()) {
                     int64_t downloadedCount = 0;
                     intervals.traverseFilled(

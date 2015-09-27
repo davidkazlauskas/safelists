@@ -387,7 +387,7 @@ private:
             ul.unlock();
 
             if (!clone.isFilled()) {
-                writeIntervalListAtomic(i->_path,clone);
+                writeIntervalListAtomic(i->_absPath,clone);
             }
         }
     }
@@ -637,7 +637,7 @@ private:
                     bool(const char*,int64_t,int64_t)
                 > ByteFunction;
 
-                auto intervals = listForPath(i->_path,i->_size);
+                auto intervals = listForPath(i->_absPath,i->_size);
                 if (!intervals.isEmpty()) {
                     int64_t downloadedCount = 0;
                     intervals.traverseFilled(

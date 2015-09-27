@@ -126,15 +126,15 @@ TEST_CASE("dumb_hash_raw_dump","[util]") {
     char buf[32];
     hash.toBytes(buf);
 
-    //std::string expected =
-        //"c8d73737"
-        //"37373737"
-        //"37373737"
-        //"37373737"
-        //"37373737"
-        //"37373737"
-        //"37373737"
-        //"37373737";
+    std::string expected =
+        "c8d73737"
+        "37373737"
+        "37373737"
+        "37373737"
+        "37373737"
+        "37373737"
+        "37373737"
+        "37373737";
 
     REQUIRE( buf[0] == char(0xc8) );
     REQUIRE( buf[1] == char(0xd7) );
@@ -143,7 +143,15 @@ TEST_CASE("dumb_hash_raw_dump","[util]") {
     TEMPLATIOUS_FOREACH(auto i,seq) {
         doesMatch &= buf[i] == char(0x37);
     }
+
     REQUIRE( doesMatch );
+
+    SafeLists::DumbHash256 hash2;
+    hash2.setBytes(buf);
+
+    char outStr[65];
+    hash2.toString(outStr);
+    REQUIRE( outStr == expected );
 }
 
 TEST_CASE("scope_guard_simple","[util]") {

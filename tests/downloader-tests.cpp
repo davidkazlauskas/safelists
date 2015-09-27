@@ -316,7 +316,7 @@ namespace {
         return buf;
     }
 
-    std::vector<char> fileF_ilist() {
+    std::vector<char> fileF_list() {
         std::vector<char> buf(872);
         buf[0] = -26; buf[1] = 7; buf[2] = -82; buf[3] = 101;
         buf[4] = -21; buf[5] = -46; buf[6] = -20; buf[7] = 95;
@@ -870,5 +870,82 @@ TEST_CASE("safelist_partial_download","[safelist_downloader]") {
     result &= !fs::exists("downloadtest1/fldA/fileF");
     REQUIRE( result );
     result &= isFileGood("downloadtest1/fldA/fileG",77777);
+    REQUIRE( result );
+}
+
+TEST_CASE("safelist_partial_download_fragments","[safelist_downloader]") {
+    const char* dlPath = "downloadtest1";
+    std::string dlPathAbs = dlPath;
+    dlPathAbs += "/safelist_session";
+    namespace fs = boost::filesystem;
+    fs::remove_all(dlPath);
+    fs::create_directory(dlPath);
+    fs::copy_file("exampleData/dlsessions/2/safelist_session",dlPathAbs);
+
+    {
+        sqlite3* sess = nullptr;
+        auto out = sqlite3_open(dlPathAbs.c_str(),&sess);
+        auto guard = SCOPE_GUARD_LC( sqlite3_close(sess); );
+        sqlite3_exec(
+            sess,
+            "UPDATE to_download SET status=2;"
+            " UPDATE to_download SET status=1 WHERE id=1 OR id=2 OR id=3 OR id=7;", nullptr,
+            nullptr,
+            nullptr
+        );
+    }
+
+    typedef SafeLists::SafeListDownloader SLD;
+
+    std::unique_ptr< std::promise<void> > promPtr(
+        new std::promise<void>()
+    );
+    auto rawCopy = promPtr.get();
+    auto future = promPtr->get_future();
+    auto downloader = testDownloader();
+    auto writer = SafeLists::RandomFileWriter::make();
+    auto notifier = std::make_shared<
+        SafeLists::MessageableMatchFunctor
+    >(
+        SF::virtualMatchFunctorPtr(
+            SF::virtualMatch< SLD::OutDone >(
+                [=](SLD::OutDone) {
+                    rawCopy->set_value();
+                }
+            )
+        )
+    );
+
+    auto handle =
+        SLD::startNew(dlPathAbs.c_str(),writer,downloader,notifier);
+
+    future.wait();
+    auto finishWriting = SF::vpackPtrCustom<
+        templatious::VPACK_WAIT,
+        SafeLists::RandomFileWriter::WaitWrites
+    >(nullptr);
+    writer->message(finishWriting);
+    finishWriting->wait();
+
+    writeList("downloadtest1/fileB.ilist",fileB_ilist());
+    writeList("downloadtest1/fileD.ilist",fileD_list());
+    writeList("downloadtest1/fileE.ilist.tmp",fileE_list());
+    writeList("downloadtest1/fldA/fileF.ilist.tmp",fileF_list());
+    writeList("downloadtest1/fldA/fileF.ilist",fileF_list());
+
+    bool result = true;
+    result &= !fs::exists("downloadtest1/fileA");
+    REQUIRE( result );
+    result &= isFileGood("downloadtest1/fileB",2097152);
+    REQUIRE( result );
+    result &= !fs::exists("downloadtest1/fileC");
+    REQUIRE( result );
+    result &= isFileGood("downloadtest1/fileD",2446675);
+    REQUIRE( result );
+    result &= isFileGood("downloadtest1/fileE",5941925);
+    REQUIRE( result );
+    result &= isFileGood("downloadtest1/fldA/fileF",9437175);
+    REQUIRE( result );
+    result &= !fs::exists("downloadtest1/fldA/fileG");
     REQUIRE( result );
 }

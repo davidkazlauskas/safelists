@@ -18,9 +18,28 @@ TEMPLATIOUS_TRIPLET_STD;
 namespace {
     namespace fs = boost::filesystem;
 
+    SafeLists::IntervalList readIListAndHash(
+        const char* path,SafeLists::DumbHash256& hash)
+    {
+        std::ifstream target(path,std::ios::binary);
+        if (target.is_open()) {
+            char outHash[32];
+            static_assert( sizeof(outHash) == 32,
+                "Why do I even put these?" );
+            target.read(outHash,sizeof(outHash));
+            hash.setBytes(outHash);
+            return SafeLists::readIntervalList(
+                target
+            );
+        } else {
+            assert( false && "Whoa, black magic [0], didn't expect that." );
+        }
+    }
+
     SafeLists::IntervalList listForPath(
         const std::string& path,
-        int64_t size
+        int64_t size,
+        SafeLists::DumbHash256& hash
     )
     {
         // frontend should prevent adding files
@@ -32,50 +51,33 @@ namespace {
 
         // no ilist exists yet, assume new
         if (!normalExists && !tmpExists && size > 0) {
+            SafeLists::DumbHash256 def;
+            hash = def;
             return SafeLists::IntervalList(
                 SafeLists::Interval(0,size)
             );
         }
         // other common case, atomic write succeded
         else if (normalExists && !tmpExists) {
-            std::ifstream target(listPath.c_str());
-            if (target.is_open()) {
-                return SafeLists::readIntervalList(
-                    target
-                );
-            } else {
-                assert( false && "Whoa, black magic [0], didn't expect that." );
-            }
+            return readIListAndHash(listPath.c_str(),hash);
         }
         // atomic write of intervals attempted but
         // didn't finish, read from the uncorrupted
         // but remove temporary
         else if (normalExists && tmpExists) {
             fs::remove(tmpPath.c_str());
-            std::ifstream target(listPath.c_str());
-            if (target.is_open()) {
-                return SafeLists::readIntervalList(
-                    target
-                );
-            } else {
-                assert( false && "Whoa, black magic [1], didn't expect that." );
-            }
+            return readIListAndHash(listPath.c_str(),hash);
         }
         // temporary write succeded and normal
         // removed, meaning, tmp finished successfully,
         // finish moving and read from moved.
         else if (!normalExists && tmpExists) {
             fs::rename(tmpPath.c_str(),listPath.c_str());
-            std::ifstream target(listPath.c_str());
-            if (target.is_open()) {
-                return SafeLists::readIntervalList(
-                    target
-                );
-            } else {
-                assert( false && "Whoa, black magic [2], didn't expect that." );
-            }
+            return readIListAndHash(listPath.c_str(),hash);
         }
 
+        SafeLists::DumbHash256 def;
+        hash = def;
         // return an empty interval, we have no
         // idea about file sizes.
         return SafeLists::IntervalList(
@@ -645,7 +647,8 @@ private:
                     bool(const char*,int64_t,int64_t)
                 > ByteFunction;
 
-                auto intervals = listForPath(i->_absPath,i->_size);
+                SafeLists::DumbHash256 dh;
+                auto intervals = listForPath(i->_absPath,i->_size,dh);
                 if (!intervals.isEmpty()) {
                     int64_t downloadedCount = 0;
                     intervals.traverseFilled(

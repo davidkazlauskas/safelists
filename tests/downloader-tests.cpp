@@ -935,6 +935,7 @@ TEST_CASE("safelist_partial_download_fragments","[safelist_downloader]") {
     namespace fs = boost::filesystem;
     fs::remove_all(dlPath);
     fs::create_directory(dlPath);
+    fs::create_directory("downloadtest1/fldA");
     fs::copy_file("exampleData/dlsessions/2/safelist_session",dlPathAbs);
 
     {
@@ -971,15 +972,6 @@ TEST_CASE("safelist_partial_download_fragments","[safelist_downloader]") {
         )
     );
 
-    auto handle =
-        SLD::startNew(dlPathAbs.c_str(),writer,downloader,notifier);
-
-    future.wait();
-    auto finishWriting = SF::vpackPtrCustom<
-        templatious::VPACK_WAIT,
-        SafeLists::RandomFileWriter::WaitWrites
-    >(nullptr);
-
     SafeLists::DumbHash256 bHash;
     SafeLists::DumbHash256 dHash;
     SafeLists::DumbHash256 eHash;
@@ -1000,6 +992,15 @@ TEST_CASE("safelist_partial_download_fragments","[safelist_downloader]") {
     writeUniform("downloadtest1/fileD",2446675,7);
     writeUniform("downloadtest1/fileE",5641925,7);
     writeUniform("downloadtest1/fldA/fileF",9437175,7);
+
+    auto handle =
+        SLD::startNew(dlPathAbs.c_str(),writer,downloader,notifier);
+
+    future.wait();
+    auto finishWriting = SF::vpackPtrCustom<
+        templatious::VPACK_WAIT,
+        SafeLists::RandomFileWriter::WaitWrites
+    >(nullptr);
 
     writer->message(finishWriting);
     finishWriting->wait();

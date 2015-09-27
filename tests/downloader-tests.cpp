@@ -889,7 +889,7 @@ TEST_CASE("safelist_partial_download_fragments","[safelist_downloader]") {
         sqlite3_exec(
             sess,
             "UPDATE to_download SET status=2;"
-            " UPDATE to_download SET status=1 WHERE id=1 OR id=2 OR id=3 OR id=7;", nullptr,
+            " UPDATE to_download SET status=1 WHERE id=2 OR id=4 OR id=5 OR id=6;", nullptr,
             nullptr,
             nullptr
         );

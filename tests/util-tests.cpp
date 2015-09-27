@@ -118,6 +118,34 @@ TEST_CASE("dumb_hash_the_cake","[util]") {
     REQUIRE( aStr == bStr );
 }
 
+TEST_CASE("dumb_hash_raw_dump","[util]") {
+    SafeLists::DumbHash256 hash;
+
+    hash.add(3,255);
+
+    char buf[32];
+    hash.toBytes(buf);
+
+    //std::string expected =
+        //"c8d73737"
+        //"37373737"
+        //"37373737"
+        //"37373737"
+        //"37373737"
+        //"37373737"
+        //"37373737"
+        //"37373737";
+
+    REQUIRE( buf[0] == char(0xc8) );
+    REQUIRE( buf[1] == char(0xd7) );
+    bool doesMatch = true;
+    auto seq = SF::seqL(2,32);
+    TEMPLATIOUS_FOREACH(auto i,seq) {
+        doesMatch &= buf[i] == char(0x37);
+    }
+    REQUIRE( doesMatch );
+}
+
 TEST_CASE("scope_guard_simple","[util]") {
     bool called = false;
     {

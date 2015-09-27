@@ -103,6 +103,8 @@ namespace {
     }
 }
 
+typedef std::lock_guard< std::mutex > LGuard;
+
 namespace SafeLists {
 
 struct SafeListDownloaderImpl : public Messageable {
@@ -134,6 +136,19 @@ struct SafeListDownloaderImpl : public Messageable {
         auto pos = _sessionDir.find_last_of('/');
         // with slash at the end
         _sessionDir.erase(pos + 1);
+    }
+
+    bool nextUpdate(std::chrono::high_resolution_clock::time_point& point) {
+        auto now = std::chrono::high_resolution_clock::now();
+        int64_t millis = std::chrono::duration_cast<
+            std::chrono::milliseconds
+        >(now - point).count();
+        const int UPATE_PERIODICITY_MS = 7000; // 7 seconds by default
+        if (millis > UPATE_PERIODICITY_MS) {
+            point += std::chrono::milliseconds(UPATE_PERIODICITY_MS);
+            return true;
+        }
+        return false;
     }
 
     template <class... Types,class... Args>
@@ -258,6 +273,7 @@ private:
         SafeLists::DumbHash256 _hasher;
         VmfPtr _handler;
         SafeLists::IntervalList _list;
+        std::mutex _listMutex;
         bool _hasStarted;
         bool _hasEnded;
         bool _isResumed;
@@ -328,6 +344,8 @@ private:
 
         _lastUpdate = std::chrono::high_resolution_clock::now();
 
+        auto intervalListUpdate = std::chrono::high_resolution_clock::now();
+
         auto implCpy = impl;
         auto writerCpy = this->_fileWriter;
         bool resumeSuccess =
@@ -350,10 +368,28 @@ private:
             jobStatusUpdate();
             clearDoneJobs();
             processMessages();
+
+            bool shouldWriteIntervals = nextUpdate(intervalListUpdate);
+            if (shouldWriteIntervals) {
+                updateIntervalsForJobs();
+            }
+
         } while (SA::size(_jobs) > 0 || SA::size(_jobCache) > 0);
 
         assert( 0 == _count && "FAILER!" );
         _isFinished = true;
+    }
+
+    void updateIntervalsForJobs() {
+        TEMPLATIOUS_FOREACH(auto& i,_jobs) {
+            std::unique_lock< std::mutex > ul(i->_listMutex);
+            auto clone = i->_list.clone();
+            ul.unlock();
+
+            if (!clone.isFilled()) {
+                writeIntervalListAtomic(i->_path,clone);
+            }
+        }
     }
 
     void jobStatusUpdate() {
@@ -642,8 +678,11 @@ private:
                         );
 
                         writer->message(message);
-                        if (rawJob->_list.isDefined()) {
-                            rawJob->_list.append(SafeLists::Interval(pre,post));
+                        { // _list update scope
+                            LGuard g(rawJob->_listMutex);
+                            if (rawJob->_list.isDefined()) {
+                                rawJob->_list.append(SafeLists::Interval(pre,post));
+                            }
                         }
                         rawJob->_progressDone += size;
                         auto lu = this->_lastUpdate;

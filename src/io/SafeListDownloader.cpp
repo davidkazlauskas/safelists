@@ -85,12 +85,18 @@ namespace {
 
     void writeIntervalListAtomic(
         const std::string& path,
-        const SafeLists::IntervalList& theList)
+        const SafeLists::IntervalList& theList,
+        const SafeLists::DumbHash256& hash)
     {
         std::string tmpPath = path + ".ilist.tmp";
         std::string ilistPath = path + ".ilist";
         { // open write and close file
+            char hashString[32];
+            static_assert( sizeof(hashString) == 32,
+                "YO SLICK! Biting off here!" );
+            hash.toBytes(hashString);
             std::ofstream os(tmpPath.c_str(),std::ios::binary);
+            os.write(hashString,sizeof(hashString));
             SafeLists::writeIntervalList(theList,os);
         }
 
@@ -389,7 +395,7 @@ private:
             ul.unlock();
 
             if (!clone.isFilled()) {
-                writeIntervalListAtomic(i->_absPath,clone);
+                writeIntervalListAtomic(i->_absPath,clone,hashCopy);
             }
         }
     }

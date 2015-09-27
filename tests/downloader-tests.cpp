@@ -48,6 +48,7 @@ namespace {
         std::vector<char> res;
         res.reserve(1024 * 1024 * 8);
         std::ifstream file(path,std::ios::binary);
+        assert( file.is_open() );
         char c;
         while (file.get(c)) {
             SA::add(res,c);
@@ -55,12 +56,42 @@ namespace {
         return res;
     }
 
+    void writeUniform(const char* path,int64_t size,char c) {
+        std::ofstream ofs(path,std::ios::binary);
+        TEMPLATIOUS_REPEAT(size) {
+            ofs.put(c);
+        }
+    }
+
     bool fileIntervalTest(
         const char* path,
         char full,char empty,
         const SafeLists::IntervalList& lst)
     {
-        return false;
+        auto file = readFile(path);
+        bool isGood = true;
+
+        lst.traverseFilled(
+            [&](const SafeLists::Interval& i) {
+                auto seq = SF::seqL<int64_t>(i.start(),i.end());
+                TEMPLATIOUS_FOREACH(auto i,seq) {
+                    isGood &= file[i] == full;
+                }
+                return true;
+            }
+        );
+
+        lst.traverseEmpty(
+            [&](const SafeLists::Interval& i) {
+                auto seq = SF::seqL<int64_t>(i.start(),i.end());
+                TEMPLATIOUS_FOREACH(auto i,seq) {
+                    isGood &= file[i] == empty;
+                }
+                return true;
+            }
+        );
+
+        return isGood;
     }
 
     std::vector<char> fileE_list() {

@@ -12,12 +12,11 @@
 #include <boost/filesystem.hpp>
 
 #include "SafeListDownloader.hpp"
+#include "SafeListDownloaderInternal.hpp"
 
 TEMPLATIOUS_TRIPLET_STD;
 
-namespace {
-    namespace fs = boost::filesystem;
-
+namespace SafeLists {
     SafeLists::IntervalList readIListAndHash(
         const char* path,SafeLists::DumbHash256& hash)
     {
@@ -35,6 +34,10 @@ namespace {
             assert( false && "Whoa, black magic [0], didn't expect that." );
         }
     }
+}
+
+namespace {
+    namespace fs = boost::filesystem;
 
     SafeLists::IntervalList listForPath(
         const std::string& path,

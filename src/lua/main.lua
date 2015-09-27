@@ -68,6 +68,30 @@ function arraySwitch(value,table,...)
     end
 end
 
+ObjectRetainer = {
+    __index = {
+        newId = function(self)
+            local id = self.count
+            self.count = self.count + 1
+            return id
+        end,
+        retain = function(self,id,object)
+            self.table[id] = object
+        end,
+        release = function(self,id)
+            self.table[id] = nil
+        end,
+        new = function()
+            return {
+                count = 0,
+                table = {}
+            }
+        end
+    }
+}
+
+objRetainer = ObjectRetainer.__index.new()
+
 revealDownloads = false
 sessionWidget = nil
 currentAsyncSqlite = nil

@@ -67,6 +67,12 @@ namespace SafeLists {
             memcpy(buf,_mem,sizeof(_mem));
         }
 
+        template <int bufSize>
+        void setBytes(char (&buf)[bufSize]) {
+            static_assert( bufSize == sizeof(_mem), "Sizes must be exact to set buffer." );
+            memcpy(_mem,buf,sizeof(_mem));
+        }
+
     private:
         char _mem[32];
     };

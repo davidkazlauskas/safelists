@@ -638,6 +638,16 @@ private:
                 > ByteFunction;
 
                 auto intervals = listForPath(i->_path,i->_size);
+                if (!intervals.isEmpty()) {
+                    int64_t downloadedCount = 0;
+                    intervals.traverseFilled(
+                        [&](const Interval& i) {
+                            downloadedCount += i.size();
+                            return true;
+                        }
+                    );
+                    i->_progressDone = downloadedCount;
+                }
                 typedef AsyncDownloader AD;
                 auto pathCopy = _sessionDir + i->_path;
 

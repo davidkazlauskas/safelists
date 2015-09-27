@@ -975,8 +975,11 @@ TEST_CASE("safelist_partial_download_fragments","[safelist_downloader]") {
         templatious::VPACK_WAIT,
         SafeLists::RandomFileWriter::WaitWrites
     >(nullptr);
-    writer->message(finishWriting);
-    finishWriting->wait();
+
+    SafeLists::DumbHash256 bHash;
+    SafeLists::DumbHash256 dHash;
+    SafeLists::DumbHash256 eHash;
+    SafeLists::DumbHash256 fHash;
 
     writeList("downloadtest1/fileB.ilist",fileB_ilist());
     writeList("downloadtest1/fileD.ilist",fileD_list());
@@ -984,18 +987,31 @@ TEST_CASE("safelist_partial_download_fragments","[safelist_downloader]") {
     writeList("downloadtest1/fldA/fileF.ilist.tmp",fileF_list());
     writeList("downloadtest1/fldA/fileF.ilist",fileF_list());
 
+    auto bList = SafeLists::readIListAndHash("downloadtest1/fileB.ilist",bHash);
+    auto dList = SafeLists::readIListAndHash("downloadtest1/fileD.ilist",dHash);
+    auto eList = SafeLists::readIListAndHash("downloadtest1/fileE.ilist.tmp",eHash);
+    auto fList = SafeLists::readIListAndHash("downloadtest1/fldA/fileF.ilist",fHash);
+
+    writeUniform("downloadtest1/fileB",2097152,7);
+    writeUniform("downloadtest1/fileD",2446675,7);
+    writeUniform("downloadtest1/fileE",5641925,7);
+    writeUniform("downloadtest1/fldA/fileF",9437175,7);
+
+    writer->message(finishWriting);
+    finishWriting->wait();
+
     bool result = true;
     result &= !fs::exists("downloadtest1/fileA");
     REQUIRE( result );
-    result &= isFileGood("downloadtest1/fileB",2097152);
+    result &= fileIntervalTest("downloadtest1/fileB",7,'7',bList);
     REQUIRE( result );
     result &= !fs::exists("downloadtest1/fileC");
     REQUIRE( result );
-    result &= isFileGood("downloadtest1/fileD",2446675);
+    result &= fileIntervalTest("downloadtest1/fileD",7,'7',dList);
     REQUIRE( result );
-    result &= isFileGood("downloadtest1/fileE",5941925);
+    result &= fileIntervalTest("downloadtest1/fileE",7,'7',eList);
     REQUIRE( result );
-    result &= isFileGood("downloadtest1/fldA/fileF",9437175);
+    result &= fileIntervalTest("downloadtest1/fldA/fileF",7,'7',fList);
     REQUIRE( result );
     result &= !fs::exists("downloadtest1/fldA/fileG");
     REQUIRE( result );

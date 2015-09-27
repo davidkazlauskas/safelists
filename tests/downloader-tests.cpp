@@ -79,7 +79,8 @@ namespace {
             [&](const SafeLists::Interval& i) {
                 auto seq = SF::seqL<int64_t>(i.start(),i.end());
                 TEMPLATIOUS_FOREACH(auto i,seq) {
-                    isGood &= file[i] == full;
+                    bool curr = file[i] == full;
+                    isGood &= curr;
                 }
                 return true;
             }
@@ -89,7 +90,8 @@ namespace {
             [&](const SafeLists::Interval& i) {
                 auto seq = SF::seqL<int64_t>(i.start(),i.end());
                 TEMPLATIOUS_FOREACH(auto i,seq) {
-                    isGood &= file[i] == empty;
+                    bool curr = file[i] == empty;
+                    isGood &= curr;
                 }
                 return true;
             }
@@ -990,7 +992,7 @@ TEST_CASE("safelist_partial_download_fragments","[safelist_downloader]") {
 
     writeUniform("downloadtest1/fileB",2097152,7);
     writeUniform("downloadtest1/fileD",2446675,7);
-    writeUniform("downloadtest1/fileE",5641925,7);
+    writeUniform("downloadtest1/fileE",5941925,7);
     writeUniform("downloadtest1/fldA/fileF",9437175,7);
 
     auto handle =

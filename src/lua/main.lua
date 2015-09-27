@@ -242,7 +242,7 @@ function updateSessionWidget()
     end
 
     if (DownloadsModel:isDirty()) then
-        print('Update fired!')
+        --print('Update fired!')
         local ctx = luaContext()
         ctx:message(wgt,
             VSig("DLMDL_InFullUpdate"))
@@ -339,7 +339,7 @@ initAll = function()
             for k,v in ipairs(FrameEndFunctions) do
                 v()
             end
-            print('Draw ended!')
+            --print('Draw ended!')
         end,"MWI_OutDrawEnd"),
         VMatch(function()
             local mainModel = ctx:namedMessageable("mainModel")
@@ -422,8 +422,13 @@ initAll = function()
 
             downloadPath = downloadPath .. "/safelist_session"
 
+            --print("Pre col: " .. collectgarbage('count'))
+            --collectgarbage('collect')
+            --print("Post col: " .. collectgarbage('count'))
+
             local currSess = DownloadsModel:newSession()
-            local currDlSessionHandler = nil
+            local newId = objRetainer:newId()
+            local handlerWeak = nil
             local handler = ctx:makeLuaMatchHandler(
                 VMatch(function(natPack,val)
                     local values = val:values()
@@ -449,6 +454,7 @@ initAll = function()
                     print('Downloaded!')
                     DownloadsModel:incRevision()
                     DownloadsModel:dropSession(currSess)
+                    objRetainer:release(newId)
                 end,"SLD_OutDone"),
                 VMatch(function(natPack,val)
                     local values = val:values()
@@ -498,10 +504,12 @@ initAll = function()
                 end,"SLD_OutSizeUpdate","int","double"),
                 VMatch(function()
                     print('Safelist session dun! Downloading...')
+                    local locked = handlerWeak:lockPtr()
+                    assert( nil ~= locked , "Locking weak ptr gives nil..." )
                     local dlHandle = ctx:messageRetValues(dlFactory,
                         VSig("SLDF_InNewAsync"),
                         VString(downloadPath),
-                        VMsg(currDlSessionHandler),
+                        VMsg(locked),
                         VMsg(nil)
                     )._4
                     assert( dlHandle ~= nil )
@@ -513,7 +521,9 @@ initAll = function()
                 end,"SLDF_OutTotalDownloads","int")
             )
 
-            currDlSessionHandler = handler
+            handlerWeak = handler:getWeak()
+            objRetainer:retain(newId,handler)
+
             ctx:message(dlFactory,
                 VSig("SLDF_CreateSession"),
                 VMsg(asyncSqlite),

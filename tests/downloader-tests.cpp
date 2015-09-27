@@ -6,6 +6,7 @@
 #include <boost/filesystem.hpp>
 #include <io/AsyncDownloader.hpp>
 #include <io/SafeListDownloader.hpp>
+#include <io/SafeListDownloaderInternal.hpp>
 #include <io/Interval.hpp>
 #include <io/RandomFileWriter.hpp>
 #include <io/SafeListDownloaderFactory.hpp>
@@ -41,6 +42,25 @@ namespace {
         );
 
         fwrite(list.data(),SA::size(list),1,file);
+    }
+
+    std::vector<char> readFile(const char* path) {
+        std::vector<char> res;
+        res.reserve(1024 * 1024 * 8);
+        std::ifstream file(path,std::ios::binary);
+        char c;
+        while (file.get(c)) {
+            SA::add(res,c);
+        }
+        return res;
+    }
+
+    bool fileIntervalTest(
+        const char* path,
+        char full,char empty,
+        const SafeLists::IntervalList& lst)
+    {
+        return false;
     }
 
     std::vector<char> fileE_list() {

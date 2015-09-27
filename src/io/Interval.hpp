@@ -79,6 +79,7 @@ struct IntervalList {
 
     bool doesBelong(const Interval& i) const;
     bool isFilled() const;
+    bool isEmpty() const;
 
     friend struct IntervalListImpl;
 

@@ -455,6 +455,10 @@ bool IntervalList::isFilled() const {
     return this->_emptyInterval == SA::getByIndex(_list,0);
 }
 
+bool IntervalList::isEmpty() const {
+    return SA::size(_list) == 0;
+}
+
 namespace {
 
 struct IntervalCollector {

@@ -76,12 +76,18 @@ TEST_CASE("interval_list_append","[interval]") {
     typedef SafeLists::Interval Int;
 
     SafeLists::IntervalList list(Int(0,1024));
+
+    REQUIRE( list.isEmpty() );
+
     IntervalCollector colEmpty;
     IntervalCollector colFilled;
     auto &eList = colEmpty._list;
     auto &fList = colFilled._list;
 
     list.append(Int(16,32));
+
+    REQUIRE( !list.isEmpty() );
+
     list.traverseEmpty(colEmpty.f());
     list.traverseFilled(colFilled.f());
 

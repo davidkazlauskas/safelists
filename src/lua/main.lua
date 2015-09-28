@@ -735,9 +735,15 @@ initAll = function()
                                             if (num > 0) then
                                                 ctx:message(mainModel,
                                                     VSig("MMI_InLoadFolderTree"),VMsg(asyncSqlite),VMsg(mainWnd))
-                                                    updateRevision()
+                                                updateRevision()
                                             else
-                                                print("DUPE, SUCKA!")
+                                                local dialogService = ctx:namedMessageable("dialogService")
+                                                ctx:message(dialogService,
+                                                    VSig("GDS_AlertDialog"),
+                                                    VMsg(mainWnd),
+                                                    VString("Duplicate name!"),
+                                                    VString("'" .. outName ..
+                                                        "' already exists under current directory."))
                                             end
                                         end,
                                         VSig("ASQL_OutAffected"),

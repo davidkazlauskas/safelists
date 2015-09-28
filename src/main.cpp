@@ -1015,6 +1015,11 @@ struct GtkDialogService : public Messageable {
     // >
     DUMMY_REG(DirChooserDialog,"GDS_DirChooserDialog");
 
+    // Show alert
+    // Signature:
+    // < AlertDialog, std::String (title), std::string (message) >
+    DUMMY_REG(AlertDialog,"GDS_AlertDialog");
+
     void message(templatious::VirtualPack& msg) override {
         _handler->tryMatch(msg);
     }
@@ -1093,6 +1098,26 @@ struct GtkDialogService : public Messageable {
 
                     out = "";
                 }
+            ),
+            SF::virtualMatch< AlertDialog, StrongMsgPtr,
+                 const std::string,const std::string
+            >(
+                [](AlertDialog,
+                    const StrongMsgPtr& parent,
+                    const std::string& title,
+                    const std::string& message)
+                {
+                    auto queryTransient = SF::vpack<
+                        GenericGtkWindowInterface::GetGtkWindow,
+                        Gtk::Window*
+                    >(nullptr,nullptr);
+                    parent->message(queryTransient);
+                    auto gtkParent = queryTransient.fGet<1>();
+                    Gtk::MessageDialog dlg(
+                        *gtkParent,title.c_str());
+                    dlg.set_message(message.c_str());
+                    dlg.show();
+                }
             )
         );
     }
@@ -1117,6 +1142,11 @@ struct GtkInputDialog : public Messageable {
         // in lua: INDLG_InSetLabel
         // Signature: < InSetLabel, std::string >
         DUMMY_REG(InSetLabel,"INDLG_InSetLabel");
+
+        // Set value text
+        // in lua: INDLG_InSetValue
+        // Signature: < InSetValue, std::string >
+        DUMMY_REG(InSetValue,"INDLG_InSetValue");
 
         // Emitted when ok button is clicked
         DUMMY_REG(OutOkClicked,"INDLG_OutOkClicked");
@@ -1200,6 +1230,11 @@ private:
             SF::virtualMatch< INT::InSetLabel, const std::string >(
                 [=](INT::InSetLabel,const std::string& str) {
                     this->_label->set_text(str.c_str());
+                }
+            ),
+            SF::virtualMatch< INT::InSetValue, const std::string >(
+                [=](INT::InSetLabel,const std::string& str) {
+                    this->_entry->set_text(str.c_str());
                 }
             ),
             SF::virtualMatch< INT::QueryInput, std::string >(

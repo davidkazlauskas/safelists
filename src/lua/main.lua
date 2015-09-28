@@ -733,8 +733,21 @@ initAll = function()
                                         function(res)
                                             local num = res:values()._3
                                             if (num > 0) then
-                                                ctx:message(mainModel,
-                                                    VSig("MMI_InLoadFolderTree"),VMsg(asyncSqlite),VMsg(mainWnd))
+                                                ctx:messageAsyncWCallback(
+                                                    asyncSqlite,
+                                                    function(back)
+                                                        local newId = back:values()._3
+                                                        ctx:message(mainWnd,
+                                                            VSig("MWI_InAddChildUnderCurrentDir"),
+                                                            VString(outName),VInt(newId))
+                                                    end,
+                                                    VSig("ASQL_OutSingleNum"),
+                                                    VString("SELECT dir_id FROM"
+                                                        .. " directories WHERE"
+                                                        .. " rowid=last_inserted_rowid();"),
+                                                    VInt(-1),
+                                                    VBool(false)
+                                                )
                                                 updateRevision()
                                             else
                                                 local dialogService = ctx:namedMessageable("dialogService")

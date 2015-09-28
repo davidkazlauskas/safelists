@@ -212,6 +212,17 @@ private:
                     }
                 }
             ),
+            SF::virtualMatch< AS::OutAffected, const std::string, int >(
+                [=](AS::OutSingleNum, const std::string& query,int& outAffected) {
+                    char* errmsg = nullptr;
+                    int res = sqlite3_exec(this->_sqlite,query.c_str(),nullptr,nullptr,&errmsg);
+                    if (nullptr != errmsg) {
+                        printf("Snap, query failed: %s\n",errmsg);
+                    }
+                    assert( res == 0 && errmsg == nullptr && "Snap, queries failin bro..." );
+                    outAffected = sqlite3_changes(this->_sqlite);
+                }
+            ),
             SF::virtualMatch<
                 AsyncSqlite::ArbitraryOperation,
                 std::function<void(sqlite3*)>

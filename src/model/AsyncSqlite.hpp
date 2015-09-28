@@ -55,6 +55,15 @@ struct AsyncSqlite {
     // >
     DUMMY_REG(OutSingleRow,"ASQL_OutSingleRow");
 
+    // execute statement and receive affected
+    // rows number.
+    // Signature: <
+    //     OutAffected,
+    //     std::string (query),
+    //     int (affected rows)
+    // >
+    DUMMY_REG(OutAffected,"ASQL_OutAffected");
+
     // query this message to ensure you're
     // performing action after another
     // using templatious virtual pack wait

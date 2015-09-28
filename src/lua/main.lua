@@ -366,21 +366,9 @@ initAll = function()
                 end
                 local mainWnd = ctx:namedMessageable("mainWindow")
                 local mainModel = ctx:namedMessageable("mainModel")
-                local outRes = ctx:messageRetValues(mainWnd,VSig("MWI_InMoveChildUnderParent"),VInt(-1))._2
-                if (outRes == 1) then
-                    setStatus(ctx,mainWnd,"Directory to move is parent of selected directory.")
-                    return
-                elseif (outRes == 2) then
-                    setStatus(ctx,mainWnd,"Directories are the same.")
-                    return
-                elseif (outRes ~= 0) then
-                    setStatus(ctx,mainWnd,"Something bad happened...")
-                    return
-                end
 
                 local condition =
                        " SELECT CASE"
-                    .. " WHEN " .. currentDirId .. "=" .. inId .. " THEN 2"
                     .. " WHEN (" .. currentDirId .. " IN"
                     .. " ("
                     .. "     WITH RECURSIVE"
@@ -393,13 +381,20 @@ initAll = function()
                     .. "              directories.dir_parent=children.d_id "
                     .. "     ) SELECT d_id FROM children"
                     .. " )) THEN 1"
+                    .. " WHEN (" .. "(SELECT dir_name FROM"
+                    .. "     directories WHERE dir_id=" .. currentDirId .. ") IN"
+                    .. "     ( SELECT dir_name FROM directories WHERE"
+                    .. "     dir_parent=" .. inId .. ")) THEN 2"
                     .. " ELSE 0"
                     .. " END;"
 
                 ctx:messageAsyncWCallback(
                     asyncSqlite,
                     function(outres)
-                        local value = outres:values()._3
+                        local table = outres:values()
+                        local value = table._3
+                        local success = table._4
+                        assert( success, "Great success failed..." )
                         if (value == 0) then
                             ctx:messageAsync(asyncSqlite,
                                 VSig("ASQL_OutAffected"),
@@ -407,29 +402,38 @@ initAll = function()
                                     .. inId .. " WHERE dir_id=" .. currentDirId .. ";"),
                                 VInt(-1))
                             currentDirId = -1
+                            ctx:message(mainWnd,
+                                VSig("MWI_InMoveChildUnderParent"),
+                                VInt(-1))
                             updateRevision()
-                        elseif (value == 2) then
-                            local dialogService =
-                                ctx:namedMessageable("dialogService")
-                            ctx:message(
-                                dialogService,
-                                VSig("GDS_AlertDialog"),
-                                VString("Cannot move!"),
-                                VString("Directory to move is a parent"
-                                    .. " of directory to move under."))
                         elseif (value == 1) then
                             local dialogService =
                                 ctx:namedMessageable("dialogService")
                             ctx:message(
                                 dialogService,
                                 VSig("GDS_AlertDialog"),
+                                VMsg(mainWnd),
                                 VString("Cannot move!"),
-                                VString("Parent is same as moving directory."))
+                                VString("Directory to move cannot be a parent"
+                                    .. " of directory to move under."))
+                        elseif (value == 2) then
+                            local dialogService =
+                                ctx:namedMessageable("dialogService")
+                            ctx:message(
+                                dialogService,
+                                VSig("GDS_AlertDialog"),
+                                VMsg(mainWnd),
+                                VString("Cannot move!"),
+                                VString("Parent directory already has"
+                                    .. " directory with such name."))
+                        else
+                            assert( false, "Should not happen cholo..." )
                         end
                     end,
                     VSig("ASQL_OutSingleNum"),
                     VString(condition),
-                    VInt(-1))
+                    VInt(-1),
+                    VBool(false))
                 return
             end
 

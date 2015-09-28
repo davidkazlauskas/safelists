@@ -604,7 +604,86 @@ initAll = function()
                             end
                         end),
                         arrayBranch("Rename",function()
-                            assert( false , "Rename not implemented cholo" )
+                            local dialog = ctx:namedMessageable("singleInputDialog")
+
+                            local showOrHide = function(val)
+                                ctx:message(dialog,VSig("INDLG_InShowDialog"),VBool(val))
+                            end
+
+                            local dirName = ctx:messageRetValues(mainWnd,VSig("MWI_QueryCurrentDirName"),VString("?"))._2
+                            local dirId = ctx:messageRetValues(mainWnd,VSig("MWI_QueryCurrentDirId"),VInt(-7))._2
+
+                            if (dirName == "[unselected]") then
+                                setStatus(ctx,mainWnd,"No directory was selected to create new one.")
+                                return
+                            end
+
+                            if (dirName == "root" and dirId == 1) then
+                                setStatus(ctx,mainWnd,"Cannot rename root.")
+                                return
+                            end
+
+                            ctx:message(dialog,VSig("INDLG_InSetLabel"),VString(
+                                "Specify new folder name to rename  " .. dirName .. "."
+                            ))
+
+                            ctx:message(dialog,VSig("INDLG_InSetValue"),VString(dirName))
+
+                            local handler = ctx:makeLuaMatchHandler(
+                                VMatch(function()
+                                    print("Ok renamed!")
+                                    local outName = ctx:messageRetValues(dialog,VSig("INDLG_QueryInput"),VString("?"))._2
+                                    -- more thorough user input check should be performed
+                                    if (outName == "") then
+                                        setStatus(ctx,mainWnd,"Some directory name must be specified.")
+                                        return
+                                    end
+
+                                    local asyncSqlite = currentAsyncSqlite
+                                    if (messageablesEqual(VMsgNil(),asyncSqlite)) then
+                                        return
+                                    end
+                                    local mainWnd = ctx:namedMessageable("mainWindow")
+                                    local mainModel = ctx:namedMessageable("mainModel")
+                                    ctx:messageAsyncWCallback(
+                                        asyncSqlite,
+                                        function(output)
+                                            local val = output:values()
+                                            local affected = val._3
+                                            if (affected > 0) then
+                                                ctx:message(mainWnd,
+                                                    VSig("MWI_InSetCurrentDirName"),
+                                                    VString(outName))
+                                            else
+                                                local dialogService =
+                                                    ctx:namedMessageable("dialogService")
+
+                                                ctx:message(dialogService,
+                                                    VSig("GDS_AlertDialog"),
+                                                    VMsg(mainWnd),
+                                                    VString("Duplicate name!"),
+                                                    VString("'" .. outName .. "' already exists under current parent."))
+                                            end
+                                        end,
+                                        VSig("ASQL_OutAffected"),
+                                        VString("UPDATE directories SET dir_name='" .. outName .. "'"
+                                            .. " WHERE dir_id=" .. dirId .. " AND NOT EXISTS("
+                                            .. " SELECT 1 FROM directories WHERE dir_name='".. outName
+                                            .. "' AND dir_parent=(SELECT dir_parent FROM directories "
+                                            .. " WHERE dir_id=" .. dirId .. " )" .. ");"
+                                        ),
+                                        VInt(-1)
+                                    )
+                                    showOrHide(false)
+                                end,"INDLG_OutOkClicked"),
+                                VMatch(function()
+                                    print("Cancel rename!")
+                                    showOrHide(false)
+                                end,"INDLG_OutCancelClicked")
+                            )
+
+                            ctx:message(dialog,VSig("INDLG_InSetNotifier"),VMsg(handler))
+                            showOrHide(true)
                         end),
                         arrayBranch("New directory",function()
                             local dialog = ctx:namedMessageable("singleInputDialog")

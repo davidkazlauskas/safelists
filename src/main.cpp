@@ -115,6 +115,10 @@ struct MainWindowInterface {
     // Signature: < InSetCurrentDirName, std::string(name) >
     DUMMY_REG(InSetCurrentDirName,"MWI_InSetCurrentDirName");
 
+    // Add child directory with specified name under current
+    // Signature: < InAddChildUnderCurrentDir, std::string (name), int (id) >
+    DUMMY_REG(InAddChildUnderCurrentDir,"MWI_InAddChildUnderCurrentDir");
+
     // query current directory id
     // Signature: < QueryCurrentDirId, int (output) >
     DUMMY_REG(QueryCurrentDirId,"MWI_QueryCurrentDirId");
@@ -537,6 +541,21 @@ private:
                     if (nullptr != selection) {
                         auto row = *selection;
                         row[_dirColumns.m_colName] = name.c_str();
+                    } else {
+                        assert( false && "Setting current name when not selected." );
+                    }
+                }
+            ),
+            SF::virtualMatch< MWI::InAddChildUnderCurrentDir, const std::string, const int >(
+                [=](MWI::InAddChildUnderCurrentDir,const std::string& name,int id) {
+                    auto selection = _dirSelection->get_selected();
+                    if (nullptr != selection) {
+                        DirRow d;
+                        d._id = id;
+                        d._parent = (*selection)[_dirColumns.m_colId];
+                        d._name = name;
+                        auto newOne = _dirStore->append(selection->children());
+                        setDirRow(d,*newOne);
                     } else {
                         assert( false && "Setting current name when not selected." );
                     }

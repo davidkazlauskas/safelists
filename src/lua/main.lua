@@ -624,7 +624,6 @@ initAll = function()
                         arrayBranch("Move",function()
                             currentDirId = ctx:messageRetValues(mainWnd,
                                 VSig("MWI_QueryCurrentDirId"),VInt(-7))._2
-                            print("Selected dir: " .. currentDirId)
                             if (currentDirId ~= -1) then
                                 ctx:message(mainWnd,
                                     VSig("MWI_InSetStatusText"),

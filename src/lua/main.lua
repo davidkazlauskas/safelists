@@ -720,16 +720,31 @@ initAll = function()
                                     end
                                     local mainWnd = ctx:namedMessageable("mainWindow")
                                     local mainModel = ctx:namedMessageable("mainModel")
-                                    ctx:messageAsync(
+
+                                    local theQuery =
+                                           "INSERT INTO directories (dir_name,dir_parent)"
+                                        .. " SELECT '" .. outName .. "', " .. dirId
+                                        .. " WHERE NOT EXISTS("
+                                        .. " SELECT 1 FROM directories WHERE dir_name='".. outName
+                                        .. "' AND dir_parent=" .. dirId .. ");"
+
+                                    ctx:messageAsyncWCallback(
                                         asyncSqlite,
-                                        VSig("ASQL_Execute"),
-                                        VString("INSERT INTO directories (dir_name,dir_parent)"
-                                            .. " VALUES ('" .. outName .. "'," .. dirId .. ");")
+                                        function(res)
+                                            local num = res:values()._3
+                                            if (num > 0) then
+                                                ctx:message(mainModel,
+                                                    VSig("MMI_InLoadFolderTree"),VMsg(asyncSqlite),VMsg(mainWnd))
+                                                    updateRevision()
+                                            else
+                                                print("DUPE, SUCKA!")
+                                            end
+                                        end,
+                                        VSig("ASQL_OutAffected"),
+                                        VString(theQuery),
+                                        VInt(-1)
                                     )
                                     -- todo: optimize, don't reload all
-                                    ctx:message(mainModel,
-                                        VSig("MMI_InLoadFolderTree"),VMsg(asyncSqlite),VMsg(mainWnd))
-                                        updateRevision()
                                     showOrHide(false)
                                 end,"INDLG_OutOkClicked"),
                                 VMatch(function()

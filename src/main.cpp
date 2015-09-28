@@ -453,6 +453,19 @@ private:
 
     typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
 
+    void cloneDirSubTree(Gtk::TreeStore& store,const Gtk::TreeModel::iterator& from,const Gtk::TreeModel::iterator& to) {
+        DirRow dr;
+        getDirRow(dr,*from);
+        setDirRow(dr,*to);
+        auto toChildren = to->children();
+        auto children = from->children();
+        auto end = children.end();
+        for (auto b = children.begin(); b != end; ++b) {
+            auto iter = store.append(toChildren);
+            cloneDirSubTree(store,b,iter);
+        }
+    }
+
     VmfPtr genHandler() {
         typedef GenericMessageableInterface GMI;
         return SF::virtualMatchFunctorPtr(

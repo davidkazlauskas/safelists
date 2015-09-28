@@ -111,6 +111,10 @@ struct MainWindowInterface {
     // Signature: < InSetWidgetText, std::string(name), std::string (text) >
     DUMMY_REG(InSetWidgetText,"MWI_InSetWidgetText");
 
+    // Set selected directory text
+    // Signature: < InSetCurrentDirName, std::string(name) >
+    DUMMY_REG(InSetCurrentDirName,"MWI_InSetCurrentDirName");
+
     // query current directory id
     // Signature: < QueryCurrentDirId, int (output) >
     DUMMY_REG(QueryCurrentDirId,"MWI_QueryCurrentDirId");
@@ -524,6 +528,17 @@ private:
                         }
                     } else {
                         assert( false && "You did not just drop a no name widget on me bro..." );
+                    }
+                }
+            ),
+            SF::virtualMatch< MWI::InSetCurrentDirName, const std::string >(
+                [=](MWI::InSetWidgetText,const std::string& name) {
+                    auto selection = _dirSelection->get_selected();
+                    if (nullptr != selection) {
+                        auto row = *selection;
+                        row[_dirColumns.m_colName] = name.c_str();
+                    } else {
+                        assert( false && "Setting current name when not selected." );
                     }
                 }
             ),

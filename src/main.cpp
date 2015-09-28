@@ -1116,7 +1116,7 @@ struct GtkDialogService : public Messageable {
                     Gtk::MessageDialog dlg(
                         *gtkParent,title.c_str());
                     dlg.set_message(message.c_str());
-                    dlg.show();
+                    dlg.run();
                 }
             )
         );

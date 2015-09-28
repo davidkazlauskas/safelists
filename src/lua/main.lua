@@ -378,12 +378,58 @@ initAll = function()
                     return
                 end
 
-                ctx:messageAsync(asyncSqlite,
-                    VSig("ASQL_Execute"),
-                    VString("UPDATE directories SET dir_parent=" .. inId
-                        .. " WHERE dir_id=" .. currentDirId .. ";"))
-                    currentDirId = -1
-                updateRevision()
+                local condition =
+                       " SELECT CASE"
+                    .. " WHEN " .. currentDirId .. "=" .. inId .. " THEN 2"
+                    .. " WHEN (" .. currentDirId .. " IN"
+                    .. " ("
+                    .. "     WITH RECURSIVE"
+                    .. "     children(d_id) AS ("
+                    .. "           SELECT dir_id FROM directories "
+                    .. "               WHERE dir_parent=" .. inId
+                    .. "           UNION ALL"
+                    .. "           SELECT dir_id"
+                    .. "           FROM directories JOIN children ON "
+                    .. "              directories.dir_parent=children.d_id "
+                    .. "     ) SELECT d_id FROM children"
+                    .. " )) THEN 1"
+                    .. " ELSE 0"
+                    .. " END;"
+
+                ctx:messageAsyncWCallback(
+                    asyncSqlite,
+                    function(outres)
+                        local value = outres:values()._3
+                        if (value == 0) then
+                            ctx:messageAsync(asyncSqlite,
+                                VSig("ASQL_OutAffected"),
+                                VString("UPDATE directories SET dir_parent="
+                                    .. inId .. " WHERE dir_id=" .. currentDirId .. ";"),
+                                VInt(-1))
+                            currentDirId = -1
+                            updateRevision()
+                        elseif (value == 2) then
+                            local dialogService =
+                                ctx:namedMessageable("dialogService")
+                            ctx:message(
+                                dialogService,
+                                VSig("GDS_AlertDialog"),
+                                VString("Cannot move!"),
+                                VString("Directory to move is a parent"
+                                    .. " of directory to move under."))
+                        elseif (value == 1) then
+                            local dialogService =
+                                ctx:namedMessageable("dialogService")
+                            ctx:message(
+                                dialogService,
+                                VSig("GDS_AlertDialog"),
+                                VString("Cannot move!"),
+                                VString("Parent is same as moving directory."))
+                        end
+                    end,
+                    VSig("ASQL_OutSingleNum"),
+                    VString(condition),
+                    VInt(-1))
                 return
             end
 

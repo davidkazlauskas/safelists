@@ -453,7 +453,11 @@ private:
 
     typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
 
-    void cloneDirSubTree(Gtk::TreeStore& store,const Gtk::TreeModel::iterator& from,const Gtk::TreeModel::iterator& to) {
+    void cloneDirSubTree(
+        const Glib::RefPtr<Gtk::TreeStore>& store,
+        const Gtk::TreeModel::iterator& from,
+        const Gtk::TreeModel::iterator& to)
+    {
         DirRow dr;
         getDirRow(dr,*from);
         setDirRow(dr,*to);
@@ -461,7 +465,7 @@ private:
         auto children = from->children();
         auto end = children.end();
         for (auto b = children.begin(); b != end; ++b) {
-            auto iter = store.append(toChildren);
+            auto iter = store->append(toChildren);
             cloneDirSubTree(store,b,iter);
         }
     }
@@ -572,12 +576,9 @@ private:
                         return;
                     }
 
-                    auto toMoveRow = *toMove;
-                    DirRow dr;
-                    getDirRow(dr,toMoveRow);
+                    auto newPlace = _dirStore->append(parent->children());
+                    cloneDirSubTree(_dirStore,toMove,newPlace);
                     _dirStore->erase(toMove);
-                    auto newPlace = *_dirStore->append(parent->children());
-                    setDirRow(dr,newPlace);
                     out = 0;
                 }
             ),
@@ -742,7 +743,7 @@ private:
         std::string _name;
     };
 
-    void setDirRow(const DirRow& r,Gtk::TreeModel::Row& mdlRow) {
+    void setDirRow(const DirRow& r,const Gtk::TreeModel::Row& mdlRow) {
         mdlRow[_dirColumns.m_colName] = r._name;
         mdlRow[_dirColumns.m_colId] = r._id;
         mdlRow[_dirColumns.m_colParent] = r._parent;

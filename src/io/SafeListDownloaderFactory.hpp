@@ -36,7 +36,7 @@ struct SafeListDownloaderFactory {
     // < OutCreateSessionDone >
     DUMMY_REG(OutCreateSessionDone,"SLDF_OutCreateSessionDone");
 
-    static StrongMsgPtr createNew();
+    static StrongMsgPtr createNew(const StrongMsgPtr& downloader,const StrongMsgPtr& writer);
 };
 
 }

@@ -94,6 +94,19 @@ ObjectRetainer = {
 
 objRetainer = ObjectRetainer.__index.new()
 
+CurrentSafelist = {
+    path = ""
+}
+
+CurrentSafelist.__index = {
+    isSamePath = function(self,path)
+        return self.path == path
+    end,
+    setPath = function(self,path)
+        self.path = path
+    end
+}
+
 revealDownloads = false
 sessionWidget = nil
 currentAsyncSqlite = nil

@@ -46,45 +46,13 @@ struct MyShutdownGuard : public Messageable {
         assert( false && "Async message disabled." );
     }
 
-    VmfPtr genHandler() {
-        return SF::virtualMatchFunctorPtr(
-            SF::virtualMatch< GSI::IsDead, bool >(
-                [=](GSI::IsDead,bool& res) {
-                    auto locked = _master.lock();
-                    res = nullptr == locked;
-                }
-            ),
-            SF::virtualMatch< GSI::ShutdownSignal >(
-                [=](GSI::ShutdownSignal) {
-                    auto locked = _master.lock();
-                    if (locked == nullptr) {
-                        _prom.set_value();
-                    } else {
-                        auto shutdownMsg = SF::vpackPtr<
-                            SafeLists::AsyncSqlite::Shutdown
-                        >(nullptr);
-                        locked->message(shutdownMsg);
-                    }
-                }
-            ),
-            SF::virtualMatch< GSI::WaitOut >(
-                [=](GSI::WaitOut) {
-                    _fut.wait();
-                }
-            ),
-            SF::virtualMatch< SetFuture >(
-                [=](SetFuture) {
-                    _prom.set_value();
-                }
-            )
-        );
-    }
+    VmfPtr genHandler();
 
 private:
     VmfPtr _handler;
     std::promise< void > _prom;
     std::future< void > _fut;
-    WeakMsgPtr _master;
+    std::weak_ptr< SafeLists::AsyncSqliteImpl > _master;
 };
 
 } // end of anon namespace
@@ -390,3 +358,40 @@ StrongMsgPtr AsyncSqlite::createNew(const char* name) {
 
 }
 
+namespace {
+
+    VmfPtr MyShutdownGuard::genHandler() {
+        return SF::virtualMatchFunctorPtr(
+            SF::virtualMatch< GSI::IsDead, bool >(
+                [=](GSI::IsDead,bool& res) {
+                    auto locked = _master.lock();
+                    res = nullptr == locked;
+                }
+            ),
+            SF::virtualMatch< GSI::ShutdownSignal >(
+                [=](GSI::ShutdownSignal) {
+                    auto locked = _master.lock();
+                    if (locked == nullptr) {
+                        _prom.set_value();
+                    } else {
+                        auto shutdownMsg = SF::vpackPtr<
+                            SafeLists::AsyncSqlite::Shutdown
+                        >(nullptr);
+                        locked->enqueueMessage(shutdownMsg);
+                    }
+                }
+            ),
+            SF::virtualMatch< GSI::WaitOut >(
+                [=](GSI::WaitOut) {
+                    _fut.wait();
+                }
+            ),
+            SF::virtualMatch< SetFuture >(
+                [=](SetFuture) {
+                    _prom.set_value();
+                }
+            )
+        );
+    }
+
+}

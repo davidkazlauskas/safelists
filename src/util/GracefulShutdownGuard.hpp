@@ -17,6 +17,7 @@ namespace SafeLists {
 
     private:
         std::vector< StrongMsgPtr > _vec;
+        StrongMsgPtr _myHandle;
     };
 
 }

@@ -25,7 +25,9 @@ struct MyShutdownGuard : public Messageable {
     DUMMY_STRUCT(SetFuture);
     DUMMY_STRUCT(ShutdownWriter);
 
-    MyShutdownGuard() : _handler(genHandler()) {}
+    MyShutdownGuard() :
+        _handler(genHandler()),
+        _fut(_prom.get_future()) {}
 
     void message(templatious::VirtualPack& pack) override {
         _handler->tryMatch(pack);

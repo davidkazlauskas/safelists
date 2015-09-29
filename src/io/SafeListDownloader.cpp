@@ -5,6 +5,7 @@
 #include <util/DumbHash.hpp>
 #include <util/ScopeGuard.hpp>
 #include <util/Semaphore.hpp>
+#include <util/GenericShutdownGuard.hpp>
 #include <io/Interval.hpp>
 #include <io/AsyncDownloader.hpp>
 #include <io/RandomFileWriter.hpp>
@@ -138,6 +139,7 @@ struct SafeListDownloaderImpl : public Messageable {
         _currentCacheRevision(-1),
         _jobCachePoint(0),
         _isFinished(false),
+        _keepGoing(true),
         _isAsync(notifyAsAsync),
         _count(0)
     {
@@ -380,6 +382,9 @@ private:
             jobStatusUpdate();
             clearDoneJobs();
             processMessages();
+            if (!_keepGoing) {
+                return;
+            }
 
             bool shouldWriteIntervals = nextUpdate(intervalListUpdate);
             if (shouldWriteIntervals) {
@@ -774,6 +779,7 @@ private:
     int _currentCacheRevision;
     int _jobCachePoint;
     bool _isFinished;
+    bool _keepGoing;
     bool _isAsync;
     int _count;
     std::chrono::high_resolution_clock::time_point _lastUpdate;

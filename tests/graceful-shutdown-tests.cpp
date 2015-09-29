@@ -19,7 +19,7 @@ struct Sleep100MsShutdownClass : public Messageable {
         assert( false && "..." );
     }
 
-    std::shared_ptr< Sleep100MsShutdownClass > makeNew(const std::shared_ptr< std::atomic_int >& num) {
+    static std::shared_ptr< Sleep100MsShutdownClass > makeNew(const std::shared_ptr< std::atomic_int >& num) {
         std::shared_ptr< Sleep100MsShutdownClass > res(new Sleep100MsShutdownClass());
         res->_myself = res;
         res->_toIncrement = num;
@@ -142,6 +142,9 @@ TEST_CASE("graceful_shutdown_guard_test","[graceful_shutdown]") {
     auto victim = std::make_shared< std::atomic_int >(0);
 
     auto g = GracefulShutdownGuard::makeNew();
+
+    auto proc1 = Sleep100MsShutdownClass::makeNew(victim);
+    auto proc2 = Sleep100MsShutdownClass::makeNew(victim);
 
 }
 

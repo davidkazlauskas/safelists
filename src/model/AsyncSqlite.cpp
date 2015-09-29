@@ -250,12 +250,21 @@ private:
     sqlite3* _sqlite;
 };
 
+struct MyShutdownGuard : public Messageable {
+    void message(templatious::VirtualPack& pack) override {
+    }
+
+    void message(const StrongPackPtr& pack) override {
+        assert( false && "Async message disabled." );
+    }
+};
+
 struct AsyncSqliteProxy : public Messageable {
-    void message(templatious::VirtualPack& pack) {
+    void message(templatious::VirtualPack& pack) override {
         assert( false && "Synchronous messages are disabled." );
     }
 
-    void message(const StrongPackPtr& pack) {
+    void message(const StrongPackPtr& pack) override {
         auto locked = _weakPtr.lock();
         assert( nullptr != locked &&
             "Not cool bro, shouldn't be destroyed...");

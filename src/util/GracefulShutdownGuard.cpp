@@ -12,7 +12,7 @@ GracefulShutdownGuard::GracefulShutdownGuard() :
 {
 }
 
-void GracefulShutdownGuard::cleanup() {
+void GracefulShutdownGuard::processMessages() {
 
 }
 

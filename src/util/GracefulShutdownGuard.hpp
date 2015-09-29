@@ -18,7 +18,7 @@ namespace SafeLists {
         void message(const std::shared_ptr< templatious::VirtualPack >& msg) override;
         void message(templatious::VirtualPack& msg) override;
 
-        void cleanup();
+        void processMessages();
         void waitAll();
         void add(const StrongMsgPtr& ptr);
 

@@ -107,6 +107,12 @@ struct AsyncSqliteImpl {
 
     ~AsyncSqliteImpl() {
         sqlite3_close(_sqlite);
+        auto locked = _guard.lock();
+        if (nullptr != locked) {
+            auto msg = SF::vpack<
+                MyShutdownGuard::SetFuture >(nullptr);
+            locked->message(msg);
+        }
     }
 
     void enqueueMessage(const StrongPackPtr& pack) {

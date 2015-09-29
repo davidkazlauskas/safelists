@@ -14,6 +14,11 @@ namespace SafeLists {
         // with new messageable to be put into queue
         // Signature: < OutRegisterItself, StrongMsgPtr >
         DUMMY_STRUCT(OutRegisterItself);
+
+        // Emitted when shutdown is started
+        // for all messageables to stop
+        // and try to terminate.
+        DUMMY_STRUCT(ShutdownSignal);
     };
 }
 

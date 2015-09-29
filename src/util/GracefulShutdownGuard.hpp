@@ -9,7 +9,10 @@
 
 namespace SafeLists {
 
-    struct GracefulShutdownGuard {
+    struct GracefulShutdownGuard : public Messageable {
+
+        void message(const std::shared_ptr< templatious::VirtualPack >& msg) override;
+        void message(templatious::VirtualPack& msg) override;
 
         void cleanup();
         void waitAll();
@@ -17,7 +20,7 @@ namespace SafeLists {
 
     private:
         std::vector< StrongMsgPtr > _vec;
-        StrongMsgPtr _myHandle;
+        std::weak_ptr< GracefulShutdownGuard > _myHandle;
     };
 
 }

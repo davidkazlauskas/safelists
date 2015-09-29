@@ -1345,9 +1345,12 @@ int main(int argc,char** argv) {
     auto asyncSqliteFactory = SafeLists::AsyncSqliteFactory::createNew();
     auto mainModel = std::make_shared< MainModel >();
     auto dialogService = std::make_shared< GtkDialogService >();
+    auto shutdownGuard = SafeLists::GracefulShutdownGuard::makeNew();
+    mainWnd->setShutdownGuard(shutdownGuard);
     ctx->addMessageableWeak("mainWindow",mainWnd);
     ctx->addMessageableWeak("singleInputDialog",singleInputDialog);
     ctx->addMessageableWeak("mainModel",mainModel);
+    ctx->addMessageableWeak("shutdownGuard",shutdownGuard);
     ctx->addMessageableStrong("dlSessionFactory",dlFactory);
     ctx->addMessageableStrong("asyncSqliteFactory",asyncSqliteFactory);
     ctx->addMessageableStrong("dialogService",dialogService);

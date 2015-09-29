@@ -15,7 +15,9 @@ namespace SafeLists {
         // Signature: < OutRegisterItself, StrongMsgPtr >
         DUMMY_STRUCT(OutRegisterItself);
 
-        // Emitted when shutdown is started
+        // Emitted to locak handle
+        // as single threaded message
+        // when shutdown is started
         // for all messageables to stop
         // and try to terminate.
         DUMMY_STRUCT(ShutdownSignal);

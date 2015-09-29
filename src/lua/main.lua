@@ -649,7 +649,7 @@ initAll = function()
                         VMsg(mainWnd),
                         VString("Already opened!"),
                         VString("'" .. outPath ..
-                            "' safelist is rleady opened."))
+                            "' safelist is already opened."))
                     return
                 end
                 currentSafelist:setPath(outPath)

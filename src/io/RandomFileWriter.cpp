@@ -94,6 +94,7 @@ struct RandomFileWriterImpl : public Messageable {
     {}
 
     ~RandomFileWriterImpl() {
+        //printf("FILE WRITER SHIRTDOWN\n");
     }
 
     void message(const std::shared_ptr< templatious::VirtualPack >& msg) override {
@@ -158,6 +159,8 @@ private:
                     auto msg = SF::vpackPtr< GSI::OutRegisterItself, StrongMsgPtr >(
                         nullptr, handler
                     );
+                    assert( nullptr == _notifyExit.lock() );
+                    _notifyExit = handler;
                     ptr->message(msg);
                 }
             ),
@@ -178,6 +181,13 @@ private:
                 }
             );
         }
+
+        auto locked = _notifyExit.lock();
+        if (nullptr != locked) {
+            auto msg = SF::vpack<
+                MyShutdownGuard::SetFuture >(nullptr);
+            locked->message(msg);
+        }
     }
 
     RandomFileWriteCache _writeCache;
@@ -185,6 +195,7 @@ private:
     MessageCache _msgCache;
     VmfPtr _handler;
     WeakMsgPtr _myself;
+    WeakMsgPtr _notifyExit;
     bool _keepGoing;
 };
 

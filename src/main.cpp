@@ -308,8 +308,7 @@ struct GtkMainWindow : public Messageable {
         _left(nullptr),
         _right(nullptr),
         _messageHandler(genHandler()),
-        _lastSelectedDirId(-1),
-        _shutdownGuard(SafeLists::GracefulShutdownGuard::makeNew())
+        _lastSelectedDirId(-1)
     {
         registerAndGetWidget("window1",_wnd);
         registerAndGetWidget("fileList",_right);
@@ -346,6 +345,10 @@ struct GtkMainWindow : public Messageable {
 
     bool onCloseEvent(GdkEventAny* ev) {
         return false;
+    }
+
+    void setShutdownGuard(const std::shared_ptr< SafeLists::GracefulShutdownGuard >& guard) {
+        _shutdownGuard = guard;
     }
 
     template <class T>

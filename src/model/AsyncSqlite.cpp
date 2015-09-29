@@ -12,6 +12,10 @@
 
 TEMPLATIOUS_TRIPLET_STD;
 
+namespace SafeLists {
+    struct AsyncSqliteImpl;
+}
+
 namespace {
 
 int snapshotBuilderCallback(void* snapshotBuilder,int argc,char** argv,char** colName) {
@@ -23,9 +27,12 @@ int snapshotBuilderCallback(void* snapshotBuilder,int argc,char** argv,char** co
     return 0;
 }
 
+typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
+typedef SafeLists::GracefulShutdownInterface GSI;
+
 struct MyShutdownGuard : public Messageable {
-    typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
-    typedef SafeLists::GracefulShutdownInterface GSI;
+
+    friend struct SafeLists::AsyncSqliteImpl;
 
     DUMMY_STRUCT(SetFuture);
 
@@ -93,7 +100,8 @@ struct AsyncSqliteImpl {
         _keepGoing(true),
         _handler(genHandler()),
         _path(path),
-        _sqlite(nullptr)
+        _sqlite(nullptr),
+        _myself(nullptr)
     {
     }
 
@@ -107,6 +115,7 @@ struct AsyncSqliteImpl {
     }
 
     void mainLoop(const std::shared_ptr< AsyncSqliteImpl >& myself) {
+        _myself = &myself;
         int rc = sqlite3_open(_path.c_str(),&_sqlite);
         assert( rc == SQLITE_OK );
 
@@ -289,6 +298,17 @@ private:
             SF::virtualMatch< AsyncSqlite::DummyWait >(
                 [](AsyncSqlite::DummyWait) {}
             ),
+            SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(
+                [=](GSI::InRegisterItself,const StrongMsgPtr& ptr) {
+                    auto handler = std::make_shared< MyShutdownGuard >();
+                    assert( _myself != nullptr && "No null milky..." );
+                    handler->_master = *_myself;
+                    auto msg = SF::vpackPtr< GSI::OutRegisterItself, StrongMsgPtr >(
+                        nullptr, handler
+                    );
+                    ptr->message(msg);
+                }
+            ),
             SF::virtualMatch< AsyncSqlite::Shutdown >(
                 [=](AsyncSqlite::Shutdown) {
                     this->_keepGoing = false;
@@ -304,6 +324,9 @@ private:
     VmfPtr _handler;
     ThreadGuard _g;
     std::string _path;
+
+    const std::shared_ptr< AsyncSqliteImpl >* _myself;
+    std::weak_ptr< MyShutdownGuard > _guard;
 
     sqlite3* _sqlite;
 };

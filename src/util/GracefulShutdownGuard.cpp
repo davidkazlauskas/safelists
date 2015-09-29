@@ -53,6 +53,8 @@ void GracefulShutdownGuard::processMessages() {
             _handler->tryMatch(pack);
         }
     );
+
+    GracefulShutdownGuardImpl::cleanDead(*this);
 }
 
 void GracefulShutdownGuard::waitAll() {

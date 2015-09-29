@@ -21,6 +21,7 @@ struct Sleep100MsShutdownClass : public Messageable {
 
     std::shared_ptr< Sleep100MsShutdownClass > makeNew() {
         std::shared_ptr< Sleep100MsShutdownClass > res(new Sleep100MsShutdownClass());
+        res->_myself = res;
         std::thread(
             [=]() {
                 res->mainLoop();
@@ -52,6 +53,14 @@ private:
     struct MyShutdownGuard : public Messageable {
         MyShutdownGuard(const std::shared_ptr< Sleep100MsShutdownClass >& ref) :
             _master(ref), _handler(genHandler()), _fut(_prom.get_future()) {}
+
+        void message(const std::shared_ptr< templatious::VirtualPack >& msg) override {
+            assert( false && "..." );
+        }
+
+        void message(templatious::VirtualPack& msg) override {
+            _handler->tryMatch(msg);
+        }
 
         VmfPtr genHandler() {
             return SF::virtualMatchFunctorPtr(
@@ -90,6 +99,17 @@ private:
 
     VmfPtr genHandler() {
         return SF::virtualMatchFunctorPtr(
+            SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(
+                [=](GSI::InRegisterItself,const StrongMsgPtr& ref) {
+                    auto myself = _myself.lock();
+                    assert( nullptr != myself && "?!?" );
+                    std::shared_ptr< MyShutdownGuard > g(new MyShutdownGuard(myself));
+                    _guard = g;
+                    auto msg = SF::vpackPtr<
+                        GSI::OutRegisterItself, StrongMsgPtr >( nullptr, g );
+                    ref->message(msg);
+                }
+            ),
             SF::virtualMatch< Shutdown >(
                 [=](Shutdown) {
                     _keepGoing = false;
@@ -101,6 +121,7 @@ private:
     MessageCache _cache;
     VmfPtr _handler;
     bool _keepGoing;
+    std::weak_ptr< Sleep100MsShutdownClass > _myself;
     std::weak_ptr< MyShutdownGuard > _guard;
 };
 

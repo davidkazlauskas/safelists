@@ -3,7 +3,7 @@
 #include <gtkmm.h>
 #include <templatious/FullPack.hpp>
 #include <templatious/detail/DynamicPackCreator.hpp>
-#include <plumbing.hpp>
+#include <LuaPlumbing/plumbing.hpp>
 #include <gtkmm/GtkMMRangerModel.hpp>
 #include <util/AutoReg.hpp>
 #include <util/Semaphore.hpp>

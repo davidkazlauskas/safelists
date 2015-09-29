@@ -19,7 +19,11 @@ namespace SafeLists {
         void add(const StrongMsgPtr& ptr);
 
     private:
+        typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
+        VmfPtr genHandler();
+
         std::vector< StrongMsgPtr > _vec;
+        VmfPtr _handler;
         std::weak_ptr< GracefulShutdownGuard > _myHandle;
     };
 

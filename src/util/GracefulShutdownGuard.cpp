@@ -29,6 +29,8 @@ void GracefulShutdownGuard::processMessages() {
 }
 
 void GracefulShutdownGuard::waitAll() {
+    std::vector< StrongMsgPtr > steal(std::move(_vec));
+
 
 }
 

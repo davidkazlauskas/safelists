@@ -381,6 +381,9 @@ initAll = function()
                     --.. "              directories.dir_parent=children.d_id "
                     --.. "     ) SELECT d_id FROM children"
                     --.. " )) THEN 1"
+                    .. " WHEN ((SELECT dir_parent FROM directories"
+                    .. "     WHERE dir_id=" .. currentDirId
+                    .. "     ) = " .. inId .. ") THEN 3"
                     .. " WHEN (" .. "(SELECT dir_name FROM"
                     .. "     directories WHERE dir_id=" .. currentDirId .. ") IN"
                     .. "     ( SELECT dir_name FROM directories WHERE"
@@ -416,7 +419,17 @@ initAll = function()
                                 VString("Cannot move!"),
                                 VString("Directory to move cannot be a parent"
                                     .. " of directory to move under."))
-                        elseif (value == 2) then
+                        --elseif (value == 2) then
+                            --local dialogService =
+                                --ctx:namedMessageable("dialogService")
+                            --ctx:message(
+                                --dialogService,
+                                --VSig("GDS_AlertDialog"),
+                                --VMsg(mainWnd),
+                                --VString("Cannot move!"),
+                                --VString("Parent directory already has"
+                                    --.. " directory with such name."))
+                        elseif (value == 3) then
                             local dialogService =
                                 ctx:namedMessageable("dialogService")
                             ctx:message(
@@ -424,8 +437,8 @@ initAll = function()
                                 VSig("GDS_AlertDialog"),
                                 VMsg(mainWnd),
                                 VString("Cannot move!"),
-                                VString("Parent directory already has"
-                                    .. " directory with such name."))
+                                VString("Directory is already under"
+                                    .. " this parent."))
                         else
                             assert( false, "Should not happen cholo..." )
                         end

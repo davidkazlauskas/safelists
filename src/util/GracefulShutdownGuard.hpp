@@ -8,6 +8,10 @@
 namespace SafeLists {
 
     struct GracefulShutdownGuard {
+
+        void cleanup();
+        void waitAll();
+
     private:
         std::vector< StrongMsgPtr > _vec;
     };

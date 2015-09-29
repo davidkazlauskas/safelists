@@ -169,5 +169,14 @@ TEST_CASE("graceful_shutdown_guard_test","[graceful_shutdown]") {
         l = w2.lock();
         REQUIRE( nullptr != l );
     }
+
+    g->waitAll();
+
+    {
+        auto l = w1.lock();
+        REQUIRE( nullptr == l );
+        l = w2.lock();
+        REQUIRE( nullptr == l );
+    }
 }
 

@@ -97,6 +97,13 @@ private:
         std::future< void > _fut;
     };
 
+    ~Sleep100MsShutdownClass() {
+        auto g = _guard.lock();
+        if (nullptr != g) {
+            g->_prom.set_value();
+        }
+    }
+
     VmfPtr genHandler() {
         return SF::virtualMatchFunctorPtr(
             SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(

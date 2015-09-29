@@ -60,6 +60,7 @@ namespace SafeLists {
 
         static StrongMsgPtr spinupNew() {
             auto result = std::make_shared< AsyncDownloaderImitationImpl >();
+            result->_myself = result;
 
             std::unique_ptr< std::promise<void> > prom( new std::promise<void> );
             auto rawProm = prom.get();
@@ -199,6 +200,13 @@ namespace SafeLists {
                         std::chrono::milliseconds(diff)
                     );
                 }
+            }
+
+            auto locked = _notifyExit.lock();
+            if (nullptr != locked) {
+                auto msg = SF::vpack<
+                    GenericShutdownGuard::SetFuture >(nullptr);
+                locked->message(msg);
             }
         }
 

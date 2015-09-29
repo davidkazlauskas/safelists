@@ -11,5 +11,9 @@ void GracefulShutdownGuard::waitAll() {
 
 }
 
+void GracefulShutdownGuard::add(const StrongMsgPtr& ptr) {
+
+}
+
 }
 

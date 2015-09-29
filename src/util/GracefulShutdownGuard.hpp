@@ -11,6 +11,7 @@ namespace SafeLists {
 
         void cleanup();
         void waitAll();
+        void add(const StrongMsgPtr& ptr);
 
     private:
         std::vector< StrongMsgPtr > _vec;

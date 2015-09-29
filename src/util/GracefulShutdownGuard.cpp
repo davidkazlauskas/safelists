@@ -58,9 +58,21 @@ void GracefulShutdownGuard::processMessages() {
 }
 
 void GracefulShutdownGuard::waitAll() {
+    GracefulShutdownGuardImpl::cleanDead(*this);
+
+    // this may not be final call,
+    // we just take everything we have
     std::vector< StrongMsgPtr > steal(std::move(_vec));
 
+    auto shutdown = SF::vpack< GSI::ShutdownSignal >(nullptr);
+    TEMPLATIOUS_FOREACH(auto& i,steal) {
+        i->message(shutdown);
+    }
 
+    auto wait = SF::vpack< GSI::WaitOut >(nullptr);
+    TEMPLATIOUS_FOREACH(auto& i,steal) {
+        i->message(wait);
+    }
 }
 
 void GracefulShutdownGuard::add(const StrongMsgPtr& ptr) {

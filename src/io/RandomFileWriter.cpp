@@ -1,18 +1,98 @@
 
 #include <util/Semaphore.hpp>
+#include <util/GracefulShutdownInterface.hpp>
 
 #include "RandomFileWriter.hpp"
 #include "RandomFileWriterImpl.hpp"
 
 TEMPLATIOUS_TRIPLET_STD;
 
+typedef SafeLists::GracefulShutdownInterface GSI;
+
+namespace SafeLists {
+    struct RandomFileWriterImpl;
+}
+
+namespace {
+
+typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
+typedef SafeLists::GracefulShutdownInterface GSI;
+
+struct MyShutdownGuard : public Messageable {
+
+    friend struct SafeLists::RandomFileWriterImpl;
+
+    DUMMY_STRUCT(SetFuture);
+    DUMMY_STRUCT(ShutdownWriter);
+
+    MyShutdownGuard() : _handler(genHandler()) {}
+
+    void message(templatious::VirtualPack& pack) override {
+        _handler->tryMatch(pack);
+    }
+
+    void message(const StrongPackPtr& pack) override {
+        assert( false && "Async message disabled." );
+    }
+
+    void setPromise() {
+        _prom.set_value();
+    }
+
+    VmfPtr genHandler() {
+        return SF::virtualMatchFunctorPtr(
+            SF::virtualMatch< GSI::IsDead, bool >(
+                [=](GSI::IsDead,bool& res) {
+                    auto locked = _master.lock();
+                    res = nullptr == locked;
+                }
+            ),
+            SF::virtualMatch< GSI::ShutdownSignal >(
+                [=](GSI::ShutdownSignal) {
+                    auto locked = _master.lock();
+                    if (locked == nullptr) {
+                        _prom.set_value();
+                    } else {
+                        auto shutdownMsg = SF::vpackPtr<
+                            ShutdownWriter
+                        >(nullptr);
+                        locked->message(shutdownMsg);
+                    }
+                }
+            ),
+            SF::virtualMatch< GSI::WaitOut >(
+                [=](GSI::WaitOut) {
+                    _fut.wait();
+                }
+            ),
+            SF::virtualMatch< SetFuture >(
+                [=](SetFuture) {
+                    _prom.set_value();
+                }
+            )
+        );
+    }
+
+private:
+    VmfPtr _handler;
+    std::promise< void > _prom;
+    std::future< void > _fut;
+    WeakMsgPtr _master;
+};
+
+}
+
 namespace SafeLists {
 
 struct RandomFileWriterImpl : public Messageable {
     RandomFileWriterImpl() :
         _writeCache(16), // default
-        _handler(genHandler())
+        _handler(genHandler()),
+        _keepGoing(true)
     {}
+
+    ~RandomFileWriterImpl() {
+    }
 
     void message(const std::shared_ptr< templatious::VirtualPack >& msg) override {
         _msgCache.enqueue(msg);
@@ -25,6 +105,7 @@ struct RandomFileWriterImpl : public Messageable {
 
     static std::shared_ptr< RandomFileWriterImpl > spinNew() {
         auto result = std::make_shared< RandomFileWriterImpl >();
+        result->_myself = result;
         auto cpy = result; // being explicit... probably more than needed
         std::thread(
             [=]() {
@@ -67,12 +148,27 @@ private:
             ),
             SF::virtualMatch< RFW::WaitWrites >(
                 [](RFW::WaitWrites) {}
+            ),
+            SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(
+                [=](GSI::InRegisterItself,const StrongMsgPtr& ptr) {
+                    auto handler = std::make_shared< MyShutdownGuard >();
+                    handler->_master = _myself;
+                    auto msg = SF::vpackPtr< GSI::OutRegisterItself, StrongMsgPtr >(
+                        nullptr, handler
+                    );
+                    ptr->message(msg);
+                }
+            ),
+            SF::virtualMatch< MyShutdownGuard::ShutdownWriter >(
+                [=](MyShutdownGuard::ShutdownWriter) {
+                    this->_keepGoing = false;
+                }
             )
         );
     }
 
     void processLoop(const std::shared_ptr< RandomFileWriterImpl >& impl) {
-        while (!impl.unique()) {
+        while (_keepGoing && !impl.unique()) {
             _sem.wait();
             _msgCache.process(
                 [=](templatious::VirtualPack& pack) {
@@ -86,6 +182,8 @@ private:
     StackOverflow::Semaphore _sem;
     MessageCache _msgCache;
     VmfPtr _handler;
+    WeakMsgPtr _myself;
+    bool _keepGoing;
 };
 
 // singleton

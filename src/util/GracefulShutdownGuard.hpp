@@ -5,6 +5,8 @@
 #include <vector>
 #include <LuaPlumbing/messageable.hpp>
 
+#include "GracefulShutdownInterface.hpp"
+
 namespace SafeLists {
 
     struct GracefulShutdownGuard {

@@ -1356,6 +1356,7 @@ int main(int argc,char** argv) {
     auto dialogService = std::make_shared< GtkDialogService >();
     auto shutdownGuard = SafeLists::GracefulShutdownGuard::makeNew();
     shutdownGuard->add(randomFileWriter);
+    shutdownGuard->add(downloader);
 
     mainWnd->setShutdownGuard(shutdownGuard);
     ctx->addMessageableWeak("mainWindow",mainWnd);

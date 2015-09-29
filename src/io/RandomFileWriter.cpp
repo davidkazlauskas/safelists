@@ -9,18 +9,12 @@ TEMPLATIOUS_TRIPLET_STD;
 
 typedef SafeLists::GracefulShutdownInterface GSI;
 
-namespace SafeLists {
-    struct RandomFileWriterImpl;
-}
-
 namespace {
 
 typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
 typedef SafeLists::GracefulShutdownInterface GSI;
 
 struct MyShutdownGuard : public Messageable {
-
-    friend struct SafeLists::RandomFileWriterImpl;
 
     DUMMY_STRUCT(SetFuture);
     DUMMY_STRUCT(ShutdownWriter);
@@ -73,6 +67,10 @@ struct MyShutdownGuard : public Messageable {
                 }
             )
         );
+    }
+
+    void setMaster(const WeakMsgPtr& ptr) {
+        _master = ptr;
     }
 
 private:
@@ -155,7 +153,7 @@ private:
             SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(
                 [=](GSI::InRegisterItself,const StrongMsgPtr& ptr) {
                     auto handler = std::make_shared< MyShutdownGuard >();
-                    handler->_master = _myself;
+                    handler->setMaster(_myself);
                     auto msg = SF::vpackPtr< GSI::OutRegisterItself, StrongMsgPtr >(
                         nullptr, handler
                     );

@@ -21,6 +21,11 @@ namespace SafeLists {
         // for all messageables to stop
         // and try to terminate.
         DUMMY_STRUCT(ShutdownSignal);
+
+        // Check if object to shutdown is
+        // dead.
+        // Signature: < IsDead, bool >
+        DUMMY_STRUCT(IsDead);
     };
 }
 

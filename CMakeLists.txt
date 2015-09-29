@@ -89,6 +89,7 @@ SET( TEST_SOURCES
     tests/interval-tests.cpp
     tests/downloader-tests.cpp
     tests/util-tests.cpp
+    tests/graceful-shutdown-tests.cpp
 )
 
 SET( DUMB_HASH_SOURCES

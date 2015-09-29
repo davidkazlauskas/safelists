@@ -635,19 +635,26 @@ initAll = function()
                     return
                 end
                 currentSafelist:setPath(outPath)
+                noSafelistState() -- prevent user from doing
+                                  -- anything for split second
 
-                local factory = ctx:namedMessageable("asyncSqliteFactory")
-                local mainModel = ctx:namedMessageable("mainModel")
+                ctx:messageAsyncWCallback(
+                    currentAsyncSqlite,
+                    function()
+                        local factory = ctx:namedMessageable("asyncSqliteFactory")
+                        local mainModel = ctx:namedMessageable("mainModel")
 
-                currentAsyncSqlite = ctx:messageRetValues(factory,
-                    VSig("ASQLF_CreateNew"),
-                    VString(outPath),VMsg(nil))._3
+                        currentAsyncSqlite = ctx:messageRetValues(factory,
+                            VSig("ASQLF_CreateNew"),
+                            VString(outPath),VMsg(nil))._3
 
-                ctx:message(mainModel,
-                    VSig("MMI_InLoadFolderTree"),
-                    VMsg(currentAsyncSqlite),VMsg(mainWnd))
-                onSafelistState()
-                updateRevision()
+                        ctx:message(mainModel,
+                            VSig("MMI_InLoadFolderTree"),
+                            VMsg(currentAsyncSqlite),VMsg(mainWnd))
+                        onSafelistState()
+                        updateRevision()
+                    end,
+                    VSig("ASQL_Shutdown"))
             end
             print('button blast!')
         end,"MWI_OutOpenSafelistButtonClicked"),

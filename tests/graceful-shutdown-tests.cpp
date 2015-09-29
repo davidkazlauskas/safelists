@@ -27,7 +27,7 @@ struct Sleep100MsShutdownClass : public Messageable {
             [=]() {
                 res->mainLoop();
             }
-        );
+        ).detach();
         return res;
     }
 
@@ -146,5 +146,28 @@ TEST_CASE("graceful_shutdown_guard_test","[graceful_shutdown]") {
     auto proc1 = Sleep100MsShutdownClass::makeNew(victim);
     auto proc2 = Sleep100MsShutdownClass::makeNew(victim);
 
+    std::weak_ptr< Sleep100MsShutdownClass > w1 = proc1;
+    std::weak_ptr< Sleep100MsShutdownClass > w2 = proc2;
+
+    g->add(proc1);
+    g->add(proc2);
+    proc1 = nullptr;
+    proc2 = nullptr;
+    std::this_thread::sleep_for(std::chrono::milliseconds(150));
+
+    g->processMessages();
+    g->processMessages();
+    g->processMessages();
+    g->processMessages();
+    g->processMessages();
+    g->processMessages();
+    g->processMessages();
+
+    {
+        auto l = w1.lock();
+        REQUIRE( nullptr != l );
+        l = w2.lock();
+        REQUIRE( nullptr != l );
+    }
 }
 

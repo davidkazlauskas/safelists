@@ -25,7 +25,7 @@ void GracefulShutdownGuard::add(const StrongMsgPtr& ptr) {
 }
 
 void GracefulShutdownGuard::message(const std::shared_ptr< templatious::VirtualPack >& msg) {
-
+    _cache.enqueue(msg);
 }
 
 void GracefulShutdownGuard::message(templatious::VirtualPack& msg) {

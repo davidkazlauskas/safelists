@@ -29,6 +29,7 @@ namespace SafeLists {
         std::vector< StrongMsgPtr > _vec;
         VmfPtr _handler;
         std::weak_ptr< GracefulShutdownGuard > _myHandle;
+        MessageCache _cache;
     };
 
 }

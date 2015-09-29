@@ -11,6 +11,10 @@ namespace SafeLists {
 
     struct GracefulShutdownGuard : public Messageable {
 
+        GracefulShutdownGuard();
+        GracefulShutdownGuard(const GracefulShutdownGuard&) = delete;
+        GracefulShutdownGuard(GracefulShutdownGuard&&) = delete;
+
         void message(const std::shared_ptr< templatious::VirtualPack >& msg) override;
         void message(templatious::VirtualPack& msg) override;
 

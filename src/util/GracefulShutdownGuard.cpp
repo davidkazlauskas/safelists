@@ -7,6 +7,11 @@ TEMPLATIOUS_TRIPLET_STD;
 
 namespace SafeLists {
 
+GracefulShutdownGuard::GracefulShutdownGuard() :
+    _handler(genHandler())
+{
+}
+
 void GracefulShutdownGuard::cleanup() {
 
 }

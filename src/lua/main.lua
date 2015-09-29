@@ -95,17 +95,24 @@ ObjectRetainer = {
 objRetainer = ObjectRetainer.__index.new()
 
 CurrentSafelist = {
-    path = ""
+    __index = {
+        isSamePath = function(self,path)
+            return self.path == path
+        end,
+        setPath = function(self,path)
+            self.path = path
+        end,
+        new = function()
+            local res = {
+                path = ""
+            }
+            setmetatable(res,CurrentSafelist)
+            return res
+        end
+    }
 }
 
-CurrentSafelist.__index = {
-    isSamePath = function(self,path)
-        return self.path == path
-    end,
-    setPath = function(self,path)
-        self.path = path
-    end
-}
+currentSafelist = CurrentSafelist.__index.new()
 
 revealDownloads = false
 sessionWidget = nil
@@ -618,6 +625,17 @@ initAll = function()
 
             local outPath = outVal._5
             if (outPath ~= "") then
+                if (currentSafelist:isSamePath(outPath)) then
+                    ctx:message(dialogService,
+                        VSig("GDS_AlertDialog"),
+                        VMsg(mainWnd),
+                        VString("Already opened!"),
+                        VString("'" .. outPath ..
+                            "' safelist is rleady opened."))
+                    return
+                end
+                currentSafelist:setPath(outPath)
+
                 local factory = ctx:namedMessageable("asyncSqliteFactory")
                 local mainModel = ctx:namedMessageable("mainModel")
 

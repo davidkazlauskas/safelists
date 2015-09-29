@@ -308,7 +308,8 @@ struct GtkMainWindow : public Messageable {
         _left(nullptr),
         _right(nullptr),
         _messageHandler(genHandler()),
-        _lastSelectedDirId(-1)
+        _lastSelectedDirId(-1),
+        _shutdownGuard(SafeLists::GracefulShutdownGuard::makeNew())
     {
         registerAndGetWidget("window1",_wnd);
         registerAndGetWidget("fileList",_right);
@@ -1032,6 +1033,7 @@ private:
     std::shared_ptr< SafeLists::GtkSessionTab > _sessionTab;
     std::weak_ptr< GtkMainWindow > _myself;
     std::weak_ptr<DrawUpdater> _drawUpdater;
+    std::shared_ptr< SafeLists::GracefulShutdownGuard > _shutdownGuard;
 };
 
 struct GtkDialogService : public Messageable {

@@ -382,15 +382,15 @@ private:
             jobStatusUpdate();
             clearDoneJobs();
             processMessages();
-            if (!_keepGoing) {
-                return;
-            }
 
             bool shouldWriteIntervals = nextUpdate(intervalListUpdate);
             if (shouldWriteIntervals) {
                 updateIntervalsForJobs();
             }
 
+            if (!_keepGoing) {
+                return;
+            }
         } while (SA::size(_jobs) > 0 || SA::size(_jobCache) > 0);
 
         assert( 0 == _count && "FAILER!" );

@@ -102,6 +102,9 @@ CurrentSafelist = {
         setPath = function(self,path)
             self.path = path
         end,
+        isEmpty = function(self)
+            return self.path == ""
+        end,
         new = function()
             local res = {
                 path = ""
@@ -635,26 +638,37 @@ initAll = function()
                     return
                 end
                 currentSafelist:setPath(outPath)
-                noSafelistState() -- prevent user from doing
-                                  -- anything for split second
+                if (not currentSafelist:isEmpty()) then
+                    noSafelistState() -- prevent user from doing
+                                      -- anything for split second
+                end
 
-                ctx:messageAsyncWCallback(
-                    currentAsyncSqlite,
-                    function()
-                        local factory = ctx:namedMessageable("asyncSqliteFactory")
-                        local mainModel = ctx:namedMessageable("mainModel")
+                local openNew = function()
+                    local factory = ctx:namedMessageable("asyncSqliteFactory")
+                    local mainModel = ctx:namedMessageable("mainModel")
 
-                        currentAsyncSqlite = ctx:messageRetValues(factory,
-                            VSig("ASQLF_CreateNew"),
-                            VString(outPath),VMsg(nil))._3
+                    currentAsyncSqlite = ctx:messageRetValues(factory,
+                        VSig("ASQLF_CreateNew"),
+                        VString(outPath),VMsg(nil))._3
 
-                        ctx:message(mainModel,
-                            VSig("MMI_InLoadFolderTree"),
-                            VMsg(currentAsyncSqlite),VMsg(mainWnd))
-                        onSafelistState()
-                        updateRevision()
-                    end,
-                    VSig("ASQL_Shutdown"))
+                    ctx:message(mainModel,
+                        VSig("MMI_InLoadFolderTree"),
+                        VMsg(currentAsyncSqlite),VMsg(mainWnd))
+                    onSafelistState()
+                    updateRevision()
+                end
+
+                local asql = currentAsyncSqlite
+                if (nil ~= asql) then
+                    ctx:messageAsyncWCallback(
+                        currentAsyncSqlite,
+                        function()
+                            openNew()
+                        end,
+                        VSig("ASQL_Shutdown"))
+                else
+                    openNew()
+                end
             end
             print('button blast!')
         end,"MWI_OutOpenSafelistButtonClicked"),

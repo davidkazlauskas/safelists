@@ -49,6 +49,11 @@ private:
             std::this_thread::sleep_for(
                 std::chrono::milliseconds(100)
             );
+            _cache.process(
+                [=](templatious::VirtualPack& pack) {
+                    _handler->tryMatch(pack);
+                }
+            );
             if (!_keepGoing) {
                 return;
             }

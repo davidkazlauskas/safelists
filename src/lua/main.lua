@@ -348,10 +348,17 @@ initAll = function()
 
     local newAsqlite = function(path)
         local factory = ctx:namedMessageable("asyncSqliteFactory")
+        local shutdownGuard = ctx:namedMessageable("shutdownGuard")
 
-        return ctx:messageRetValues(factory,
+        local result = ctx:messageRetValues(factory,
             VSig("ASQLF_CreateNew"),
             VString(path),VMsg(nil))._3
+
+        ctx:message(shutdownGuard,
+            VSig("GSI_AddNew"),
+            VMsg(result))
+
+        return result
     end
 
     table.insert(FrameEndFunctions,updateRevisionGui)

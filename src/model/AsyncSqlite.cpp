@@ -5,7 +5,8 @@
 #include <templatious/FullPack.hpp>
 
 #include <util/Semaphore.hpp>
-#include <util/GracefulShutdownInterface.hpp>
+#include <util/ScopeGuard.hpp>
+#include <util/GenericShutdownGuard.hpp>
 
 #include "AsyncSqlite.hpp"
 #include "TableSnapshot.hpp"
@@ -76,13 +77,7 @@ struct AsyncSqliteImpl {
     }
 
     ~AsyncSqliteImpl() {
-        sqlite3_close(_sqlite);
-        auto locked = _guard.lock();
-        if (nullptr != locked) {
-            auto msg = SF::vpack<
-                MyShutdownGuard::SetFuture >(nullptr);
-            locked->message(msg);
-        }
+        //printf("ASQL BITES THE DUST\n");
     }
 
     void enqueueMessage(const StrongPackPtr& pack) {
@@ -93,6 +88,19 @@ struct AsyncSqliteImpl {
     void mainLoop(const std::shared_ptr< AsyncSqliteImpl >& myself) {
         _myself = &myself;
         int rc = sqlite3_open(_path.c_str(),&_sqlite);
+        auto closer = SCOPE_GUARD_LC(
+            auto cpy = _sqlite;
+            _sqlite = nullptr;
+            sqlite3_close(cpy);
+
+            auto locked = _guard.lock();
+            if (nullptr != locked) {
+                auto msg = SF::vpack<
+                    MyShutdownGuard::SetFuture >(nullptr);
+                locked->message(msg);
+            }
+        );
+
         assert( rc == SQLITE_OK );
 
         while (_keepGoing) {
@@ -279,6 +287,7 @@ private:
                     auto handler = std::make_shared< MyShutdownGuard >();
                     assert( _myself != nullptr && "No null milky..." );
                     handler->_master = *_myself;
+                    _guard = handler;
                     auto msg = SF::vpackPtr< GSI::OutRegisterItself, StrongMsgPtr >(
                         nullptr, handler
                     );

@@ -1,6 +1,6 @@
 
 #include <util/Semaphore.hpp>
-#include <util/GracefulShutdownInterface.hpp>
+#include <util/GenericShutdownGuard.hpp>
 
 #include "RandomFileWriter.hpp"
 #include "RandomFileWriterImpl.hpp"
@@ -8,79 +8,6 @@
 TEMPLATIOUS_TRIPLET_STD;
 
 typedef SafeLists::GracefulShutdownInterface GSI;
-
-namespace {
-
-typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
-typedef SafeLists::GracefulShutdownInterface GSI;
-
-struct MyShutdownGuard : public Messageable {
-
-    DUMMY_STRUCT(SetFuture);
-    DUMMY_STRUCT(ShutdownTarget);
-
-    MyShutdownGuard() :
-        _handler(genHandler()),
-        _fut(_prom.get_future()) {}
-
-    void message(templatious::VirtualPack& pack) override {
-        _handler->tryMatch(pack);
-    }
-
-    void message(const StrongPackPtr& pack) override {
-        assert( false && "Async message disabled." );
-    }
-
-    void setPromise() {
-        _prom.set_value();
-    }
-
-    VmfPtr genHandler() {
-        return SF::virtualMatchFunctorPtr(
-            SF::virtualMatch< GSI::IsDead, bool >(
-                [=](GSI::IsDead,bool& res) {
-                    auto locked = _master.lock();
-                    res = nullptr == locked;
-                }
-            ),
-            SF::virtualMatch< GSI::ShutdownSignal >(
-                [=](GSI::ShutdownSignal) {
-                    auto locked = _master.lock();
-                    if (locked == nullptr) {
-                        _prom.set_value();
-                    } else {
-                        auto shutdownMsg = SF::vpackPtr<
-                            ShutdownTarget
-                        >(nullptr);
-                        locked->message(shutdownMsg);
-                    }
-                }
-            ),
-            SF::virtualMatch< GSI::WaitOut >(
-                [=](GSI::WaitOut) {
-                    _fut.wait();
-                }
-            ),
-            SF::virtualMatch< SetFuture >(
-                [=](SetFuture) {
-                    _prom.set_value();
-                }
-            )
-        );
-    }
-
-    void setMaster(const WeakMsgPtr& ptr) {
-        _master = ptr;
-    }
-
-private:
-    VmfPtr _handler;
-    std::promise< void > _prom;
-    std::future< void > _fut;
-    WeakMsgPtr _master;
-};
-
-}
 
 namespace SafeLists {
 
@@ -152,7 +79,7 @@ private:
             ),
             SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(
                 [=](GSI::InRegisterItself,const StrongMsgPtr& ptr) {
-                    auto handler = std::make_shared< MyShutdownGuard >();
+                    auto handler = std::make_shared< GenericShutdownGuard >();
                     handler->setMaster(_myself);
                     auto msg = SF::vpackPtr< GSI::OutRegisterItself, StrongMsgPtr >(
                         nullptr, handler
@@ -162,8 +89,8 @@ private:
                     ptr->message(msg);
                 }
             ),
-            SF::virtualMatch< MyShutdownGuard::ShutdownTarget >(
-                [=](MyShutdownGuard::ShutdownTarget) {
+            SF::virtualMatch< GenericShutdownGuard::ShutdownTarget >(
+                [=](GenericShutdownGuard::ShutdownTarget) {
                     this->_keepGoing = false;
                 }
             )
@@ -183,7 +110,7 @@ private:
         auto locked = _notifyExit.lock();
         if (nullptr != locked) {
             auto msg = SF::vpack<
-                MyShutdownGuard::SetFuture >(nullptr);
+                GenericShutdownGuard::SetFuture >(nullptr);
             locked->message(msg);
         }
     }

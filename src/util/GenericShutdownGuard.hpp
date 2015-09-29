@@ -20,6 +20,9 @@ struct GenericShutdownGuard : public Messageable {
         _handler(genHandler()),
         _fut(_prom.get_future()) {}
 
+    GenericShutdownGuard(const GenericShutdownGuard&) = delete;
+    GenericShutdownGuard(GenericShutdownGuard&&) = delete;
+
     void message(templatious::VirtualPack& pack) override {
         _handler->tryMatch(pack);
     }

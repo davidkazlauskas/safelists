@@ -73,6 +73,11 @@ private:
                             locked->message(shutdownMsg);
                         }
                     }
+                ),
+                SF::virtualMatch< GSI::WaitOut >(
+                    [=](GSI::WaitOut) {
+                        _fut.wait();
+                    }
                 )
             );
         }

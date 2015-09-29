@@ -21,7 +21,7 @@ namespace SafeLists {
         void waitAll();
         void add(const StrongMsgPtr& ptr);
 
-        std::shared_ptr< GracefulShutdownGuard > makeNew();
+        static std::shared_ptr< GracefulShutdownGuard > makeNew();
 
     private:
         friend struct GracefulShutdownGuardImpl;

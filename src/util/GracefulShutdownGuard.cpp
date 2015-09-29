@@ -32,6 +32,7 @@ auto GracefulShutdownGuard::genHandler() -> VmfPtr {
     return SF::virtualMatchFunctorPtr(
         SF::virtualMatch< GSI::OutRegisterItself, StrongMsgPtr >(
             [=](GSI::OutRegisterItself,const StrongMsgPtr& msg) {
+                SA::add(_vec,msg);
             }
         )
     );

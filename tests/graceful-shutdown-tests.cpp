@@ -19,10 +19,84 @@ struct Sleep100MsShutdownClass : public Messageable {
         assert( false && "..." );
     }
 
+    std::shared_ptr< Sleep100MsShutdownClass > makeNew() {
+        std::shared_ptr< Sleep100MsShutdownClass > res(new Sleep100MsShutdownClass());
+        std::thread(
+            [=]() {
+                res->mainLoop();
+            }
+        );
+        return res;
+    }
 private:
-    Sleep100MsShutdownClass();
+
+    Sleep100MsShutdownClass() :
+        _handler(genHandler()), _keepGoing(true) {}
+
+    void mainLoop() {
+        for (;;) {
+            std::this_thread::sleep_for(
+                std::chrono::milliseconds(100)
+            );
+            if (!_keepGoing) {
+                return;
+            }
+        }
+    }
+
+    typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
+    typedef SafeLists::GracefulShutdownInterface GSI;
+
+    DUMMY_STRUCT(Shutdown);
+
+    struct MyShutdownGuard : public Messageable {
+        MyShutdownGuard(const std::shared_ptr< Sleep100MsShutdownClass >& ref) :
+            _master(ref), _handler(genHandler()), _fut(_prom.get_future()) {}
+
+        VmfPtr genHandler() {
+            return SF::virtualMatchFunctorPtr(
+                SF::virtualMatch< GSI::IsDead, bool >(
+                    [=](GSI::IsDead,bool& res) {
+                        auto locked = _master.lock();
+                        res = nullptr == locked;
+                    }
+                ),
+                SF::virtualMatch< GSI::ShutdownSignal >(
+                    [=](GSI::ShutdownSignal) {
+                        auto locked = _master.lock();
+                        if (locked == nullptr) {
+                            _prom.set_value();
+                        } else {
+                            auto shutdownMsg = SF::vpackPtr<
+                                Shutdown
+                            >(nullptr);
+                            locked->message(shutdownMsg);
+                        }
+                    }
+                )
+            );
+        }
+
+        std::weak_ptr< Sleep100MsShutdownClass > _master;
+        VmfPtr _handler;
+        std::promise< void > _prom;
+        std::future< void > _fut;
+    };
+
+    VmfPtr genHandler() {
+        return SF::virtualMatchFunctorPtr(
+            SF::virtualMatch< Shutdown >(
+                [=](Shutdown) {
+                    _keepGoing = false;
+                }
+            )
+        );
+    }
 
     MessageCache _cache;
+    VmfPtr _handler;
+    bool _keepGoing;
+    std::weak_ptr< MyShutdownGuard > _guard;
 };
 
 TEST_CASE("graceful_shutdown_guard_test","[graceful_shutdown]") {

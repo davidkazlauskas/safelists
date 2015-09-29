@@ -13,7 +13,11 @@ GracefulShutdownGuard::GracefulShutdownGuard() :
 }
 
 void GracefulShutdownGuard::processMessages() {
-
+    _cache.process(
+        [&](templatious::VirtualPack& pack) {
+            _handler->tryMatch(pack);
+        }
+    );
 }
 
 void GracefulShutdownGuard::waitAll() {

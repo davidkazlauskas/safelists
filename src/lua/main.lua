@@ -346,6 +346,14 @@ initAll = function()
             ),VString("empty"),VBool(false))
     end
 
+    local newAsqlite = function(path)
+        local factory = ctx:namedMessageable("asyncSqliteFactory")
+
+        return ctx:messageRetValues(factory,
+            VSig("ASQLF_CreateNew"),
+            VString(path),VMsg(nil))._3
+    end
+
     table.insert(FrameEndFunctions,updateRevisionGui)
     table.insert(FrameEndFunctions,updateSessionWidget)
 
@@ -644,12 +652,9 @@ initAll = function()
                 end
 
                 local openNew = function()
-                    local factory = ctx:namedMessageable("asyncSqliteFactory")
                     local mainModel = ctx:namedMessageable("mainModel")
 
-                    currentAsyncSqlite = ctx:messageRetValues(factory,
-                        VSig("ASQLF_CreateNew"),
-                        VString(outPath),VMsg(nil))._3
+                    currentAsyncSqlite = newAsqlite(outPath)
 
                     ctx:message(mainModel,
                         VSig("MMI_InLoadFolderTree"),

@@ -30,6 +30,15 @@ struct Sleep100MsShutdownClass : public Messageable {
         );
         return res;
     }
+
+    ~Sleep100MsShutdownClass() {
+        auto g = _guard.lock();
+        if (nullptr != g) {
+            g->_prom.set_value();
+        }
+
+        ++(*_toIncrement);
+    }
 private:
 
     Sleep100MsShutdownClass() :
@@ -98,15 +107,6 @@ private:
         std::future< void > _fut;
     };
 
-    ~Sleep100MsShutdownClass() {
-        auto g = _guard.lock();
-        if (nullptr != g) {
-            g->_prom.set_value();
-        }
-
-        ++(*_toIncrement);
-    }
-
     VmfPtr genHandler() {
         return SF::virtualMatchFunctorPtr(
             SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(
@@ -138,6 +138,8 @@ private:
 
 TEST_CASE("graceful_shutdown_guard_test","[graceful_shutdown]") {
     using namespace SafeLists;
+
+    auto victim = std::make_shared< std::atomic_int >(0);
 
     auto g = GracefulShutdownGuard::makeNew();
 

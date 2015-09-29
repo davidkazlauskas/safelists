@@ -7,6 +7,14 @@ TEMPLATIOUS_TRIPLET_STD;
 
 namespace SafeLists {
 
+typedef GracefulShutdownInterface GSI;
+
+std::shared_ptr< GracefulShutdownGuard > GracefulShutdownGuard::makeNew() {
+    std::shared_ptr< GracefulShutdownGuard > res(new GracefulShutdownGuard());
+    res->_myHandle = res;
+    return res;
+}
+
 GracefulShutdownGuard::GracefulShutdownGuard() :
     _handler(genHandler())
 {
@@ -25,7 +33,12 @@ void GracefulShutdownGuard::waitAll() {
 }
 
 void GracefulShutdownGuard::add(const StrongMsgPtr& ptr) {
-
+    auto myselfStrong = _myHandle.lock();
+    assert( myselfStrong != nullptr && "HUH?!?" );
+    auto msg = SF::vpackPtr<
+        GSI::InRegisterItself, StrongMsgPtr
+    >(nullptr,myselfStrong);
+    ptr->message(msg);
 }
 
 void GracefulShutdownGuard::message(const std::shared_ptr< templatious::VirtualPack >& msg) {
@@ -37,7 +50,6 @@ void GracefulShutdownGuard::message(templatious::VirtualPack& msg) {
 }
 
 auto GracefulShutdownGuard::genHandler() -> VmfPtr {
-    typedef GracefulShutdownInterface GSI;
     return SF::virtualMatchFunctorPtr(
         SF::virtualMatch< GSI::OutRegisterItself, StrongMsgPtr >(
             [=](GSI::OutRegisterItself,const StrongMsgPtr& msg) {

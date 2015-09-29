@@ -11,7 +11,6 @@ namespace SafeLists {
 
     struct GracefulShutdownGuard : public Messageable {
 
-        GracefulShutdownGuard();
         GracefulShutdownGuard(const GracefulShutdownGuard&) = delete;
         GracefulShutdownGuard(GracefulShutdownGuard&&) = delete;
 
@@ -22,7 +21,11 @@ namespace SafeLists {
         void waitAll();
         void add(const StrongMsgPtr& ptr);
 
+        std::shared_ptr< GracefulShutdownGuard > makeNew();
+
     private:
+        GracefulShutdownGuard();
+
         typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
         VmfPtr genHandler();
 

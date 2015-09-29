@@ -2,9 +2,14 @@
 #ifndef GRACEFULSHUTDOWNGUARD_AAF605J2
 #define GRACEFULSHUTDOWNGUARD_AAF605J2
 
+#include <vector>
+#include <LuaPlumbing/messageable.hpp>
+
 namespace SafeLists {
 
     struct GracefulShutdownGuard {
+    private:
+        std::vector< StrongMsgPtr > _vec;
     };
 
 }

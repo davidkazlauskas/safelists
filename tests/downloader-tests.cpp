@@ -840,7 +840,8 @@ TEST_CASE("safelist_create_session","[safelist_downloader]") {
             )
         )
     );
-    auto sldf = SLDF::createNew();
+    auto sldf = SLDF::createNew(testDownloader(),
+        SafeLists::RandomFileWriter::make());
     auto msg = SF::vpack<
         SLDF::CreateSession,
         StrongMsgPtr,

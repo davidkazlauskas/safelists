@@ -9,6 +9,33 @@ namespace SafeLists {
 
 typedef GracefulShutdownInterface GSI;
 
+struct GracefulShutdownGuardImpl {
+    static void cleanDead(GracefulShutdownGuard& g) {
+        bool atleastOne = false;
+        TEMPLATIOUS_FOREACH(auto& i,g._vec) {
+            auto msg = SF::vpack< GSI::IsDead, bool >(nullptr,true);
+            i->message(msg);
+            assert( msg.useCount() > 0 && "Message unused..." );
+            bool isGone = msg.fGet<1>();
+            if (isGone) {
+                i = nullptr;
+                atleastOne |= true;
+            }
+        }
+
+        if (atleastOne) {
+            SA::clear(
+                SF::filter(
+                    g._vec,
+                    [](const StrongMsgPtr& msg) {
+                        return nullptr == msg;
+                    }
+                )
+            );
+        }
+    }
+};
+
 std::shared_ptr< GracefulShutdownGuard > GracefulShutdownGuard::makeNew() {
     std::shared_ptr< GracefulShutdownGuard > res(new GracefulShutdownGuard());
     res->_myHandle = res;

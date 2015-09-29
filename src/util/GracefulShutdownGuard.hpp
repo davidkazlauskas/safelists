@@ -24,6 +24,8 @@ namespace SafeLists {
         std::shared_ptr< GracefulShutdownGuard > makeNew();
 
     private:
+        friend struct GracefulShutdownGuardImpl;
+
         GracefulShutdownGuard();
 
         typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;

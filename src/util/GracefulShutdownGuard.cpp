@@ -24,7 +24,7 @@ void GracefulShutdownGuard::message(const std::shared_ptr< templatious::VirtualP
 }
 
 void GracefulShutdownGuard::message(templatious::VirtualPack& msg) {
-
+    assert( false && "Sync messages disabled." );
 }
 
 auto GracefulShutdownGuard::genHandler() -> VmfPtr {

@@ -19,9 +19,10 @@ struct Sleep100MsShutdownClass : public Messageable {
         assert( false && "..." );
     }
 
-    std::shared_ptr< Sleep100MsShutdownClass > makeNew() {
+    std::shared_ptr< Sleep100MsShutdownClass > makeNew(const std::shared_ptr< std::atomic_int >& num) {
         std::shared_ptr< Sleep100MsShutdownClass > res(new Sleep100MsShutdownClass());
         res->_myself = res;
+        res->_toIncrement = num;
         std::thread(
             [=]() {
                 res->mainLoop();
@@ -102,6 +103,8 @@ private:
         if (nullptr != g) {
             g->_prom.set_value();
         }
+
+        ++(*_toIncrement);
     }
 
     VmfPtr genHandler() {
@@ -130,6 +133,7 @@ private:
     bool _keepGoing;
     std::weak_ptr< Sleep100MsShutdownClass > _myself;
     std::weak_ptr< MyShutdownGuard > _guard;
+    std::shared_ptr< std::atomic_int > _toIncrement;
 };
 
 TEST_CASE("graceful_shutdown_guard_test","[graceful_shutdown]") {

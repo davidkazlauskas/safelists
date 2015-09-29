@@ -17,7 +17,7 @@ typedef SafeLists::GracefulShutdownInterface GSI;
 struct MyShutdownGuard : public Messageable {
 
     DUMMY_STRUCT(SetFuture);
-    DUMMY_STRUCT(ShutdownWriter);
+    DUMMY_STRUCT(ShutdownTarget);
 
     MyShutdownGuard() :
         _handler(genHandler()),
@@ -50,7 +50,7 @@ struct MyShutdownGuard : public Messageable {
                         _prom.set_value();
                     } else {
                         auto shutdownMsg = SF::vpackPtr<
-                            ShutdownWriter
+                            ShutdownTarget
                         >(nullptr);
                         locked->message(shutdownMsg);
                     }
@@ -162,8 +162,8 @@ private:
                     ptr->message(msg);
                 }
             ),
-            SF::virtualMatch< MyShutdownGuard::ShutdownWriter >(
-                [=](MyShutdownGuard::ShutdownWriter) {
+            SF::virtualMatch< MyShutdownGuard::ShutdownTarget >(
+                [=](MyShutdownGuard::ShutdownTarget) {
                     this->_keepGoing = false;
                 }
             )

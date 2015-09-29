@@ -5,6 +5,7 @@
 #include <templatious/FullPack.hpp>
 
 #include <util/Semaphore.hpp>
+#include <util/GracefulShutdownInterface.hpp>
 
 #include "AsyncSqlite.hpp"
 #include "TableSnapshot.hpp"
@@ -251,12 +252,52 @@ private:
 };
 
 struct MyShutdownGuard : public Messageable {
+    typedef GracefulShutdownInterface GSI;
+
+    MyShutdownGuard() : _handler(genHandler()) {}
+
     void message(templatious::VirtualPack& pack) override {
+        _handler->tryMatch(pack);
     }
 
     void message(const StrongPackPtr& pack) override {
         assert( false && "Async message disabled." );
     }
+
+    VmfPtr genHandler() {
+        return SF::virtualMatchFunctorPtr(
+            SF::virtualMatch< GSI::IsDead, bool >(
+                [=](GSI::IsDead,bool& res) {
+                    auto locked = _master.lock();
+                    res = nullptr == locked;
+                }
+            ),
+            SF::virtualMatch< GSI::ShutdownSignal >(
+                [=](GSI::ShutdownSignal) {
+                    auto locked = _master.lock();
+                    if (locked == nullptr) {
+                        _prom.set_value();
+                    } else {
+                        auto shutdownMsg = SF::vpackPtr<
+                            AsyncSqlite::Shutdown
+                        >(nullptr);
+                        locked->message(shutdownMsg);
+                    }
+                }
+            ),
+            SF::virtualMatch< GSI::WaitOut >(
+                [=](GSI::WaitOut) {
+                    _fut.wait();
+                }
+            )
+        );
+    }
+
+private:
+    VmfPtr _handler;
+    std::promise< void > _prom;
+    std::future< void > _fut;
+    WeakMsgPtr _master;
 };
 
 struct AsyncSqliteProxy : public Messageable {

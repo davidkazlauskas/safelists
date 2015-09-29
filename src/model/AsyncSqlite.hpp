@@ -70,6 +70,11 @@ struct AsyncSqlite {
     // trait
     DUMMY_STRUCT(DummyWait);
 
+    // Turn off and close database,
+    // should be issued only by
+    // AsyncSqliteProxy
+    DUMMY_REG(Shutdown,"ASQL_Shutdown");
+
     static StrongMsgPtr createNew(const char* name);
 };
 

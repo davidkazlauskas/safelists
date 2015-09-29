@@ -31,11 +31,6 @@ namespace SafeLists {
 
 struct AsyncSqliteImpl {
 
-    // Turn off and close database,
-    // should be issued only by
-    // AsyncSqliteProxy
-    DUMMY_STRUCT(Shutdown);
-
     AsyncSqliteImpl(const char* path) :
         _keepGoing(true),
         _handler(genHandler()),
@@ -236,8 +231,8 @@ private:
             SF::virtualMatch< AsyncSqlite::DummyWait >(
                 [](AsyncSqlite::DummyWait) {}
             ),
-            SF::virtualMatch< AsyncSqliteImpl::Shutdown >(
-                [=](AsyncSqliteImpl::Shutdown) {
+            SF::virtualMatch< AsyncSqlite::Shutdown >(
+                [=](AsyncSqlite::Shutdown) {
                     this->_keepGoing = false;
                     this->_sem.notify();
                 }
@@ -269,10 +264,13 @@ struct AsyncSqliteProxy : public Messageable {
 
     ~AsyncSqliteProxy() {
         auto locked = _weakPtr.lock();
-        assert( nullptr != locked
-            && "I should have destroyed it..." );
+        if (nullptr == locked) {
+            return;
+        }
+        //assert( nullptr != locked
+            //&& "I should have destroyed it..." );
         auto terminateMsg = SF::vpackPtr<
-            AsyncSqliteImpl::Shutdown
+            AsyncSqlite::Shutdown
         >(nullptr);
         locked->enqueueMessage(terminateMsg);
     }

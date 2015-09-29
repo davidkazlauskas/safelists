@@ -12,6 +12,7 @@
 #include <gtkmm/GtkMMFileString.hpp>
 #include <io/SafeListDownloaderFactory.hpp>
 #include <io/RandomFileWriter.hpp>
+#include <io/AsyncDownloader.hpp>
 #include <model/AsyncSqliteFactory.hpp>
 
 TEMPLATIOUS_TRIPLET_STD;
@@ -1339,8 +1340,11 @@ int main(int argc,char** argv) {
     auto ctx = LuaContext::makeContext("lua/plumbing.lua");
     ctx->setFactory(vFactory());
 
+    auto downloader = SafeLists::AsyncDownloader::createNew("imitation");
+    auto randomFileWriter = SafeLists::RandomFileWriter::make();
+
     auto dlFactory = SafeLists::
-        SafeListDownloaderFactory::createNew();
+        SafeListDownloaderFactory::createNew(downloader,randomFileWriter);
 
     auto builder = Gtk::Builder::create();
     builder->add_from_string(mainUiSchema());
@@ -1351,7 +1355,6 @@ int main(int argc,char** argv) {
     auto mainModel = std::make_shared< MainModel >();
     auto dialogService = std::make_shared< GtkDialogService >();
     auto shutdownGuard = SafeLists::GracefulShutdownGuard::makeNew();
-    auto randomFileWriter = SafeLists::RandomFileWriter::make();
     shutdownGuard->add(randomFileWriter);
 
     mainWnd->setShutdownGuard(shutdownGuard);

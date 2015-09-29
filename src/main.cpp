@@ -11,6 +11,7 @@
 #include <gtkmm/GtkMMSessionWidget.hpp>
 #include <gtkmm/GtkMMFileString.hpp>
 #include <io/SafeListDownloaderFactory.hpp>
+#include <io/RandomFileWriter.hpp>
 #include <model/AsyncSqliteFactory.hpp>
 
 TEMPLATIOUS_TRIPLET_STD;
@@ -344,6 +345,9 @@ struct GtkMainWindow : public Messageable {
     }
 
     bool onCloseEvent(GdkEventAny* ev) {
+        if (nullptr != _shutdownGuard) {
+            _shutdownGuard->waitAll();
+        }
         return false;
     }
 
@@ -914,6 +918,7 @@ private:
         );
         auto msg = SF::vpack< MWI::OutDrawEnd >(nullptr);
         _notifierCache.notify(msg);
+        _shutdownGuard->processMessages();
         return false;
     }
 
@@ -1346,6 +1351,9 @@ int main(int argc,char** argv) {
     auto mainModel = std::make_shared< MainModel >();
     auto dialogService = std::make_shared< GtkDialogService >();
     auto shutdownGuard = SafeLists::GracefulShutdownGuard::makeNew();
+    auto randomFileWriter = SafeLists::RandomFileWriter::make();
+    shutdownGuard->add(randomFileWriter);
+
     mainWnd->setShutdownGuard(shutdownGuard);
     ctx->addMessageableWeak("mainWindow",mainWnd);
     ctx->addMessageableWeak("singleInputDialog",singleInputDialog);

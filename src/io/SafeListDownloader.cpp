@@ -120,6 +120,8 @@ typedef std::lock_guard< std::mutex > LGuard;
 namespace SafeLists {
 
 struct SafeListDownloaderImpl : public Messageable {
+    friend struct SafeListDownloader;
+
     SafeListDownloaderImpl() = delete;
     SafeListDownloaderImpl(const SafeListDownloaderImpl&) = delete;
     SafeListDownloaderImpl(SafeListDownloaderImpl&&) = delete;
@@ -149,6 +151,10 @@ struct SafeListDownloaderImpl : public Messageable {
         auto pos = _sessionDir.find_last_of('/');
         // with slash at the end
         _sessionDir.erase(pos + 1);
+    }
+
+    ~SafeListDownloaderImpl() {
+        //printf("DOWNLOAD BITES THE DUST\n");
     }
 
     bool nextUpdate(std::chrono::high_resolution_clock::time_point& point) {
@@ -223,6 +229,23 @@ private:
             SF::virtualMatch< FinishedDownload >(
                 [&](FinishedDownload) {
                     // mainly to invoke semaphore, do nothing
+                }
+            ),
+            SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(
+                [=](GSI::InRegisterItself, const StrongMsgPtr& ptr) {
+                    auto handler = std::make_shared< GenericShutdownGuard >();
+                    handler->setMaster(_myself);
+                    auto msg = SF::vpackPtr< GSI::OutRegisterItself, StrongMsgPtr >(
+                        nullptr, handler
+                    );
+                    assert( nullptr == _toNotifyShutdown.lock() );
+                    _toNotifyShutdown = handler;
+                    ptr->message(msg);
+                }
+            ),
+            SF::virtualMatch< GenericShutdownGuard::ShutdownTarget >(
+                [=](GenericShutdownGuard::ShutdownTarget) {
+                    _keepGoing = false;
                 }
             )
         );
@@ -759,6 +782,15 @@ private:
             notifyObserver<SafeListDownloader::OutDone>(nullptr);
             std::remove(_path.c_str());
         }
+
+        if (!_keepGoing) {
+            auto locked = _toNotifyShutdown.lock();
+            if (nullptr != locked) {
+                auto msg = SF::vpack<
+                    GenericShutdownGuard::SetFuture >(nullptr);
+                locked->message(msg);
+            }
+        }
     }
 
     typedef std::vector< std::shared_ptr<ToDownloadList> > TDVec;
@@ -783,6 +815,9 @@ private:
     bool _isAsync;
     int _count;
     std::chrono::high_resolution_clock::time_point _lastUpdate;
+
+    WeakMsgPtr _myself;
+    WeakMsgPtr _toNotifyShutdown;
 };
 
 StrongMsgPtr SafeListDownloader::startNew(
@@ -793,13 +828,15 @@ StrongMsgPtr SafeListDownloader::startNew(
         bool notifyAsAsync
 )
 {
-    return SafeListDownloaderImpl::startSession(
+    auto res = SafeListDownloaderImpl::startSession(
         path,
         fileWriter,
         fileDownloader,
         toNotify,
         notifyAsAsync
     );
+    res->_myself = res;
+    return res;
 }
 
 }

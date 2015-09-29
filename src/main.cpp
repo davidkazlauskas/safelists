@@ -332,10 +332,18 @@ struct GtkMainWindow : public Messageable {
             sigc::mem_fun(*this,&GtkMainWindow::onDraw)
         );
 
+        _wnd->signal_delete_event().connect(
+                sigc::mem_fun(*this,&GtkMainWindow::onCloseEvent)
+        );
+
         createDirModel();
         createFileModel();
 
         _selectionStack.resize(2);
+    }
+
+    bool onCloseEvent(GdkEventAny* ev) {
+        return false;
     }
 
     template <class T>

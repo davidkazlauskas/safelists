@@ -1,10 +1,16 @@
 #ifndef GRACEFULSHUTDOWNINTERFACE_XMC7PIDI
 #define GRACEFULSHUTDOWNINTERFACE_XMC7PIDI
 
+#include <util/AutoReg.hpp>
 #include <util/DummyStruct.hpp>
 
 namespace SafeLists {
     struct GracefulShutdownInterface {
+
+        // add new instance to shutdown guard,
+        // single threaded.
+        DUMMY_REG(AddNew,"GSI_AddNew");
+
         // Send this to messageable object
         // with the handle to the messageable.
         // Signature: < InRegisterItself, StrongMsgPtr >

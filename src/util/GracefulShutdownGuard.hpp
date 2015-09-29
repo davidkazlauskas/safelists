@@ -30,9 +30,11 @@ namespace SafeLists {
 
         typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
         VmfPtr genHandler();
+        VmfPtr genStHandler();
 
         std::vector< StrongMsgPtr > _vec;
         VmfPtr _handler;
+        VmfPtr _stHandler;
         std::weak_ptr< GracefulShutdownGuard > _myHandle;
         MessageCache _cache;
     };

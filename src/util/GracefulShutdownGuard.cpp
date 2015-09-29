@@ -43,7 +43,7 @@ std::shared_ptr< GracefulShutdownGuard > GracefulShutdownGuard::makeNew() {
 }
 
 GracefulShutdownGuard::GracefulShutdownGuard() :
-    _handler(genHandler())
+    _handler(genHandler()), _stHandler(genStHandler())
 {
 }
 
@@ -89,7 +89,7 @@ void GracefulShutdownGuard::message(const std::shared_ptr< templatious::VirtualP
 }
 
 void GracefulShutdownGuard::message(templatious::VirtualPack& msg) {
-    assert( false && "Sync messages disabled." );
+    _stHandler->tryMatch(msg);
 }
 
 auto GracefulShutdownGuard::genHandler() -> VmfPtr {
@@ -97,6 +97,16 @@ auto GracefulShutdownGuard::genHandler() -> VmfPtr {
         SF::virtualMatch< GSI::OutRegisterItself, StrongMsgPtr >(
             [=](GSI::OutRegisterItself,const StrongMsgPtr& msg) {
                 SA::add(_vec,msg);
+            }
+        )
+    );
+}
+
+auto GracefulShutdownGuard::genStHandler() -> VmfPtr {
+    return SF::virtualMatchFunctorPtr(
+        SF::virtualMatch< GSI::AddNew, StrongMsgPtr >(
+            [=](GSI::AddNew,const StrongMsgPtr& ptr) {
+                this->add(ptr);
             }
         )
     );

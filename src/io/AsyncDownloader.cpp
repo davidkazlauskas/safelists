@@ -4,6 +4,7 @@
 
 #include <templatious/FullPack.hpp>
 #include <io/Interval.hpp>
+#include <util/GenericShutdownGuard.hpp>
 
 #include "AsyncDownloader.hpp"
 
@@ -41,6 +42,10 @@ namespace SafeLists {
             _lastDebt(0),
             _downloadRevision(0)
         {}
+
+        ~AsyncDownloaderImitationImpl() {
+            //printf("ASYNC DL IMITATION BITES DUST\n");
+        }
 
         // this is for sending message across threads
         void message(const std::shared_ptr< templatious::VirtualPack >& msg) {
@@ -361,6 +366,23 @@ namespace SafeLists {
                     [=](AD::Shutdown) {
                         this->shutdown();
                     }
+                ),
+                SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(
+                    [=](GSI::InRegisterItself,const StrongMsgPtr& ptr) {
+                        auto handler = std::make_shared< GenericShutdownGuard >();
+                        handler->setMaster(_myself);
+                        auto msg = SF::vpackPtr< GSI::OutRegisterItself, StrongMsgPtr >(
+                            nullptr, handler
+                        );
+                        assert( nullptr == _notifyExit.lock() );
+                        _notifyExit = handler;
+                        ptr->message(msg);
+                    }
+                ),
+                SF::virtualMatch< GenericShutdownGuard::ShutdownTarget >(
+                    [=](GenericShutdownGuard::ShutdownTarget) {
+                        this->shutdown();
+                    }
                 )
             );
         }
@@ -374,6 +396,9 @@ namespace SafeLists {
         int64_t _lastPumpStart;
         int64_t _lastDebt;
         int64_t _downloadRevision;
+
+        WeakMsgPtr _myself;
+        WeakMsgPtr _notifyExit;
     };
 
     const int AsyncDownloaderImitationImpl::DOWNLOAD_PERIODICITY_MS = 100; // 100 milliseconds

@@ -1,7 +1,10 @@
 #ifndef GENERICSHUTDOWNGUARD_OIYM7Y0X
 #define GENERICSHUTDOWNGUARD_OIYM7Y0X
 
+#include <templatious/FullPack.hpp>
 #include "GracefulShutdownInterface.hpp"
+
+TEMPLATIOUS_TRIPLET_STD;
 
 namespace SafeLists {
 

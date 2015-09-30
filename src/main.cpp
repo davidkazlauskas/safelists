@@ -1317,6 +1317,11 @@ private:
 
                     out = theSignal;
                 }
+            ),
+            SF::virtualMatch< Int::InReceiveFocus >(
+                [=](Int::InReceiveFocus) {
+                    _main->grab_focus();
+                }
             )
         );
     }

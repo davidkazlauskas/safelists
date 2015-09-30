@@ -423,6 +423,19 @@ initAll = function()
                 local signal = val:values()._2
                 if (signal == hookedOk) then
                     print("ok clicked")
+
+                    local queryInput = function(value)
+                        return ctx:messageRetValues(
+                            dialog,
+                            VString(value),
+                            VString(""))._3
+                    end
+
+                    outResult.name = queryInput("fileNameInp")
+                    outResult.mirrors = queryInput("mirrorsTextView")
+                    outResult.size = queryInput("fileSizeInp")
+                    outResult.hash = queryInput("fileHashInp")
+
                     funcSuccess(outResult)
                     hideDlg()
                 elseif (signal == hookedCancel) then
@@ -725,14 +738,14 @@ initAll = function()
             )
         end,"MWI_OutDownloadSafelistButtonClicked"),
         VMatch(function()
-            --newFileDialog(
-                --function(myRes)
-                    --print("YAY! " .. tostring(myRes.finished))
-                --end
-            --)
-            --if (true) then
-                --return
-            --end
+            newFileDialog(
+                function(myRes)
+                    print("YAY! " .. tostring(myRes.finished))
+                end
+            )
+            if (true) then
+                return
+            end
 
             local dialogService = ctx:namedMessageable("dialogService")
             local outVal = ctx:messageRetValues(dialogService,

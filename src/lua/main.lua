@@ -374,7 +374,7 @@ initAll = function()
             VString(message))
     end
 
-    local newFileDialog = function()
+    local newFileDialog = function(funcSuccess)
         local dialogService = ctx:namedMessageable("dialogService")
 
         -- Return results:
@@ -412,6 +412,7 @@ initAll = function()
                 local signal = val:values()._2
                 if (signal == hookedOk) then
                     print("ok clicked")
+                    funcSuccess(outResult)
                 elseif (signal == hookedCancel) then
                     print("cancel clicked")
                 else
@@ -430,8 +431,6 @@ initAll = function()
             dialog,
             VSig("INDLG_InShowDialog")
         )
-
-        return outResult
     end
 
     table.insert(FrameEndFunctions,updateRevisionGui)

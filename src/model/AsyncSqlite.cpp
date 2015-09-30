@@ -5,11 +5,17 @@
 #include <templatious/FullPack.hpp>
 
 #include <util/Semaphore.hpp>
+#include <util/ScopeGuard.hpp>
+#include <util/GenericShutdownGuard.hpp>
 
 #include "AsyncSqlite.hpp"
 #include "TableSnapshot.hpp"
 
 TEMPLATIOUS_TRIPLET_STD;
+
+namespace SafeLists {
+    struct AsyncSqliteImpl;
+}
 
 namespace {
 
@@ -22,6 +28,36 @@ int snapshotBuilderCallback(void* snapshotBuilder,int argc,char** argv,char** co
     return 0;
 }
 
+typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
+typedef SafeLists::GracefulShutdownInterface GSI;
+
+struct MyShutdownGuard : public Messageable {
+
+    friend struct SafeLists::AsyncSqliteImpl;
+
+    DUMMY_STRUCT(SetFuture);
+
+    MyShutdownGuard() :
+        _handler(genHandler()),
+        _fut(_prom.get_future()) {}
+
+    void message(templatious::VirtualPack& pack) override {
+        _handler->tryMatch(pack);
+    }
+
+    void message(const StrongPackPtr& pack) override {
+        assert( false && "Async message disabled." );
+    }
+
+    VmfPtr genHandler();
+
+private:
+    VmfPtr _handler;
+    std::promise< void > _prom;
+    std::future< void > _fut;
+    std::weak_ptr< SafeLists::AsyncSqliteImpl > _master;
+};
+
 } // end of anon namespace
 
 // <3 static asserts
@@ -31,21 +67,17 @@ namespace SafeLists {
 
 struct AsyncSqliteImpl {
 
-    // Turn off and close database,
-    // should be issued only by
-    // AsyncSqliteProxy
-    DUMMY_STRUCT(Shutdown);
-
     AsyncSqliteImpl(const char* path) :
         _keepGoing(true),
         _handler(genHandler()),
         _path(path),
-        _sqlite(nullptr)
+        _sqlite(nullptr),
+        _myself(nullptr)
     {
     }
 
     ~AsyncSqliteImpl() {
-        sqlite3_close(_sqlite);
+        //printf("ASQL BITES THE DUST\n");
     }
 
     void enqueueMessage(const StrongPackPtr& pack) {
@@ -54,7 +86,21 @@ struct AsyncSqliteImpl {
     }
 
     void mainLoop(const std::shared_ptr< AsyncSqliteImpl >& myself) {
+        _myself = &myself;
         int rc = sqlite3_open(_path.c_str(),&_sqlite);
+        auto closer = SCOPE_GUARD_LC(
+            auto cpy = _sqlite;
+            _sqlite = nullptr;
+            sqlite3_close(cpy);
+
+            auto locked = _guard.lock();
+            if (nullptr != locked) {
+                auto msg = SF::vpack<
+                    MyShutdownGuard::SetFuture >(nullptr);
+                locked->message(msg);
+            }
+        );
+
         assert( rc == SQLITE_OK );
 
         while (_keepGoing) {
@@ -212,6 +258,17 @@ private:
                     }
                 }
             ),
+            SF::virtualMatch< AS::OutAffected, const std::string, int >(
+                [=](AS::OutSingleNum, const std::string& query,int& outAffected) {
+                    char* errmsg = nullptr;
+                    int res = sqlite3_exec(this->_sqlite,query.c_str(),nullptr,nullptr,&errmsg);
+                    if (nullptr != errmsg) {
+                        printf("Snap, query failed: %s\n",errmsg);
+                    }
+                    assert( res == 0 && errmsg == nullptr && "Snap, queries failin bro..." );
+                    outAffected = sqlite3_changes(this->_sqlite);
+                }
+            ),
             SF::virtualMatch<
                 AsyncSqlite::ArbitraryOperation,
                 std::function<void(sqlite3*)>
@@ -225,8 +282,20 @@ private:
             SF::virtualMatch< AsyncSqlite::DummyWait >(
                 [](AsyncSqlite::DummyWait) {}
             ),
-            SF::virtualMatch< AsyncSqliteImpl::Shutdown >(
-                [=](AsyncSqliteImpl::Shutdown) {
+            SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(
+                [=](GSI::InRegisterItself,const StrongMsgPtr& ptr) {
+                    auto handler = std::make_shared< MyShutdownGuard >();
+                    assert( _myself != nullptr && "No null milky..." );
+                    handler->_master = *_myself;
+                    _guard = handler;
+                    auto msg = SF::vpackPtr< GSI::OutRegisterItself, StrongMsgPtr >(
+                        nullptr, handler
+                    );
+                    ptr->message(msg);
+                }
+            ),
+            SF::virtualMatch< AsyncSqlite::Shutdown >(
+                [=](AsyncSqlite::Shutdown) {
                     this->_keepGoing = false;
                     this->_sem.notify();
                 }
@@ -241,15 +310,18 @@ private:
     ThreadGuard _g;
     std::string _path;
 
+    const std::shared_ptr< AsyncSqliteImpl >* _myself;
+    std::weak_ptr< MyShutdownGuard > _guard;
+
     sqlite3* _sqlite;
 };
 
 struct AsyncSqliteProxy : public Messageable {
-    void message(templatious::VirtualPack& pack) {
+    void message(templatious::VirtualPack& pack) override {
         assert( false && "Synchronous messages are disabled." );
     }
 
-    void message(const StrongPackPtr& pack) {
+    void message(const StrongPackPtr& pack) override {
         auto locked = _weakPtr.lock();
         assert( nullptr != locked &&
             "Not cool bro, shouldn't be destroyed...");
@@ -258,10 +330,13 @@ struct AsyncSqliteProxy : public Messageable {
 
     ~AsyncSqliteProxy() {
         auto locked = _weakPtr.lock();
-        assert( nullptr != locked
-            && "I should have destroyed it..." );
+        if (nullptr == locked) {
+            return;
+        }
+        //assert( nullptr != locked
+            //&& "I should have destroyed it..." );
         auto terminateMsg = SF::vpackPtr<
-            AsyncSqliteImpl::Shutdown
+            AsyncSqlite::Shutdown
         >(nullptr);
         locked->enqueueMessage(terminateMsg);
     }
@@ -294,3 +369,40 @@ StrongMsgPtr AsyncSqlite::createNew(const char* name) {
 
 }
 
+namespace {
+
+    VmfPtr MyShutdownGuard::genHandler() {
+        return SF::virtualMatchFunctorPtr(
+            SF::virtualMatch< GSI::IsDead, bool >(
+                [=](GSI::IsDead,bool& res) {
+                    auto locked = _master.lock();
+                    res = nullptr == locked;
+                }
+            ),
+            SF::virtualMatch< GSI::ShutdownSignal >(
+                [=](GSI::ShutdownSignal) {
+                    auto locked = _master.lock();
+                    if (locked == nullptr) {
+                        _prom.set_value();
+                    } else {
+                        auto shutdownMsg = SF::vpackPtr<
+                            SafeLists::AsyncSqlite::Shutdown
+                        >(nullptr);
+                        locked->enqueueMessage(shutdownMsg);
+                    }
+                }
+            ),
+            SF::virtualMatch< GSI::WaitOut >(
+                [=](GSI::WaitOut) {
+                    _fut.wait();
+                }
+            ),
+            SF::virtualMatch< SetFuture >(
+                [=](SetFuture) {
+                    _prom.set_value();
+                }
+            )
+        );
+    }
+
+}

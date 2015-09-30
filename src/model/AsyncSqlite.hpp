@@ -55,11 +55,25 @@ struct AsyncSqlite {
     // >
     DUMMY_REG(OutSingleRow,"ASQL_OutSingleRow");
 
+    // execute statement and receive affected
+    // rows number.
+    // Signature: <
+    //     OutAffected,
+    //     std::string (query),
+    //     int (affected rows)
+    // >
+    DUMMY_REG(OutAffected,"ASQL_OutAffected");
+
     // query this message to ensure you're
     // performing action after another
     // using templatious virtual pack wait
     // trait
     DUMMY_STRUCT(DummyWait);
+
+    // Turn off and close database,
+    // should be issued only by
+    // AsyncSqliteProxy
+    DUMMY_REG(Shutdown,"ASQL_Shutdown");
 
     static StrongMsgPtr createNew(const char* name);
 };

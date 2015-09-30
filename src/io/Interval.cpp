@@ -455,6 +455,10 @@ bool IntervalList::isFilled() const {
     return this->_emptyInterval == SA::getByIndex(_list,0);
 }
 
+bool IntervalList::isEmpty() const {
+    return SA::size(_list) == 0;
+}
+
 namespace {
 
 struct IntervalCollector {
@@ -484,7 +488,7 @@ void IntervalList::randomEmptyIntervals(int64_t size,const IntervalReceiveFuncti
         int64_t remaining = size - sizeShipped;
         auto point = generator() % SA::size(list);
         auto picked = SA::iterAt(list,point);
-        while (picked->isEmpty() && picked != end) {
+        while (picked != end && picked->isEmpty()) {
             ++picked;
         }
         if (picked != end) {

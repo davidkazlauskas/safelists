@@ -68,6 +68,57 @@ function arraySwitch(value,table,...)
     end
 end
 
+ObjectRetainer = {
+    __index = {
+        newId = function(self)
+            local id = self.count
+            self.count = self.count + 1
+            return id
+        end,
+        retain = function(self,id,object)
+            self.table[id] = object
+        end,
+        release = function(self,id)
+            self.table[id] = nil
+        end,
+        new = function()
+            local res = {
+                count = 0,
+                table = {}
+            }
+            setmetatable(res,ObjectRetainer)
+            return res
+        end
+    }
+}
+
+objRetainer = ObjectRetainer.__index.new()
+
+CurrentSafelist = {
+    __index = {
+        isSamePath = function(self,path)
+            return self.path == path
+        end,
+        setPath = function(self,path)
+            self.path = path
+        end,
+        isEmpty = function(self)
+            return self.path == ""
+        end,
+        new = function()
+            local res = {
+                path = ""
+            }
+            setmetatable(res,CurrentSafelist)
+            return res
+        end
+    }
+}
+
+currentSafelist = CurrentSafelist.__index.new()
+
+currentSessions = {}
+
 revealDownloads = false
 sessionWidget = nil
 currentAsyncSqlite = nil
@@ -216,7 +267,7 @@ function updateSessionWidget()
     end
 
     if (DownloadsModel:isDirty()) then
-        print('Update fired!')
+        --print('Update fired!')
         local ctx = luaContext()
         ctx:message(wgt,
             VSig("DLMDL_InFullUpdate"))
@@ -297,6 +348,32 @@ initAll = function()
             ),VString("empty"),VBool(false))
     end
 
+    local newAsqlite = function(path)
+        local factory = ctx:namedMessageable("asyncSqliteFactory")
+        local shutdownGuard = ctx:namedMessageable("shutdownGuard")
+
+        local result = ctx:messageRetValues(factory,
+            VSig("ASQLF_CreateNew"),
+            VString(path),VMsg(nil))._3
+
+        ctx:message(shutdownGuard,
+            VSig("GSI_AddNew"),
+            VMsg(result))
+
+        return result
+    end
+
+    local messageBox = function(title,message)
+        local dialogService =
+            ctx:namedMessageable("dialogService")
+        ctx:message(
+            dialogService,
+            VSig("GDS_AlertDialog"),
+            VMsg(mainWnd),
+            VString(title),
+            VString(message))
+    end
+
     table.insert(FrameEndFunctions,updateRevisionGui)
     table.insert(FrameEndFunctions,updateSessionWidget)
 
@@ -313,7 +390,7 @@ initAll = function()
             for k,v in ipairs(FrameEndFunctions) do
                 v()
             end
-            print('Draw ended!')
+            --print('Draw ended!')
         end,"MWI_OutDrawEnd"),
         VMatch(function()
             local mainModel = ctx:namedMessageable("mainModel")
@@ -340,24 +417,79 @@ initAll = function()
                 end
                 local mainWnd = ctx:namedMessageable("mainWindow")
                 local mainModel = ctx:namedMessageable("mainModel")
-                local outRes = ctx:messageRetValues(mainWnd,VSig("MWI_InMoveChildUnderParent"),VInt(-1))._2
-                if (outRes == 1) then
-                    setStatus(ctx,mainWnd,"Directory to move is parent of selected directory.")
-                    return
-                elseif (outRes == 2) then
-                    setStatus(ctx,mainWnd,"Directories are the same.")
-                    return
-                elseif (outRes ~= 0) then
-                    setStatus(ctx,mainWnd,"Something bad happened...")
-                    return
-                end
 
-                ctx:messageAsync(asyncSqlite,
-                    VSig("ASQL_Execute"),
-                    VString("UPDATE directories SET dir_parent=" .. inId
-                        .. " WHERE dir_id=" .. currentDirId .. ";"))
-                    currentDirId = -1
-                updateRevision()
+                local condition =
+                       " SELECT CASE"
+                    --.. " WHEN (" .. currentDirId .. " IN"
+                    --.. " ("
+                    --.. "     WITH RECURSIVE"
+                    --.. "     children(d_id) AS ("
+                    --.. "           SELECT dir_id FROM directories "
+                    --.. "               WHERE dir_parent=" .. inId
+                    --.. "           UNION ALL"
+                    --.. "           SELECT dir_id"
+                    --.. "           FROM directories JOIN children ON "
+                    --.. "              directories.dir_parent=children.d_id "
+                    --.. "     ) SELECT d_id FROM children"
+                    --.. " )) THEN 1"
+                    .. " WHEN ((SELECT dir_parent FROM directories"
+                    .. "     WHERE dir_id=" .. currentDirId
+                    .. "     ) = " .. inId .. ") THEN 3"
+                    .. " WHEN (" .. "(SELECT dir_name FROM"
+                    .. "     directories WHERE dir_id=" .. currentDirId .. ") IN"
+                    .. "     ( SELECT dir_name FROM directories WHERE"
+                    .. "     dir_parent=" .. inId .. ")) THEN 2"
+                    .. " ELSE 0"
+                    .. " END;"
+
+                ctx:messageAsyncWCallback(
+                    asyncSqlite,
+                    function(outres)
+                        local table = outres:values()
+                        local value = table._3
+                        local success = table._4
+                        assert( success, "Great success failed..." )
+                        if (value == 0) then
+                            ctx:messageAsync(asyncSqlite,
+                                VSig("ASQL_OutAffected"),
+                                VString("UPDATE directories SET dir_parent="
+                                    .. inId .. " WHERE dir_id=" .. currentDirId .. ";"),
+                                VInt(-1))
+                            currentDirId = -1
+                            ctx:message(mainWnd,
+                                VSig("MWI_InMoveChildUnderParent"),
+                                VInt(-1))
+                            updateRevision()
+                        elseif (value == 1) then
+                            messageBox(
+                                "Cannot move!",
+                                "Directory to move cannot be a parent"
+                                .. " of directory to move under."
+                            )
+                        --elseif (value == 2) then
+                            --local dialogService =
+                                --ctx:namedMessageable("dialogService")
+                            --ctx:message(
+                                --dialogService,
+                                --VSig("GDS_AlertDialog"),
+                                --VMsg(mainWnd),
+                                --VString("Cannot move!"),
+                                --VString("Parent directory already has"
+                                    --.. " directory with such name."))
+                        elseif (value == 3) then
+                            messageBox(
+                                "Cannot move!",
+                                "Directory is already under"
+                                .. " this parent."
+                            )
+                        else
+                            assert( false, "Should not happen cholo..." )
+                        end
+                    end,
+                    VSig("ASQL_OutSingleNum"),
+                    VString(condition),
+                    VInt(-1),
+                    VBool(false))
                 return
             end
 
@@ -396,7 +528,23 @@ initAll = function()
 
             downloadPath = downloadPath .. "/safelist_session"
 
+            if (currentSessions[downloadPath] == "t") then
+                messageBox(
+                    "In progress",
+                    "Safelist already being downloaded."
+                )
+                return
+            end
+
+            currentSessions[downloadPath] = "t"
+
+            --print("Pre col: " .. collectgarbage('count'))
+            --collectgarbage('collect')
+            --print("Post col: " .. collectgarbage('count'))
+
             local currSess = DownloadsModel:newSession()
+            local newId = objRetainer:newId()
+            local handlerWeak = nil
             local handler = ctx:makeLuaMatchHandler(
                 VMatch(function(natPack,val)
                     local values = val:values()
@@ -420,8 +568,10 @@ initAll = function()
                 end,"SLD_OutSingleDone","int"),
                 VMatch(function()
                     print('Downloaded!')
+                    currentSessions[downloadPath] = nil
                     DownloadsModel:incRevision()
                     DownloadsModel:dropSession(currSess)
+                    objRetainer:release(newId)
                 end,"SLD_OutDone"),
                 VMatch(function(natPack,val)
                     local values = val:values()
@@ -471,10 +621,12 @@ initAll = function()
                 end,"SLD_OutSizeUpdate","int","double"),
                 VMatch(function()
                     print('Safelist session dun! Downloading...')
+                    local locked = handlerWeak:lockPtr()
+                    assert( nil ~= locked , "Locking weak ptr gives nil..." )
                     local dlHandle = ctx:messageRetValues(dlFactory,
                         VSig("SLDF_InNewAsync"),
                         VString(downloadPath),
-                        VMsg(currDlSessionHandler),
+                        VMsg(locked),
                         VMsg(nil)
                     )._4
                     assert( dlHandle ~= nil )
@@ -486,7 +638,9 @@ initAll = function()
                 end,"SLDF_OutTotalDownloads","int")
             )
 
-            currDlSessionHandler = handler
+            handlerWeak = handler:getWeak()
+            objRetainer:retain(newId,handler)
+
             ctx:message(dlFactory,
                 VSig("SLDF_CreateSession"),
                 VMsg(asyncSqlite),
@@ -505,18 +659,43 @@ initAll = function()
 
             local outPath = outVal._5
             if (outPath ~= "") then
-                local factory = ctx:namedMessageable("asyncSqliteFactory")
-                local mainModel = ctx:namedMessageable("mainModel")
+                if (currentSafelist:isSamePath(outPath)) then
+                    messageBox(
+                        "Already opened!",
+                        "'" .. outPath ..
+                        "' safelist is already opened."
+                    )
+                    return
+                end
+                currentSafelist:setPath(outPath)
+                if (not currentSafelist:isEmpty()) then
+                    noSafelistState() -- prevent user from doing
+                                      -- anything for split second
+                end
 
-                currentAsyncSqlite = ctx:messageRetValues(factory,
-                    VSig("ASQLF_CreateNew"),
-                    VString(outPath),VMsg(nil))._3
+                local openNew = function()
+                    local mainModel = ctx:namedMessageable("mainModel")
 
-                ctx:message(mainModel,
-                    VSig("MMI_InLoadFolderTree"),
-                    VMsg(currentAsyncSqlite),VMsg(mainWnd))
-                onSafelistState()
-                updateRevision()
+                    currentAsyncSqlite = newAsqlite(outPath)
+
+                    ctx:message(mainModel,
+                        VSig("MMI_InLoadFolderTree"),
+                        VMsg(currentAsyncSqlite),VMsg(mainWnd))
+                    onSafelistState()
+                    updateRevision()
+                end
+
+                local asql = currentAsyncSqlite
+                if (nil ~= asql) then
+                    ctx:messageAsyncWCallback(
+                        currentAsyncSqlite,
+                        function()
+                            openNew()
+                        end,
+                        VSig("ASQL_Shutdown"))
+                else
+                    openNew()
+                end
             end
             print('button blast!')
         end,"MWI_OutOpenSafelistButtonClicked"),
@@ -537,7 +716,6 @@ initAll = function()
                         arrayBranch("Move",function()
                             currentDirId = ctx:messageRetValues(mainWnd,
                                 VSig("MWI_QueryCurrentDirId"),VInt(-7))._2
-                            print("Selected dir: " .. currentDirId)
                             if (currentDirId ~= -1) then
                                 ctx:message(mainWnd,
                                     VSig("MWI_InSetStatusText"),
@@ -567,7 +745,83 @@ initAll = function()
                             end
                         end),
                         arrayBranch("Rename",function()
-                            assert( false , "Rename not implemented cholo" )
+                            local dialog = ctx:namedMessageable("singleInputDialog")
+
+                            local showOrHide = function(val)
+                                ctx:message(dialog,VSig("INDLG_InShowDialog"),VBool(val))
+                            end
+
+                            local dirName = ctx:messageRetValues(mainWnd,VSig("MWI_QueryCurrentDirName"),VString("?"))._2
+                            local dirId = ctx:messageRetValues(mainWnd,VSig("MWI_QueryCurrentDirId"),VInt(-7))._2
+
+                            if (dirName == "[unselected]") then
+                                setStatus(ctx,mainWnd,"No directory was selected to create new one.")
+                                return
+                            end
+
+                            if (dirName == "root" and dirId == 1) then
+                                setStatus(ctx,mainWnd,"Cannot rename root.")
+                                return
+                            end
+
+                            ctx:message(dialog,VSig("INDLG_InSetLabel"),VString(
+                                "Specify new folder name to rename  " .. dirName .. "."
+                            ))
+
+                            ctx:message(dialog,VSig("INDLG_InSetValue"),VString(dirName))
+
+                            local handler = ctx:makeLuaMatchHandler(
+                                VMatch(function()
+                                    print("Ok renamed!")
+                                    local outName = ctx:messageRetValues(dialog,VSig("INDLG_QueryInput"),VString("?"))._2
+                                    -- more thorough user input check should be performed
+                                    if (outName == "") then
+                                        setStatus(ctx,mainWnd,"Some directory name must be specified.")
+                                        return
+                                    end
+
+                                    local asyncSqlite = currentAsyncSqlite
+                                    if (messageablesEqual(VMsgNil(),asyncSqlite)) then
+                                        return
+                                    end
+                                    local mainWnd = ctx:namedMessageable("mainWindow")
+                                    local mainModel = ctx:namedMessageable("mainModel")
+                                    ctx:messageAsyncWCallback(
+                                        asyncSqlite,
+                                        function(output)
+                                            local val = output:values()
+                                            local affected = val._3
+                                            if (affected > 0) then
+                                                ctx:message(mainWnd,
+                                                    VSig("MWI_InSetCurrentDirName"),
+                                                    VString(outName))
+                                            else
+                                                messageBox(
+                                                    "Duplicate name!",
+                                                    "'" .. outName ..
+                                                    "' already exists under current parent."
+                                                )
+                                            end
+                                        end,
+                                        VSig("ASQL_OutAffected"),
+                                        VString("UPDATE directories SET dir_name='" .. outName .. "'"
+                                            .. " WHERE dir_id=" .. dirId .. " AND NOT EXISTS("
+                                            .. " SELECT 1 FROM directories WHERE dir_name='".. outName
+                                            .. "' AND dir_parent=(SELECT dir_parent FROM directories "
+                                            .. " WHERE dir_id=" .. dirId .. " )" .. ");"
+                                        ),
+                                        VInt(-1)
+                                    )
+                                    showOrHide(false)
+                                end,"INDLG_OutOkClicked"),
+                                VMatch(function()
+                                    print("Cancel rename!")
+                                    showOrHide(false)
+                                end,"INDLG_OutCancelClicked")
+                            )
+
+                            ctx:message(dialog,VSig("INDLG_InSetNotifier"),VMsg(handler))
+                            showOrHide(true)
                         end),
                         arrayBranch("New directory",function()
                             local dialog = ctx:namedMessageable("singleInputDialog")
@@ -604,16 +858,48 @@ initAll = function()
                                     end
                                     local mainWnd = ctx:namedMessageable("mainWindow")
                                     local mainModel = ctx:namedMessageable("mainModel")
-                                    ctx:messageAsync(
+
+                                    local theQuery =
+                                           "INSERT INTO directories (dir_name,dir_parent)"
+                                        .. " SELECT '" .. outName .. "', " .. dirId
+                                        .. " WHERE NOT EXISTS("
+                                        .. " SELECT 1 FROM directories WHERE dir_name='".. outName
+                                        .. "' AND dir_parent=" .. dirId .. ");"
+
+                                    ctx:messageAsyncWCallback(
                                         asyncSqlite,
-                                        VSig("ASQL_Execute"),
-                                        VString("INSERT INTO directories (dir_name,dir_parent)"
-                                            .. " VALUES ('" .. outName .. "'," .. dirId .. ");")
+                                        function(res)
+                                            local num = res:values()._3
+                                            if (num > 0) then
+                                                ctx:messageAsyncWCallback(
+                                                    asyncSqlite,
+                                                    function(back)
+                                                        local newId = back:values()._3
+                                                        ctx:message(mainWnd,
+                                                            VSig("MWI_InAddChildUnderCurrentDir"),
+                                                            VString(outName),VInt(newId))
+                                                    end,
+                                                    VSig("ASQL_OutSingleNum"),
+                                                    VString("SELECT dir_id FROM"
+                                                        .. " directories WHERE"
+                                                        .. " rowid=last_insert_rowid();"),
+                                                    VInt(-1),
+                                                    VBool(false)
+                                                )
+                                                updateRevision()
+                                            else
+                                                messageBox(
+                                                    "Duplicate name!",
+                                                    "'" .. outName ..
+                                                    "' already exists under current directory."
+                                                )
+                                            end
+                                        end,
+                                        VSig("ASQL_OutAffected"),
+                                        VString(theQuery),
+                                        VInt(-1)
                                     )
                                     -- todo: optimize, don't reload all
-                                    ctx:message(mainModel,
-                                        VSig("MMI_InLoadFolderTree"),VMsg(asyncSqlite),VMsg(mainWnd))
-                                        updateRevision()
                                     showOrHide(false)
                                 end,"INDLG_OutOkClicked"),
                                 VMatch(function()
@@ -669,6 +955,9 @@ initAll = function()
             local sess = DownloadsModel:nthSession(sessN)
             local done = sess:doneDownloads()
             local total = sess:totalDownloads()
+            if (total == 0) then
+                total = 1
+            end
             local prog = done / total
             local progRounded = tonumber(
                 string.format("%.2f",prog * 100))

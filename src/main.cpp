@@ -7,9 +7,12 @@
 #include <gtkmm/GtkMMRangerModel.hpp>
 #include <util/AutoReg.hpp>
 #include <util/Semaphore.hpp>
+#include <util/GracefulShutdownGuard.hpp>
 #include <gtkmm/GtkMMSessionWidget.hpp>
 #include <gtkmm/GtkMMFileString.hpp>
 #include <io/SafeListDownloaderFactory.hpp>
+#include <io/RandomFileWriter.hpp>
+#include <io/AsyncDownloader.hpp>
 #include <model/AsyncSqliteFactory.hpp>
 
 TEMPLATIOUS_TRIPLET_STD;
@@ -110,6 +113,14 @@ struct MainWindowInterface {
     // Set widget text
     // Signature: < InSetWidgetText, std::string(name), std::string (text) >
     DUMMY_REG(InSetWidgetText,"MWI_InSetWidgetText");
+
+    // Set selected directory text
+    // Signature: < InSetCurrentDirName, std::string(name) >
+    DUMMY_REG(InSetCurrentDirName,"MWI_InSetCurrentDirName");
+
+    // Add child directory with specified name under current
+    // Signature: < InAddChildUnderCurrentDir, std::string (name), int (id) >
+    DUMMY_REG(InAddChildUnderCurrentDir,"MWI_InAddChildUnderCurrentDir");
 
     // query current directory id
     // Signature: < QueryCurrentDirId, int (output) >
@@ -324,10 +335,25 @@ struct GtkMainWindow : public Messageable {
             sigc::mem_fun(*this,&GtkMainWindow::onDraw)
         );
 
+        _wnd->signal_delete_event().connect(
+                sigc::mem_fun(*this,&GtkMainWindow::onCloseEvent)
+        );
+
         createDirModel();
         createFileModel();
 
         _selectionStack.resize(2);
+    }
+
+    bool onCloseEvent(GdkEventAny* ev) {
+        if (nullptr != _shutdownGuard) {
+            _shutdownGuard->waitAll();
+        }
+        return false;
+    }
+
+    void setShutdownGuard(const std::shared_ptr< SafeLists::GracefulShutdownGuard >& guard) {
+        _shutdownGuard = guard;
     }
 
     template <class T>
@@ -453,6 +479,23 @@ private:
 
     typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
 
+    void cloneDirSubTree(
+        const Glib::RefPtr<Gtk::TreeStore>& store,
+        const Gtk::TreeModel::iterator& from,
+        const Gtk::TreeModel::iterator& to)
+    {
+        DirRow dr;
+        getDirRow(dr,*from);
+        setDirRow(dr,*to);
+        auto toChildren = to->children();
+        auto children = from->children();
+        auto end = children.end();
+        for (auto b = children.begin(); b != end; ++b) {
+            auto iter = store->append(toChildren);
+            cloneDirSubTree(store,b,iter);
+        }
+    }
+
     VmfPtr genHandler() {
         typedef GenericMessageableInterface GMI;
         return SF::virtualMatchFunctorPtr(
@@ -510,6 +553,32 @@ private:
                     }
                 }
             ),
+            SF::virtualMatch< MWI::InSetCurrentDirName, const std::string >(
+                [=](MWI::InSetWidgetText,const std::string& name) {
+                    auto selection = _dirSelection->get_selected();
+                    if (nullptr != selection) {
+                        auto row = *selection;
+                        row[_dirColumns.m_colName] = name.c_str();
+                    } else {
+                        assert( false && "Setting current name when not selected." );
+                    }
+                }
+            ),
+            SF::virtualMatch< MWI::InAddChildUnderCurrentDir, const std::string, const int >(
+                [=](MWI::InAddChildUnderCurrentDir,const std::string& name,int id) {
+                    auto selection = _dirSelection->get_selected();
+                    if (nullptr != selection) {
+                        DirRow d;
+                        d._id = id;
+                        d._parent = (*selection)[_dirColumns.m_colId];
+                        d._name = name;
+                        auto newOne = _dirStore->append(selection->children());
+                        setDirRow(d,*newOne);
+                    } else {
+                        assert( false && "Setting current name when not selected." );
+                    }
+                }
+            ),
             SF::virtualMatch< MWI::QueryCurrentDirId, int >(
                 [=](MWI::QueryCurrentDirId,int& outId) {
                     auto selection = _dirSelection->get_selected();
@@ -559,12 +628,9 @@ private:
                         return;
                     }
 
-                    auto toMoveRow = *toMove;
-                    DirRow dr;
-                    getDirRow(dr,toMoveRow);
+                    auto newPlace = _dirStore->append(parent->children());
+                    cloneDirSubTree(_dirStore,toMove,newPlace);
                     _dirStore->erase(toMove);
-                    auto newPlace = *_dirStore->append(parent->children());
-                    setDirRow(dr,newPlace);
                     out = 0;
                 }
             ),
@@ -729,7 +795,7 @@ private:
         std::string _name;
     };
 
-    void setDirRow(const DirRow& r,Gtk::TreeModel::Row& mdlRow) {
+    void setDirRow(const DirRow& r,const Gtk::TreeModel::Row& mdlRow) {
         mdlRow[_dirColumns.m_colName] = r._name;
         mdlRow[_dirColumns.m_colId] = r._id;
         mdlRow[_dirColumns.m_colParent] = r._parent;
@@ -853,6 +919,7 @@ private:
         );
         auto msg = SF::vpack< MWI::OutDrawEnd >(nullptr);
         _notifierCache.notify(msg);
+        _shutdownGuard->processMessages();
         return false;
     }
 
@@ -975,6 +1042,7 @@ private:
     std::shared_ptr< SafeLists::GtkSessionTab > _sessionTab;
     std::weak_ptr< GtkMainWindow > _myself;
     std::weak_ptr<DrawUpdater> _drawUpdater;
+    std::shared_ptr< SafeLists::GracefulShutdownGuard > _shutdownGuard;
 };
 
 struct GtkDialogService : public Messageable {
@@ -1000,6 +1068,11 @@ struct GtkDialogService : public Messageable {
     //  std::string (output path, empty if none)
     // >
     DUMMY_REG(DirChooserDialog,"GDS_DirChooserDialog");
+
+    // Show alert
+    // Signature:
+    // < AlertDialog, std::String (title), std::string (message) >
+    DUMMY_REG(AlertDialog,"GDS_AlertDialog");
 
     void message(templatious::VirtualPack& msg) override {
         _handler->tryMatch(msg);
@@ -1079,6 +1152,26 @@ struct GtkDialogService : public Messageable {
 
                     out = "";
                 }
+            ),
+            SF::virtualMatch< AlertDialog, StrongMsgPtr,
+                 const std::string,const std::string
+            >(
+                [](AlertDialog,
+                    const StrongMsgPtr& parent,
+                    const std::string& title,
+                    const std::string& message)
+                {
+                    auto queryTransient = SF::vpack<
+                        GenericGtkWindowInterface::GetGtkWindow,
+                        Gtk::Window*
+                    >(nullptr,nullptr);
+                    parent->message(queryTransient);
+                    auto gtkParent = queryTransient.fGet<1>();
+                    Gtk::MessageDialog dlg(
+                        *gtkParent,title.c_str());
+                    dlg.set_message(message.c_str());
+                    dlg.run();
+                }
             )
         );
     }
@@ -1103,6 +1196,11 @@ struct GtkInputDialog : public Messageable {
         // in lua: INDLG_InSetLabel
         // Signature: < InSetLabel, std::string >
         DUMMY_REG(InSetLabel,"INDLG_InSetLabel");
+
+        // Set value text
+        // in lua: INDLG_InSetValue
+        // Signature: < InSetValue, std::string >
+        DUMMY_REG(InSetValue,"INDLG_InSetValue");
 
         // Emitted when ok button is clicked
         DUMMY_REG(OutOkClicked,"INDLG_OutOkClicked");
@@ -1188,6 +1286,11 @@ private:
                     this->_label->set_text(str.c_str());
                 }
             ),
+            SF::virtualMatch< INT::InSetValue, const std::string >(
+                [=](INT::InSetLabel,const std::string& str) {
+                    this->_entry->set_text(str.c_str());
+                }
+            ),
             SF::virtualMatch< INT::QueryInput, std::string >(
                 [=](INT::InSetLabel,std::string& str) {
                     str = this->_entry->get_text().c_str();
@@ -1237,8 +1340,11 @@ int main(int argc,char** argv) {
     auto ctx = LuaContext::makeContext("lua/plumbing.lua");
     ctx->setFactory(vFactory());
 
+    auto downloader = SafeLists::AsyncDownloader::createNew("imitation");
+    auto randomFileWriter = SafeLists::RandomFileWriter::make();
+
     auto dlFactory = SafeLists::
-        SafeListDownloaderFactory::createNew();
+        SafeListDownloaderFactory::createNew(downloader,randomFileWriter);
 
     auto builder = Gtk::Builder::create();
     builder->add_from_string(mainUiSchema());
@@ -1248,9 +1354,15 @@ int main(int argc,char** argv) {
     auto asyncSqliteFactory = SafeLists::AsyncSqliteFactory::createNew();
     auto mainModel = std::make_shared< MainModel >();
     auto dialogService = std::make_shared< GtkDialogService >();
+    auto shutdownGuard = SafeLists::GracefulShutdownGuard::makeNew();
+    shutdownGuard->add(randomFileWriter);
+    shutdownGuard->add(downloader);
+
+    mainWnd->setShutdownGuard(shutdownGuard);
     ctx->addMessageableWeak("mainWindow",mainWnd);
     ctx->addMessageableWeak("singleInputDialog",singleInputDialog);
     ctx->addMessageableWeak("mainModel",mainModel);
+    ctx->addMessageableWeak("shutdownGuard",shutdownGuard);
     ctx->addMessageableStrong("dlSessionFactory",dlFactory);
     ctx->addMessageableStrong("asyncSqliteFactory",asyncSqliteFactory);
     ctx->addMessageableStrong("dialogService",dialogService);

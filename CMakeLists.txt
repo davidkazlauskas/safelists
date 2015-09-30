@@ -38,6 +38,7 @@ SET( DOMAIN_SOURCES
     src/model/SqliteRanger.cpp
     src/util/AutoReg.cpp
     src/util/Misc.cpp
+    src/util/GracefulShutdownGuard.cpp
     src/io/RandomFileWriterImpl.cpp
     src/io/Interval.cpp
     src/io/AsyncDownloader.cpp
@@ -88,6 +89,7 @@ SET( TEST_SOURCES
     tests/interval-tests.cpp
     tests/downloader-tests.cpp
     tests/util-tests.cpp
+    tests/graceful-shutdown-tests.cpp
 )
 
 SET( DUMB_HASH_SOURCES

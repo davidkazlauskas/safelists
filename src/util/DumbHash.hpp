@@ -60,6 +60,19 @@ namespace SafeLists {
                 uc(_mem[28]),uc(_mem[29]),uc(_mem[30]),uc(_mem[31])
             );
         }
+
+        template <int bufSize>
+        void toBytes(char (&buf)[bufSize]) const {
+            static_assert( bufSize >= sizeof(_mem), "Too small byte buffer cholo." );
+            memcpy(buf,_mem,sizeof(_mem));
+        }
+
+        template <int bufSize>
+        void setBytes(char (&buf)[bufSize]) {
+            static_assert( bufSize == sizeof(_mem), "Sizes must be exact to set buffer." );
+            memcpy(_mem,buf,sizeof(_mem));
+        }
+
     private:
         char _mem[32];
     };

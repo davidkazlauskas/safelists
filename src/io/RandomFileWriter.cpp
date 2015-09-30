@@ -1,18 +1,26 @@
 
 #include <util/Semaphore.hpp>
+#include <util/GenericShutdownGuard.hpp>
 
 #include "RandomFileWriter.hpp"
 #include "RandomFileWriterImpl.hpp"
 
 TEMPLATIOUS_TRIPLET_STD;
 
+typedef SafeLists::GracefulShutdownInterface GSI;
+
 namespace SafeLists {
 
 struct RandomFileWriterImpl : public Messageable {
     RandomFileWriterImpl() :
         _writeCache(16), // default
-        _handler(genHandler())
+        _handler(genHandler()),
+        _keepGoing(true)
     {}
+
+    ~RandomFileWriterImpl() {
+        //printf("FILE WRITER SHIRTDOWN\n");
+    }
 
     void message(const std::shared_ptr< templatious::VirtualPack >& msg) override {
         _msgCache.enqueue(msg);
@@ -25,6 +33,7 @@ struct RandomFileWriterImpl : public Messageable {
 
     static std::shared_ptr< RandomFileWriterImpl > spinNew() {
         auto result = std::make_shared< RandomFileWriterImpl >();
+        result->_myself = result;
         auto cpy = result; // being explicit... probably more than needed
         std::thread(
             [=]() {
@@ -67,12 +76,29 @@ private:
             ),
             SF::virtualMatch< RFW::WaitWrites >(
                 [](RFW::WaitWrites) {}
+            ),
+            SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(
+                [=](GSI::InRegisterItself,const StrongMsgPtr& ptr) {
+                    auto handler = std::make_shared< GenericShutdownGuard >();
+                    handler->setMaster(_myself);
+                    auto msg = SF::vpackPtr< GSI::OutRegisterItself, StrongMsgPtr >(
+                        nullptr, handler
+                    );
+                    assert( nullptr == _notifyExit.lock() );
+                    _notifyExit = handler;
+                    ptr->message(msg);
+                }
+            ),
+            SF::virtualMatch< GenericShutdownGuard::ShutdownTarget >(
+                [=](GenericShutdownGuard::ShutdownTarget) {
+                    this->_keepGoing = false;
+                }
             )
         );
     }
 
     void processLoop(const std::shared_ptr< RandomFileWriterImpl >& impl) {
-        while (!impl.unique()) {
+        while (_keepGoing && !impl.unique()) {
             _sem.wait();
             _msgCache.process(
                 [=](templatious::VirtualPack& pack) {
@@ -80,12 +106,22 @@ private:
                 }
             );
         }
+
+        auto locked = _notifyExit.lock();
+        if (nullptr != locked) {
+            auto msg = SF::vpack<
+                GenericShutdownGuard::SetFuture >(nullptr);
+            locked->message(msg);
+        }
     }
 
     RandomFileWriteCache _writeCache;
     StackOverflow::Semaphore _sem;
     MessageCache _msgCache;
     VmfPtr _handler;
+    WeakMsgPtr _myself;
+    WeakMsgPtr _notifyExit;
+    bool _keepGoing;
 };
 
 // singleton

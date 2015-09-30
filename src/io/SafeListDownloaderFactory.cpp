@@ -8,6 +8,8 @@
 #include <io/AsyncDownloader.hpp>
 #include <io/RandomFileWriter.hpp>
 
+#include <boost/filesystem.hpp>
+
 #include "SafeListDownloaderFactory.hpp"
 
 TEMPLATIOUS_TRIPLET_STD;
@@ -197,6 +199,8 @@ namespace SafeLists {
 
 struct SafeListDownloaderFactoryImpl : public Messageable {
 
+    friend struct SafeListDownloaderFactory;
+
     SafeListDownloaderFactoryImpl() : _handler(genHandler())
     {}
 
@@ -219,7 +223,7 @@ private:
                 StrongMsgPtr, // to notify
                 StrongMsgPtr // out object
             >(
-                [](SLDF::InNewAsync,
+                [=](SLDF::InNewAsync,
                     const std::string& path,
                     const StrongMsgPtr& toNotify,
                     StrongMsgPtr& output)
@@ -231,8 +235,8 @@ private:
                         SafeLists::AsyncDownloader::createNew("imitation");
                     auto result = SafeListDownloader::startNew(
                                     path.c_str(),
-                                    writer,
-                                    downloader,
+                                    _writer,
+                                    _downloader,
                                     toNotify,
                                     true);
                     output = result;
@@ -271,6 +275,11 @@ private:
                         },
                         nullptr,
                         [=](sqlite3* connection) {
+                            bool exists = boost::filesystem::exists(path.c_str());
+                            if (exists) {
+                                return;
+                            }
+
                             sqlite3* memSession = createDownloadSession(connection);
                             auto closeGuard = SCOPE_GUARD_LC(
                                 sqlite3_close(memSession);
@@ -285,10 +294,17 @@ private:
     }
 
     VmfPtr _handler;
+    StrongMsgPtr _downloader;
+    StrongMsgPtr _writer;
 };
 
-StrongMsgPtr SafeListDownloaderFactory::createNew() {
-    return std::make_shared< SafeListDownloaderFactoryImpl >();
+StrongMsgPtr SafeListDownloaderFactory::createNew(
+    const StrongMsgPtr& downloader,const StrongMsgPtr& writer)
+{
+    auto res = std::make_shared< SafeListDownloaderFactoryImpl >();
+    res->_writer = writer;
+    res->_downloader = downloader;
+    return res;
 }
 
 }

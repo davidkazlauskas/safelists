@@ -1206,12 +1206,20 @@ struct GtkGenericDialogMessages {
 
     // Set label text
     // in lua: INDLG_InSetLabel
-    // Signature: < InSetLabel, std::string >
+    // Signature: < InSetLabel, std::string (if only one label) >
+    // Signature: < InSetLabel,
+    //     std::string (label name from glade),
+    //     std::string (the value)
+    // >
     DUMMY_REG(InSetLabel,"INDLG_InSetLabel");
 
     // Set value text
     // in lua: INDLG_InSetValue
-    // Signature: < InSetValue, std::string >
+    // Signature: < InSetValue, std::string (if only one value) >
+    // Signature: < InSetValue,
+    //     std::string (value name from glade),
+    //     std::string (the value)
+    // >
     DUMMY_REG(InSetValue,"INDLG_InSetValue");
 
     // Emitted when ok button is clicked
@@ -1384,6 +1392,58 @@ protected:
     }
 
 private:
+
+    VmfPtr genHandler() {
+        return SF::virtualMatchFunctorPtr(
+            SF::virtualMatch< Int::InShowDialog >(
+                [=](Int::InShowDialog) {
+                    _main->show();
+                }
+            ),
+            SF::virtualMatch< Int::InSetNotifier, StrongMsgPtr >(
+                [=](Int::InSetNotifier,const StrongMsgPtr& ptr) {
+                    _toNotify = ptr;
+                }
+            ),
+            SF::virtualMatch< Int::InSetLabel, std::string, std::string >(
+                [=](Int::InSetLabel,
+                    const std::string& name,
+                    const std::string& value)
+                {
+                    Gtk::Label* lbl = nullptr;
+                    _bldPtr->get_widget(name.c_str(),lbl);
+                    assert( nullptr != lbl && "Huh?" );
+                    lbl->set_text(value.c_str());
+                }
+            ),
+            SF::virtualMatch< Int::InSetValue, std::string, std::string >(
+                [=](Int::InSetValue,
+                    const std::string& name,
+                    const std::string& value)
+                {
+                    Gtk::Widget* wgt = nullptr;
+                    _bldPtr->get_widget(name.c_str(),wgt);
+                    assert( nullptr != wgt && "Huh?" );
+                    Gtk::Entry* isEntry =
+                        dynamic_cast< Gtk::Entry* >(wgt);
+                    if (nullptr != isEntry) {
+                        isEntry->set_text(value.c_str());
+                        return;
+                    }
+
+                    Gtk::TextView* isTextView =
+                        dynamic_cast< Gtk::TextView* >(wgt);
+                    if (nullptr != isTextView) {
+                        isTextView->get_buffer()->set_text(
+                            value.c_str());
+                    }
+
+                    assert( false && "Dunno how to set text for this cholo." );
+                }
+            )
+        );
+    }
+
     VmfPtr _handler;
     Glib::RefPtr< Gtk::Builder > _bldPtr;
     WeakMsgPtr _toNotify;

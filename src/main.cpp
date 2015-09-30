@@ -1417,7 +1417,7 @@ struct GtkDialogService : public Messageable {
                     StrongMsgPtr& outPtr)
                 {
                     auto iter = _schemaMap.find(resource);
-                    assert( iter != _schemaMap.end() && "No resouce." );
+                    assert( iter != _schemaMap.end() && "No resource." );
                     auto& string = *iter->second;
                     auto bld = Gtk::Builder::create_from_string(
                         string,widgetName.c_str());

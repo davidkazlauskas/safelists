@@ -1059,8 +1059,15 @@ private:
     std::shared_ptr< SafeLists::GracefulShutdownGuard > _shutdownGuard;
 };
 
+const Glib::ustring& mainUiSchema() {
+    static Glib::ustring res = SafeLists::readFile("uischemes/main.glade");
+    return res;
+}
+
 struct GtkDialogService : public Messageable {
-    GtkDialogService() : _handler(genHandler()) {}
+    GtkDialogService() : _handler(genHandler()) {
+        _schemaMap["main"] = &mainUiSchema();
+    }
 
     // Open file chooser
     // Signature:
@@ -1203,6 +1210,7 @@ struct GtkDialogService : public Messageable {
 
 private:
     SafeLists::VmfPtr _handler;
+    std::map< std::string, const Glib::ustring* > _schemaMap;
 };
 
 struct GtkGenericDialogMessages {
@@ -1520,11 +1528,6 @@ templatious::DynVPackFactory makeVfactory() {
 static templatious::DynVPackFactory* vFactory() {
     static auto fact = makeVfactory();
     return &fact;
-}
-
-const Glib::ustring& mainUiSchema() {
-    static Glib::ustring res = SafeLists::readFile("uischemes/main.glade");
-    return res;
 }
 
 int main(int argc,char** argv) {

@@ -343,7 +343,7 @@ struct GtkMainWindow : public Messageable {
         );
 
         _wnd->signal_delete_event().connect(
-                sigc::mem_fun(*this,&GtkMainWindow::onCloseEvent)
+            sigc::mem_fun(*this,&GtkMainWindow::onCloseEvent)
         );
 
         createDirModel();
@@ -1338,6 +1338,14 @@ protected:
         _bldPtr(ref)
     {
         _bldPtr->get_widget(mainName,_main);
+        _main->signal_delete_event().connect(
+            sigc::mem_fun(*this,&GenericDialog::exitEvent)
+        );
+    }
+
+    bool exitEvent(GdkEventAny* ev) {
+        printf("Exited...\n");
+        return false;
     }
 
     void hookOkButton(const char* okButton) {
@@ -1352,11 +1360,12 @@ protected:
     void hookCancelButton(const char* cancelButtonName) {
         Gtk::Button* btn = nullptr;
         _bldPtr->get_widget(cancelButtonName,btn);
-        assert( nullptr != btn && "Hook ok failed..." );
+        assert( nullptr != btn && "Hook cancel failed..." );
         btn->signal_clicked().connect(
             sigc::mem_fun(*this,&GenericDialog::okAction)
         );
     }
+
     typedef GtkGenericDialogMessages Int;
     void okAction() {
         auto locked = _toNotify.lock();

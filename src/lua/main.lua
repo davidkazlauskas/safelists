@@ -1151,6 +1151,8 @@ initAll = function()
                                         return false
                                     end
 
+                                    -- todo validate mirrors
+
                                     if (result.hash ~= "" and
                                         not isValidDumbHash256(result.hash))
                                     then

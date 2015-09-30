@@ -374,6 +374,23 @@ initAll = function()
             VString(message))
     end
 
+    local newFileDialog = function()
+        local dialogService = ctx:namedMessageable("dialogService")
+
+        local dialog = ctx:messageRetValues(
+            dialogService,
+            VSig("GDS_MakeGenericDialog"),
+            VString("main"),
+            VString("newFileDialog"),
+            VMsg(nil)
+        )._4
+
+        ctx:message(
+            dialog,
+            VSig("INDLG_InShowDialog")
+        )
+    end
+
     table.insert(FrameEndFunctions,updateRevisionGui)
     table.insert(FrameEndFunctions,updateSessionWidget)
 

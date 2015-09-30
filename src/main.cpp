@@ -1243,6 +1243,7 @@ private:
                     if (nullptr != isTextView) {
                         auto buf = isTextView->get_buffer();
                         value = buf->get_text(buf->begin(),buf->end()).c_str();
+                        return;
                     }
 
                     assert( false && "Dunno how to set text for this cholo." );

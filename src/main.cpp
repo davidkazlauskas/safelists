@@ -1416,7 +1416,7 @@ private:
                     lbl->set_text(value.c_str());
                 }
             ),
-            SF::virtualMatch< Int::InSetValue, std::string, std::string >(
+            SF::virtualMatch< Int::InSetValue, const std::string, const std::string >(
                 [=](Int::InSetValue,
                     const std::string& name,
                     const std::string& value)
@@ -1436,6 +1436,32 @@ private:
                     if (nullptr != isTextView) {
                         isTextView->get_buffer()->set_text(
                             value.c_str());
+                    }
+
+                    assert( false && "Dunno how to set text for this cholo." );
+                }
+            ),
+            SF::virtualMatch< Int::QueryInput, const std::string, std::string >(
+                [=](Int::QueryInput,
+                    const std::string& name,
+                    std::string& value)
+                {
+                    Gtk::Widget* wgt = nullptr;
+                    _bldPtr->get_widget(name.c_str(),wgt);
+                    assert( nullptr != wgt && "Huh?" );
+                    Gtk::Entry* isEntry =
+                        dynamic_cast< Gtk::Entry* >(wgt);
+                    if (nullptr != isEntry) {
+                        value = isEntry->get_text().c_str();
+                        isEntry->set_text(value.c_str());
+                        return;
+                    }
+
+                    Gtk::TextView* isTextView =
+                        dynamic_cast< Gtk::TextView* >(wgt);
+                    if (nullptr != isTextView) {
+                        auto buf = isTextView->get_buffer();
+                        value = buf->get_text(buf->begin(),buf->end()).c_str();
                     }
 
                     assert( false && "Dunno how to set text for this cholo." );

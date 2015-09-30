@@ -1339,11 +1339,20 @@ struct GenericDialog : public Messageable {
 
     typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
 
+    void message(templatious::VirtualPack& msg) override {
+        _handler->tryMatch(msg);
+    }
+
+    void message(const std::shared_ptr< templatious::VirtualPack >& msg) override {
+        assert( false && "Single threaded messaging only." );
+    }
+
 protected:
     GenericDialog(
         const Glib::RefPtr< Gtk::Builder>& ref,
         const char* mainName) :
-        _bldPtr(ref)
+        _bldPtr(ref),
+        _handler(genHandler())
     {
         _bldPtr->get_widget(mainName,_main);
         _main->signal_delete_event().connect(

@@ -1230,8 +1230,7 @@ struct GtkInputDialog : public Messageable {
 
     GtkInputDialog(Glib::RefPtr<Gtk::Builder>& bld) : _handler(genHandler()) {
         Gtk::Dialog* dlg = nullptr;
-        bld->get_widget("dialog2",dlg);
-        _dlg.reset(dlg);
+        bld->get_widget("dialog2",_dlg);
 
         bld->get_widget("dialogText",_label);
         bld->get_widget("dialogInput",_entry);
@@ -1313,7 +1312,7 @@ private:
         );
     }
 
-    std::unique_ptr< Gtk::Dialog > _dlg;
+    Gtk::Dialog* _dlg;
     Gtk::Label* _label;
     Gtk::Entry* _entry;
     Gtk::Button* _okButton;

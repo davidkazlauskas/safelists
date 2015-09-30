@@ -427,6 +427,7 @@ initAll = function()
                     local queryInput = function(value)
                         return ctx:messageRetValues(
                             dialog,
+                            VSig("INDLG_QueryInput"),
                             VString(value),
                             VString(""))._3
                     end

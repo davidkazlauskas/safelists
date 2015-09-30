@@ -1088,6 +1088,18 @@ initAll = function()
         end,"MWI_OutRightClickFolderList"),
         VMatch(function()
             print("Right files")
+            local menuModel = { "New file" }
+            local menuModelHandler = makePopupMenuModel(
+                ctx,menuModel,
+                function(result)
+                    arraySwitch(result+1,menuModel,
+                        arrayBranch("New file",function()
+                            print("New file clicked")
+                        end)
+                    )
+                end
+            )
+            ctx:message(mainWnd,VSig("MWI_PMM_ShowMenu"),VMsg(menuModelHandler))
         end,"MWI_OutRightClickFileList")
     )
 

@@ -1222,11 +1222,22 @@ struct GtkGenericDialogMessages {
     // >
     DUMMY_REG(InSetValue,"INDLG_InSetValue");
 
+    // Hook onto button click and return signal integer
+    // Signature: <
+    //     InHookButtonClick, std::string (name),
+    //     int (out number)
+    // >
+    DUMMY_REG(InHookButtonClick,"INDLG_HookButtonClick");
+
     // Emitted when ok button is clicked
     DUMMY_REG(OutOkClicked,"INDLG_OutOkClicked");
 
     // Emitted when cancel button is clicked
     DUMMY_REG(OutCancelClicked,"INDLG_OutCancelClicked");
+
+    // Emitted when numbered event is emitted.
+    // Signature: < OutSignalEmitted, int (signal) >
+    DUMMY_REG(OutSignalEmitted,"INDGL_OutGenSignalEmitted");
 
     // Query input text
     // in lua: INDLG_InQueryInput
@@ -1352,12 +1363,23 @@ protected:
         const Glib::RefPtr< Gtk::Builder>& ref,
         const char* mainName) :
         _bldPtr(ref),
-        _handler(genHandler())
+        _handler(genHandler()),
+        _signalId(0)
     {
         _bldPtr->get_widget(mainName,_main);
         _main->signal_delete_event().connect(
             sigc::mem_fun(*this,&GenericDialog::exitEvent)
         );
+    }
+
+    void intEvent(int i) {
+        auto locked = _toNotify.lock();
+        if (nullptr != locked) {
+            auto msg = SF::vpack< Int::OutSignalEmitted, int >(
+                nullptr, i
+            );
+            locked->message(msg);
+        }
     }
 
     bool exitEvent(GdkEventAny* ev) {
@@ -1475,6 +1497,25 @@ private:
 
                     assert( false && "Dunno how to set text for this cholo." );
                 }
+            ),
+            SF::virtualMatch< Int::InHookButtonClick, const std::string, int >(
+                [=](Int::InHookButtonClick,const std::string& str,int& out) {
+                    Gtk::Button* button = nullptr;
+                    _bldPtr->get_widget(str.c_str(),button);
+                    assert( nullptr != button && "Cannot find button to hook into." );
+
+                    int theSignal = _signalId;
+                    ++_signalId;
+
+                    button->signal_clicked().connect(
+                        sigc::bind< int >(
+                            sigc::mem_fun(
+                                *this,&GenericDialog::intEvent
+                            ),theSignal)
+                    );
+
+                    out = theSignal;
+                }
             )
         );
     }
@@ -1483,6 +1524,7 @@ private:
     Glib::RefPtr< Gtk::Builder > _bldPtr;
     WeakMsgPtr _toNotify;
     Gtk::Widget* _main;
+    int _signalId;
 };
 
 templatious::DynVPackFactory makeVfactory() {

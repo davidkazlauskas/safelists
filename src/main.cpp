@@ -949,6 +949,15 @@ private:
         }
     }
 
+    void fileToViewChanged() {
+        auto iter = _fileSelection->get_selected();
+        if (nullptr != iter) {
+            auto row = *iter;
+            int id = row[_fileColumns.m_fileId];
+            _lastSelectedFileId = id;
+        }
+    }
+
     template <class... Types,class... Args>
     void notifySingleThreaded(Args&&... args) {
         auto msg = SF::vpack<Types...>(
@@ -995,6 +1004,11 @@ private:
         _right->signal_button_press_event().connect(
             sigc::mem_fun(*this,&GtkMainWindow::leftFileListClicked),false);
         _right->set_model(_fileStore);
+
+        _fileSelection = _right->get_selection();
+        _fileSelection->set_mode(Gtk::SELECTION_SINGLE);
+        _fileSelection->signal_changed().connect(sigc::mem_fun(
+            *this,&GtkMainWindow::fileToViewChanged));
     }
 
     void downloadButtonClicked() {
@@ -1060,6 +1074,7 @@ private:
     // FILES
     FileTreeColumns _fileColumns;
     Glib::RefPtr<Gtk::ListStore> _fileStore;
+    Glib::RefPtr<Gtk::TreeSelection> _fileSelection;
 
     // Menu
     Gtk::Menu _popupMenu;
@@ -1067,6 +1082,7 @@ private:
 
     // STATE
     int _lastSelectedDirId;
+    int _lastSelectedFileId;
     // should contain two elements always
     std::vector<Gtk::TreeModel::iterator> _selectionStack;
     std::shared_ptr< SafeLists::GtkSessionTab > _sessionTab;

@@ -50,6 +50,9 @@ struct MainWindowInterface {
     // emitted when open safelist button is clicked
     DUMMY_REG(OutOpenSafelistButtonClicked,"MWI_OutOpenSafelistButtonClicked");
 
+    // emitted when open safelist button is clicked
+    DUMMY_REG(OutResumeDownloadButtonClicked,"MWI_OutResumeDownloadButtonClicked");
+
     // emitted when show downloads button is clicked
     // Signature:
     // < OutShowDownloadsToggled, bool (state) >
@@ -318,12 +321,16 @@ struct GtkMainWindow : public Messageable {
         registerAndGetWidget("statusBarLabel",_statusBar);
         registerAndGetWidget("safelistRevisionLabel",_safelistRevisionLbl);
         registerAndGetWidget("reavealerSessions",_revealerSessions);
+        registerAndGetWidget("resumeDownloadButton",_resumeDownloadButton);
         BIND_GTK_BUTTON("downloadButton",
             _dlSafelistBtn,
             &GtkMainWindow::downloadButtonClicked);
         BIND_GTK_BUTTON("openSafelistButton",
             _openSafelistBtn,
             &GtkMainWindow::openSafelistClicked);
+        BIND_GTK_BUTTON("resumeDownloadButton",
+            _resumeDownloadButton,
+            &GtkMainWindow::resumeDownloadClicked);
         BIND_GTK_BUTTON("showDownloadsButton",
             _showDownloadsBtn,
             &GtkMainWindow::showDownloadsButtonClicked);
@@ -986,6 +993,12 @@ private:
         >(nullptr);
     }
 
+    void resumeDownloadClicked() {
+        notifySingleThreaded<
+            MWI::OutResumeDownloadButtonClicked
+        >(nullptr);
+    }
+
     void showDownloadsButtonClicked() {
         bool res = _showDownloadsBtn->get_active();
         notifySingleThreaded<
@@ -1006,6 +1019,7 @@ private:
     Gtk::TreeView* _right;
     Gtk::Button* _openSafelistBtn;
     Gtk::Button* _dlSafelistBtn;
+    Gtk::Button* _resumeDownloadButton;
     Gtk::ToggleButton* _showDownloadsBtn;
     Gtk::Label* _statusBar;
     Gtk::Label* _safelistRevisionLbl;

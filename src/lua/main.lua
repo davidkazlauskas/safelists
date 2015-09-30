@@ -422,6 +422,12 @@ initAll = function()
 
         ctx:message(
             dialog,
+            VSig("INDLG_InSetNotifier"),
+            VMsg(handler)
+        )
+
+        ctx:message(
+            dialog,
             VSig("INDLG_InShowDialog")
         )
 

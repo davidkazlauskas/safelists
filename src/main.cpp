@@ -1387,6 +1387,8 @@ protected:
         return false;
     }
 
+    typedef GtkGenericDialogMessages Int;
+
 private:
 
     VmfPtr genHandler() {

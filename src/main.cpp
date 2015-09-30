@@ -1323,6 +1323,51 @@ private:
     VmfPtr _handler;
 };
 
+struct GenericDialog : public Messageable {
+
+    typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
+
+protected:
+    void hookOkButton(const char* okButton) {
+        Gtk::Button* btn = nullptr;
+        _bldPtr->get_widget(okButton,btn);
+        assert( nullptr != btn && "Hook ok failed..." );
+        btn->signal_clicked().connect(
+            sigc::mem_fun(*this,&GenericDialog::cancelAction)
+        );
+    }
+
+    void hookCancelButton(const char* cancelButtonName) {
+        Gtk::Button* btn = nullptr;
+        _bldPtr->get_widget(cancelButtonName,btn);
+        assert( nullptr != btn && "Hook ok failed..." );
+        btn->signal_clicked().connect(
+            sigc::mem_fun(*this,&GenericDialog::okAction)
+        );
+    }
+    typedef GtkGenericDialogMessages Int;
+    void okAction() {
+        auto locked = _toNotify.lock();
+        if (nullptr != locked) {
+            auto msg = SF::vpack< Int::OutOkClicked >(nullptr);
+            locked->message(msg);
+        }
+    }
+
+    void cancelAction() {
+        auto locked = _toNotify.lock();
+        if (nullptr != locked) {
+            auto msg = SF::vpack< Int::OutCancelClicked >(nullptr);
+            locked->message(msg);
+        }
+    }
+
+private:
+    VmfPtr _handler;
+    Glib::RefPtr< Gtk::Builder > _bldPtr;
+    WeakMsgPtr _toNotify;
+};
+
 templatious::DynVPackFactory makeVfactory() {
     templatious::DynVPackFactoryBuilder bld;
 

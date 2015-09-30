@@ -1059,6 +1059,207 @@ private:
     std::shared_ptr< SafeLists::GracefulShutdownGuard > _shutdownGuard;
 };
 
+struct GtkGenericDialogMessages {
+    // Show the dialog
+    // in lua: INDLG_InShowDialog
+    DUMMY_REG(InShowDialog,"INDLG_InShowDialog");
+
+    // Set notifier to notify messages
+    // in lua: INDLG_InSetNotifier
+    // Signature: < InSetNotifier, StrongMsgPtr >
+    DUMMY_REG(InSetNotifier,"INDLG_InSetNotifier");
+
+    // Set label text
+    // in lua: INDLG_InSetLabel
+    // Signature: < InSetLabel, std::string (if only one label) >
+    // Signature: < InSetLabel,
+    //     std::string (label name from glade),
+    //     std::string (the value)
+    // >
+    DUMMY_REG(InSetLabel,"INDLG_InSetLabel");
+
+    // Set value text
+    // in lua: INDLG_InSetValue
+    // Signature: < InSetValue, std::string (if only one value) >
+    // Signature: < InSetValue,
+    //     std::string (value name from glade),
+    //     std::string (the value)
+    // >
+    DUMMY_REG(InSetValue,"INDLG_InSetValue");
+
+    // Hook onto button click and return signal integer
+    // Signature: <
+    //     InHookButtonClick, std::string (name),
+    //     int (out number)
+    // >
+    DUMMY_REG(InHookButtonClick,"INDLG_HookButtonClick");
+
+    // Emitted when ok button is clicked
+    DUMMY_REG(OutOkClicked,"INDLG_OutOkClicked");
+
+    // Emitted when cancel button is clicked
+    DUMMY_REG(OutCancelClicked,"INDLG_OutCancelClicked");
+
+    // Emitted when numbered event is emitted.
+    // Signature: < OutSignalEmitted, int (signal) >
+    DUMMY_REG(OutSignalEmitted,"INDGL_OutGenSignalEmitted");
+
+    // Query input text
+    // in lua: INDLG_InQueryInput
+    // Signature: < QueryInput, std::string (out) >
+    DUMMY_REG(QueryInput,"INDLG_QueryInput")
+};
+
+struct GenericDialog : public Messageable {
+
+    GenericDialog() = delete;
+    GenericDialog(const GenericDialog&) = delete;
+    GenericDialog(GenericDialog&&) = delete;
+
+    typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
+
+    void message(templatious::VirtualPack& msg) override {
+        _handler->tryMatch(msg);
+    }
+
+    void message(const std::shared_ptr< templatious::VirtualPack >& msg) override {
+        assert( false && "Single threaded messaging only." );
+    }
+
+    GenericDialog(
+        const Glib::RefPtr< Gtk::Builder>& ref,
+        const char* mainName) :
+        _bldPtr(ref),
+        _handler(genHandler()),
+        _signalId(0)
+    {
+        _bldPtr->get_widget(mainName,_main);
+        _main->signal_delete_event().connect(
+            sigc::mem_fun(*this,&GenericDialog::exitEvent)
+        );
+    }
+
+private:
+    void intEvent(int i) {
+        auto locked = _toNotify.lock();
+        if (nullptr != locked) {
+            auto msg = SF::vpack< Int::OutSignalEmitted, int >(
+                nullptr, i
+            );
+            locked->message(msg);
+        }
+    }
+
+    bool exitEvent(GdkEventAny* ev) {
+        printf("Exited...\n");
+        return false;
+    }
+
+    typedef GtkGenericDialogMessages Int;
+
+    VmfPtr genHandler() {
+        return SF::virtualMatchFunctorPtr(
+            SF::virtualMatch< Int::InShowDialog >(
+                [=](Int::InShowDialog) {
+                    _main->show();
+                }
+            ),
+            SF::virtualMatch< Int::InSetNotifier, StrongMsgPtr >(
+                [=](Int::InSetNotifier,const StrongMsgPtr& ptr) {
+                    _toNotify = ptr;
+                }
+            ),
+            SF::virtualMatch< Int::InSetLabel, std::string, std::string >(
+                [=](Int::InSetLabel,
+                    const std::string& name,
+                    const std::string& value)
+                {
+                    Gtk::Label* lbl = nullptr;
+                    _bldPtr->get_widget(name.c_str(),lbl);
+                    assert( nullptr != lbl && "Huh?" );
+                    lbl->set_text(value.c_str());
+                }
+            ),
+            SF::virtualMatch< Int::InSetValue, const std::string, const std::string >(
+                [=](Int::InSetValue,
+                    const std::string& name,
+                    const std::string& value)
+                {
+                    Gtk::Widget* wgt = nullptr;
+                    _bldPtr->get_widget(name.c_str(),wgt);
+                    assert( nullptr != wgt && "Huh?" );
+                    Gtk::Entry* isEntry =
+                        dynamic_cast< Gtk::Entry* >(wgt);
+                    if (nullptr != isEntry) {
+                        isEntry->set_text(value.c_str());
+                        return;
+                    }
+
+                    Gtk::TextView* isTextView =
+                        dynamic_cast< Gtk::TextView* >(wgt);
+                    if (nullptr != isTextView) {
+                        isTextView->get_buffer()->set_text(
+                            value.c_str());
+                    }
+
+                    assert( false && "Dunno how to set text for this cholo." );
+                }
+            ),
+            SF::virtualMatch< Int::QueryInput, const std::string, std::string >(
+                [=](Int::QueryInput,
+                    const std::string& name,
+                    std::string& value)
+                {
+                    Gtk::Widget* wgt = nullptr;
+                    _bldPtr->get_widget(name.c_str(),wgt);
+                    assert( nullptr != wgt && "Huh?" );
+                    Gtk::Entry* isEntry =
+                        dynamic_cast< Gtk::Entry* >(wgt);
+                    if (nullptr != isEntry) {
+                        value = isEntry->get_text().c_str();
+                        isEntry->set_text(value.c_str());
+                        return;
+                    }
+
+                    Gtk::TextView* isTextView =
+                        dynamic_cast< Gtk::TextView* >(wgt);
+                    if (nullptr != isTextView) {
+                        auto buf = isTextView->get_buffer();
+                        value = buf->get_text(buf->begin(),buf->end()).c_str();
+                    }
+
+                    assert( false && "Dunno how to set text for this cholo." );
+                }
+            ),
+            SF::virtualMatch< Int::InHookButtonClick, const std::string, int >(
+                [=](Int::InHookButtonClick,const std::string& str,int& out) {
+                    Gtk::Button* button = nullptr;
+                    _bldPtr->get_widget(str.c_str(),button);
+                    assert( nullptr != button && "Cannot find button to hook into." );
+
+                    int theSignal = _signalId;
+                    ++_signalId;
+
+                    button->signal_clicked().connect(
+                        sigc::bind< int >(
+                            sigc::mem_fun(
+                                *this,&GenericDialog::intEvent
+                            ),theSignal)
+                    );
+
+                    out = theSignal;
+                }
+            )
+        );
+    }
+
+    VmfPtr _handler;
+    Glib::RefPtr< Gtk::Builder > _bldPtr;
+    WeakMsgPtr _toNotify;
+    Gtk::Widget* _main;
+    int _signalId;
+};
+
 const Glib::ustring& mainUiSchema() {
     static Glib::ustring res = SafeLists::readFile("uischemes/main.glade");
     return res;
@@ -1213,57 +1414,6 @@ private:
     std::map< std::string, const Glib::ustring* > _schemaMap;
 };
 
-struct GtkGenericDialogMessages {
-    // Show the dialog
-    // in lua: INDLG_InShowDialog
-    DUMMY_REG(InShowDialog,"INDLG_InShowDialog");
-
-    // Set notifier to notify messages
-    // in lua: INDLG_InSetNotifier
-    // Signature: < InSetNotifier, StrongMsgPtr >
-    DUMMY_REG(InSetNotifier,"INDLG_InSetNotifier");
-
-    // Set label text
-    // in lua: INDLG_InSetLabel
-    // Signature: < InSetLabel, std::string (if only one label) >
-    // Signature: < InSetLabel,
-    //     std::string (label name from glade),
-    //     std::string (the value)
-    // >
-    DUMMY_REG(InSetLabel,"INDLG_InSetLabel");
-
-    // Set value text
-    // in lua: INDLG_InSetValue
-    // Signature: < InSetValue, std::string (if only one value) >
-    // Signature: < InSetValue,
-    //     std::string (value name from glade),
-    //     std::string (the value)
-    // >
-    DUMMY_REG(InSetValue,"INDLG_InSetValue");
-
-    // Hook onto button click and return signal integer
-    // Signature: <
-    //     InHookButtonClick, std::string (name),
-    //     int (out number)
-    // >
-    DUMMY_REG(InHookButtonClick,"INDLG_HookButtonClick");
-
-    // Emitted when ok button is clicked
-    DUMMY_REG(OutOkClicked,"INDLG_OutOkClicked");
-
-    // Emitted when cancel button is clicked
-    DUMMY_REG(OutCancelClicked,"INDLG_OutCancelClicked");
-
-    // Emitted when numbered event is emitted.
-    // Signature: < OutSignalEmitted, int (signal) >
-    DUMMY_REG(OutSignalEmitted,"INDGL_OutGenSignalEmitted");
-
-    // Query input text
-    // in lua: INDLG_InQueryInput
-    // Signature: < QueryInput, std::string (out) >
-    DUMMY_REG(QueryInput,"INDLG_QueryInput")
-};
-
 struct GtkInputDialog : public Messageable {
 
     GtkInputDialog(Glib::RefPtr<Gtk::Builder>& bld) : _handler(genHandler()) {
@@ -1359,156 +1509,6 @@ private:
     WeakMsgPtr _toNotify;
 
     VmfPtr _handler;
-};
-
-struct GenericDialog : public Messageable {
-
-    GenericDialog() = delete;
-    GenericDialog(const GenericDialog&) = delete;
-    GenericDialog(GenericDialog&&) = delete;
-
-    typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
-
-    void message(templatious::VirtualPack& msg) override {
-        _handler->tryMatch(msg);
-    }
-
-    void message(const std::shared_ptr< templatious::VirtualPack >& msg) override {
-        assert( false && "Single threaded messaging only." );
-    }
-
-    GenericDialog(
-        const Glib::RefPtr< Gtk::Builder>& ref,
-        const char* mainName) :
-        _bldPtr(ref),
-        _handler(genHandler()),
-        _signalId(0)
-    {
-        _bldPtr->get_widget(mainName,_main);
-        _main->signal_delete_event().connect(
-            sigc::mem_fun(*this,&GenericDialog::exitEvent)
-        );
-    }
-
-private:
-    void intEvent(int i) {
-        auto locked = _toNotify.lock();
-        if (nullptr != locked) {
-            auto msg = SF::vpack< Int::OutSignalEmitted, int >(
-                nullptr, i
-            );
-            locked->message(msg);
-        }
-    }
-
-    bool exitEvent(GdkEventAny* ev) {
-        printf("Exited...\n");
-        return false;
-    }
-
-    typedef GtkGenericDialogMessages Int;
-
-    VmfPtr genHandler() {
-        return SF::virtualMatchFunctorPtr(
-            SF::virtualMatch< Int::InShowDialog >(
-                [=](Int::InShowDialog) {
-                    _main->show();
-                }
-            ),
-            SF::virtualMatch< Int::InSetNotifier, StrongMsgPtr >(
-                [=](Int::InSetNotifier,const StrongMsgPtr& ptr) {
-                    _toNotify = ptr;
-                }
-            ),
-            SF::virtualMatch< Int::InSetLabel, std::string, std::string >(
-                [=](Int::InSetLabel,
-                    const std::string& name,
-                    const std::string& value)
-                {
-                    Gtk::Label* lbl = nullptr;
-                    _bldPtr->get_widget(name.c_str(),lbl);
-                    assert( nullptr != lbl && "Huh?" );
-                    lbl->set_text(value.c_str());
-                }
-            ),
-            SF::virtualMatch< Int::InSetValue, const std::string, const std::string >(
-                [=](Int::InSetValue,
-                    const std::string& name,
-                    const std::string& value)
-                {
-                    Gtk::Widget* wgt = nullptr;
-                    _bldPtr->get_widget(name.c_str(),wgt);
-                    assert( nullptr != wgt && "Huh?" );
-                    Gtk::Entry* isEntry =
-                        dynamic_cast< Gtk::Entry* >(wgt);
-                    if (nullptr != isEntry) {
-                        isEntry->set_text(value.c_str());
-                        return;
-                    }
-
-                    Gtk::TextView* isTextView =
-                        dynamic_cast< Gtk::TextView* >(wgt);
-                    if (nullptr != isTextView) {
-                        isTextView->get_buffer()->set_text(
-                            value.c_str());
-                    }
-
-                    assert( false && "Dunno how to set text for this cholo." );
-                }
-            ),
-            SF::virtualMatch< Int::QueryInput, const std::string, std::string >(
-                [=](Int::QueryInput,
-                    const std::string& name,
-                    std::string& value)
-                {
-                    Gtk::Widget* wgt = nullptr;
-                    _bldPtr->get_widget(name.c_str(),wgt);
-                    assert( nullptr != wgt && "Huh?" );
-                    Gtk::Entry* isEntry =
-                        dynamic_cast< Gtk::Entry* >(wgt);
-                    if (nullptr != isEntry) {
-                        value = isEntry->get_text().c_str();
-                        isEntry->set_text(value.c_str());
-                        return;
-                    }
-
-                    Gtk::TextView* isTextView =
-                        dynamic_cast< Gtk::TextView* >(wgt);
-                    if (nullptr != isTextView) {
-                        auto buf = isTextView->get_buffer();
-                        value = buf->get_text(buf->begin(),buf->end()).c_str();
-                    }
-
-                    assert( false && "Dunno how to set text for this cholo." );
-                }
-            ),
-            SF::virtualMatch< Int::InHookButtonClick, const std::string, int >(
-                [=](Int::InHookButtonClick,const std::string& str,int& out) {
-                    Gtk::Button* button = nullptr;
-                    _bldPtr->get_widget(str.c_str(),button);
-                    assert( nullptr != button && "Cannot find button to hook into." );
-
-                    int theSignal = _signalId;
-                    ++_signalId;
-
-                    button->signal_clicked().connect(
-                        sigc::bind< int >(
-                            sigc::mem_fun(
-                                *this,&GenericDialog::intEvent
-                            ),theSignal)
-                    );
-
-                    out = theSignal;
-                }
-            )
-        );
-    }
-
-    VmfPtr _handler;
-    Glib::RefPtr< Gtk::Builder > _bldPtr;
-    WeakMsgPtr _toNotify;
-    Gtk::Widget* _main;
-    int _signalId;
 };
 
 templatious::DynVPackFactory makeVfactory() {

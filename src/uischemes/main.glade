@@ -8,6 +8,10 @@
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox1">
         <property name="can_focus">False</property>
+        <property name="margin_left">7</property>
+        <property name="margin_right">7</property>
+        <property name="margin_top">7</property>
+        <property name="margin_bottom">7</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
@@ -56,9 +60,7 @@
             <property name="can_focus">False</property>
             <property name="opacity">0.98999999999999999</property>
             <property name="valign">start</property>
-            <property name="margin_left">7</property>
-            <property name="margin_right">7</property>
-            <property name="resize_mode">queue</property>
+            <property name="resize_mode">immediate</property>
             <property name="row_spacing">10</property>
             <property name="column_spacing">7</property>
             <child>

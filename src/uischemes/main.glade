@@ -54,7 +54,13 @@
           <object class="GtkGrid" id="grid1">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="opacity">0.98999999999999999</property>
+            <property name="valign">start</property>
+            <property name="margin_left">7</property>
+            <property name="margin_right">7</property>
+            <property name="resize_mode">queue</property>
             <property name="row_spacing">10</property>
+            <property name="column_spacing">7</property>
             <child>
               <object class="GtkEntry" id="fileNameInp">
                 <property name="visible">True</property>
@@ -74,7 +80,7 @@
               </object>
               <packing>
                 <property name="left_attach">1</property>
-                <property name="top_attach">1</property>
+                <property name="top_attach">2</property>
                 <property name="width">1</property>
                 <property name="height">1</property>
               </packing>
@@ -102,7 +108,7 @@
               </object>
               <packing>
                 <property name="left_attach">0</property>
-                <property name="top_attach">1</property>
+                <property name="top_attach">2</property>
                 <property name="width">1</property>
                 <property name="height">1</property>
               </packing>
@@ -117,7 +123,7 @@
               </object>
               <packing>
                 <property name="left_attach">0</property>
-                <property name="top_attach">2</property>
+                <property name="top_attach">1</property>
                 <property name="width">1</property>
                 <property name="height">1</property>
               </packing>
@@ -128,23 +134,19 @@
                 <property name="height_request">77</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="margin_left">2</property>
-                <property name="margin_right">2</property>
-                <property name="margin_top">2</property>
-                <property name="margin_bottom">2</property>
                 <property name="hexpand">True</property>
                 <property name="vexpand">True</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
-                <property name="top_attach">2</property>
+                <property name="top_attach">1</property>
                 <property name="width">1</property>
                 <property name="height">1</property>
               </packing>
             </child>
           </object>
           <packing>
-            <property name="expand">False</property>
+            <property name="expand">True</property>
             <property name="fill">True</property>
             <property name="position">1</property>
           </packing>

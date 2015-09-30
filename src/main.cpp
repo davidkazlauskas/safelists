@@ -1300,12 +1300,12 @@ struct GtkDialogService : public Messageable {
     // make generic dialog which is hookable
     // and setable with buttons, etc.
     // Signature:
-    // < GenericDialog,
+    // < MakeGenericDialog,
     //     std::string (resource),
     //     std::string (widget name),
     //     StrongMsgPtr (output)
     // >
-    DUMMY_REG(GenericDialog,"GDS_GenericDialog");
+    DUMMY_REG(MakeGenericDialog,"GDS_MakeGenericDialog");
 
     void message(templatious::VirtualPack& msg) override {
         _handler->tryMatch(msg);
@@ -1407,12 +1407,12 @@ struct GtkDialogService : public Messageable {
                 }
             ),
             SF::virtualMatch<
-                GenericDialog,
+                MakeGenericDialog,
                 const std::string,
                 const std::string,
                 StrongMsgPtr
             >(
-                [=](GenericDialog,
+                [=](MakeGenericDialog,
                     const std::string& resource,
                     const std::string& widgetName,
                     StrongMsgPtr& outPtr)
@@ -1423,7 +1423,8 @@ struct GtkDialogService : public Messageable {
                     auto bld = Gtk::Builder::create_from_string(
                         string,widgetName.c_str());
 
-                    auto dialog = std::make_shared< GenericDialog >(bld);
+                    auto dialog = std::make_shared< GenericDialog >(
+                        bld,widgetName.c_str());
                     outPtr = dialog;
                 }
             )

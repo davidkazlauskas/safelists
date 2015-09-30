@@ -117,6 +117,8 @@ CurrentSafelist = {
 
 currentSafelist = CurrentSafelist.__index.new()
 
+currentSessions = {}
+
 revealDownloads = false
 sessionWidget = nil
 currentAsyncSqlite = nil
@@ -361,6 +363,17 @@ initAll = function()
         return result
     end
 
+    local messageBox = function(title,message)
+        local dialogService =
+            ctx:namedMessageable("dialogService")
+        ctx:message(
+            dialogService,
+            VSig("GDS_AlertDialog"),
+            VMsg(mainWnd),
+            VString(title),
+            VString(message))
+    end
+
     table.insert(FrameEndFunctions,updateRevisionGui)
     table.insert(FrameEndFunctions,updateSessionWidget)
 
@@ -523,6 +536,16 @@ initAll = function()
 
             downloadPath = downloadPath .. "/safelist_session"
 
+            if (currentSessions[downloadPath] == "t") then
+                messageBox(
+                    "In progress",
+                    "Safelist already being downloaded."
+                )
+                return
+            end
+
+            currentSessions[downloadPath] = "t"
+
             --print("Pre col: " .. collectgarbage('count'))
             --collectgarbage('collect')
             --print("Post col: " .. collectgarbage('count'))
@@ -553,6 +576,7 @@ initAll = function()
                 end,"SLD_OutSingleDone","int"),
                 VMatch(function()
                     print('Downloaded!')
+                    currentSessions[downloadPath] = nil
                     DownloadsModel:incRevision()
                     DownloadsModel:dropSession(currSess)
                     objRetainer:release(newId)

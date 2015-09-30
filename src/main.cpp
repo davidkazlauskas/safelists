@@ -1144,6 +1144,10 @@ struct GtkGenericDialogMessages {
     // >
     DUMMY_REG(InHookButtonClick,"INDLG_HookButtonClick");
 
+    // Receive focus
+    // Signature: < InReceiveFocus >
+    DUMMY_REG(InReceiveFocus,"INDLG_InReceiveFocus");
+
     // Emitted when ok button is clicked
     DUMMY_REG(OutOkClicked,"INDLG_OutOkClicked");
 
@@ -1160,7 +1164,7 @@ struct GtkGenericDialogMessages {
     // Query input text
     // in lua: INDLG_InQueryInput
     // Signature: < QueryInput, std::string (out) >
-    DUMMY_REG(QueryInput,"INDLG_QueryInput")
+    DUMMY_REG(QueryInput,"INDLG_QueryInput");
 };
 
 struct GenericDialog : public Messageable {

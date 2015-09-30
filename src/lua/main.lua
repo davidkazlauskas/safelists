@@ -1148,6 +1148,8 @@ initAll = function()
                                         )
                                         return false
                                     end
+
+                                    return true
                                 end
                             )
                         end)

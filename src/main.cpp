@@ -1145,8 +1145,8 @@ struct GtkGenericDialogMessages {
     DUMMY_REG(InHookButtonClick,"INDLG_HookButtonClick");
 
     // Receive focus
-    // Signature: < InReceiveFocus >
-    DUMMY_REG(InReceiveFocus,"INDLG_InReceiveFocus");
+    // Signature: < InAlwaysAbove >
+    DUMMY_REG(InAlwaysAbove,"INDLG_InAlwaysAbove");
 
     // Emitted when ok button is clicked
     DUMMY_REG(OutOkClicked,"INDLG_OutOkClicked");
@@ -1318,9 +1318,11 @@ private:
                     out = theSignal;
                 }
             ),
-            SF::virtualMatch< Int::InReceiveFocus >(
-                [=](Int::InReceiveFocus) {
-                    _main->grab_focus();
+            SF::virtualMatch< Int::InAlwaysAbove >(
+                [=](Int::InAlwaysAbove) {
+                    auto dlg = dynamic_cast< Gtk::Dialog* >(_main);
+                    assert( nullptr != dlg && "Not a dialog." );
+                    dlg->set_keep_above(true);
                 }
             )
         );

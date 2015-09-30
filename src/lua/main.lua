@@ -471,11 +471,6 @@ initAll = function()
 
                     if (funcSuccess(outResult)) then
                         hideDlg()
-                    else
-                        ctx:message(
-                            dialog,
-                            VSig("INDLG_InReceiveFocus")
-                        )
                     end
                 elseif (signal == hookedCancel) then
                     print("Cancel clicked")
@@ -494,6 +489,10 @@ initAll = function()
             dialog,
             VSig("INDLG_InSetNotifier"),
             VMsg(handler)
+        )
+        ctx:message(
+            dialog,
+            VSig("INDLG_InAlwaysAbove")
         )
 
         ctx:message(

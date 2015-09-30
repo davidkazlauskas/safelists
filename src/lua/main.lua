@@ -413,7 +413,7 @@ initAll = function()
                 isHidden = true
                 ctx:message(
                     dialog,
-                    VSig("INDLG_HideDialog")
+                    VSig("INDLG_InHideDialog")
                 )
             end
         end

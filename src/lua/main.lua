@@ -660,12 +660,11 @@ initAll = function()
             local outPath = outVal._5
             if (outPath ~= "") then
                 if (currentSafelist:isSamePath(outPath)) then
-                    ctx:message(dialogService,
-                        VSig("GDS_AlertDialog"),
-                        VMsg(mainWnd),
-                        VString("Already opened!"),
-                        VString("'" .. outPath ..
-                            "' safelist is already opened."))
+                    messageBox(
+                        "Already opened!",
+                        "'" .. outPath ..
+                        "' safelist is already opened."
+                    )
                     return
                 end
                 currentSafelist:setPath(outPath)
@@ -797,14 +796,11 @@ initAll = function()
                                                     VSig("MWI_InSetCurrentDirName"),
                                                     VString(outName))
                                             else
-                                                local dialogService =
-                                                    ctx:namedMessageable("dialogService")
-
-                                                ctx:message(dialogService,
-                                                    VSig("GDS_AlertDialog"),
-                                                    VMsg(mainWnd),
-                                                    VString("Duplicate name!"),
-                                                    VString("'" .. outName .. "' already exists under current parent."))
+                                                messageBox(
+                                                    "Duplicate name!",
+                                                    "'" .. outName ..
+                                                    "' already exists under current parent."
+                                                )
                                             end
                                         end,
                                         VSig("ASQL_OutAffected"),
@@ -892,13 +888,11 @@ initAll = function()
                                                 )
                                                 updateRevision()
                                             else
-                                                local dialogService = ctx:namedMessageable("dialogService")
-                                                ctx:message(dialogService,
-                                                    VSig("GDS_AlertDialog"),
-                                                    VMsg(mainWnd),
-                                                    VString("Duplicate name!"),
-                                                    VString("'" .. outName ..
-                                                        "' already exists under current directory."))
+                                                messageBox(
+                                                    "Duplicate name!",
+                                                    "'" .. outName ..
+                                                    "' already exists under current directory."
+                                                )
                                             end
                                         end,
                                         VSig("ASQL_OutAffected"),

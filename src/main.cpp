@@ -1387,24 +1387,6 @@ protected:
         return false;
     }
 
-    void hookOkButton(const char* okButton) {
-        Gtk::Button* btn = nullptr;
-        _bldPtr->get_widget(okButton,btn);
-        assert( nullptr != btn && "Hook ok failed..." );
-        btn->signal_clicked().connect(
-            sigc::mem_fun(*this,&GenericDialog::cancelAction)
-        );
-    }
-
-    void hookCancelButton(const char* cancelButtonName) {
-        Gtk::Button* btn = nullptr;
-        _bldPtr->get_widget(cancelButtonName,btn);
-        assert( nullptr != btn && "Hook cancel failed..." );
-        btn->signal_clicked().connect(
-            sigc::mem_fun(*this,&GenericDialog::okAction)
-        );
-    }
-
     typedef GtkGenericDialogMessages Int;
     void okAction() {
         auto locked = _toNotify.lock();

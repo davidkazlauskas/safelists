@@ -437,8 +437,9 @@ initAll = function()
                     outResult.size = queryInput("fileSizeInp")
                     outResult.hash = queryInput("fileHashInp")
 
-                    funcSuccess(outResult)
-                    hideDlg()
+                    if (funcSuccess(outResult)) then
+                        hideDlg()
+                    end
                 elseif (signal == hookedCancel) then
                     print("Cancel clicked")
                     hideDlg()
@@ -739,15 +740,6 @@ initAll = function()
             )
         end,"MWI_OutDownloadSafelistButtonClicked"),
         VMatch(function()
-            newFileDialog(
-                function(myRes)
-                    print("YAY! " .. tostring(myRes.finished))
-                end
-            )
-            if (true) then
-                return
-            end
-
             local dialogService = ctx:namedMessageable("dialogService")
             local outVal = ctx:messageRetValues(dialogService,
                 VSig("GDS_FileChooserDialog"),
@@ -1093,7 +1085,10 @@ initAll = function()
                 end
             )
             ctx:message(mainWnd,VSig("MWI_PMM_ShowMenu"),VMsg(menuModelHandler))
-        end,"MWI_OutRightClickFolderList")
+        end,"MWI_OutRightClickFolderList"),
+        VMatch(function()
+            print("Right files")
+        end,"MWI_OutRightClickFileList")
     )
 
     ctx:message(mainWnd,VSig("MWI_InAttachListener"),VMsg(mainWindowPushButtonHandler))

@@ -63,6 +63,11 @@ struct MainWindowInterface {
     // < OutShowDownloadsToggled >
     DUMMY_REG(OutRightClickFolderList,"MWI_OutRightClickFolderList");
 
+    // emitted when show downloads button is clicked
+    // Signature:
+    // < OutShowDownloadsToggled >
+    DUMMY_REG(OutRightClickFileList,"MWI_OutRightClickFileList");
+
     // emitted in draw routine after async messages processed,
     // yet still in overloaded draw method
     DUMMY_REG(OutDrawEnd,"MWI_OutDrawEnd");
@@ -961,6 +966,15 @@ private:
         return false;
     }
 
+    bool leftFileListClicked(GdkEventButton* event) {
+        if ( (event->type == GDK_BUTTON_PRESS) && (event->button) == 3 ) {
+            notifySingleThreaded< MainWindowInterface::OutRightClickFileList >(nullptr);
+            return true;
+        }
+
+        return false;
+    }
+
     void createDirModel() {
         _dirStore = Gtk::TreeStore::create(_dirColumns);
         _left->append_column( "Name", _dirColumns.m_colName );
@@ -978,6 +992,8 @@ private:
         _fileStore = Gtk::ListStore::create(_fileColumns);
         _right->append_column("Name", _fileColumns.m_fileName);
         _right->append_column("Size", _fileColumns.m_fileSize);
+        _right->signal_button_press_event().connect(
+            sigc::mem_fun(*this,&GtkMainWindow::leftFileListClicked),false);
         _right->set_model(_fileStore);
     }
 

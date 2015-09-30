@@ -1064,6 +1064,10 @@ struct GtkGenericDialogMessages {
     // in lua: INDLG_InShowDialog
     DUMMY_REG(InShowDialog,"INDLG_InShowDialog");
 
+    // Show the dialog
+    // in lua: INDLG_InHideDialog
+    DUMMY_REG(InHideDialog,"INDLG_InHideDialog");
+
     // Set notifier to notify messages
     // in lua: INDLG_InSetNotifier
     // Signature: < InSetNotifier, StrongMsgPtr >
@@ -1170,6 +1174,11 @@ private:
             SF::virtualMatch< Int::InShowDialog >(
                 [=](Int::InShowDialog) {
                     _main->show();
+                }
+            ),
+            SF::virtualMatch< Int::InHideDialog >(
+                [=](Int::InHideDialog) {
+                    _main->hide();
                 }
             ),
             SF::virtualMatch< Int::InSetNotifier, StrongMsgPtr >(

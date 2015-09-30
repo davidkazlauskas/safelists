@@ -461,15 +461,11 @@ initAll = function()
                                 VInt(-1))
                             updateRevision()
                         elseif (value == 1) then
-                            local dialogService =
-                                ctx:namedMessageable("dialogService")
-                            ctx:message(
-                                dialogService,
-                                VSig("GDS_AlertDialog"),
-                                VMsg(mainWnd),
-                                VString("Cannot move!"),
-                                VString("Directory to move cannot be a parent"
-                                    .. " of directory to move under."))
+                            messageBox(
+                                "Cannot move!",
+                                "Directory to move cannot be a parent"
+                                .. " of directory to move under."
+                            )
                         --elseif (value == 2) then
                             --local dialogService =
                                 --ctx:namedMessageable("dialogService")
@@ -481,15 +477,11 @@ initAll = function()
                                 --VString("Parent directory already has"
                                     --.. " directory with such name."))
                         elseif (value == 3) then
-                            local dialogService =
-                                ctx:namedMessageable("dialogService")
-                            ctx:message(
-                                dialogService,
-                                VSig("GDS_AlertDialog"),
-                                VMsg(mainWnd),
-                                VString("Cannot move!"),
-                                VString("Directory is already under"
-                                    .. " this parent."))
+                            messageBox(
+                                "Cannot move!",
+                                "Directory is already under"
+                                .. " this parent."
+                            )
                         else
                             assert( false, "Should not happen cholo..." )
                         end

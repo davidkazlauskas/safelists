@@ -142,6 +142,9 @@ struct MainWindowInterface {
     // Signature: < QueryDownloadSessionWidget, StrongMsgPtr >
     DUMMY_REG(QueryDownloadSessionWidget,"MWI_QueryDownloadSessionWidget");
 
+    // query current selected file id
+    // Signature: < QueryCurrentFileId, int >
+    DUMMY_REG(QueryCurrentFileId,"MWI_QueryCurrentFileId");
 
     // popup model
     // Show popup menu.
@@ -597,6 +600,17 @@ private:
                     if (nullptr != selection) {
                         auto row = *selection;
                         outId = row[_dirColumns.m_colId];
+                    } else {
+                        outId = -1;
+                    }
+                }
+            ),
+            SF::virtualMatch< MWI::QueryCurrentFileId, int >(
+                [=](MWI::QueryCurrentFileId,int& outId) {
+                    auto selection = _fileSelection->get_selected();
+                    if (nullptr != selection) {
+                        auto row = *selection;
+                        outId = row[_fileColumns.m_fileId];
                     } else {
                         outId = -1;
                     }

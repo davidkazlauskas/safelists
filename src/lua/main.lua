@@ -1095,6 +1095,11 @@ initAll = function()
                     arraySwitch(result+1,menuModel,
                         arrayBranch("New file",function()
                             print("New file clicked")
+                            newFileDialog(
+                                function(result)
+                                    assert( result.finished, "Should be good..." )
+                                end
+                            )
                         end)
                     )
                 end

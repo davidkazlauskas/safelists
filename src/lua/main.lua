@@ -15,6 +15,37 @@ function enumerateTable(table)
     return res
 end
 
+function byteBelongsToHex(char)
+    if (c >= 48 and c <= 57) then
+        return true
+    end
+
+    if (c >= 65 and c <= 70) then
+        return true
+    end
+
+    if (c >= 97 and c <= 102) then
+        return true
+    end
+
+    return false
+end
+
+function isValidDumbHash256(string)
+    if (#string ~= 64) then
+        return false
+    end
+
+    for i = 1, #string do
+        local c = string.byte(str:sub(i,i))
+        if (not byteBelongsToHex(c)) then
+            return false
+        end
+    end
+
+    return true
+end
+
 -- LUA HAS NO SPLIT STRING FUNCTION? ARE YOU SERIOUS?
 function string:split(delimiter)
   local result = { }

@@ -395,6 +395,18 @@ initAll = function()
             VMsg(nil)
         )._4
 
+        local hookButton = function(widget)
+            return ctx:messageRetValues(
+                dialog,
+                VSig("INDLG_HookButtonClick"),
+                VString(widget),
+                VInt(-1)
+            )._3
+        end
+
+        local hookedOk = hookButton("okButton"),
+        local hookedCancel = hookButton("cancelButton"),
+
         ctx:message(
             dialog,
             VSig("INDLG_InShowDialog")

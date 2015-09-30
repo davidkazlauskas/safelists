@@ -697,10 +697,86 @@ initAll = function()
                     openNew()
                 end
             end
-            print('button blast!')
         end,"MWI_OutOpenSafelistButtonClicked"),
         VMatch(function()
-            print("BLAST!")
+
+            local dialogService = ctx:namedMessageable("dialogService")
+            local outVal = ctx:messageRetValues(dialogService,
+                VSig("GDS_FileChooserDialog"),
+                VMsg(mainWnd),
+                VString("Select safelist session to resume."),
+                VString("safelist_session"),
+                VString("")
+            )
+
+            local thePath = outVal._5
+
+            if (currentSessions[thePath] == "t") then
+                messageBox(
+                    "In progress",
+                    "Safelist already being downloaded."
+                )
+                return
+            end
+
+            currentSessions[thePath] = "t"
+            local currSess = DownloadsModel:newSession()
+            local newId = objRetainer:newId()
+
+            local handler = ctx:makeLuaMatchHandler(
+                VMatch(function(natPack,val)
+                    local values = val:values()
+                    local dl = currSess:keyDownload(values._2)
+                    local ratio = values._3 / values._4
+                    DownloadsModel:incRevision()
+                    dl:setProgress(ratio)
+                end,"SLD_OutProgressUpdate","int","double","double"),
+                VMatch(function(natpack,val)
+                    local valTree = val:values()
+                    local newKey = valTree._2
+                    local newPath = valTree._3
+                    DownloadsModel:incRevision()
+                    currSess:addDownload(newKey,newPath)
+                end,"SLD_OutStarted","int","string"),
+                VMatch(function(natpack,val)
+                    local valTree = val:values()
+                    local delKey = valTree._2
+                    DownloadsModel:incRevision()
+                    currSess:removeDownload(delKey)
+                end,"SLD_OutSingleDone","int"),
+                VMatch(function()
+                    print('Downloaded!')
+                    currentSessions[thePath] = nil
+                    DownloadsModel:incRevision()
+                    DownloadsModel:dropSession(currSess)
+                    objRetainer:release(newId)
+                end,"SLD_OutDone"),
+                VMatch(function(natPack,val)
+                    -- dont care, arbitrary safelist
+                    -- resumed
+                end,"SLD_OutHashUpdate","int","string"),
+                VMatch(function(natPack,out)
+                    -- dont care, arbitrary safelist
+                    -- resumed
+                end,"SLD_OutSizeUpdate","int","double"),
+                VMatch(function(natPack,val)
+                    local vals = val:values()
+                    print("The total: " .. vals._2)
+                    currSess:setTotalDownloads(vals._2)
+                end,"SLDF_OutTotalDownloads","int")
+            )
+
+            objRetainer:retain(newId,handler)
+
+            local dlFactory = ctx:namedMessageable("dlSessionFactory")
+            local dlHandle = ctx:messageRetValues(dlFactory,
+                VSig("SLDF_InNewAsync"),
+                VString(thePath),
+                VMsg(handler),
+                VMsg(nil)
+            )._4
+            assert( dlHandle ~= nil )
+
         end,"MWI_OutResumeDownloadButtonClicked"),
         VMatch(function(natPack,val)
             local thisState = val:values()._2

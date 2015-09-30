@@ -40,6 +40,13 @@ namespace SafeLists {
 namespace {
     namespace fs = boost::filesystem;
 
+    void cleanPathLeftovers(const std::string& path) {
+        std::string listPath = path + ".ilist";
+        std::string tmpPath = path + ".ilist.tmp";
+        fs::remove(listPath);
+        fs::remove(tmpPath);
+    }
+
     SafeLists::IntervalList listForPath(
         const std::string& path,
         int64_t size,

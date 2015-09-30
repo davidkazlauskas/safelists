@@ -1358,7 +1358,6 @@ struct GenericDialog : public Messageable {
         assert( false && "Single threaded messaging only." );
     }
 
-protected:
     GenericDialog(
         const Glib::RefPtr< Gtk::Builder>& ref,
         const char* mainName) :
@@ -1372,6 +1371,7 @@ protected:
         );
     }
 
+private:
     void intEvent(int i) {
         auto locked = _toNotify.lock();
         if (nullptr != locked) {
@@ -1388,8 +1388,6 @@ protected:
     }
 
     typedef GtkGenericDialogMessages Int;
-
-private:
 
     VmfPtr genHandler() {
         return SF::virtualMatchFunctorPtr(

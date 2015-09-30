@@ -1194,39 +1194,39 @@ private:
     SafeLists::VmfPtr _handler;
 };
 
+struct GtkGenericDialogMessages {
+    // Show the dialog
+    // in lua: INDLG_InShowDialog
+    DUMMY_REG(InShowDialog,"INDLG_InShowDialog");
+
+    // Set notifier to notify messages
+    // in lua: INDLG_InSetNotifier
+    // Signature: < InSetNotifier, StrongMsgPtr >
+    DUMMY_REG(InSetNotifier,"INDLG_InSetNotifier");
+
+    // Set label text
+    // in lua: INDLG_InSetLabel
+    // Signature: < InSetLabel, std::string >
+    DUMMY_REG(InSetLabel,"INDLG_InSetLabel");
+
+    // Set value text
+    // in lua: INDLG_InSetValue
+    // Signature: < InSetValue, std::string >
+    DUMMY_REG(InSetValue,"INDLG_InSetValue");
+
+    // Emitted when ok button is clicked
+    DUMMY_REG(OutOkClicked,"INDLG_OutOkClicked");
+
+    // Emitted when cancel button is clicked
+    DUMMY_REG(OutCancelClicked,"INDLG_OutCancelClicked");
+
+    // Query input text
+    // in lua: INDLG_InQueryInput
+    // Signature: < QueryInput, std::string (out) >
+    DUMMY_REG(QueryInput,"INDLG_QueryInput")
+};
+
 struct GtkInputDialog : public Messageable {
-
-    struct Interface {
-        // Show the dialog
-        // in lua: INDLG_InShowDialog
-        DUMMY_REG(InShowDialog,"INDLG_InShowDialog");
-
-        // Set notifier to notify messages
-        // in lua: INDLG_InSetNotifier
-        // Signature: < InSetNotifier, StrongMsgPtr >
-        DUMMY_REG(InSetNotifier,"INDLG_InSetNotifier");
-
-        // Set label text
-        // in lua: INDLG_InSetLabel
-        // Signature: < InSetLabel, std::string >
-        DUMMY_REG(InSetLabel,"INDLG_InSetLabel");
-
-        // Set value text
-        // in lua: INDLG_InSetValue
-        // Signature: < InSetValue, std::string >
-        DUMMY_REG(InSetValue,"INDLG_InSetValue");
-
-        // Emitted when ok button is clicked
-        DUMMY_REG(OutOkClicked,"INDLG_OutOkClicked");
-
-        // Emitted when cancel button is clicked
-        DUMMY_REG(OutCancelClicked,"INDLG_OutCancelClicked");
-
-        // Query input text
-        // in lua: INDLG_InQueryInput
-        // Signature: < QueryInput, std::string (out) >
-        DUMMY_REG(QueryInput,"INDLG_QueryInput")
-    };
 
     GtkInputDialog(Glib::RefPtr<Gtk::Builder>& bld) : _handler(genHandler()) {
         Gtk::Dialog* dlg = nullptr;
@@ -1264,7 +1264,7 @@ private:
             return;
         }
 
-        auto msg = SF::vpack< Interface::OutOkClicked >(nullptr);
+        auto msg = SF::vpack< GtkGenericDialogMessages::OutOkClicked >(nullptr);
         locked->message(msg);
     }
 
@@ -1274,12 +1274,12 @@ private:
             return;
         }
 
-        auto msg = SF::vpack< Interface::OutCancelClicked >(nullptr);
+        auto msg = SF::vpack< GtkGenericDialogMessages::OutCancelClicked >(nullptr);
         locked->message(msg);
     }
 
     VmfPtr genHandler() {
-        typedef Interface INT;
+        typedef GtkGenericDialogMessages INT;
         return SF::virtualMatchFunctorPtr(
             SF::virtualMatch< INT::InShowDialog, bool >(
                 [=](INT::InShowDialog,bool show) {

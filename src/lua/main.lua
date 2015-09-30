@@ -699,6 +699,9 @@ initAll = function()
             end
             print('button blast!')
         end,"MWI_OutOpenSafelistButtonClicked"),
+        VMatch(function()
+            print("BLAST!")
+        end,"MWI_OutResumeDownloadButtonClicked"),
         VMatch(function(natPack,val)
             local thisState = val:values()._2
             if (thisState ~= prevToggleState) then

@@ -1143,12 +1143,30 @@ initAll = function()
                                 function(result)
                                     assert( result.finished, "Should be good..." )
 
+                                    if (not string.match(result.name,"^[-0-9a-zA-Z_. ]+$")) then
+                                        messageBox(
+                                            "Invalid input",
+                                            "Filename contains invalid characters."
+                                        )
+                                        return false
+                                    end
+
                                     if (result.hash ~= "" and
                                         not isValidDumbHash256(result.hash))
                                     then
                                         messageBox(
                                             "Invalid input",
                                             "DumbHash256 entered is invalid."
+                                        )
+                                        return false
+                                    end
+
+                                    if (result.size ~= "" and
+                                        not string.match(result.size,"^%d+$"))
+                                    then
+                                        messageBox(
+                                            "Invalid input",
+                                            "Size is invalid. Expected number in bytes."
                                         )
                                         return false
                                     end

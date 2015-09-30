@@ -1387,23 +1387,6 @@ protected:
         return false;
     }
 
-    typedef GtkGenericDialogMessages Int;
-    void okAction() {
-        auto locked = _toNotify.lock();
-        if (nullptr != locked) {
-            auto msg = SF::vpack< Int::OutOkClicked >(nullptr);
-            locked->message(msg);
-        }
-    }
-
-    void cancelAction() {
-        auto locked = _toNotify.lock();
-        if (nullptr != locked) {
-            auto msg = SF::vpack< Int::OutCancelClicked >(nullptr);
-            locked->message(msg);
-        }
-    }
-
 private:
 
     VmfPtr genHandler() {

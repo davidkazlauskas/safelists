@@ -1102,7 +1102,10 @@ struct GtkGenericDialogMessages {
 
     // Emitted when numbered event is emitted.
     // Signature: < OutSignalEmitted, int (signal) >
-    DUMMY_REG(OutSignalEmitted,"INDGL_OutGenSignalEmitted");
+    DUMMY_REG(OutSignalEmitted,"INDLG_OutGenSignalEmitted");
+
+    // Emitted when dialog is exited
+    DUMMY_REG(OutDialogExited,"INDLG_OutDialogExited");
 
     // Query input text
     // in lua: INDLG_InQueryInput
@@ -1140,18 +1143,23 @@ struct GenericDialog : public Messageable {
     }
 
 private:
-    void intEvent(int i) {
+    template <class... Args,class... Constr>
+    void notifySingleThreaded(Constr&&... args) {
         auto locked = _toNotify.lock();
         if (nullptr != locked) {
-            auto msg = SF::vpack< Int::OutSignalEmitted, int >(
-                nullptr, i
-            );
+            auto msg = SF::vpack< Args... >(
+                std::forward<Constr>(args)...);
             locked->message(msg);
         }
     }
 
+    void intEvent(int i) {
+        notifySingleThreaded< Int::OutSignalEmitted, int >(
+            nullptr,i);
+    }
+
     bool exitEvent(GdkEventAny* ev) {
-        printf("Exited...\n");
+        notifySingleThreaded< Int::OutDialogExited >(nullptr);
         return false;
     }
 

@@ -1120,6 +1120,14 @@ initAll = function()
         end,"MWI_OutRightClickFolderList"),
         VMatch(function()
             print("Right files")
+            local dirId =
+                ctx:messageRetValues(mainWnd,
+                    VSig("MWI_QueryCurrentDirId"),
+                    VInt(-1))._2
+            if (dirId == -1) then
+                return
+            end
+
             local menuModel = { "New file" }
             local menuModelHandler = makePopupMenuModel(
                 ctx,menuModel,
@@ -1130,6 +1138,16 @@ initAll = function()
                             newFileDialog(
                                 function(result)
                                     assert( result.finished, "Should be good..." )
+
+                                    if (result.hash ~= "" and
+                                        not isValidDumbHash256(result.hash))
+                                    then
+                                        messageBox(
+                                            "Invalid input",
+                                            "DumbHash256 entered is invalid."
+                                        )
+                                        return false
+                                    end
                                 end
                             )
                         end)

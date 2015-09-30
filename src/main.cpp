@@ -1405,6 +1405,26 @@ struct GtkDialogService : public Messageable {
                     dlg.set_message(message.c_str());
                     dlg.run();
                 }
+            ),
+            SF::virtualMatch< GenericDialog,
+                const std::string,
+                const std::string,
+                StrongMsgPtr
+            >(
+                [=](GenericDialog,
+                    const std::string& resource,
+                    const std::string& widgetName,
+                    StrongMsgPtr& outPtr)
+                {
+                    auto iter = _schemaMap.find(resource);
+                    assert( iter != _schemaMap.end() && "No resouce." );
+                    auto& string = *iter->second;
+                    auto bld = Gtk::Builder::create_from_string(
+                        string,widgetName.c_str());
+
+                    auto dialog = std::make_shared< GenericDialog >(bld);
+                    outPtr = dialog;
+                }
             )
         );
     }

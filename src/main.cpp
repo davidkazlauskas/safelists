@@ -1088,6 +1088,17 @@ struct GtkDialogService : public Messageable {
     // < AlertDialog, std::String (title), std::string (message) >
     DUMMY_REG(AlertDialog,"GDS_AlertDialog");
 
+
+    // make generic dialog which is hookable
+    // and setable with buttons, etc.
+    // Signature:
+    // < GenericDialog,
+    //     std::string (resource),
+    //     std::string (widget name),
+    //     StrongMsgPtr (output)
+    // >
+    DUMMY_REG(GenericDialog,"GDS_GenericDialog");
+
     void message(templatious::VirtualPack& msg) override {
         _handler->tryMatch(msg);
     }

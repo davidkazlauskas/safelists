@@ -502,6 +502,10 @@ private:
                         dl = nullptr;
                     );
 
+                    auto leftOverGuard = SCOPE_GUARD_LC(
+                        cleanPathLeftovers(dl->_absPath);
+                    );
+
                     --_count;
                     notifyObserver<
                         SLD::OutSingleDone, int

@@ -407,22 +407,35 @@ initAll = function()
         local hookedOk = hookButton("okButton")
         local hookedCancel = hookButton("cancelButton")
 
+        local isHidden = false
+        local hideDlg = function()
+            if (not isHidden) then
+                isHidden = true
+                ctx:message(
+                    dialog,
+                    VSig("INDLG_HideDialog")
+                )
+            end
+        end
+
         local handler = ctx:makeLuaMatchHandler(
             VMatch(function(natpack,val)
                 local signal = val:values()._2
                 if (signal == hookedOk) then
                     print("ok clicked")
                     funcSuccess(outResult)
-                    ctx:message(
-                        dialog,
-                        VSig("INDLG_HideDialog")
-                    )
+                    hideDlg()
                 elseif (signal == hookedCancel) then
                     print("Cancel clicked")
+                    hideDlg()
                 else
                     assert( false, "No such signal? " .. signal )
                 end
-            end,"INDLG_OutGenSignalEmitted","int")
+            end,"INDLG_OutGenSignalEmitted","int"),
+            VMatch(function()
+                print("Exit vanilla")
+                hideDlg()
+            end,"INDLG_OutDialogExited")
         )
 
         ctx:message(
@@ -712,6 +725,15 @@ initAll = function()
             )
         end,"MWI_OutDownloadSafelistButtonClicked"),
         VMatch(function()
+            --newFileDialog(
+                --function(myRes)
+                    --print("YAY! " .. tostring(myRes.finished))
+                --end
+            --)
+            --if (true) then
+                --return
+            --end
+
             local dialogService = ctx:namedMessageable("dialogService")
             local outVal = ctx:messageRetValues(dialogService,
                 VSig("GDS_FileChooserDialog"),

@@ -1406,7 +1406,8 @@ struct GtkDialogService : public Messageable {
                     dlg.run();
                 }
             ),
-            SF::virtualMatch< GenericDialog,
+            SF::virtualMatch<
+                GenericDialog,
                 const std::string,
                 const std::string,
                 StrongMsgPtr

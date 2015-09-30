@@ -1325,9 +1325,21 @@ private:
 
 struct GenericDialog : public Messageable {
 
+    GenericDialog() = delete;
+    GenericDialog(const GenericDialog&) = delete;
+    GenericDialog(GenericDialog&&) = delete;
+
     typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
 
 protected:
+    GenericDialog(
+        const Glib::RefPtr< Gtk::Builder>& ref,
+        const char* mainName) :
+        _bldPtr(ref)
+    {
+        _bldPtr->get_widget(mainName,_main);
+    }
+
     void hookOkButton(const char* okButton) {
         Gtk::Button* btn = nullptr;
         _bldPtr->get_widget(okButton,btn);
@@ -1366,6 +1378,7 @@ private:
     VmfPtr _handler;
     Glib::RefPtr< Gtk::Builder > _bldPtr;
     WeakMsgPtr _toNotify;
+    Gtk::Widget* _main;
 };
 
 templatious::DynVPackFactory makeVfactory() {

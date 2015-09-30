@@ -413,8 +413,12 @@ initAll = function()
                 if (signal == hookedOk) then
                     print("ok clicked")
                     funcSuccess(outResult)
+                    ctx:message(
+                        dialog,
+                        VSig("INDLG_HideDialog")
+                    )
                 elseif (signal == hookedCancel) then
-                    print("cancel clicked")
+                    print("Cancel clicked")
                 else
                     assert( false, "No such signal? " .. signal )
                 end

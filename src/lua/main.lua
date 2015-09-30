@@ -377,6 +377,16 @@ initAll = function()
     local newFileDialog = function()
         local dialogService = ctx:namedMessageable("dialogService")
 
+        -- Return results:
+        -- finished - did finish?
+        -- name - the name
+        -- mirrors - the mirror string
+        -- size - file size (no by default)
+        -- hash - hash (no by default)
+        local outResult = {
+            finished = false
+        }
+
         local dialog = ctx:messageRetValues(
             dialogService,
             VSig("GDS_MakeGenericDialog"),
@@ -389,6 +399,8 @@ initAll = function()
             dialog,
             VSig("INDLG_InShowDialog")
         )
+
+        return outResult
     end
 
     table.insert(FrameEndFunctions,updateRevisionGui)

@@ -404,8 +404,21 @@ initAll = function()
             )._3
         end
 
-        local hookedOk = hookButton("okButton"),
-        local hookedCancel = hookButton("cancelButton"),
+        local hookedOk = hookButton("okButton")
+        local hookedCancel = hookButton("cancelButton")
+
+        local handler = ctx:makeLuaMatchHandler(
+            VMatch(function(natpack,val)
+                local signal = val:values()._2
+                if (signal == hookedOk) then
+                    print("ok clicked")
+                elseif (signal == hookedCancel) then
+                    print("cancel clicked")
+                else
+                    assert( false, "No such signal? " .. signal )
+                end
+            end,"INDLG_OutGenSignalEmitted","int")
+        )
 
         ctx:message(
             dialog,

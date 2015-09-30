@@ -1023,4 +1023,28 @@ TEST_CASE("safelist_partial_download_fragments","[safelist_downloader]") {
     REQUIRE( result );
     result &= !fs::exists("downloadtest1/fldA/fileG");
     REQUIRE( result );
+
+    auto checkLeftovers =
+        [](std::string path) {
+            bool ex = fs::exists(path + ".ilist");
+            if (ex) return ex;
+            ex = fs::exists(path + ".ilist.tmp");
+            return ex;
+        };
+
+    // no trash
+    result &= !checkLeftovers("downloadtest1/fileA");
+    REQUIRE( result );
+    result &= !checkLeftovers("downloadtest1/fileB");
+    REQUIRE( result );
+    result &= !checkLeftovers("downloadtest1/fileC");
+    REQUIRE( result );
+    result &= !checkLeftovers("downloadtest1/fileD");
+    REQUIRE( result );
+    result &= !checkLeftovers("downloadtest1/fileE");
+    REQUIRE( result );
+    result &= !checkLeftovers("downloadtest1/fldA/fileF");
+    REQUIRE( result );
+    result &= !checkLeftovers("downloadtest1/fldA/fileG");
+    REQUIRE( result );
 }

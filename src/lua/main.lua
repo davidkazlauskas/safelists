@@ -432,6 +432,7 @@ initAll = function()
                             VString(""))._3
                     end
 
+                    outResult.finished = true
                     outResult.name = queryInput("fileNameInp")
                     outResult.mirrors = queryInput("mirrorsTextView")
                     outResult.size = queryInput("fileSizeInp")

@@ -1179,6 +1179,8 @@ initAll = function()
                                     local mirrTrimmed = {}
                                     for k,v in ipairs(mirrors) do
                                         local trimmed = trimString(v)
+                                        -- todo: add checking for valid
+                                        -- url (don't know what valid url is yet)
                                         if (trimmed ~= "") then
                                             table.insert(mirrTrimmed,trimmed)
                                         end

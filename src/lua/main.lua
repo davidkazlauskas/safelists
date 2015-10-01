@@ -26,6 +26,8 @@ function mergeTables(tableOld,tableNew)
     for k,v in pairs(tableNew) do
         res[k] = v
     end
+
+    return res
 end
 
 function byteBelongsToHex(c)

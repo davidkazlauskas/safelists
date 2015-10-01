@@ -141,6 +141,17 @@ struct MainWindowInterface {
     // >
     DUMMY_REG(InAddNewFileInCurrent,"MWI_InAddNewFileInCurrent");
 
+    // add new file under current directory
+    // Signature: <
+    //     InSetCurrentFileValues,
+    //     int (fileid),
+    //     int (dirid),
+    //     std::string (filename),
+    //     double (filesize),
+    //     std::string (filehash)
+    // >
+    DUMMY_REG(InSetCurrentFileValues,"MWI_InSetCurrentFileValues");
+
     // query current directory id
     // Signature: < QueryCurrentDirId, int (output) >
     DUMMY_REG(QueryCurrentDirId,"MWI_QueryCurrentDirId");
@@ -631,6 +642,27 @@ private:
                     newRow[_fileColumns.m_fileName] = filename;
                     newRow[_fileColumns.m_fileSize] = static_cast<int64_t>(fileSize);
                     newRow[_fileColumns.m_fileHash] = hash;
+                }
+            ),
+            SF::virtualMatch< MWI::InSetCurrentFileValues,
+                const int, const int, const std::string,
+                const double, const std::string
+            >(
+                [=](MWI::InAddNewFileInCurrent,
+                    int fileId, int dirId, const std::string& filename,
+                    double fileSize, const std::string& hash
+                ) {
+                    auto selection = _fileSelection->get_selected();
+                    if (nullptr != selection) {
+                        auto theRow = *selection;
+                        theRow[_fileColumns.m_fileId] = fileId;
+                        theRow[_fileColumns.m_dirId] = dirId;
+                        theRow[_fileColumns.m_fileName] = filename;
+                        theRow[_fileColumns.m_fileSize] = static_cast<int64_t>(fileSize);
+                        theRow[_fileColumns.m_fileHash] = hash;
+                    } else {
+                        assert( false && "Iter fail..." );
+                    }
                 }
             ),
             SF::virtualMatch< MWI::QueryCurrentFileId, int >(

@@ -514,6 +514,109 @@ initAll = function()
         )
     end
 
+    local modifyFileDialog = function(fileId,funcSuccess)
+        local dialogService = ctx:namedMessageable("dialogService")
+
+        -- Return results:
+        -- finished - did finish?
+        -- name - the name
+        -- mirrors - the mirror string
+        -- size - file size (no by default)
+        -- hash - hash (no by default)
+        local outResult = {
+            finished = false
+        }
+
+        local dialog = ctx:messageRetValues(
+            dialogService,
+            VSig("GDS_MakeGenericDialog"),
+            VString("main"),
+            VString("newFileDialog"),
+            VMsg(nil)
+        )._4
+
+        local hookButton = function(widget)
+            return ctx:messageRetValues(
+                dialog,
+                VSig("INDLG_HookButtonClick"),
+                VString(widget),
+                VInt(-1)
+            )._3
+        end
+
+        local hookedOk = hookButton("okButton")
+        local hookedCancel = hookButton("cancelButton")
+
+        local hideDlg = function()
+            ctx:message(
+                dialog,
+                VSig("INDLG_InHideDialog")
+            )
+        end
+
+        local newId = objRetainer:newId()
+        local handler = ctx:makeLuaMatchHandler(
+            VMatch(function(natpack,val)
+                local signal = val:values()._2
+                if (signal == hookedOk) then
+
+                    local queryInput = function(value)
+                        return ctx:messageRetValues(
+                            dialog,
+                            VSig("INDLG_QueryInput"),
+                            VString(value),
+                            VString(""))._3
+                    end
+
+                    outResult.finished = true
+                    outResult.name = queryInput("fileNameInp")
+                    outResult.mirrors = queryInput("mirrorsTextView")
+                    outResult.size = queryInput("fileSizeInp")
+                    outResult.hash = queryInput("fileHashInp")
+
+                    funcSuccess(outResult,dialog)
+                elseif (signal == hookedCancel) then
+                    print("Cancel clicked")
+                    hideDlg()
+                    objRetainer:release(newId)
+                else
+                    assert( false, "No such signal? " .. signal )
+                end
+            end,"INDLG_OutGenSignalEmitted","int"),
+            VMatch(function()
+                print("Exit vanilla")
+                objRetainer:release(newId)
+            end,"INDLG_OutDialogExited")
+        )
+
+        objRetainer:retain(newId,handler)
+
+        ctx:message(
+            dialog,
+            VSig("INDLG_InSetNotifier"),
+            VMsg(handler)
+        )
+        ctx:message(
+            dialog,
+            VSig("INDLG_InAlwaysAbove")
+        )
+
+        -- lookup actual data
+        local query =
+            "SELECT file_name,file_size,file_hash_256,"
+            .. " group_concat(url,',') FROM mirrors"
+            .. " LEFT OUTER JOIN files"
+            .. " ON files.file_id=mirrors.file_id"
+            .. " WHERE mirrors.file_id=" .. fileId
+            .. " GROUP BY files.file_id;"
+
+        ctx:message(
+            dialog,
+            VSig("INDLG_InShowDialog")
+        )
+    end
+
+
     local getCurrentDirId = function()
         return ctx:messageRetValues(mainWnd,
             VSig("MWI_QueryCurrentDirId"),VInt(-7))._2

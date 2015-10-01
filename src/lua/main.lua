@@ -511,10 +511,6 @@ initAll = function()
     end
 
     local addNewFileUnderCurrentDir = function(data)
-        local sqliteTransaction = {}
-        local push = function(string)
-            table.insert(sqliteTransaction,string)
-        end
 
         local currentDirId = getCurrentDirId()
 
@@ -537,6 +533,34 @@ initAll = function()
             .. "     OR file_name='" .. tmpFileB .. "'))) THEN 2"
             .. " ELSE 0"
             .. " END;"
+
+        local onSuccess = function()
+            local sqliteTransaction = {}
+            local push = function(string)
+                table.insert(sqliteTransaction,string)
+            end
+
+            push("BEGIN;")
+
+            push("INSERT INTO files "
+                .. "(dir_id,file_name,file_size,file_hash_256) VALUES(")
+
+            push(currentDirId .. ",")
+            push("'" .. data.name .. "',")
+            push(data.size .. ",")
+            push(data.hash)
+
+            push(");")
+
+            push("COMMIT;")
+
+            local statement = table.concat(sqliteTransaction," ")
+            ctx:messageAsync(
+                asyncSqlite,
+                VSig("ASQL_Execute"),
+                VString(statement)
+            )
+        end
 
         ctx:messageAsyncWCallback(
             asyncSqlite,
@@ -564,28 +588,14 @@ initAll = function()
                     assert( false, "Say what cholo?" )
                     return
                 end
+
+                onSuccess()
             end,
             VSig("ASQL_OutSingleNum"),
             VString(condition),
             VInt(-1),
             VBool(false)
         )
-
-        push("BEGIN;")
-
-        push("INSERT INTO files "
-            .. "(dir_id,file_name,file_size,file_hash_256) VALUES(")
-
-        push(currentDirId .. ",")
-        push("'" .. data.name .. "',")
-        push(data.size .. ",")
-        push(data.hash)
-
-        push(");")
-
-        push("COMMIT;")
-
-        local statement = table.concat(sqliteTransaction," ")
     end
 
     table.insert(FrameEndFunctions,updateRevisionGui)

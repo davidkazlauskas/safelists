@@ -1297,13 +1297,17 @@ initAll = function()
             ctx:message(mainWnd,VSig("MWI_PMM_ShowMenu"),VMsg(menuModelHandler))
         end,"MWI_OutRightClickFolderList"),
         VMatch(function()
-            print("Right files")
             local dirId = getCurrentDirId()
             if (dirId == -1) then
                 return
             end
 
+            local fileId = getCurrentFileId()
+
             local menuModel = { "New file" }
+            if (fileId > 0) then
+                table.insert(menuModel,"Modify file")
+            end
             local menuModelHandler = makePopupMenuModel(
                 ctx,menuModel,
                 function(result)
@@ -1379,6 +1383,9 @@ initAll = function()
                                     return true
                                 end
                             )
+                        end),
+                        arrayBranch("Modify file",function()
+                            print("Ren file clicked")
                         end)
                     )
                 end

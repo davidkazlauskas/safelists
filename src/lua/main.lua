@@ -519,6 +519,11 @@ initAll = function()
             VSig("MWI_QueryCurrentDirId"),VInt(-7))._2
     end
 
+    local getCurrentFileId = function()
+        return ctx:messageRetValues(mainWnd,
+            VSig("MWI_QueryCurrentFileId"),VInt(-7))._2
+    end
+
     local addNewFileUnderCurrentDir = function(data,dialog)
 
         local currentDirId = getCurrentDirId()

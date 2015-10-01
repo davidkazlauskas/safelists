@@ -651,6 +651,7 @@ initAll = function()
                     local offInput = function(name)
                         ctx:message(dialog,
                             VSig("INDLG_InSetControlEnabled"),
+                            VString(name),
                             VBool(false))
                     end
 

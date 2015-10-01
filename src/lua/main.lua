@@ -15,7 +15,20 @@ function enumerateTable(table)
     return res
 end
 
-function byteBelongsToHex(char)
+-- merge tables, new table overrides old
+function mergeTables(tableOld,tableNew)
+    local res = {}
+
+    for k,v in pairs(tableOld) do
+        res[k] = v
+    end
+
+    for k,v in pairs(tableNew) do
+        res[k] = v
+    end
+end
+
+function byteBelongsToHex(c)
     if (c >= 48 and c <= 57) then
         return true
     end

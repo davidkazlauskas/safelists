@@ -927,6 +927,10 @@ initAll = function()
             push(fileId)
             push(";")
 
+            push("DELETE FROM mirrors WHERE file_id=")
+            push(fileId)
+            push(";")
+
             push("COMMIT;")
 
             local outString = table.concat(updateString,"\n")

@@ -136,7 +136,7 @@ struct MainWindowInterface {
     //     int (fileid),
     //     int (dirid),
     //     std::string (filename),
-    //     int (filesize),
+    //     double (filesize),
     //     std::string (filehash)
     // >
     DUMMY_REG(InAddNewFileInCurrent,"MWI_InAddNewFileInCurrent");
@@ -614,6 +614,23 @@ private:
                     } else {
                         outId = -1;
                     }
+                }
+            ),
+            SF::virtualMatch< MWI::InAddNewFileInCurrent,
+                const int, const int, const std::string,
+                const double, const std::string
+            >(
+                [=](MWI::InAddNewFileInCurrent,
+                    int fileId, int dirId, const std::string& filename,
+                    double fileSize, const std::string& hash
+                ) {
+                    auto newIter = _fileStore->append();
+                    auto newRow = *newIter;
+                    newRow[_fileColumns.m_fileId] = fileId;
+                    newRow[_fileColumns.m_dirId] = dirId;
+                    newRow[_fileColumns.m_fileName] = filename;
+                    newRow[_fileColumns.m_fileSize] = static_cast<int64_t>(fileSize);
+                    newRow[_fileColumns.m_fileHash] = hash;
                 }
             ),
             SF::virtualMatch< MWI::QueryCurrentFileId, int >(

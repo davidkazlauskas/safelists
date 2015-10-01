@@ -518,7 +518,58 @@ initAll = function()
 
         local currentDirId = getCurrentDirId()
 
+        local tmpFileA = data.name .. ".ilist"
+        local tmpFileB = data.name .. ".ilist.tmp"
+
+        local asyncSqlite = currentAsyncSqlite
+        assert(not messageablesEqual(VMsgNil(),asyncSqlite),
+            "No async sqlite." )
+
         -- !! check first
+        local condition =
+               " SELECT CASE"
+            .. " WHEN (EXISTS (SELECT file_name FROM files"
+            .. "     WHERE dir_id=" .. currentDirId
+            .. "     AND file_name='" .. data.name .. "')) THEN 1"
+            .. " WHEN (EXISTS (SELECT file_name FROM files"
+            .. "     WHERE dir_id=" .. currentDirId
+            .. "     AND (file_name='" .. tmpFileA .. "'"
+            .. "     OR file_name='" .. tmpFileB .. "'))) THEN 2"
+            .. " ELSE 0"
+            .. " END;"
+
+        ctx:messageAsyncWCallback(
+            asyncSqlite,
+            function(outres)
+                local val = outres:values()
+                local success = val._4
+                assert( success, "YOU GET NOTHING, YOU LOSE" )
+                local case = val._3
+                if (case == 1) then
+                    messageBox(
+                        "Invalid input",
+                        "File '" .. data.name .. "' already"
+                        .. " exists under current directory."
+                    )
+                    return
+                elseif (case == 2) then
+                    messageBox(
+                        "Invalid input",
+                        "Name '" .. data.name .. "' is forbidden."
+                    )
+                    return
+                end
+
+                if (case ~= 0) then
+                    assert( false, "Say what cholo?" )
+                    return
+                end
+            end,
+            VSig("ASQL_OutSingleNum"),
+            VString(condition),
+            VInt(-1),
+            VBool(false)
+        )
 
         push("BEGIN;")
 

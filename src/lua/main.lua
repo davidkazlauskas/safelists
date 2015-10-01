@@ -673,7 +673,7 @@ initAll = function()
                     local mirrTrimmed = trimMirrors(queryInput("mirrorsTextView"))
 
                     outResult.finished = true
-                    diffAssign("name",fileName,"fileNameIn")
+                    diffAssign("name",fileName,"fileNameInp")
                     diffAssign("size",fileSize,"fileSizeInp")
                     diffAssign("hash",fileHash,"fileHashInp")
 

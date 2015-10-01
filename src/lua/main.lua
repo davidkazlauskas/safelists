@@ -623,7 +623,7 @@ initAll = function()
                 local splitRow = string.split(outputRow,"|")
 
                 local fileName = splitRow[1]
-                local fileSize = tonumber(splitRow[2])
+                local fileSize = splitRow[2]
                 local fileHash = splitRow[3]
                 local totalUses = tonumber(splitRow[4])
                 local splitMirrors = string.split(splitRow[5],",")

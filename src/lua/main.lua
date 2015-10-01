@@ -552,6 +552,17 @@ initAll = function()
 
             push(");")
 
+            local currentFileIdSelect =
+                "SELECT file_id FROM files WHERE " ..
+                "file_name='" .. data.name .. "' AND dir_id="
+                .. currentDirId
+
+            for k,v in data.mirrors do
+                push("INSERT INTO mirrors (file_id,url,use_count) VALUES(")
+                push("(" .. currentFileIdSelect .. "),'" .. v .. "',0")
+                push(");")
+            end
+
             push("COMMIT;")
 
             local statement = table.concat(sqliteTransaction," ")
@@ -560,10 +571,8 @@ initAll = function()
                 function()
                     -- you know, I'd love a feature
                     -- in sqlite to query something
-                    -- after insert, that'd be great.
-                    local queryLastRowId =
-                        "SELECT file_id FROM files" ..
-                        " WHERE rowid=last_insert_rowid();"
+                    -- right after insert, that'd be great.
+                    local lastFileId = currentFileIdSelect .. ";"
                     ctx:messageAsyncWCallback(
                         asyncSqlite,
                         function(val)
@@ -581,7 +590,7 @@ initAll = function()
                             )
                         end,
                         VSig("ASQL_OutSingleNum"),
-                        VString(queryLastRowId),
+                        VString(lastFileId),
                         VInt(-1),
                         VBool(false)
                     )

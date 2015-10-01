@@ -991,52 +991,39 @@ initAll = function()
             push("UPDATE files SET ")
             if (diffTable.name ~= nil) then
                 delim()
-                push("file_name='")
-                push(diffTable.name)
-                push("'")
+                push("file_name='" .. diffTable.name .. "'")
                 isFirst = false
             end
 
             if (diffTable.size ~= nil) then
                 delim()
-                push("file_size=")
-                push(diffTable.size)
-                push("")
+                push("file_size=" .. diffTable.size)
                 isFirst = false
             end
 
             if (diffTable.hash ~= nil) then
                 delim()
-                push("file_hash_256='")
-                push(diffTable.hash)
-                push("'")
+                push("file_hash_256='" .. diffTable.hash .. "'")
                 isFirst = false
             end
 
-            push(" WHERE file_id=")
-            push(fileId)
-            push(";")
+            push(" WHERE file_id=" .. fileId .. ";")
 
             if (diffTable.mirrors ~= nil) then
-                push("DELETE FROM mirrors WHERE file_id=")
-                push(fileId)
-                push(";")
+                push("DELETE FROM mirrors WHERE file_id=" .. fileId .. ";")
 
                 local mirrSplit = string.split(diffTable.mirrors,"\n")
 
                 for k,v in ipairs(mirrSplit) do
                     push("INSERT INTO mirrors (file_id,url,use_count) ")
-                    push("VALUES (")
-                    push(fileId)
-                    push(",'")
-                    push(v)
-                    push("',0);")
+                    push("VALUES")
+                    push("(" .. fileId .. ",'" .. v .. "',0);")
                 end
             end
 
             push("COMMIT;")
 
-            local outString = table.concat(updateString,"\n")
+            local outString = table.concat(updateString," ")
             ctx:messageAsync(
                 asyncSqlite,
                 VSig("ASQL_Execute"),

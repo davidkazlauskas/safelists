@@ -1074,9 +1074,11 @@ initAll = function()
                    " SELECT CASE"
                 .. " WHEN (EXISTS (SELECT file_name FROM files"
                 .. "     WHERE dir_id=" .. currentDirId
+                .. "     AND NOT file_id=" .. fileId
                 .. "     AND file_name='" .. currentName .. "')) THEN 1"
                 .. " WHEN (EXISTS (SELECT file_name FROM files"
                 .. "     WHERE dir_id=" .. currentDirId
+                .. "     AND NOT file_id=" .. fileId
                 .. "     AND (file_name || '.ilist' ='" .. currentName .. "'"
                 .. "     OR file_name || '.ilist.tmp' ='" .. currentName .. "'))) THEN 2"
                 .. " ELSE 0"

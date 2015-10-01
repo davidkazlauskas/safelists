@@ -869,6 +869,19 @@ initAll = function()
         end
 
         local updateFunction = function()
+            local updateString = {}
+            local push = function(value)
+                table.insert(updateString,value)
+            end
+
+            -- the action
+
+            local outString = table.concat(updateString,"\n")
+            ctx:messageAsync(
+                asyncSqlite,
+                VSig("ASQL_Execute"),
+                VString(outString)
+            )
             hideDlg()
             updateRevision()
         end

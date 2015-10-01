@@ -555,8 +555,37 @@ initAll = function()
             push("COMMIT;")
 
             local statement = table.concat(sqliteTransaction," ")
-            ctx:messageAsync(
+            ctx:messageAsyncWCallback(
                 asyncSqlite,
+                function()
+                    -- you know, I'd love a feature
+                    -- in sqlite to query something
+                    -- after insert, that'd be great.
+                    local queryLastRowId =
+                        "SELECT file_id FROM files" ..
+                        " WHERE rowid=last_insert_rowid();"
+                    ctx:messageAsyncWCallback(
+                        asyncSqlite,
+                        function(val)
+                            local tbl = val:values()
+                            assert( tbl._4, "Aww, zigga nease..." )
+                            local theId = tbl._3
+                            ctx:message(
+                                mainWnd,
+                                VSig("MWI_InAddNewFileInCurrent"),
+                                VInt(theId),
+                                VInt(currentDirId),
+                                VString(data.name),
+                                VInt(data.size),
+                                VString(data.hash)
+                            )
+                        end,
+                        VSig("ASQL_OutSingleNum"),
+                        VString(queryLastRowId),
+                        VInt(-1),
+                        VBool(false)
+                    )
+                end,
                 VSig("ASQL_Execute"),
                 VString(statement)
             )

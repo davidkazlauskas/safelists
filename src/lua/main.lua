@@ -610,9 +610,37 @@ initAll = function()
             .. " WHERE mirrors.file_id=" .. fileId
             .. " GROUP BY files.file_id;"
 
-        ctx:message(
-            dialog,
-            VSig("INDLG_InShowDialog")
+        local asyncSqlite = currentAsyncSqlite
+
+        ctx:messageAsyncWCallback(
+            asyncSqlite,
+            function(out)
+                local tbl = out:values()
+                local isOk = tbl._4
+                assert( isOk, "Your query failed, friendo" )
+                local outputRow = tbl._3
+
+                local splitRow = string.split(outputRow,"|")
+                local fileName = splitRow[1]
+                local fileSize = splitRow[2]
+                local fileHash = splitRow[3]
+                local splitMirrors = string.split(splitRow[4],",")
+
+                print(outputRow)
+
+                if (true) then
+                    return
+                end
+
+                ctx:message(
+                    dialog,
+                    VSig("INDLG_InShowDialog")
+                )
+            end,
+            VSig("ASQL_OutSingleRow"),
+            VString(query),
+            VString(""),
+            VBool(false)
         )
     end
 

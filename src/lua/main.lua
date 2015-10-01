@@ -460,6 +460,7 @@ initAll = function()
             )
         end
 
+        local newId = objRetainer:newId()
         local handler = ctx:makeLuaMatchHandler(
             VMatch(function(natpack,val)
                 local signal = val:values()._2
@@ -484,14 +485,18 @@ initAll = function()
                 elseif (signal == hookedCancel) then
                     print("Cancel clicked")
                     hideDlg()
+                    objRetainer:release(newId)
                 else
                     assert( false, "No such signal? " .. signal )
                 end
             end,"INDLG_OutGenSignalEmitted","int"),
             VMatch(function()
                 print("Exit vanilla")
+                objRetainer:release(newId)
             end,"INDLG_OutDialogExited")
         )
+
+        objRetainer:retain(newId,handler)
 
         ctx:message(
             dialog,

@@ -927,9 +927,20 @@ initAll = function()
             push(fileId)
             push(";")
 
-            push("DELETE FROM mirrors WHERE file_id=")
-            push(fileId)
-            push(";")
+            if (diffTable.mirrors ~= nil) then
+                push("DELETE FROM mirrors WHERE file_id=")
+                push(fileId)
+                push(";")
+
+                for k,v in ipairs(diffTable.mirrors) do
+                    push("INSERT INTO mirrors (file_id,url,use_count) ")
+                    push("VALUES (")
+                    push(fileId)
+                    push(",'")
+                    push(v)
+                    push("',0);")
+                end
+            end
 
             push("COMMIT;")
 

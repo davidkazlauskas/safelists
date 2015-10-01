@@ -576,7 +576,7 @@ initAll = function()
                                 VInt(theId),
                                 VInt(currentDirId),
                                 VString(data.name),
-                                VInt(data.size),
+                                VDouble(data.size),
                                 VString(data.hash)
                             )
                         end,

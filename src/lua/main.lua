@@ -630,13 +630,33 @@ initAll = function()
 
                 print(outputRow)
 
-                if (true) then
-                    return
+                local setInput = function(name,value)
+                    ctx:message(
+                        dialog,
+                        VSig("INDLG_InSetValue"),
+                        VString(name),
+                        VString(value)
+                    )
                 end
 
-                ctx:message(
-                    dialog,
-                    VSig("INDLG_InShowDialog")
+                local concatMirrors = table.concat(splitMirrors,"\n")
+
+                setInput("fileNameInp",fileName)
+                setInput("mirrorsTextView",concatMirrors)
+                setInput("fileSizeInp",fileSize)
+                setInput("fileHashInp",fileHash)
+
+                local hashAndSizeOff = totalUses > 0
+                if (hashAndSizeOff) then
+                    local offInput = function(name)
+                        ctx:message(dialog,
+                            VSig("INDLG_InSetControlEnabled"),
+                            VBool(false))
+                    end
+
+                    offInput("fileSizeInp")
+                    offInput("fileHashInp")
+                end
                 )
             end,
             VSig("ASQL_OutSingleRow"),

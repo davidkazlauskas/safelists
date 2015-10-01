@@ -979,9 +979,10 @@ initAll = function()
 
             local isFirst = true
             local delim = function()
-                if (isFirst) then
+                if (not isFirst) then
                     push(",")
                 end
+                isFirst = false
             end
 
             -- the action

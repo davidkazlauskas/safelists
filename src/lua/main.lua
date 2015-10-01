@@ -858,6 +858,20 @@ initAll = function()
         -- size - file size (no by default)
         -- hash - hash (no by default)
 
+        local missing = function(...)
+            local props = {...}
+            for k,v in ipairs(props) do
+                if (diffTable[v] ~= nil) then
+                    return false
+                end
+            end
+            return true
+        end
+
+        if (missing("name","mirrors","size","hash")) then
+            -- nothing changed, no worries
+            return
+        end
 
         local asyncSqlite = currentAsyncSqlite
 

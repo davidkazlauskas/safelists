@@ -1290,13 +1290,14 @@ initAll = function()
                         arrayBranch("New file",function()
                             print("New file clicked")
                             newFileDialog(
-                                function(result)
+                                function(result,dialog)
                                     assert( result.finished, "Should be good..." )
 
                                     if (not string.match(result.name,"^[-0-9a-zA-Z_. ]+$")) then
-                                        messageBox(
+                                        messageBoxWParent(
                                             "Invalid input",
-                                            "Filename contains invalid characters."
+                                            "Filename contains invalid characters.",
+                                            dialog
                                         )
                                         return false
                                     end
@@ -1314,9 +1315,10 @@ initAll = function()
                                     end
 
                                     if (#mirrTrimmed == 0) then
-                                        messageBox(
+                                        messageBoxWParent(
                                             "Invalid input",
-                                            "No valid mirrors found."
+                                            "No valid mirrors found.",
+                                            dialog
                                         )
                                         return false
                                     end
@@ -1326,10 +1328,11 @@ initAll = function()
                                     if (result.hash ~= "" and
                                         not isValidDumbHash256(result.hash))
                                     then
-                                        messageBox(
+                                        messageBoxWParent(
                                             "Invalid input",
                                             "DumbHash256 entered is invalid." ..
-                                            " Expected 64 hexadecimal digits."
+                                            " Expected 64 hexadecimal digits.",
+                                            dialog
                                         )
                                         return false
                                     end
@@ -1337,9 +1340,10 @@ initAll = function()
                                     if (result.size ~= "" and
                                         not string.match(result.size,"^%d+$"))
                                     then
-                                        messageBox(
+                                        messageBoxWParent(
                                             "Invalid input",
-                                            "Size is invalid. Expected number in bytes."
+                                            "Size is invalid. Expected number in bytes.",
+                                            dialog
                                         )
                                         return false
                                     end
@@ -1349,7 +1353,7 @@ initAll = function()
                                     end
 
                                     -- great success, form validation passed
-                                    addNewFileUnderCurrentDir(result)
+                                    addNewFileUnderCurrentDir(result,dialog)
 
                                     return true
                                 end

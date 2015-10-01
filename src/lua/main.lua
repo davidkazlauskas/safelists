@@ -420,7 +420,7 @@ initAll = function()
             VString(message))
     end
 
-    local newFileDialog = function(funcSuccess,funcDialogTweak)
+    local newFileDialog = function(funcSuccess)
         local dialogService = ctx:namedMessageable("dialogService")
 
         -- Return results:
@@ -507,10 +507,6 @@ initAll = function()
             dialog,
             VSig("INDLG_InAlwaysAbove")
         )
-
-        if (funcDialogTweak) then
-            funcDialogTweak(dialog)
-        end
 
         ctx:message(
             dialog,

@@ -44,13 +44,13 @@ function byteBelongsToHex(c)
     return false
 end
 
-function isValidDumbHash256(string)
-    if (#string ~= 64) then
+function isValidDumbHash256(str)
+    if (#str ~= 64) then
         return false
     end
 
-    for i = 1, #string do
-        local c = string.byte(str:sub(i,i))
+    for i = 1, #str do
+        local c = str:byte(i)
         if (not byteBelongsToHex(c)) then
             return false
         end

@@ -1176,6 +1176,11 @@ struct GtkGenericDialogMessages {
     // Signature: < InAlwaysAbove >
     DUMMY_REG(InAlwaysAbove,"INDLG_InAlwaysAbove");
 
+    // Set control enabled.
+    // Signature:
+    // < InSetControlEnabled, std::string (name), bool (value) >
+    DUMMY_REG(InSetControlEnabled,"INDLG_InSetControlEnabled");
+
     // Emitted when ok button is clicked
     DUMMY_REG(OutOkClicked,"INDLG_OutOkClicked");
 
@@ -1351,6 +1356,19 @@ private:
                     auto dlg = dynamic_cast< Gtk::Dialog* >(_main);
                     assert( nullptr != dlg && "Not a dialog." );
                     dlg->set_keep_above(true);
+                }
+            ),
+            SF::virtualMatch< Int::InSetControlEnabled, const std::string, bool >(
+                [=](Int::InSetControlEnabled,const std::string& name,bool val) {
+                    Gtk::Widget* wgt = nullptr;
+                    _bldPtr->get_widget(name.c_str(),wgt);
+                    assert( nullptr != wgt && "Cant pull widget." );
+                    wgt->set_sensitive(val);
+                }
+            ),
+            SF::virtualMatch< GenericGtkWindowInterface::GetGtkWindow, Gtk::Window* >(
+                [=](GenericGtkWindowInterface::GetGtkWindow,Gtk::Window*& ptr) {
+                    ptr = static_cast<Gtk::Window*>(_main);
                 }
             )
         );

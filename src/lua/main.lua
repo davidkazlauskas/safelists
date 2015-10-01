@@ -60,6 +60,10 @@ function string:split(delimiter)
   return result
 end
 
+function trimString(string)
+  return string:match "^%s*(.-)%s*$"
+end
+
 -- on select function receives integer option selected,
 -- -1 if none
 function makePopupMenuModel(context,table,onSelectFunction)
@@ -1152,6 +1156,14 @@ initAll = function()
                                     end
 
                                     -- todo validate mirrors
+                                    local mirrors = string.split(result.mirrors,"\n")
+                                    local mirrTrimmed = {}
+                                    for k,v in ipairs(mirrors) do
+                                        local trimmed = trimString(v)
+                                        if (trimmed ~= "") then
+                                            table.insert(mirrTrimmed,trimmed)
+                                        end
+                                    end
 
                                     if (result.hash ~= "" and
                                         not isValidDumbHash256(result.hash))

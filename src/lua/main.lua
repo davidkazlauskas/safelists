@@ -453,15 +453,11 @@ initAll = function()
         local hookedOk = hookButton("okButton")
         local hookedCancel = hookButton("cancelButton")
 
-        local isHidden = false
         local hideDlg = function()
-            if (not isHidden) then
-                isHidden = true
-                ctx:message(
-                    dialog,
-                    VSig("INDLG_InHideDialog")
-                )
-            end
+            ctx:message(
+                dialog,
+                VSig("INDLG_InHideDialog")
+            )
         end
 
         local handler = ctx:makeLuaMatchHandler(
@@ -484,9 +480,7 @@ initAll = function()
                     outResult.size = queryInput("fileSizeInp")
                     outResult.hash = queryInput("fileHashInp")
 
-                    if (funcSuccess(outResult)) then
-                        hideDlg()
-                    end
+                    funcSuccess(outResult,dialog)
                 elseif (signal == hookedCancel) then
                     print("Cancel clicked")
                     hideDlg()
@@ -496,7 +490,6 @@ initAll = function()
             end,"INDLG_OutGenSignalEmitted","int"),
             VMatch(function()
                 print("Exit vanilla")
-                hideDlg()
             end,"INDLG_OutDialogExited")
         )
 

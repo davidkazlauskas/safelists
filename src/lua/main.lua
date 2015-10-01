@@ -554,6 +554,18 @@ initAll = function()
             )
         end
 
+        local trimMirrors = function(text)
+            local newTable = {}
+            local split = string.split(text,"\n")
+            for k,v in ipairs(split) do
+                local trimmed = trimString(v)
+                if (trimmed ~= "") then
+                    table.insert(newTable,trimmed)
+                end
+            end
+            return table.concat(newTable,"\n")
+        end
+
         local newId = objRetainer:newId()
         local handler = ctx:makeLuaMatchHandler(
             VMatch(function(natpack,val)
@@ -568,11 +580,23 @@ initAll = function()
                             VString(""))._3
                     end
 
+                    local diffAssign = function(field,prev,inpField)
+                        local current = queryInput(inpField)
+                        if (prev ~= current) then
+                            outResult[field] = current
+                        end
+                    end
+
+                    local mirrTrimmed = trimMirrors(queryInput("mirrorsTextView"))
+
                     outResult.finished = true
-                    outResult.name = queryInput("fileNameInp")
-                    outResult.mirrors = queryInput("mirrorsTextView")
-                    outResult.size = queryInput("fileSizeInp")
-                    outResult.hash = queryInput("fileHashInp")
+                    diffAssign("name",fileName,"fileNameIn")
+                    diffAssign("size",fileSize,"fileSizeInp")
+                    diffAssign("hash",fileHash,"fileHashInp")
+
+                    if (mirrTrimmed ~= concatMirrors) then
+                        outResult.mirrors = mirrTrimmed
+                    end
 
                     funcSuccess(outResult,dialog)
                 elseif (signal == hookedCancel) then
@@ -627,8 +651,6 @@ initAll = function()
                 local fileHash = splitRow[3]
                 local totalUses = tonumber(splitRow[4])
                 local splitMirrors = string.split(splitRow[5],",")
-
-                print(outputRow)
 
                 local setInput = function(name,value)
                     ctx:message(

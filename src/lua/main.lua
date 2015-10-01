@@ -1184,6 +1184,16 @@ initAll = function()
                                         end
                                     end
 
+                                    if (#mirrTrimmed == 0) then
+                                        messageBox(
+                                            "Invalid input",
+                                            "No valid mirrors found."
+                                        )
+                                        return false
+                                    end
+
+                                    result.mirrors = mirrTrimmed
+
                                     if (result.hash ~= "" and
                                         not isValidDumbHash256(result.hash))
                                     then
@@ -1204,6 +1214,9 @@ initAll = function()
                                         )
                                         return false
                                     end
+
+                                    -- great success, form validation passed
+                                    addNewFileUnderCurrentDir(result)
 
                                     return true
                                 end

@@ -1738,71 +1738,14 @@ initAll = function()
                             print("New file clicked")
                             newFileDialog(
                                 function(result,dialog)
-                                    assert( result.finished, "Should be good..." )
-
-                                    if (not string.match(result.name,"^[-0-9a-zA-Z_. ]+$")) then
-                                        messageBoxWParent(
-                                            "Invalid input",
-                                            "Filename contains invalid characters.",
-                                            dialog
-                                        )
-                                        return false
-                                    end
-
-                                    -- todo validate mirrors
-                                    local mirrors = string.split(result.mirrors,"\n")
-                                    local mirrTrimmed = {}
-                                    for k,v in ipairs(mirrors) do
-                                        local trimmed = trimString(v)
-                                        -- todo: add checking for valid
-                                        -- url (don't know what valid url is yet)
-                                        if (trimmed ~= "") then
-                                            table.insert(mirrTrimmed,trimmed)
-                                        end
-                                    end
-
-                                    if (#mirrTrimmed == 0) then
-                                        messageBoxWParent(
-                                            "Invalid input",
-                                            "No valid mirrors found.",
-                                            dialog
-                                        )
-                                        return false
-                                    end
-
-                                    result.mirrors = mirrTrimmed
-
-                                    if (result.hash ~= "" and
-                                        not isValidDumbHash256(result.hash))
-                                    then
-                                        messageBoxWParent(
-                                            "Invalid input",
-                                            "DumbHash256 entered is invalid." ..
-                                            " Expected 64 hexadecimal digits.",
-                                            dialog
-                                        )
-                                        return false
-                                    end
-
-                                    if (result.size ~= "" and
-                                        not string.match(result.size,"^%d+$"))
-                                    then
-                                        messageBoxWParent(
-                                            "Invalid input",
-                                            "Size is invalid. Expected number in bytes.",
-                                            dialog
-                                        )
-                                        return false
-                                    end
-
-                                    if (result.size == "") then
-                                        result.size = "-1"
+                                    local firstValidation =
+                                        validateNewFileDialogFirst(result,dialog)
+                                    if (not firstValidation) then
+                                        return
                                     end
 
                                     -- great success, form validation passed
                                     addNewFileUnderCurrentDir(result,dialog)
-
-                                    return true
                                 end
                             )
                         end),

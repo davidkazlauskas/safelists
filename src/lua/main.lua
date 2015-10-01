@@ -850,13 +850,30 @@ initAll = function()
         )
     end
 
-    local updateFileFromDiff = function(fileId,diffTable,dialog)
+    local updateFileFromDiff = function(fileId,currentDirId,diffTable,dialog)
         -- diffTable:
         -- finished - did finish?
         -- name - the name
         -- mirrors - the mirror string
         -- size - file size (no by default)
         -- hash - hash (no by default)
+
+        if (nil ~= diffTable.name) then
+            -- validate if file name is forbidden
+            local currentName = diffTable.name
+            local validationQuery =
+                   " SELECT CASE"
+                .. " WHEN (EXISTS (SELECT file_name FROM files"
+                .. "     WHERE dir_id=" .. currentDirId
+                .. "     AND file_name='" .. currentName .. "')) THEN 1"
+                .. " WHEN (EXISTS (SELECT file_name FROM files"
+                .. "     WHERE dir_id=" .. currentDirId
+                .. "     AND (file_name || '.ilist' ='" .. currentName .. "'"
+                .. "     OR file_name || '.ilist.tmp' ='" .. currentName .. "'))) THEN 2"
+                .. " ELSE 0"
+                .. " END;"
+        else
+        end
 
     end
 
@@ -1576,7 +1593,7 @@ initAll = function()
                             modifyFileDialog(
                                 fileId,
                                 function(result,dialog)
-                                    updateFileFromDiff(fileId,result,dialog)
+                                    updateFileFromDiff(fileId,dirId,result,dialog)
                                 end
                             )
                         end)

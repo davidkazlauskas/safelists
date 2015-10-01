@@ -861,16 +861,16 @@ initAll = function()
 
         local asyncSqlite = currentAsyncSqlite
 
-        local updateFunction = function()
-
-            updateRevision()
-        end
-
         local hideDlg = function()
             ctx:message(
                 dialog,
                 VSig("INDLG_InHideDialog")
             )
+        end
+
+        local updateFunction = function()
+            hideDlg()
+            updateRevision()
         end
 
         local inputFail = function(message)
@@ -931,8 +931,7 @@ initAll = function()
                 VBool(false)
             )
         else
-            -- no need to validate anything,
-            -- just update nominals
+            updateFunction()
         end
 
     end

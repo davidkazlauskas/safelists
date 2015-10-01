@@ -605,6 +605,10 @@ initAll = function()
             finished = false
         }
 
+        local original = {
+            finished = false
+        }
+
         local dialog = ctx:messageRetValues(
             dialogService,
             VSig("GDS_MakeGenericDialog"),
@@ -677,7 +681,7 @@ initAll = function()
                         outResult.mirrors = mirrTrimmed
                     end
 
-                    funcSuccess(outResult,dialog)
+                    funcSuccess(outResult,original,dialog)
                 elseif (signal == hookedCancel) then
                     print("Cancel clicked")
                     hideDlg()
@@ -741,6 +745,11 @@ initAll = function()
                 end
 
                 local concatMirrors = table.concat(splitMirrors,"\n")
+
+                original.name = fileName
+                original.size = fileSize
+                original.hash = fileHash
+                original.mirrors = concatMirrors
 
                 setInput("fileNameInp",fileName)
                 setInput("mirrorsTextView",concatMirrors)
@@ -928,7 +937,7 @@ initAll = function()
         )
     end
 
-    local updateFileFromDiff = function(fileId,currentDirId,diffTable,dialog)
+    local updateFileFromDiff = function(fileId,currentDirId,diffTable,orig,dialog)
         -- diffTable:
         -- finished - did finish?
         -- name - the name
@@ -1753,8 +1762,14 @@ initAll = function()
                             print("Ren file clicked")
                             modifyFileDialog(
                                 fileId,
-                                function(result,dialog)
-                                    updateFileFromDiff(fileId,dirId,result,dialog)
+                                function(result,orig,dialog)
+                                    local firstValidation =
+                                        validateNewFileDialogFirst(result,dialog)
+                                    if (not firstValidation) then
+                                        return
+                                    end
+
+                                    updateFileFromDiff(fileId,dirId,result,orig,dialog)
                                 end
                             )
                         end)

@@ -143,34 +143,46 @@
           </packing>
         </child>
         <child>
-          <object class="GtkGrid" id="grid1">
+          <object class="GtkGrid" id="grid3">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="opacity">0.98999999999999999</property>
-            <property name="valign">start</property>
-            <property name="resize_mode">immediate</property>
-            <property name="row_spacing">10</property>
-            <property name="column_spacing">7</property>
             <child>
-              <object class="GtkEntry" id="fileNameInp">
+              <object class="GtkLabel" id="mirrorsLbl">
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
+                <property name="can_focus">False</property>
+                <property name="valign">start</property>
+                <property name="xalign">0</property>
+                <property name="label" translatable="yes">* Mirrors (one per line)</property>
               </object>
               <packing>
-                <property name="left_attach">1</property>
-                <property name="top_attach">0</property>
+                <property name="left_attach">0</property>
+                <property name="top_attach">1</property>
                 <property name="width">1</property>
                 <property name="height">1</property>
               </packing>
             </child>
             <child>
-              <object class="GtkEntry" id="fileSizeInp">
+              <object class="GtkScrolledWindow" id="scrolledwindow2">
+                <property name="width_request">327</property>
+                <property name="height_request">77</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="shadow_type">in</property>
+                <child>
+                  <object class="GtkTextView" id="mirrorsTextView">
+                    <property name="width_request">327</property>
+                    <property name="height_request">77</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="hexpand">True</property>
+                    <property name="vexpand">True</property>
+                    <property name="indent">1</property>
+                  </object>
+                </child>
               </object>
               <packing>
                 <property name="left_attach">1</property>
-                <property name="top_attach">2</property>
+                <property name="top_attach">1</property>
                 <property name="width">1</property>
                 <property name="height">1</property>
               </packing>
@@ -184,6 +196,18 @@
               </object>
               <packing>
                 <property name="left_attach">0</property>
+                <property name="top_attach">0</property>
+                <property name="width">1</property>
+                <property name="height">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkEntry" id="fileNameInp">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
                 <property name="top_attach">0</property>
                 <property name="width">1</property>
                 <property name="height">1</property>
@@ -204,32 +228,25 @@
               </packing>
             </child>
             <child>
-              <object class="GtkLabel" id="mirrorsLbl">
+              <object class="GtkEntry" id="fileSizeInp">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="valign">start</property>
-                <property name="xalign">0</property>
-                <property name="label" translatable="yes">* Mirrors (one per line)</property>
+                <property name="can_focus">True</property>
               </object>
               <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">1</property>
+                <property name="left_attach">1</property>
+                <property name="top_attach">2</property>
                 <property name="width">1</property>
                 <property name="height">1</property>
               </packing>
             </child>
             <child>
-              <object class="GtkTextView" id="mirrorsTextView">
-                <property name="width_request">327</property>
-                <property name="height_request">77</property>
+              <object class="GtkEntry" id="fileHashInp">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="hexpand">True</property>
-                <property name="vexpand">True</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
-                <property name="top_attach">1</property>
+                <property name="top_attach">3</property>
                 <property name="width">1</property>
                 <property name="height">1</property>
               </packing>
@@ -248,21 +265,9 @@
                 <property name="height">1</property>
               </packing>
             </child>
-            <child>
-              <object class="GtkEntry" id="fileHashInp">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-              </object>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="top_attach">3</property>
-                <property name="width">1</property>
-                <property name="height">1</property>
-              </packing>
-            </child>
           </object>
           <packing>
-            <property name="expand">True</property>
+            <property name="expand">False</property>
             <property name="fill">True</property>
             <property name="position">1</property>
           </packing>

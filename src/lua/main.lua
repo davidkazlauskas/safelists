@@ -947,8 +947,7 @@ initAll = function()
                 function(result)
                     arraySwitch(result+1,menuModel,
                         arrayBranch("Move",function()
-                            currentDirId = ctx:messageRetValues(mainWnd,
-                                VSig("MWI_QueryCurrentDirId"),VInt(-7))._2
+                            currentDirId = getCurrentDirId()
                             if (currentDirId ~= -1) then
                                 ctx:message(mainWnd,
                                     VSig("MWI_InSetStatusText"),
@@ -957,7 +956,7 @@ initAll = function()
                             end
                         end),
                         arrayBranch("Delete",function()
-                            currentDirId = ctx:messageRetValues(mainWnd,VSig("MWI_QueryCurrentDirId"),VInt(-7))._2
+                            currentDirId = getCurrentDirId()
                             if (currentDirId ~= -1) then
                                 if (currentDirId == 1) then
                                     setStatus(ctx,mainWnd,"Root cannot be deleted.")
@@ -985,7 +984,7 @@ initAll = function()
                             end
 
                             local dirName = ctx:messageRetValues(mainWnd,VSig("MWI_QueryCurrentDirName"),VString("?"))._2
-                            local dirId = ctx:messageRetValues(mainWnd,VSig("MWI_QueryCurrentDirId"),VInt(-7))._2
+                            local dirId = getCurrentDirId()
 
                             if (dirName == "[unselected]") then
                                 setStatus(ctx,mainWnd,"No directory was selected to create new one.")
@@ -1064,7 +1063,7 @@ initAll = function()
                             end
 
                             local dirName = ctx:messageRetValues(mainWnd,VSig("MWI_QueryCurrentDirName"),VString("?"))._2
-                            local dirId = ctx:messageRetValues(mainWnd,VSig("MWI_QueryCurrentDirId"),VInt(-7))._2
+                            local dirId = getCurrentDirId()
 
                             if (dirName == "[unselected]") then
                                 setStatus(ctx,mainWnd,"No directory was selected to create new one.")
@@ -1151,10 +1150,7 @@ initAll = function()
         end,"MWI_OutRightClickFolderList"),
         VMatch(function()
             print("Right files")
-            local dirId =
-                ctx:messageRetValues(mainWnd,
-                    VSig("MWI_QueryCurrentDirId"),
-                    VInt(-1))._2
+            local dirId = getCurrentDirId()
             if (dirId == -1) then
                 return
             end

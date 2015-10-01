@@ -1300,6 +1300,7 @@ private:
                     if (nullptr != isTextView) {
                         isTextView->get_buffer()->set_text(
                             value.c_str());
+                        return;
                     }
 
                     assert( false && "Dunno how to set text for this cholo." );

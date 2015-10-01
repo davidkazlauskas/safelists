@@ -1063,6 +1063,13 @@ initAll = function()
 
         if (nil ~= diffTable.name) then
             -- validate if file name is forbidden
+            ctx:message(
+                dialog,
+                VSig("INDLG_InSetControlEnabled"),
+                VString("okButton"),
+                VBool(false)
+            )
+
             local currentName = diffTable.name
             local validationQuery =
                    " SELECT CASE"

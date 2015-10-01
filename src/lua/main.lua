@@ -527,6 +527,7 @@ initAll = function()
         ctx:message(
             dialog,
             VSig("INDLG_InSetControlEnabled"),
+            VString("okButton"),
             VBool(false)
         )
 
@@ -539,6 +540,7 @@ initAll = function()
             ctx:message(
                 dialog,
                 VSig("INDLG_InSetControlEnabled"),
+                VString("okButton"),
                 VBool(true)
             )
         end

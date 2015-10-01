@@ -888,7 +888,46 @@ initAll = function()
                 table.insert(updateString,value)
             end
 
+            local isFirst = true
+            local delim = function()
+                if (isFirst) then
+                    push(",")
+                end
+            end
+
             -- the action
+            push("BEGIN;")
+
+            push("UPDATE files SET ")
+            if (diffTable.name ~= nil) then
+                delim()
+                push("file_name='")
+                push(diffTable.name)
+                push("'")
+                isFirst = false
+            end
+
+            if (diffTable.size ~= nil) then
+                delim()
+                push("file_size=")
+                push(diffTable.size)
+                push("")
+                isFirst = false
+            end
+
+            if (diffTable.hash ~= nil) then
+                delim()
+                push("file_hash_256='")
+                push(diffTable.hash)
+                push("'")
+                isFirst = false
+            end
+
+            push(" WHERE file_id=")
+            push(fileId)
+            push(";")
+
+            push("COMMIT;")
 
             local outString = table.concat(updateString,"\n")
             ctx:messageAsync(

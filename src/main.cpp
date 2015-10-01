@@ -130,6 +130,17 @@ struct MainWindowInterface {
     // Signature: < InAddChildUnderCurrentDir, std::string (name), int (id) >
     DUMMY_REG(InAddChildUnderCurrentDir,"MWI_InAddChildUnderCurrentDir");
 
+    // add new file under current directory
+    // Signature: <
+    //     InAddNewFileInCurrent,
+    //     int (fileid),
+    //     int (dirid),
+    //     std::string (filename),
+    //     int (filesize),
+    //     std::string (filehash)
+    // >
+    DUMMY_REG(InAddNewFileInCurrent,"MWI_InAddNewFileInCurrent");
+
     // query current directory id
     // Signature: < QueryCurrentDirId, int (output) >
     DUMMY_REG(QueryCurrentDirId,"MWI_QueryCurrentDirId");

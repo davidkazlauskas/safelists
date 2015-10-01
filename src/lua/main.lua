@@ -595,9 +595,12 @@ initAll = function()
                     --.. "              directories.dir_parent=children.d_id "
                     --.. "     ) SELECT d_id FROM children"
                     --.. " )) THEN 1"
+
+                    -- dir under parent already
                     .. " WHEN ((SELECT dir_parent FROM directories"
                     .. "     WHERE dir_id=" .. currentDirId
                     .. "     ) = " .. inId .. ") THEN 3"
+                    -- same name already under directory
                     .. " WHEN (" .. "(SELECT dir_name FROM"
                     .. "     directories WHERE dir_id=" .. currentDirId .. ") IN"
                     .. "     ( SELECT dir_name FROM directories WHERE"
@@ -623,22 +626,22 @@ initAll = function()
                                 VSig("MWI_InMoveChildUnderParent"),
                                 VInt(-1))
                             updateRevision()
-                        elseif (value == 1) then
-                            messageBox(
-                                "Cannot move!",
-                                "Directory to move cannot be a parent"
-                                .. " of directory to move under."
-                            )
-                        --elseif (value == 2) then
-                            --local dialogService =
-                                --ctx:namedMessageable("dialogService")
-                            --ctx:message(
-                                --dialogService,
-                                --VSig("GDS_AlertDialog"),
-                                --VMsg(mainWnd),
-                                --VString("Cannot move!"),
-                                --VString("Parent directory already has"
-                                    --.. " directory with such name."))
+                        --elseif (value == 1) then
+                            --messageBox(
+                                --"Cannot move!",
+                                --"Directory to move cannot be a parent"
+                                --.. " of directory to move under."
+                            --)
+                        elseif (value == 2) then
+                            local dialogService =
+                                ctx:namedMessageable("dialogService")
+                            ctx:message(
+                                dialogService,
+                                VSig("GDS_AlertDialog"),
+                                VMsg(mainWnd),
+                                VString("Cannot move!"),
+                                VString("Parent directory already has"
+                                    .. " directory with such name."))
                         elseif (value == 3) then
                             messageBox(
                                 "Cannot move!",

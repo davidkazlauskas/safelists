@@ -1158,7 +1158,8 @@ initAll = function()
                                     then
                                         messageBox(
                                             "Invalid input",
-                                            "DumbHash256 entered is invalid."
+                                            "DumbHash256 entered is invalid." ..
+                                            " Expected 64 hexadecimal digits."
                                         )
                                         return false
                                     end

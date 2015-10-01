@@ -505,6 +505,29 @@ initAll = function()
         )
     end
 
+    local getCurrentDirId = function()
+        return ctx:messageRetValues(mainWnd,
+            VSig("MWI_QueryCurrentDirId"),VInt(-7))._2
+    end
+
+    local addNewFileUnderCurrentDir = function(data)
+        local sqliteTransaction = {}
+        local push = function(string)
+            table.insert(sqliteTransaction,string)
+        end
+
+        local currentDir = getCurrentDirId()
+
+        push("BEGIN;")
+
+        --push("INSERT INTO files "
+            --.. "()")
+
+        push("COMMIT;")
+
+        local statement = table.concat(sqliteTransaction," ")
+    end
+
     table.insert(FrameEndFunctions,updateRevisionGui)
     table.insert(FrameEndFunctions,updateSessionWidget)
 

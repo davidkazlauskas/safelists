@@ -658,6 +658,10 @@ initAll = function()
                     offInput("fileSizeInp")
                     offInput("fileHashInp")
                 end
+
+                ctx:message(
+                    dialog,
+                    VSig("INDLG_InShowDialog")
                 )
             end,
             VSig("ASQL_OutSingleRow"),

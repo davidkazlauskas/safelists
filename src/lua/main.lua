@@ -516,12 +516,21 @@ initAll = function()
             table.insert(sqliteTransaction,string)
         end
 
-        local currentDir = getCurrentDirId()
+        local currentDirId = getCurrentDirId()
+
+        -- !! check first
 
         push("BEGIN;")
 
-        --push("INSERT INTO files "
-            --.. "()")
+        push("INSERT INTO files "
+            .. "(dir_id,file_name,file_size,file_hash_256) VALUES(")
+
+        push(currentDirId .. ",")
+        push("'" .. data.name .. "',")
+        push(data.size .. ",")
+        push(data.hash)
+
+        push(");")
 
         push("COMMIT;")
 

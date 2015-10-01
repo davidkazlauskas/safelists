@@ -1037,6 +1037,18 @@ initAll = function()
                 VSig("ASQL_Execute"),
                 VString(outString)
             )
+
+            local merged = mergeTables(orig,diffTable)
+
+            ctx:message(
+                mainWnd,
+                VSig("MWI_InSetCurrentFileValues"),
+                VInt(fileId),
+                VInt(currentDirId),
+                VString(merged.name),
+                VDouble(tonumber(merged.size)),
+                VString(merged.hash)
+            )
             hideDlg()
             updateRevision()
         end

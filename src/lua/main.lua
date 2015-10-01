@@ -604,7 +604,7 @@ initAll = function()
         -- lookup actual data
         local query =
             "SELECT file_name,file_size,file_hash_256,"
-            .. " group_concat(url,',') FROM mirrors"
+            .. " sum(use_count),group_concat(url,',') FROM mirrors"
             .. " LEFT OUTER JOIN files"
             .. " ON files.file_id=mirrors.file_id"
             .. " WHERE mirrors.file_id=" .. fileId
@@ -621,10 +621,12 @@ initAll = function()
                 local outputRow = tbl._3
 
                 local splitRow = string.split(outputRow,"|")
+
                 local fileName = splitRow[1]
-                local fileSize = splitRow[2]
+                local fileSize = tonumber(splitRow[2])
                 local fileHash = splitRow[3]
-                local splitMirrors = string.split(splitRow[4],",")
+                local totalUses = tonumber(splitRow[4])
+                local splitMirrors = string.split(splitRow[5],",")
 
                 print(outputRow)
 

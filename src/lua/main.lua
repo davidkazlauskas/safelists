@@ -858,6 +858,21 @@ initAll = function()
         -- size - file size (no by default)
         -- hash - hash (no by default)
 
+
+        local asyncSqlite = currentAsyncSqlite
+
+        local updateFunction = function()
+
+            updateRevision()
+        end
+
+        local hideDlg = function()
+            ctx:message(
+                dialog,
+                VSig("INDLG_InHideDialog")
+            )
+        end
+
         if (nil ~= diffTable.name) then
             -- validate if file name is forbidden
             local currentName = diffTable.name
@@ -872,7 +887,27 @@ initAll = function()
                 .. "     OR file_name || '.ilist.tmp' ='" .. currentName .. "'))) THEN 2"
                 .. " ELSE 0"
                 .. " END;"
+            ctx:messageAsyncWCallback(
+                asyncSqlite,
+                function(out)
+                    local tbl = out:values()
+                    local isGood = tbl._4
+                    local case = tbl._3
+
+                    assert( isGood, "Take sqlite 101, sucker." )
+                    if (case == 0) then
+                        updateFunction()
+                        return
+                    end
+                end,
+                VSig("ASQL_OutSingleNum"),
+                VString(validationQuery),
+                VInt(-1),
+                VBool(false)
+            )
         else
+            -- no need to validate anything,
+            -- just update nominals
         end
 
     end

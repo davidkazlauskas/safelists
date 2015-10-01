@@ -1217,6 +1217,10 @@ initAll = function()
                                         return false
                                     end
 
+                                    if (result.size == "") then
+                                        result.size = "-1"
+                                    end
+
                                     -- great success, form validation passed
                                     addNewFileUnderCurrentDir(result)
 

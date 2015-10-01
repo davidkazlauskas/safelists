@@ -859,7 +859,9 @@ initAll = function()
                 "file_name='" .. data.name .. "' AND dir_id="
                 .. currentDirId
 
-            for k,v in ipairs(data.mirrors) do
+            local mirrSplit = string.split(data.mirrors,"\n")
+
+            for k,v in ipairs(mirrSplit) do
                 push("INSERT INTO mirrors (file_id,url,use_count) VALUES(")
                 push("(" .. currentFileIdSelect .. "),'" .. v .. "',0")
                 push(");")
@@ -1019,7 +1021,9 @@ initAll = function()
                 push(fileId)
                 push(";")
 
-                for k,v in ipairs(diffTable.mirrors) do
+                local mirrSplit = string.split(diffTable.mirrors,"\n")
+
+                for k,v in ipairs(mirrSplit) do
                     push("INSERT INTO mirrors (file_id,url,use_count) ")
                     push("VALUES (")
                     push(fileId)

@@ -873,6 +873,20 @@ initAll = function()
             )
         end
 
+        local inputFail = function(message)
+            messageBoxWParent(
+                "Invalid input",
+                message,
+                dialog
+            )
+            ctx:message(
+                dialog,
+                VSig("INDLG_InSetControlEnabled"),
+                VString("okButton"),
+                VBool(true)
+            )
+        end
+
         if (nil ~= diffTable.name) then
             -- validate if file name is forbidden
             local currentName = diffTable.name
@@ -899,6 +913,17 @@ initAll = function()
                         updateFunction()
                         return
                     end
+
+                    if (case == 1) then
+                        inputFail( "File '" .. currentName .. "' already"
+                            .. " exists under current directory.")
+                        return
+                    elseif (case == 2) then
+                        inputFail("Name '" .. currentName .. "' is forbidden.")
+                        return
+                    end
+
+                    assert( false, "You stepped in the wrong neighbourhood, bro..." )
                 end,
                 VSig("ASQL_OutSingleNum"),
                 VString(validationQuery),

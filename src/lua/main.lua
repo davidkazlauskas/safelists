@@ -409,6 +409,17 @@ initAll = function()
             VString(message))
     end
 
+    local messageBoxWParent = function(title,message,parent)
+        local dialogService =
+            ctx:namedMessageable("dialogService")
+        ctx:message(
+            dialogService,
+            VSig("GDS_AlertDialog"),
+            VMsg(parent),
+            VString(title),
+            VString(message))
+    end
+
     local newFileDialog = function(funcSuccess)
         local dialogService = ctx:namedMessageable("dialogService")
 

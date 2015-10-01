@@ -514,12 +514,9 @@ initAll = function()
             VSig("MWI_QueryCurrentDirId"),VInt(-7))._2
     end
 
-    local addNewFileUnderCurrentDir = function(data)
+    local addNewFileUnderCurrentDir = function(data,dialog)
 
         local currentDirId = getCurrentDirId()
-
-        local tmpFileA = data.name .. ".ilist"
-        local tmpFileB = data.name .. ".ilist.tmp"
 
         local asyncSqlite = currentAsyncSqlite
         assert(not messageablesEqual(VMsgNil(),asyncSqlite),
@@ -533,8 +530,8 @@ initAll = function()
             .. "     AND file_name='" .. data.name .. "')) THEN 1"
             .. " WHEN (EXISTS (SELECT file_name FROM files"
             .. "     WHERE dir_id=" .. currentDirId
-            .. "     AND (file_name='" .. tmpFileA .. "'"
-            .. "     OR file_name='" .. tmpFileB .. "'))) THEN 2"
+            .. "     AND (file_name || '.ilist' ='" .. data.name .. "'"
+            .. "     OR file_name || '.ilist.tmp' ='" .. data.name .. "'))) THEN 2"
             .. " ELSE 0"
             .. " END;"
 
@@ -561,7 +558,7 @@ initAll = function()
                 "file_name='" .. data.name .. "' AND dir_id="
                 .. currentDirId
 
-            for k,v in data.mirrors do
+            for k,v in ipairs(data.mirrors) do
                 push("INSERT INTO mirrors (file_id,url,use_count) VALUES(")
                 push("(" .. currentFileIdSelect .. "),'" .. v .. "',0")
                 push(");")
@@ -589,9 +586,14 @@ initAll = function()
                                 VInt(theId),
                                 VInt(currentDirId),
                                 VString(data.name),
-                                VDouble(data.size),
+                                VDouble(tonumber(data.size)),
                                 VString(data.hash)
                             )
+                            ctx:message(
+                                dialog,
+                                VSig("INDLG_InHideDialog")
+                            )
+                            updateRevision()
                         end,
                         VSig("ASQL_OutSingleNum"),
                         VString(lastFileId),
@@ -612,16 +614,26 @@ initAll = function()
                 assert( success, "YOU GET NOTHING, YOU LOSE" )
                 local case = val._3
                 if (case == 1) then
-                    messageBox(
+                    ctx:message(
+                        dialog,
+                        VSig("INDLG_InShowDialog")
+                    )
+                    messageBoxWParent(
                         "Invalid input",
                         "File '" .. data.name .. "' already"
-                        .. " exists under current directory."
+                        .. " exists under current directory.",
+                        dialog
                     )
                     return
                 elseif (case == 2) then
-                    messageBox(
+                    ctx:message(
+                        dialog,
+                        VSig("INDLG_InShowDialog")
+                    )
+                    messageBoxWParent(
                         "Invalid input",
-                        "Name '" .. data.name .. "' is forbidden."
+                        "Name '" .. data.name .. "' is forbidden.",
+                        dialog
                     )
                     return
                 end

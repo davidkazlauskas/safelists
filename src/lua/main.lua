@@ -522,6 +522,27 @@ initAll = function()
         assert(not messageablesEqual(VMsgNil(),asyncSqlite),
             "No async sqlite." )
 
+        -- disable Ok button for split
+        -- second of async operations
+        ctx:message(
+            dialog,
+            VSig("INDLG_InSetControlEnabled"),
+            VBool(false)
+        )
+
+        local inputFail = function(message)
+            messageBoxWParent(
+                "Invalid input",
+                message,
+                dialog
+            )
+            ctx:message(
+                dialog,
+                VSig("INDLG_InSetControlEnabled"),
+                VBool(true)
+            )
+        end
+
         -- !! check first
         local condition =
                " SELECT CASE"
@@ -614,27 +635,11 @@ initAll = function()
                 assert( success, "YOU GET NOTHING, YOU LOSE" )
                 local case = val._3
                 if (case == 1) then
-                    ctx:message(
-                        dialog,
-                        VSig("INDLG_InShowDialog")
-                    )
-                    messageBoxWParent(
-                        "Invalid input",
-                        "File '" .. data.name .. "' already"
-                        .. " exists under current directory.",
-                        dialog
-                    )
+                    inputFail( "File '" .. data.name .. "' already"
+                        .. " exists under current directory.")
                     return
                 elseif (case == 2) then
-                    ctx:message(
-                        dialog,
-                        VSig("INDLG_InShowDialog")
-                    )
-                    messageBoxWParent(
-                        "Invalid input",
-                        "Name '" .. data.name .. "' is forbidden.",
-                        dialog
-                    )
+                    inputFail("Name '" .. data.name .. "' is forbidden.")
                     return
                 end
 

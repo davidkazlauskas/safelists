@@ -554,6 +554,7 @@ initAll = function()
             )
         end
 
+        -- TODO: sort to make sure?
         local trimMirrors = function(text)
             local newTable = {}
             local split = string.split(text,"\n")

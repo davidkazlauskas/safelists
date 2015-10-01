@@ -1513,6 +1513,12 @@ initAll = function()
                         end),
                         arrayBranch("Modify file",function()
                             print("Ren file clicked")
+                            modifyFileDialog(
+                                fileId,
+                                function(result,dialog)
+
+                                end
+                            )
                         end)
                     )
                 end

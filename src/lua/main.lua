@@ -548,7 +548,7 @@ initAll = function()
             push(currentDirId .. ",")
             push("'" .. data.name .. "',")
             push(data.size .. ",")
-            push(data.hash)
+            push("'" .. data.hash .. "'")
 
             push(");")
 

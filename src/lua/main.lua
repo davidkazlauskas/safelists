@@ -850,6 +850,16 @@ initAll = function()
         )
     end
 
+    local updateFileFromDiff = function(fileId,diffTable,dialog)
+        -- diffTable:
+        -- finished - did finish?
+        -- name - the name
+        -- mirrors - the mirror string
+        -- size - file size (no by default)
+        -- hash - hash (no by default)
+
+    end
+
     table.insert(FrameEndFunctions,updateRevisionGui)
     table.insert(FrameEndFunctions,updateSessionWidget)
 
@@ -1566,7 +1576,7 @@ initAll = function()
                             modifyFileDialog(
                                 fileId,
                                 function(result,dialog)
-
+                                    updateFileFromDiff(fileId,result,dialog)
                                 end
                             )
                         end)

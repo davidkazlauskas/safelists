@@ -737,6 +737,10 @@ initAll = function()
                 local totalUses = tonumber(splitRow[4])
                 local splitMirrors = string.split(splitRow[5],",")
 
+                if (fileSize == "-1") then
+                    fileSize = ""
+                end
+
                 local setInput = function(name,value)
                     ctx:message(
                         dialog,

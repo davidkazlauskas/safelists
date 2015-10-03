@@ -1149,6 +1149,64 @@ initAll = function()
         VMatch(function(natpack,val)
             local inId = val:values()._2
 
+            if (currentDirId > 0 and shouldMoveFile == true) then
+                shouldMoveFile = false
+                local toMove = fileToMove
+                local asyncSqlite = currentAsyncSqlite
+                assert( not messageablesEqual(VMsgNil(),asyncSqlite),
+                    "Huh cholo?" )
+
+                local fileToMoveSelect =
+                    "(SELECT file_name FROM files WHERE file_id="
+                    .. toMove .. ")"
+
+                local condition =
+                       " SELECT CASE"
+                    .. " WHEN (EXISTS (SELECT file_name FROM files"
+                    .. "     WHERE dir_id=" .. currentDirId
+                    .. "     AND file_name=" .. fileToMoveSelect .. ")) THEN 1"
+                    .. " WHEN (EXISTS (SELECT file_name FROM files"
+                    .. "     WHERE dir_id=" .. currentDirId
+                    .. "     AND (file_name || '.ilist' =" .. fileToMoveSelect .. ""
+                    .. "     OR file_name || '.ilist.tmp' =" .. fileToMoveSelect .. "))) THEN 2"
+                    .. " ELSE 0"
+                    .. " END;"
+
+                ctx:messageAsyncWCallback(
+                    asyncSqlite,
+                    function(out)
+                        local val = out:values()
+                        local success = val._4
+                        assert( success, "Back to sqlite school sucker." )
+                        local case = val._3
+                        if (case == 2) then
+                            messageBoxWParent(
+                                "Invalid move",
+                                "File with such name already"
+                                .. " exists under that directory.",
+                                mainWnd
+                            )
+                        elseif (case == 1) then
+                            messageBoxWParent(
+                                "Invalid move",
+                                "File cannot be moved under"
+                                .. " this directory."
+                                mainWnd
+                            )
+                        elseif (case == 0) then
+                            -- good case
+                        else
+                            assert( false, "Huh?!?" )
+                        end
+                    end,
+                    VSig("ASQL_OutSingleNum"),
+                    VString(condition),
+                    VInt(-1),
+                    VBool(false)
+                )
+                return
+            end
+
             if (currentDirId > 0 and shouldMoveDir == true) then
                 shouldMoveDir = false
                 ctx:message(mainWnd,VSig("MWI_InSetStatusText"),VString(""))

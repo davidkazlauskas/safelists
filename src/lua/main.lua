@@ -1753,6 +1753,7 @@ initAll = function()
             local menuModel = { "New file" }
             if (fileId > 0) then
                 table.insert(menuModel,"Modify file")
+                table.insert(menuModel,"Move to another directory")
             end
             local menuModelHandler = makePopupMenuModel(
                 ctx,menuModel,
@@ -1787,6 +1788,9 @@ initAll = function()
                                     updateFileFromDiff(fileId,dirId,result,orig,dialog)
                                 end
                             )
+                        end),
+                        arrayBranch("Move to another directory",function()
+                            print("Move file clicked")
                         end)
                     )
                 end

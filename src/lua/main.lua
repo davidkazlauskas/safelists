@@ -1164,6 +1164,7 @@ initAll = function()
 
             if (currentDirId > 0 and shouldMoveFile == true) then
                 shouldMoveFile = false
+                setStatus(ctx,mainWnd,"")
                 local toMove = fileToMove
                 local asyncSqlite = currentAsyncSqlite
                 assert( not messageablesEqual(VMsgNil(),asyncSqlite),

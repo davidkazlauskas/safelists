@@ -1149,6 +1149,19 @@ initAll = function()
         VMatch(function(natpack,val)
             local inId = val:values()._2
 
+            local currentDirId = getCurrentDirId()
+
+            local loadCurrentRoutine = function()
+                local mainModel = ctx:namedMessageable("mainModel")
+                local asyncSqlite = currentAsyncSqlite
+                if (messageablesEqual(VMsgNil(),asyncSqlite)) then
+                    return
+                end
+                ctx:message(mainModel,
+                    VSig("MMI_InLoadFileList"),VInt(inId),
+                    VMsg(asyncSqlite),VMsg(mainWnd))
+            end
+
             if (currentDirId > 0 and shouldMoveFile == true) then
                 shouldMoveFile = false
                 local toMove = fileToMove
@@ -1298,15 +1311,7 @@ initAll = function()
                     VBool(false))
                 return
             end
-
-            local mainModel = ctx:namedMessageable("mainModel")
-            local asyncSqlite = currentAsyncSqlite
-            if (messageablesEqual(VMsgNil(),asyncSqlite)) then
-                return
-            end
-            ctx:message(mainModel,
-                VSig("MMI_InLoadFileList"),VInt(inId),
-                VMsg(asyncSqlite),VMsg(mainWnd))
+            loadCurrentRoutine()
         end,"MWI_OutDirChangedSignal","int"),
         VMatch(function()
             local dlFactory = ctx:namedMessageable("dlSessionFactory")

@@ -1833,7 +1833,6 @@ initAll = function()
                             )
                         end),
                         arrayBranch("Modify file",function()
-                            print("Ren file clicked")
                             modifyFileDialog(
                                 fileId,
                                 function(result,orig,dialog)
@@ -1848,7 +1847,9 @@ initAll = function()
                             )
                         end),
                         arrayBranch("Move to another directory",function()
-                            print("Move file clicked")
+                            setStatus("Select folder to move file to.")
+                            fileToMove = fileId
+                            shouldMoveFile = true
                         end)
                     )
                 end

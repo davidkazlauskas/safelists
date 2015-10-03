@@ -438,7 +438,9 @@ initAll = function()
     local validateNewFileDialogFirst = function(result,dialog)
         assert( result.finished, "Should be good..." )
 
-        if (not string.match(result.name,"^[-0-9a-zA-Z_. ]+$")) then
+        if (result.name ~= nil and
+            not string.match(result.name,"^[-0-9a-zA-Z_. ]+$")
+        ) then
             messageBoxWParent(
                 "Invalid input",
                 "Filename contains invalid characters.",
@@ -447,30 +449,32 @@ initAll = function()
             return false
         end
 
-        -- todo validate mirrors
-        local mirrors = string.split(result.mirrors,"\n")
-        local mirrTrimmed = {}
-        for k,v in ipairs(mirrors) do
-            local trimmed = trimString(v)
-            -- todo: add checking for valid
-            -- url (don't know what valid url is yet)
-            if (trimmed ~= "") then
-                table.insert(mirrTrimmed,trimmed)
+        if (result.mirrors ~= nil) then
+            -- todo validate mirrors
+            local mirrors = string.split(result.mirrors,"\n")
+            local mirrTrimmed = {}
+            for k,v in ipairs(mirrors) do
+                local trimmed = trimString(v)
+                -- todo: add checking for valid
+                -- url (don't know what valid url is yet)
+                if (trimmed ~= "") then
+                    table.insert(mirrTrimmed,trimmed)
+                end
             end
+
+            if (#mirrTrimmed == 0) then
+                messageBoxWParent(
+                    "Invalid input",
+                    "No valid mirrors found.",
+                    dialog
+                )
+                return false
+            end
+
+            result.mirrorsTable = mirrTrimmed
         end
 
-        if (#mirrTrimmed == 0) then
-            messageBoxWParent(
-                "Invalid input",
-                "No valid mirrors found.",
-                dialog
-            )
-            return false
-        end
-
-        result.mirrorsTable = mirrTrimmed
-
-        if (result.hash ~= "" and
+        if (result.hash ~= nil and result.hash ~= "" and
             not isValidDumbHash256(result.hash))
         then
             messageBoxWParent(
@@ -482,7 +486,7 @@ initAll = function()
             return false
         end
 
-        if (result.size ~= "" and
+        if (result.size ~= nil and result.size ~= "" and
             not string.match(result.size,"^%d+$"))
         then
             messageBoxWParent(
@@ -493,7 +497,7 @@ initAll = function()
             return false
         end
 
-        if (result.size == "") then
+        if (result.size ~= nil and result.size == "") then
             result.size = "-1"
         end
 
@@ -675,11 +679,11 @@ initAll = function()
                     local mirrTrimmed = trimMirrors(queryInput("mirrorsTextView"))
 
                     outResult.finished = true
-                    diffAssign("name",fileName,"fileNameInp")
-                    diffAssign("size",fileSize,"fileSizeInp")
-                    diffAssign("hash",fileHash,"fileHashInp")
+                    diffAssign("name",original.name,"fileNameInp")
+                    diffAssign("size",original.size,"fileSizeInp")
+                    diffAssign("hash",original.hash,"fileHashInp")
 
-                    if (mirrTrimmed ~= concatMirrors) then
+                    if (mirrTrimmed ~= original.mirrors) then
                         outResult.mirrors = mirrTrimmed
                     end
 
@@ -963,19 +967,21 @@ initAll = function()
             return true
         end
 
-        if (missing("name","mirrors","size","hash")) then
-            -- nothing changed, no worries
-            return
-        end
-
-        local asyncSqlite = currentAsyncSqlite
-
         local hideDlg = function()
             ctx:message(
                 dialog,
                 VSig("INDLG_InHideDialog")
             )
         end
+
+        if (missing("name","mirrors","size","hash")) then
+            -- nothing changed, no worries
+        local updateFunction = function()
+            hideDlg()
+            return
+        end
+
+        local asyncSqlite = currentAsyncSqlite
 
         local updateFunction = function()
             local updateString = {}

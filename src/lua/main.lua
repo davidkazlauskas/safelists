@@ -1000,26 +1000,31 @@ initAll = function()
             -- the action
             push("BEGIN;")
 
-            push("UPDATE files SET ")
-            if (diffTable.name ~= nil) then
-                delim()
-                push("file_name='" .. diffTable.name .. "'")
-                isFirst = false
-            end
+            if (diffTable.name ~= nil
+                or diffTable.size ~= nil
+                or diffTable.hash ~= nil)
+            then
+                push("UPDATE files SET ")
+                if (diffTable.name ~= nil) then
+                    delim()
+                    push("file_name='" .. diffTable.name .. "'")
+                    isFirst = false
+                end
 
-            if (diffTable.size ~= nil) then
-                delim()
-                push("file_size=" .. diffTable.size)
-                isFirst = false
-            end
+                if (diffTable.size ~= nil) then
+                    delim()
+                    push("file_size=" .. diffTable.size)
+                    isFirst = false
+                end
 
-            if (diffTable.hash ~= nil) then
-                delim()
-                push("file_hash_256='" .. diffTable.hash .. "'")
-                isFirst = false
-            end
+                if (diffTable.hash ~= nil) then
+                    delim()
+                    push("file_hash_256='" .. diffTable.hash .. "'")
+                    isFirst = false
+                end
 
-            push(" WHERE file_id=" .. fileId .. ";")
+                push(" WHERE file_id=" .. fileId .. ";")
+            end
 
             if (diffTable.mirrors ~= nil) then
                 push("DELETE FROM mirrors WHERE file_id=" .. fileId .. ";")

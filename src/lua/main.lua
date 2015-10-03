@@ -1163,7 +1163,7 @@ initAll = function()
         VMatch(function(natpack,val)
             local inId = val:values()._2
 
-            local currentDirId = getCurrentDirId()
+            local currentDirId = inId
 
             local loadCurrentRoutine = function()
                 local mainModel = ctx:namedMessageable("mainModel")
@@ -1266,10 +1266,10 @@ initAll = function()
                 return
             end
 
-            if (currentDirId > 0 and shouldMoveDir == true) then
+            if (currentDirToMoveId > 0 and shouldMoveDir == true) then
                 shouldMoveDir = false
                 ctx:message(mainWnd,VSig("MWI_InSetStatusText"),VString(""))
-                if (inId == currentDirId) then
+                if (inId == currentDirToMoveId) then
                     return
                 end
 
@@ -1282,7 +1282,7 @@ initAll = function()
 
                 local condition =
                        " SELECT CASE"
-                    --.. " WHEN (" .. currentDirId .. " IN"
+                    --.. " WHEN (" .. currentDirToMoveId .. " IN"
                     --.. " ("
                     --.. "     WITH RECURSIVE"
                     --.. "     children(d_id) AS ("
@@ -1297,11 +1297,11 @@ initAll = function()
 
                     -- dir under parent already
                     .. " WHEN ((SELECT dir_parent FROM directories"
-                    .. "     WHERE dir_id=" .. currentDirId
+                    .. "     WHERE dir_id=" .. currentDirToMoveId
                     .. "     ) = " .. inId .. ") THEN 3"
                     -- same name already under directory
                     .. " WHEN (" .. "(SELECT dir_name FROM"
-                    .. "     directories WHERE dir_id=" .. currentDirId .. ") IN"
+                    .. "     directories WHERE dir_id=" .. currentDirToMoveId .. ") IN"
                     .. "     ( SELECT dir_name FROM directories WHERE"
                     .. "     dir_parent=" .. inId .. ")) THEN 2"
                     .. " ELSE 0"
@@ -1318,9 +1318,9 @@ initAll = function()
                             ctx:messageAsync(asyncSqlite,
                                 VSig("ASQL_OutAffected"),
                                 VString("UPDATE directories SET dir_parent="
-                                    .. inId .. " WHERE dir_id=" .. currentDirId .. ";"),
+                                    .. inId .. " WHERE dir_id=" .. currentDirToMoveId .. ";"),
                                 VInt(-1))
-                            currentDirId = -1
+                            currentDirToMoveId = -1
                             ctx:message(mainWnd,
                                 VSig("MWI_InMoveChildUnderParent"),
                                 VInt(-1))
@@ -1651,8 +1651,8 @@ initAll = function()
                 function(result)
                     arraySwitch(result+1,menuModel,
                         arrayBranch("Move",function()
-                            currentDirId = getCurrentDirId()
-                            if (currentDirId ~= -1) then
+                            currentDirToMoveId = getCurrentDirId()
+                            if (currentDirToMoveId ~= -1) then
                                 ctx:message(mainWnd,
                                     VSig("MWI_InSetStatusText"),
                                     VString("Press on node under which to move"))

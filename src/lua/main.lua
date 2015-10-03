@@ -1311,6 +1311,7 @@ initAll = function()
                                 VSig("MWI_InMoveChildUnderParent"),
                                 VInt(-1))
                             updateRevision()
+                            loadCurrentRoutine()
                         --elseif (value == 1) then
                             --messageBox(
                                 --"Cannot move!",
@@ -1884,7 +1885,7 @@ initAll = function()
                             )
                         end),
                         arrayBranch("Move to another directory",function()
-                            setStatus("Select folder to move file to.")
+                            setStatus(ctx,mainWnd,"Select folder to move file to.")
                             fileToMove = fileId
                             shouldMoveFile = true
                         end)

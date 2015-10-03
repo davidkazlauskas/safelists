@@ -1218,14 +1218,35 @@ initAll = function()
                             )
                             loadCurrentRoutine()
                         elseif (case == 0) then
-                            -- good case
+                            local updateQuery =
+                                "UPDATE files SET dir_id="
+                                .. currentDirId
+                                .. " WHERE file_id=" .. toMove
+                                .. ";"
+
+                            ctx:messageAsync(
+                                asyncSqlite,
+                                VSig("ASQL_Execute"),
+                                VString(updateQuery)
+                            )
+                            ctx:message(
+                                mainWnd,
+                                VSig("MWI_InAddNewFileInCurrent"),
+                                VInt(toMove),
+                                VInt(currentDirId),
+                                VString(fileName),
+                                VDouble(fileSize),
+                                VString(hash)
+                            )
+                            loadCurrentRoutine()
+                            updateRevision()
                         else
                             assert( false, "Huh?!?" )
                         end
                     end,
-                    VSig("ASQL_OutSingleNum"),
+                    VSig("ASQL_OutSingleRow"),
                     VString(condition),
-                    VInt(-1),
+                    VString(""),
                     VBool(false)
                 )
                 return

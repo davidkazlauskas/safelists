@@ -1184,7 +1184,10 @@ initAll = function()
                     .. "     AND (file_name || '.ilist' =" .. fileToMoveSelect .. ""
                     .. "     OR file_name || '.ilist.tmp' =" .. fileToMoveSelect .. "))) THEN 2"
                     .. " ELSE 0"
-                    .. " END;"
+                    .. " END,"
+                    .. " file_name,file_size,file_hash_256 FROM files WHERE file_id="
+                    .. toMove
+                    .. ";"
 
                 ctx:messageAsyncWCallback(
                     asyncSqlite,
@@ -1192,21 +1195,28 @@ initAll = function()
                         local val = out:values()
                         local success = val._4
                         assert( success, "Back to sqlite school sucker." )
-                        local case = val._3
-                        if (case == 2) then
+                        local outRow = val._3
+                        local split = string.split(outRow,"|")
+                        local case = tonumber(split[1])
+                        local fileName = split[2]
+                        local fileSize = tonumber(split[3])
+                        local hash = split[4]
+                        if (case == 1) then
                             messageBoxWParent(
                                 "Invalid move",
                                 "File with such name already"
                                 .. " exists under that directory.",
                                 mainWnd
                             )
-                        elseif (case == 1) then
+                            loadCurrentRoutine()
+                        elseif (case == 2) then
                             messageBoxWParent(
                                 "Invalid move",
                                 "File cannot be moved under"
-                                .. " this directory."
+                                .. " this directory.",
                                 mainWnd
                             )
+                            loadCurrentRoutine()
                         elseif (case == 0) then
                             -- good case
                         else

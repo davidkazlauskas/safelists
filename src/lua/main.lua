@@ -976,7 +976,6 @@ initAll = function()
 
         if (missing("name","mirrors","size","hash")) then
             -- nothing changed, no worries
-        local updateFunction = function()
             hideDlg()
             return
         end

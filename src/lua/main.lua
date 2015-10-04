@@ -1568,7 +1568,13 @@ initAll = function()
             end
         end,"MWI_OutOpenSafelistButtonClicked"),
         VMatch(function()
-            print("click")
+            local dialogService = ctx:namedMessageable("dialogService")
+            local outVal = ctx:messageRetValues(dialogService,
+                VSig("GDS_FileSaverDialog"),
+                VMsg(mainWnd),
+                VString("Select safelist session to resume."),
+                VString("")
+            )
         end,"MWI_OutCreateSafelistButtonClicked"),
         VMatch(function()
 

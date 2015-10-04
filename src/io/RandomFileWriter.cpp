@@ -1,4 +1,6 @@
 
+#include <boost/filesystem.hpp>
+
 #include <util/Semaphore.hpp>
 #include <util/GenericShutdownGuard.hpp>
 
@@ -76,6 +78,11 @@ private:
             ),
             SF::virtualMatch< RFW::WaitWrites >(
                 [](RFW::WaitWrites) {}
+            ),
+            SF::virtualMatch< RFW::DoesFileExist, const std::string, bool >(
+                [](RFW::DoesFileExist,const std::string& path,bool& out) {
+                    out = boost::filesystem::exists(path.c_str());
+                }
             ),
             SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(
                 [=](GSI::InRegisterItself,const StrongMsgPtr& ptr) {

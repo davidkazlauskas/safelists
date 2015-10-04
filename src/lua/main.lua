@@ -1,5 +1,6 @@
 
 require('lua/mobdebug').start()
+require('lua/safelist-constants')
 
 setStatus = function(context,widget,text)
     context:message(widget,VSig("MWI_InSetStatusText"),VString(text))
@@ -411,6 +412,16 @@ initAll = function()
             VMsg(result))
 
         return result
+    end
+
+    local newSafelist = function(path)
+        local res = newAsqlite(path)
+        ctx:message(
+            res,
+            VSig("ASQL_Execute"),
+            VString(newSafelistSchema())
+        )
+        return res
     end
 
     local messageBox = function(title,message)

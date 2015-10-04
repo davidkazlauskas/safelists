@@ -51,6 +51,9 @@ struct MainWindowInterface {
     DUMMY_REG(OutOpenSafelistButtonClicked,"MWI_OutOpenSafelistButtonClicked");
 
     // emitted when open safelist button is clicked
+    DUMMY_REG(OutCreateSafelistButtonClicked,"MWI_OutCreateSafelistButtonClicked");
+
+    // emitted when open safelist button is clicked
     DUMMY_REG(OutResumeDownloadButtonClicked,"MWI_OutResumeDownloadButtonClicked");
 
     // emitted when show downloads button is clicked
@@ -352,6 +355,7 @@ struct GtkMainWindow : public Messageable {
         registerAndGetWidget("safelistRevisionLabel",_safelistRevisionLbl);
         registerAndGetWidget("reavealerSessions",_revealerSessions);
         registerAndGetWidget("resumeDownloadButton",_resumeDownloadButton);
+        registerAndGetWidget("resumeDownloadButton",_resumeDownloadButton);
         BIND_GTK_BUTTON("downloadButton",
             _dlSafelistBtn,
             &GtkMainWindow::downloadButtonClicked);
@@ -364,6 +368,9 @@ struct GtkMainWindow : public Messageable {
         BIND_GTK_BUTTON("showDownloadsButton",
             _showDownloadsBtn,
             &GtkMainWindow::showDownloadsButtonClicked);
+        BIND_GTK_BUTTON("createSafelistButton",
+            _createSafelistBtn,
+            &GtkMainWindow::createSafelistClicked);
 
         _sessionTab = SafeLists::GtkSessionTab::makeNew();
         _revealerSessions->add(*_sessionTab->getTabs());
@@ -1097,6 +1104,12 @@ private:
         >(nullptr);
     }
 
+    void createSafelistClicked() {
+        notifySingleThreaded<
+            MWI::OutCreateSafelistButtonClicked
+        >(nullptr);
+    }
+
     void resumeDownloadClicked() {
         notifySingleThreaded<
             MWI::OutResumeDownloadButtonClicked
@@ -1122,6 +1135,7 @@ private:
     Gtk::TreeView* _left;
     Gtk::TreeView* _right;
     Gtk::Button* _openSafelistBtn;
+    Gtk::Button* _createSafelistBtn;
     Gtk::Button* _dlSafelistBtn;
     Gtk::Button* _resumeDownloadButton;
     Gtk::ToggleButton* _showDownloadsBtn;

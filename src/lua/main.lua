@@ -1568,6 +1568,9 @@ initAll = function()
             end
         end,"MWI_OutOpenSafelistButtonClicked"),
         VMatch(function()
+            print("click")
+        end,"MWI_OutCreateSafelistButtonClicked"),
+        VMatch(function()
 
             local dialogService = ctx:namedMessageable("dialogService")
             local outVal = ctx:messageRetValues(dialogService,

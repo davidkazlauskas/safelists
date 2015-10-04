@@ -365,7 +365,7 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkButton" id="newSafelistButton">
+                          <object class="GtkButton" id="createSafelistButton">
                             <property name="label" translatable="yes">Create Safelist</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>

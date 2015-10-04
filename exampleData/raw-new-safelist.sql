@@ -48,5 +48,5 @@ BEGIN
     SET revision_number=revision_number+1,modification_date=strftime('%s','now');
 END;
 
-INSERT INTO "directories" VALUES(1,'root',-1);
+INSERT INTO directories VALUES(1,'root',-1);
 

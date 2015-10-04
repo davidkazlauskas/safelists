@@ -1459,6 +1459,16 @@ struct GtkDialogService : public Messageable {
     // >
     DUMMY_REG(DirChooserDialog,"GDS_DirChooserDialog");
 
+    // Open file saver dialog
+    // Signature:
+    // <
+    //  FileSaverDialog,
+    //  StrongMsgPtr (parent window),
+    //  std::string (title),
+    //  std::string (output path)
+    // >
+    DUMMY_REG(FileSaverDialog,"GDS_FileSaverDialog");
+
     // Show alert
     // Signature:
     // < AlertDialog, std::String (title), std::string (message) >

@@ -288,3 +288,28 @@ TEST_CASE("io_file_exists","[io]") {
     REQUIRE( false == a );
     REQUIRE( true == b );
 }
+
+TEST_CASE("io_file_delete","[io]") {
+    using namespace SafeLists;
+    FileEraser er;
+    SA::add(er._files,"a.txt");
+
+    {
+        std::ofstream a("a.txt");
+        a << "moo";
+    }
+
+    auto writer = RandomFileWriter::make();
+
+    auto deleteFile = SF::vpackPtrCustom<
+        templatious::VPACK_WAIT,
+        RandomFileWriter::DeleteFile,
+        std::string
+    >(nullptr,"a.txt");
+
+    writer->message(deleteFile);
+    deleteFile->wait();
+
+    bool exists = boost::filesystem::exists("a.txt");
+    REQUIRE( false == exists );
+}

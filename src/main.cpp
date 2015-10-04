@@ -1476,7 +1476,12 @@ struct GtkDialogService : public Messageable {
 
     // Show dialog with Ok Cancel options
     // Signature:
-    // < OkCancelDialog, StrongMsgPtr (parent), StrongMsgPtr (model) >
+    // < OkCancelDialog,
+    //  StrongMsgPtr (parent),
+    //  std::string (title),
+    //  std::string (message)
+    //  int (outres) >
+    // outres -> 0: ok, 1: cancel, -1: none
     DUMMY_REG(OkCancelDialog,"GDS_OkCancelDialog");
 
     // make generic dialog which is hookable
@@ -1640,6 +1645,34 @@ struct GtkDialogService : public Messageable {
                     auto dialog = std::make_shared< GenericDialog >(
                         bld,widgetName.c_str());
                     outPtr = dialog;
+                }
+            ),
+            SF::virtualMatch<
+                OkCancelDialog,
+                StrongMsgPtr,
+                const std::string,
+                const std::string,
+                int
+            >(
+                [](OkCancelDialog,
+                   const StrongMsgPtr& parent,
+                   const std::string& title,
+                   const std::string& message,
+                   int& out)
+                {
+                    auto queryTransient = SF::vpack<
+                        GenericGtkWindowInterface::GetGtkWindow,
+                        Gtk::Window*
+                    >(nullptr,nullptr);
+                    parent->message(queryTransient);
+                    auto gtkParent = queryTransient.fGet<1>();
+                    Gtk::Dialog dlg(
+                        title.c_str(),gtkParent);
+                    dlg.add_label(message.c_str());
+                    dlg.add_button("Ok",0);
+                    dlg.add_button("_Cancel",1);
+                    dlg.set_default_response(-1);
+                    out = dlg.run();
                 }
             )
         );

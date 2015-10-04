@@ -1646,7 +1646,12 @@ initAll = function()
 
                         local response = values._5
                         if (response == 0) then
-                            ifContinue()
+                            ctx:messageAsyncWCallback(
+                                writer,
+                                ifContinue,
+                                VSig("RFW_DeleteFile"),
+                                VString(outPath)
+                            )
                         elseif (response == 1 or response == -1) then
                             noSafelistState()
                         else

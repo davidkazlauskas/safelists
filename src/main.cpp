@@ -1666,13 +1666,16 @@ struct GtkDialogService : public Messageable {
                     >(nullptr,nullptr);
                     parent->message(queryTransient);
                     auto gtkParent = queryTransient.fGet<1>();
-                    Gtk::Dialog dlg(
+                    Gtk::MessageDialog dlg(
                         title.c_str(),gtkParent);
-                    dlg.add_label(message.c_str());
-                    dlg.add_button("Ok",0);
+                    dlg.set_secondary_text(message.c_str());
                     dlg.add_button("_Cancel",1);
                     dlg.set_default_response(-1);
-                    out = dlg.run();
+                    int outRes = dlg.run();
+                    if (outRes == Gtk::RESPONSE_OK) {
+                        outRes = 0;
+                    }
+                    out = outRes;
                 }
             )
         );

@@ -352,6 +352,11 @@ initAll = function()
         "downloadButton"
     }
 
+    local resetVarsForSafelist = function()
+        currentDirId = -1
+        currentDirToMoveId = -1
+    end
+
     local noSafelistState = function()
         setWidgetsEnabled(
             ctx,mainWnd,
@@ -1158,7 +1163,7 @@ initAll = function()
     sessionWidget = ctx:messageRetValues(mainWnd,
         VSig("MWI_QueryDownloadSessionWidget"),VMsg(nil))._2
 
-    currentDirId = -1
+    resetVarsForSafelist()
 
     mainWindowPushButtonHandler = ctx:makeLuaMatchHandler(
         VMatch(function()
@@ -1591,17 +1596,24 @@ initAll = function()
             end
 
             local openNew = function()
+                local mainModel = ctx:namedMessageable("mainModel")
+
                 currentAsyncSqlite = newSafelist(outPath)
+                local new = currentAsyncSqlite
+                resetVarsForSafelist()
                 ctx:message(mainModel,
                     VSig("MMI_InLoadFolderTree"),
-                    VMsg(currentAsyncSqlite),VMsg(mainWnd))
+                    VMsg(new),VMsg(mainWnd))
                 updateRevision()
+                onSafelistState()
             end
+
+            noSafelistState()
 
             local prev = currentAsyncSqlite
             if (nil ~= prev) then
                 ctx:messageAsyncWCallback(
-                    currentAsyncSqlite,
+                    prev,
                     openNew,
                     VSig("ASQL_Shutdown"))
                 return

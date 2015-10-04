@@ -421,7 +421,7 @@ initAll = function()
 
     local newSafelist = function(path)
         local res = newAsqlite(path)
-        ctx:message(
+        ctx:messageAsync(
             res,
             VSig("ASQL_Execute"),
             VString(newSafelistSchema())

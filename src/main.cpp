@@ -1564,6 +1564,37 @@ struct GtkDialogService : public Messageable {
                     out = "";
                 }
             ),
+            SF::virtualMatch<
+                FileSaverDialog,
+                StrongMsgPtr,
+                std::string,
+                std::string
+            >([](FileSaverDialog,
+                 const StrongMsgPtr& window,
+                 const std::string& title,
+                 std::string& out)
+                {
+                    Gtk::FileChooserDialog dlg(title.c_str(),
+                        Gtk::FILE_CHOOSER_ACTION_SELECT_FOLDER);
+                    auto queryTransient = SF::vpack<
+                        GenericGtkWindowInterface::GetGtkWindow,
+                        Gtk::Window*
+                    >(nullptr,nullptr);
+                    window->message(queryTransient);
+                    assert( queryTransient.useCount() > 0 && "No transient cholo..." );
+                    dlg.set_transient_for(*queryTransient.fGet<1>());
+                    dlg.add_button("_Cancel",Gtk::RESPONSE_CANCEL);
+                    dlg.add_button("Ok",Gtk::RESPONSE_OK);
+
+                    int result = dlg.run();
+                    if (Gtk::RESPONSE_OK == result) {
+                        out = dlg.get_filename();
+                        return;
+                    }
+
+                    out = "";
+                }
+            ),
             SF::virtualMatch< AlertDialog, StrongMsgPtr,
                  const std::string,const std::string
             >(

@@ -1590,7 +1590,21 @@ initAll = function()
                 outPath = outPath .. ".safelist"
             end
 
+            local openNew = function()
+                currentAsyncSqlite = newSafelist(outPath)
+                updateRevision()
+            end
 
+            local prev = currentAsyncSqlite
+            if (nil ~= prev) then
+                ctx:messageAsyncWCallback(
+                    currentAsyncSqlite,
+                    openNew,
+                    VSig("ASQL_Shutdown"))
+                return
+            end
+
+            openNew()
         end,"MWI_OutCreateSafelistButtonClicked"),
         VMatch(function()
 

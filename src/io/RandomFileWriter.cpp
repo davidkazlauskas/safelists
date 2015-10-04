@@ -84,6 +84,11 @@ private:
                     out = boost::filesystem::exists(path.c_str());
                 }
             ),
+            SF::virtualMatch< RFW::DeleteFile, const std::string >(
+                [](RFW::DeleteFile,const std::string& path) {
+                    boost::filesystem::remove(path.c_str());
+                }
+            ),
             SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(
                 [=](GSI::InRegisterItself,const StrongMsgPtr& ptr) {
                     auto handler = std::make_shared< GenericShutdownGuard >();

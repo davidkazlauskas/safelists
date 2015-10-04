@@ -1575,13 +1575,14 @@ struct GtkDialogService : public Messageable {
                  std::string& out)
                 {
                     Gtk::FileChooserDialog dlg(title.c_str(),
-                        Gtk::FILE_CHOOSER_ACTION_SELECT_FOLDER);
+                        Gtk::FILE_CHOOSER_ACTION_SAVE);
                     auto queryTransient = SF::vpack<
                         GenericGtkWindowInterface::GetGtkWindow,
                         Gtk::Window*
                     >(nullptr,nullptr);
                     window->message(queryTransient);
-                    assert( queryTransient.useCount() > 0 && "No transient cholo..." );
+                    assert( queryTransient.useCount() > 0
+                            && "No transient cholo..." );
                     dlg.set_transient_for(*queryTransient.fGet<1>());
                     dlg.add_button("_Cancel",Gtk::RESPONSE_CANCEL);
                     dlg.add_button("Ok",Gtk::RESPONSE_OK);

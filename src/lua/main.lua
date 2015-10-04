@@ -1595,31 +1595,70 @@ initAll = function()
                 outPath = outPath .. ".safelist"
             end
 
-            local openNew = function()
-                local mainModel = ctx:namedMessageable("mainModel")
+            local ifContinue = function()
+                local openNew = function()
+                    local mainModel = ctx:namedMessageable("mainModel")
 
-                currentAsyncSqlite = newSafelist(outPath)
-                local new = currentAsyncSqlite
-                resetVarsForSafelist()
-                ctx:message(mainModel,
-                    VSig("MMI_InLoadFolderTree"),
-                    VMsg(new),VMsg(mainWnd))
-                updateRevision()
-                onSafelistState()
+                    currentAsyncSqlite = newSafelist(outPath)
+                    local new = currentAsyncSqlite
+                    resetVarsForSafelist()
+                    ctx:message(mainModel,
+                        VSig("MMI_InLoadFolderTree"),
+                        VMsg(new),VMsg(mainWnd))
+                    updateRevision()
+                    onSafelistState()
+                end
+
+                local prev = currentAsyncSqlite
+                if (nil ~= prev) then
+                    ctx:messageAsyncWCallback(
+                        prev,
+                        openNew,
+                        VSig("ASQL_Shutdown"))
+                    return
+                end
+
+                openNew()
             end
 
             noSafelistState()
 
-            local prev = currentAsyncSqlite
-            if (nil ~= prev) then
-                ctx:messageAsyncWCallback(
-                    prev,
-                    openNew,
-                    VSig("ASQL_Shutdown"))
-                return
-            end
+            local writer = ctx:namedMessageable("randomFileWriter")
+            ctx:messageAsyncWCallback(
+                writer,
+                function(out)
+                    local tbl = out:values()
+                    local exists = tbl._3
+                    if (not exists) then
+                        ifContinue()
+                    else
+                        local dialogService =
+                            ctx:namedMessageable("dialogService")
+                        local values = ctx:messageRetValues(
+                            dialogService,
+                            VSig("GDS_OkCancelDialog"),
+                            mainWnd,
+                            VString("Safelist exists"),
+                            VString("Safelist already exists."
+                            .. " Overwrite it? (data will be lost)"),
+                            VInt(-7)
+                        )
 
-            openNew()
+                        local response = values._5
+                        if (response == 0) then
+                            ifContinue()
+                        elseif (response == 1 or response == -1) then
+                            noSafelistState()
+                        else
+                            assert( false, "Wrong neighbourhood, milky." )
+                            noSafelistState()
+                        end
+                    end
+                end,
+                VSig("RFW_DoesFileExist"),
+                VString(outPath),
+                VBool(false)
+            )
         end,"MWI_OutCreateSafelistButtonClicked"),
         VMatch(function()
 

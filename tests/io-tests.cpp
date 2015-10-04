@@ -249,3 +249,42 @@ TEST_CASE("io_simple_read_write_create_dir","[io]") {
 
     std::remove( inDirFile );
 }
+
+TEST_CASE("io_file_exists","[io]") {
+    using namespace SafeLists;
+    FileEraser er;
+    SA::add(er._files,"a.txt");
+
+    {
+        std::ofstream a("a.txt");
+        a << "moo";
+    }
+
+    auto writer = RandomFileWriter::make();
+
+    auto checkNoExist = SF::vpackPtrCustom<
+        templatious::VPACK_WAIT,
+        RandomFileWriter::DoesFileExist,
+        std::string,
+        bool
+    >(nullptr,"az.txt",true);
+    auto checkExists = SF::vpackPtrCustom<
+        templatious::VPACK_WAIT,
+        RandomFileWriter::DoesFileExist,
+        std::string,
+        bool
+    >(nullptr,"a.txt",false);
+
+
+    writer->message(checkNoExist);
+    writer->message(checkExists);
+
+    checkNoExist->wait();
+    checkExists->wait();
+
+    bool a = checkNoExist->fGet<2>();
+    bool b = checkExists->fGet<2>();
+
+    REQUIRE( false == a );
+    REQUIRE( true == b );
+}

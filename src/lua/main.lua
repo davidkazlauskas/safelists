@@ -1592,6 +1592,9 @@ initAll = function()
 
             local openNew = function()
                 currentAsyncSqlite = newSafelist(outPath)
+                ctx:message(mainModel,
+                    VSig("MMI_InLoadFolderTree"),
+                    VMsg(currentAsyncSqlite),VMsg(mainWnd))
                 updateRevision()
             end
 

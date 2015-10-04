@@ -1474,6 +1474,10 @@ struct GtkDialogService : public Messageable {
     // < AlertDialog, std::String (title), std::string (message) >
     DUMMY_REG(AlertDialog,"GDS_AlertDialog");
 
+    // Show dialog with Ok Cancel options
+    // Signature:
+    // < OkCancelDialog, StrongMsgPtr (parent), StrongMsgPtr (model) >
+    DUMMY_REG(OkCancelDialog,"GDS_OkCancelDialog");
 
     // make generic dialog which is hookable
     // and setable with buttons, etc.
@@ -1791,6 +1795,7 @@ int main(int argc,char** argv) {
     ctx->addMessageableWeak("singleInputDialog",singleInputDialog);
     ctx->addMessageableWeak("mainModel",mainModel);
     ctx->addMessageableWeak("shutdownGuard",shutdownGuard);
+    ctx->addMessageableWeak("randomFileWriter",randomFileWriter);
     ctx->addMessageableStrong("dlSessionFactory",dlFactory);
     ctx->addMessageableStrong("asyncSqliteFactory",asyncSqliteFactory);
     ctx->addMessageableStrong("dialogService",dialogService);

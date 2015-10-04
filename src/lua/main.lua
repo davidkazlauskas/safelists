@@ -80,6 +80,11 @@ function trimString(string)
   return string:match "^%s*(.-)%s*$"
 end
 
+function string:ends(tail)
+    return tail == '' or
+        string.sub(self,-string.len(tail)) == tail
+end
+
 -- on select function receives integer option selected,
 -- -1 if none
 function makePopupMenuModel(context,table,onSelectFunction)
@@ -1575,6 +1580,17 @@ initAll = function()
                 VString("Select safelist session to resume."),
                 VString("")
             )
+
+            local outPath = outVal._4
+            if (outPath == "") then
+                return
+            end
+
+            if (not string.ends(string.lower(outPath),".safelist")) then
+                outPath = outPath .. ".safelist"
+            end
+
+
         end,"MWI_OutCreateSafelistButtonClicked"),
         VMatch(function()
 

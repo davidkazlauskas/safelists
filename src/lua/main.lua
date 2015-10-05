@@ -163,7 +163,7 @@ DownloadSpeedChecker = {
             for i=1,samples do
                 table.insert(
                     res.intervals,
-                    DownloadSpeedChecker.newInterval()
+                    DownloadSpeedChecker.__index.newInterval()
                 )
             end
             setmetatable(res,DownloadSpeedChecker)
@@ -196,7 +196,7 @@ DownloadSpeedChecker = {
     }
 }
 
-downloadSpeedChecker = DownloadSpeedChecker.new(7)
+downloadSpeedChecker = DownloadSpeedChecker.__index.new(7)
 
 CurrentSafelist = {
     __index = {

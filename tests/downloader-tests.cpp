@@ -1049,6 +1049,27 @@ TEST_CASE("safelist_partial_download_fragments","[safelist_downloader]") {
     REQUIRE( result );
 }
 
+int ensureContCallback3(void* data,int count,char** values,char** header) {
+    EnsureContTrack& track = *reinterpret_cast<EnsureContTrack*>(data);
+
+    track._value &= count == 3;
+    if (!track._value) return 1;
+
+    ++track._row;
+
+    bool eitherName =
+        0 == strcmp(values[1],"test")
+        || 0 == strcmp(values[1],"test2");
+
+    char buf[64];
+    sprintf(buf,"%d",track._row);
+    track._value &= 0 == strcmp(values[0],buf);
+    track._value &= eitherName;
+    track._value &= 0 == strcmp(values[2],"0");
+
+    return track._value ? 0 : 1;
+}
+
 bool ensureContentsOfExample3Session(const char* path) {
     sqlite3* sess = nullptr;
     sqlite3_open(path,&sess);
@@ -1065,25 +1086,11 @@ bool ensureContentsOfExample3Session(const char* path) {
     t._value = true;
 
     char* errMsg = nullptr;
+
     int res = sqlite3_exec(
         sess,
-        "SELECT * FROM to_download;",
-        &ensureContCallback,
-        &t,
-        &errMsg
-    );
-
-    if (res != SQLITE_OK || errMsg != nullptr) {
-        return false;
-    }
-
-    t._value &= t._row == 676;
-    t._row = 0;
-
-    res = sqlite3_exec(
-        sess,
         "SELECT * FROM mirrors;",
-        &ensureContCallback2,
+        &ensureContCallback3,
         &t,
         &errMsg
     );
@@ -1092,7 +1099,7 @@ bool ensureContentsOfExample3Session(const char* path) {
         return false;
     }
 
-    t._value &= t._row == 676;
+    t._value &= t._row == 8;
 
     return t._value;
 }

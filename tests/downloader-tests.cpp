@@ -1048,3 +1048,99 @@ TEST_CASE("safelist_partial_download_fragments","[safelist_downloader]") {
     result &= !checkLeftovers("downloadtest1/fldA/fileG");
     REQUIRE( result );
 }
+
+bool ensureContentsOfExample3Session(const char* path) {
+    sqlite3* sess = nullptr;
+    sqlite3_open(path,&sess);
+    if (nullptr == sess) {
+        return false;
+    }
+
+    auto guard = SCOPE_GUARD_LC(
+        sqlite3_close(sess);
+    );
+
+    EnsureContTrack t;
+    t._row = 0;
+    t._value = true;
+
+    char* errMsg = nullptr;
+    int res = sqlite3_exec(
+        sess,
+        "SELECT * FROM to_download;",
+        &ensureContCallback,
+        &t,
+        &errMsg
+    );
+
+    if (res != SQLITE_OK || errMsg != nullptr) {
+        return false;
+    }
+
+    t._value &= t._row == 676;
+    t._row = 0;
+
+    res = sqlite3_exec(
+        sess,
+        "SELECT * FROM mirrors;",
+        &ensureContCallback2,
+        &t,
+        &errMsg
+    );
+
+    if (res != SQLITE_OK || errMsg != nullptr) {
+        return false;
+    }
+
+    t._value &= t._row == 676;
+
+    return t._value;
+}
+
+TEST_CASE("safelist_create_session_dup_mirrors","[safelist_downloader]") {
+    const char* dlPath = "downloadtest1";
+    std::string dlPathAbs = dlPath;
+    dlPathAbs += "/safelist_session";
+    namespace fs = boost::filesystem;
+    fs::remove_all(dlPath);
+    fs::create_directory(dlPath);
+
+    using namespace SafeLists;
+
+    auto asyncSqlite = AsyncSqlite::createNew(
+        "exampleData/example3.safelist");
+
+    std::unique_ptr< std::promise<void> > prPtr(
+        new std::promise<void>
+    );
+    auto future = prPtr->get_future();
+    auto rawPrPtr = prPtr.get();
+    typedef SafeLists::SafeListDownloaderFactory SLDF;
+    auto handler = std::make_shared< MessageableMatchFunctorWAsync >(
+        SF::virtualMatchFunctorPtr(
+            SF::virtualMatch< SLDF::OutCreateSessionDone >(
+                [=](SLDF::OutCreateSessionDone) {
+                    rawPrPtr->set_value();
+                }
+            )
+        )
+    );
+    auto sldf = SLDF::createNew(testDownloader(),
+        SafeLists::RandomFileWriter::make());
+    auto msg = SF::vpack<
+        SLDF::CreateSession,
+        StrongMsgPtr,
+        StrongMsgPtr,
+        std::string
+    >(
+        nullptr,
+        asyncSqlite,
+        handler,
+        dlPathAbs
+    );
+    sldf->message(msg);
+    future.wait();
+
+    bool res = ensureContentsOfExample3Session(dlPathAbs.c_str());
+    REQUIRE( res );
+}

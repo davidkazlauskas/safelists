@@ -189,7 +189,7 @@ DownloadSpeedChecker = {
         bytesPerSec = function(self)
             local total = 0
             for k,v in ipairs(self.intervals) do
-                total += v.sum
+                total = total + v.sum
             end
             return total
         end

@@ -150,6 +150,31 @@ ObjectRetainer = {
 
 objRetainer = ObjectRetainer.__index.new()
 
+DownloadSpeedChecker = {
+    __index = {
+        new = function(samples)
+            local res = {
+                iter = 0,
+                intervals = {}
+            }
+            for i=1,10 do
+                table.insert(
+                    res.intervals,
+                    DownloadSpeedChecker.newInterval()
+                )
+            end
+            setmetatable(res,DownloadSpeedChecker)
+            return res
+        end,
+        newInterval = function()
+            return {
+                unixStamp = 0,
+                sum = 0
+            }
+        end
+    }
+}
+
 CurrentSafelist = {
     __index = {
         isSamePath = function(self,path)

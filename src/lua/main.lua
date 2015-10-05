@@ -197,7 +197,7 @@ DownloadSpeedChecker = {
             for k,v in ipairs(self.intervals) do
                 total = total + v.sum
             end
-            return total
+            return total / self.samples
         end
     }
 }
@@ -464,6 +464,7 @@ initAll = function()
     end
 
     local updateDownloadSpeed = function()
+        downloadSpeedChecker:regBytes(0)
         local theSpeed = downloadSpeedChecker:bytesPerSec()
 
         local speedString = ""

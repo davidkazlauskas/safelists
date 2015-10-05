@@ -1061,9 +1061,8 @@ int ensureContCallback3(void* data,int count,char** values,char** header) {
         0 == strcmp(values[1],"test")
         || 0 == strcmp(values[1],"test2");
 
-    char buf[64];
-    sprintf(buf,"%d",track._row);
-    track._value &= 0 == strcmp(values[0],buf);
+    int id = std::atoi(values[0]);
+    track._value &= id >= 1 && id <= 7;
     track._value &= eitherName;
     track._value &= 0 == strcmp(values[2],"0");
 

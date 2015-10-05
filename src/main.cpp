@@ -92,6 +92,10 @@ struct MainWindowInterface {
     // Signature: < InSetStatusText, std::string >
     DUMMY_REG(InSetStatusText,"MWI_InSetStatusText");
 
+    // set current status text
+    // Signature: < InSetDownloadText, std::string >
+    DUMMY_REG(InSetDownloadText,"MWI_InSetDownloadText");
+
     // display specified id in the tree
     // Signature: < InSelectDirIdInTree, int >
     DUMMY_REG(InSelectDirIdInTree,"MWI_InSelectDirIdInTree");
@@ -352,6 +356,7 @@ struct GtkMainWindow : public Messageable {
         registerAndGetWidget("fileList",_right);
         registerAndGetWidget("dirList",_left);
         registerAndGetWidget("statusBarLabel",_statusBar);
+        registerAndGetWidget("downloadStatusLabel",_downloadLabel);
         registerAndGetWidget("safelistRevisionLabel",_safelistRevisionLbl);
         registerAndGetWidget("reavealerSessions",_revealerSessions);
         registerAndGetWidget("resumeDownloadButton",_resumeDownloadButton);
@@ -570,6 +575,11 @@ private:
             SF::virtualMatch< MWI::InSetStatusText, const std::string >(
                 [=](MWI::InSetStatusText,const std::string& text) {
                     this->_statusBar->set_text(text.c_str());
+                }
+            ),
+            SF::virtualMatch< MWI::InSetDownloadText, const std::string >(
+                [=](MWI::InSetDownloadText,const std::string& text) {
+                    this->_downloadLabel->set_text(text.c_str());
                 }
             ),
             SF::virtualMatch< MWI::InSetWidgetEnabled, const std::string, const bool >(
@@ -1140,6 +1150,7 @@ private:
     Gtk::Button* _resumeDownloadButton;
     Gtk::ToggleButton* _showDownloadsBtn;
     Gtk::Label* _statusBar;
+    Gtk::Label* _downloadLabel;
     Gtk::Label* _safelistRevisionLbl;
     Gtk::Revealer* _revealerSessions;
     ModelColumns _mdl;

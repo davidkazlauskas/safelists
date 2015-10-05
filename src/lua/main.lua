@@ -464,7 +464,11 @@ initAll = function()
     end
 
     local setDownloadSpeedGui = function(string)
-        print(string)
+        ctx:message(
+            mainWnd,
+            VSig("MWI_InSetDownloadText"),
+            VString(string)
+        )
     end
 
     local updateDownloadSpeed = function()
@@ -482,6 +486,10 @@ initAll = function()
             else
                 speedString = theSpeed .. " B/s"
             end
+        end
+
+        if (speedString ~= "") then
+            speedString = "Download speed: " .. speedString
         end
 
         setDownloadSpeedGui(speedString)

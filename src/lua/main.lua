@@ -472,7 +472,7 @@ initAll = function()
             speedString = roundFloatStr(mbSec,2) .. " MB/s"
         elseif (theSpeed > 1024) then
             local kbSec = theSpeed / 1024
-            speedString = roundFloatStr(bbSec,2) .. " KB/s"
+            speedString = roundFloatStr(kbSec,2) .. " KB/s"
         else
             speedString = theSpeed .. " B/s"
         end

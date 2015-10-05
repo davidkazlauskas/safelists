@@ -16,6 +16,12 @@ function enumerateTable(table)
     return res
 end
 
+function roundFloatStr(number,decimals)
+    return string.format(
+        "%." .. (decimals or 0) .. "f",
+        number)
+end
+
 -- merge tables, new table overrides old
 function mergeTables(tableOld,tableNew)
     local res = {}
@@ -455,6 +461,27 @@ initAll = function()
                 "SELECT revision_number,datetime(modification_date,'unixepoch','localtime')" ..
                 " FROM metadata;"
             ),VString("empty"),VBool(false))
+    end
+
+    local updateDownloadSpeed = function()
+        local theSpeed = downloadSpeedChecker:bytesPerSec()
+
+        local speedString = ""
+        if (theSpeed > 1024 * 1024) then
+            local mbSec = theSpeed / (1024 * 1024)
+            speedString = roundFloatStr(mbSec,2) .. " MB/s"
+        elseif (theSpeed > 1024) then
+            local kbSec = theSpeed / 1024
+            speedString = roundFloatStr(bbSec,2) .. " KB/s"
+        else
+            speedString = theSpeed .. " B/s"
+        end
+
+        if (theSpeed > 0) then
+            print("Speedin: |" .. speedString .. "|")
+        else
+            print("No speed hombre...")
+        end
     end
 
     local newAsqlite = function(path)
@@ -1204,6 +1231,7 @@ initAll = function()
 
     table.insert(FrameEndFunctions,updateRevisionGui)
     table.insert(FrameEndFunctions,updateSessionWidget)
+    table.insert(FrameEndFunctions,updateDownloadSpeed)
 
     noSafelistState()
 

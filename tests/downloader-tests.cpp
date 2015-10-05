@@ -1098,7 +1098,7 @@ bool ensureContentsOfExample3Session(const char* path) {
         return false;
     }
 
-    t._value &= t._row == 8;
+    t._value &= t._row == 7;
 
     return t._value;
 }

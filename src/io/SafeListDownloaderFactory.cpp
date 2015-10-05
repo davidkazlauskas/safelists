@@ -46,7 +46,7 @@ namespace {
         "ON dir_id=d_id; ";
 
     const char* DL_SELECT_MIRRORS =
-        "SELECT file_id,url,use_count FROM mirrors;";
+        "SELECT file_id,url,MIN(use_count) FROM mirrors GROUP BY file_id;";
 
     const char* DL_INSERT_TO_SESSION =
         "INSERT INTO to_download "

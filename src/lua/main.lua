@@ -196,6 +196,8 @@ DownloadSpeedChecker = {
     }
 }
 
+downloadSpeedChecker = DownloadSpeedChecker.new(7)
+
 CurrentSafelist = {
     __index = {
         isSamePath = function(self,path)

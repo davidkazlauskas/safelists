@@ -153,11 +153,12 @@ objRetainer = ObjectRetainer.__index.new()
 DownloadSpeedChecker = {
     __index = {
         new = function(samples)
+            assert( type(samples) == "number", "expected num..." )
             local res = {
                 iter = 0,
                 intervals = {}
             }
-            for i=1,10 do
+            for i=1,samples do
                 table.insert(
                     res.intervals,
                     DownloadSpeedChecker.newInterval()

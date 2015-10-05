@@ -185,6 +185,13 @@ DownloadSpeedChecker = {
             end
 
             self.intervals[mod].sum = self.intervals[mod].sum + bytes
+        end,
+        bytesPerSec = function(self)
+            local total = 0
+            for k,v in ipairs(self.intervals) do
+                total += v.sum
+            end
+            return total
         end
     }
 }

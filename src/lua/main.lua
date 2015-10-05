@@ -1477,9 +1477,11 @@ initAll = function()
                     local values = val:values()
                     local dl = currSess:keyDownload(values._2)
                     local ratio = values._3 / values._4
+                    local newBytes = values._5
                     DownloadsModel:incRevision()
+                    downloadSpeedChecker:regBytes(newBytes)
                     dl:setProgress(ratio)
-                end,"SLD_OutProgressUpdate","int","double","double"),
+                end,"SLD_OutProgressUpdate","int","double","double","double"),
                 VMatch(function(natpack,val)
                     local valTree = val:values()
                     local newKey = valTree._2

@@ -446,14 +446,15 @@ private:
         TEMPLATIOUS_FOREACH(auto& i,_jobs) {
             int64_t done = i->_progressDone;
             int64_t reported = i->_progressReported;
-            if (done > reported) {
+            int64_t diff = done - reported;
+            if (diff > 0) {
                 int64_t size = i->_size;
                 int id = i->_id;
                 i->_progressReported = done;
                 notifyObserver<
                     SafeListDownloader::OutProgressUpdate,
-                    int, double, double
-                >(nullptr,id,done,size);
+                    int, double, double, double
+                >(nullptr,id,done,size,diff);
             }
         }
     }

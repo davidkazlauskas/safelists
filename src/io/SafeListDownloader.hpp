@@ -34,7 +34,8 @@ struct SafeListDownloader {
 
     // messaged when progress moved
     // Signature:
-    // < OutProgressUpdate, int (id), double (bytes done), double (bytes total) >
+    // < OutProgressUpdate, int (id), double (bytes done),
+    // double (bytes total), double (new bytes) >
     DUMMY_REG(OutProgressUpdate,"SLD_OutProgressUpdate");
 
     // messaged when hash is updated

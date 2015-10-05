@@ -463,26 +463,28 @@ initAll = function()
             ),VString("empty"),VBool(false))
     end
 
+    local setDownloadSpeedGui = function(string)
+        print(string)
+    end
+
     local updateDownloadSpeed = function()
         downloadSpeedChecker:regBytes(0)
         local theSpeed = downloadSpeedChecker:bytesPerSec()
 
         local speedString = ""
-        if (theSpeed > 1024 * 1024) then
-            local mbSec = theSpeed / (1024 * 1024)
-            speedString = roundFloatStr(mbSec,2) .. " MB/s"
-        elseif (theSpeed > 1024) then
-            local kbSec = theSpeed / 1024
-            speedString = roundFloatStr(kbSec,2) .. " KB/s"
-        else
-            speedString = theSpeed .. " B/s"
+        if (theSpeed > 0) then
+            if (theSpeed > 1024 * 1024) then
+                local mbSec = theSpeed / (1024 * 1024)
+                speedString = roundFloatStr(mbSec,2) .. " MB/s"
+            elseif (theSpeed > 1024) then
+                local kbSec = theSpeed / 1024
+                speedString = roundFloatStr(kbSec,2) .. " KB/s"
+            else
+                speedString = theSpeed .. " B/s"
+            end
         end
 
-        if (theSpeed > 0) then
-            print("Speedin: |" .. speedString .. "|")
-        else
-            print("No speed hombre...")
-        end
+        setDownloadSpeedGui(speedString)
     end
 
     local newAsqlite = function(path)

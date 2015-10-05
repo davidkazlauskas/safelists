@@ -1505,11 +1505,14 @@ initAll = function()
                 VMatch(function(natPack,val)
                     local values = val:values()
                     local dl = currSess:keyDownload(values._2)
-                    local ratio = values._3 / values._4
+                    -- dead progress update
+                    if (nil ~= dl) then
+                        local ratio = values._3 / values._4
+                        DownloadsModel:incRevision()
+                        dl:setProgress(ratio)
+                    end
                     local newBytes = values._5
-                    DownloadsModel:incRevision()
                     downloadSpeedChecker:regBytes(newBytes)
-                    dl:setProgress(ratio)
                 end,"SLD_OutProgressUpdate","int","double","double","double"),
                 VMatch(function(natpack,val)
                     local valTree = val:values()
@@ -1773,10 +1776,15 @@ initAll = function()
                 VMatch(function(natPack,val)
                     local values = val:values()
                     local dl = currSess:keyDownload(values._2)
-                    local ratio = values._3 / values._4
-                    DownloadsModel:incRevision()
-                    dl:setProgress(ratio)
-                end,"SLD_OutProgressUpdate","int","double","double"),
+                    -- dead progress update
+                    if (nil ~= dl) then
+                        local ratio = values._3 / values._4
+                        DownloadsModel:incRevision()
+                        dl:setProgress(ratio)
+                    end
+                    local newBytes = values._5
+                    downloadSpeedChecker:regBytes(newBytes)
+                end,"SLD_OutProgressUpdate","int","double","double","double"),
                 VMatch(function(natpack,val)
                     local valTree = val:values()
                     local newKey = valTree._2

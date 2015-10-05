@@ -154,9 +154,11 @@ DownloadSpeedChecker = {
     __index = {
         new = function(samples)
             assert( type(samples) == "number", "expected num..." )
+            assert( samples >= 0, "Zigga nease..." )
             local res = {
                 iter = 0,
-                intervals = {}
+                intervals = {},
+                samples = samples
             }
             for i=1,samples do
                 table.insert(

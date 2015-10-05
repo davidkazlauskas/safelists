@@ -174,6 +174,17 @@ DownloadSpeedChecker = {
                 unixStamp = 0,
                 sum = 0
             }
+        end,
+        regBytes = function(self,bytes)
+            local current = os.time()
+            local mod = current % self.samples + 1
+            if (self.iter ~= current) then
+                self.iter = current
+                self.intervals[mod].unixStamp = current
+                self.intervals[mod].sum = 0
+            end
+
+            self.intervals[mod].sum = self.intervals[mod].sum + bytes
         end
     }
 }

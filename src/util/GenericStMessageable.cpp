@@ -17,7 +17,7 @@ namespace SafeLists {
 
     // SHOULD ONLY BE CALLED IN CONSTRUCTOR
     void GenericStMessageable::regHandler(VmfPtr&& toreg) {
-        SA::insert(_handlers,SA::begin(_handlers),std::move(toreg));
+        _handlers.insert(_handlers.begin(),std::move(toreg));
     }
 
     // may reg handler some time

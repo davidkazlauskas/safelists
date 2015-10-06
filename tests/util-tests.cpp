@@ -5,6 +5,7 @@
 
 #include <util/DumbHash.hpp>
 #include <util/ScopeGuard.hpp>
+#include <util/GenericStMessageable.hpp>
 
 TEMPLATIOUS_TRIPLET_STD;
 
@@ -179,4 +180,60 @@ TEST_CASE("scope_guard_dismiss","[util]") {
     }
 
     REQUIRE( !called );
+}
+
+struct MessA : public SafeLists::GenericStMessageable {
+    MessA() {
+        regHandler(
+            SF::virtualMatchFunctorPtr(
+                SF::virtualMatch< int >(
+                    [](int& i) {
+                        i = 7;
+                    }
+                ),
+                SF::virtualMatch< short >(
+                    [](short& i) {
+                        i = 77;
+                    }
+                )
+            )
+        );
+    }
+};
+
+struct MessB : public MessA {
+    MessB() {
+        regHandler(
+            SF::virtualMatchFunctorPtr(
+                SF::virtualMatch< int >(
+                    [](int& i) {
+                        i = 777;
+                    }
+                )
+            )
+        );
+    }
+};
+
+TEST_CASE("generic_messageable_inheritance","[util]") {
+    MessA a;
+    MessB b;
+
+    auto intMsg = SF::vpack< int >(0);
+    auto shortMsg = SF::vpack< short >(0);
+
+    a.message(intMsg);
+    a.message(shortMsg);
+
+    REQUIRE( intMsg.fGet<0>() == 7 );
+    REQUIRE( shortMsg.fGet<0>() == 77 );
+
+    intMsg.fGet<0>() = 0;
+    shortMsg.fGet<0>() = 0;
+
+    b.message(intMsg);
+    b.message(shortMsg);
+
+    REQUIRE( intMsg.fGet<0>() == 777 );
+    REQUIRE( shortMsg.fGet<0>() == 77 );
 }

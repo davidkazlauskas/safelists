@@ -20,5 +20,7 @@ namespace SafeLists {
         SA::insert(_handlers,SA::begin(_handlers),std::move(toreg));
     }
 
+    // may reg handler some time
+    GenericStMessageable::GenericStMessageable() {}
 }
 

@@ -16,6 +16,10 @@ struct GenericStMessageable : public Messageable {
     // if we know we're on the same thread as GUI
     void message(templatious::VirtualPack& msg) override;
 protected:
+    GenericStMessageable();
+    GenericStMessageable(const GenericStMessageable&) = delete;
+    GenericStMessageable(GenericStMessageable&&) = delete;
+
     typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
 
     // SHOULD ONLY BE CALLED IN CONSTRUCTOR

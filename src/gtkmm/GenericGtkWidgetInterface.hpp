@@ -4,6 +4,9 @@
 #include <util/AutoReg.hpp>
 
 struct GenericGtkWidgetInterface {
+    // Get widget from tree according to name.
+    // Signature:
+    // < GetWidgetFromTree, std::string (name), StrongMsgPtr (out) >
     DUMMY_REG(GetWidgetFromTree,"GWI_GetWidgetFromTree");
 };
 

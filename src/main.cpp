@@ -8,6 +8,7 @@
 #include <util/AutoReg.hpp>
 #include <util/Semaphore.hpp>
 #include <util/GracefulShutdownGuard.hpp>
+#include <util/GenericStMessageable.hpp>
 #include <gtkmm/GtkMMSessionWidget.hpp>
 #include <gtkmm/GtkMMFileString.hpp>
 #include <io/SafeListDownloaderFactory.hpp>

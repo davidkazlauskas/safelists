@@ -4,7 +4,7 @@
 #include <cassert>
 #include <LuaPlumbing/messageable.hpp>
 
-namespace SafeList {
+namespace SafeLists {
 
 struct GenericStMessageable : public Messageable {
     // this is for sending message across threads
@@ -14,8 +14,7 @@ struct GenericStMessageable : public Messageable {
 
     // this is for sending stack allocated (faster)
     // if we know we're on the same thread as GUI
-    void message(templatious::VirtualPack& msg) override {
-    }
+    void message(templatious::VirtualPack& msg) override;
 protected:
 
 private:

@@ -7,7 +7,7 @@
 
 TEMPLATIOUS_TRIPLET_STD;
 
-typedef GenericGtkWidgetInterface GWI;
+typedef SafeLists::GenericGtkWidgetInterface GWI;
 
 namespace SafeLists {
 
@@ -17,9 +17,36 @@ namespace SafeLists {
             const std::shared_ptr<int>& dummy,
             Gtk::Widget* wgt
         ) : _weakRef(dummy), _myWidget(wgt)
-        {}
+        {
+            typedef GenericWidgetTrait GWT;
+            typedef GenericLabelTrait GLT;
+            typedef GenericInputTrait GIT;
+            regHandler(
+                SF::virtualMatchFunctorPtr(
+                    SF::virtualMatch< GWT::SetActive, const bool >(
+                        [=](ANY_CONV,bool val) {
+                            auto locked = _weakRef.lock();
+                            assert( nullptr != locked && "Parent object dead." );
+                            _myWidget->set_sensitive(val);
+                        }
+                    ),
+                    SF::virtualMatch< GLT::SetValue, const std::string >(
+                        [=](ANY_CONV,const std::string& val) {
+                            auto locked = _weakRef.lock();
+                            assert( nullptr != locked && "Parent object dead." );
+
+                            Gtk::Label* cast = dynamic_cast< Gtk::Label* >(_myWidget);
+                            assert( nullptr != cast && "Cast to label failed." );
+
+                            cast->set_text(val.c_str());
+                        }
+                    )
+                )
+            );
+        }
 
     private:
+
         std::weak_ptr< int > _weakRef;
         Gtk::Widget* _myWidget;
     };

@@ -3,6 +3,8 @@
 
 #include <util/AutoReg.hpp>
 
+namespace SafeLists {
+
 struct GenericGtkWidgetInterface {
     // Get widget from tree according to name.
     // Signature:
@@ -30,5 +32,7 @@ struct GenericInputTrait {
     // < QueryValue, std::string (out value) >
     DUMMY_REG(QueryValue,"GWI_GIT_QueryValue");
 };
+
+}
 
 #endif /* end of include guard: GENERICGTKWIDGETINTERFACE_MDS06G4N */

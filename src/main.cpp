@@ -11,6 +11,7 @@
 #include <util/GenericStMessageable.hpp>
 #include <gtkmm/GtkMMSessionWidget.hpp>
 #include <gtkmm/GtkMMFileString.hpp>
+#include <gtkmm/GenericGtkWidget.hpp>
 #include <io/SafeListDownloaderFactory.hpp>
 #include <io/RandomFileWriter.hpp>
 #include <io/AsyncDownloader.hpp>

@@ -39,6 +39,7 @@ SET( DOMAIN_SOURCES
     src/util/AutoReg.cpp
     src/util/Misc.cpp
     src/util/GracefulShutdownGuard.cpp
+    src/util/GenericStMessageable.cpp
     src/io/RandomFileWriterImpl.cpp
     src/io/Interval.cpp
     src/io/AsyncDownloader.cpp

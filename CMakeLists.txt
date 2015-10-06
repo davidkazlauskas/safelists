@@ -30,6 +30,7 @@ SET( GTK_SOURCES
     src/gtkmm/GtkMMRangerModel.cpp
     src/gtkmm/GtkMMSessionWidget.cpp
     src/gtkmm/GtkMMFileString.cpp
+    src/gtkmm/GenericGtkWidget.cpp
     )
 
 SET( DOMAIN_SOURCES

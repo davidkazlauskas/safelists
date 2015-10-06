@@ -6,7 +6,7 @@
 namespace SafeLists {
 
 struct GenericGtkWidget : public GenericStMessageable {
-
+    GenericGtkWidget();
 };
 
 }

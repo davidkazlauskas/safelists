@@ -13,12 +13,19 @@ namespace SafeLists {
 
     struct GenericGtkLabel : public GenericStMessageable {
 
+        GenericGtkLabel(
+            const std::shared_ptr<int>& dummy,
+            GenericGtkWidget* wgt
+        ) : _weakRef(dummy), _raw(wgt)
+        {}
+
     private:
-        std::weak_ptr< GenericGtkWidget > _weakParent;
+        std::weak_ptr< int > _weakRef;
+        GenericGtkWidget* _raw;
     };
 
     GenericGtkWidget::GenericGtkWidget(Glib::RefPtr< Gtk::Builder >& builder)
-        : _builder(builder)
+        : _builder(builder), _int(std::make_shared<int>(7))
     {
         regHandler(
             SF::virtualMatchFunctorPtr(

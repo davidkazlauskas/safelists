@@ -11,6 +11,7 @@ struct GenericGtkWidget : public GenericStMessageable {
 
 private:
     Glib::RefPtr< Gtk::Builder > _builder;
+    std::shared_ptr< int > _int;
 };
 
 }

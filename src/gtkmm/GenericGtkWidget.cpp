@@ -40,6 +40,28 @@ namespace SafeLists {
 
                             cast->set_text(val.c_str());
                         }
+                    ),
+                    SF::virtualMatch< GIT::QueryValue, std::string >(
+                        [=](ANY_CONV,std::string& val) {
+                            auto locked = _weakRef.lock();
+                            assert( nullptr != locked && "Parent object dead." );
+
+                            Gtk::Entry* cast = dynamic_cast< Gtk::Entry* >(_myWidget);
+                            assert( nullptr != cast && "Cast to label failed." );
+
+                            val = cast->get_text();
+                        }
+                    ),
+                    SF::virtualMatch< GIT::SetValue, const std::string >(
+                        [=](ANY_CONV,std::string& val) {
+                            auto locked = _weakRef.lock();
+                            assert( nullptr != locked && "Parent object dead." );
+
+                            Gtk::Entry* cast = dynamic_cast< Gtk::Entry* >(_myWidget);
+                            assert( nullptr != cast && "Cast to label failed." );
+
+                            cast->set_text(val.c_str());
+                        }
                     )
                 )
             );

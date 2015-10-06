@@ -31,6 +31,11 @@ struct GenericInputTrait {
     // Signature:
     // < QueryValue, std::string (out value) >
     DUMMY_REG(QueryValue,"GWI_GIT_QueryValue");
+
+    // Set input value (as string)
+    // Signature:
+    // < SetValue, std::string (in value) >
+    DUMMY_REG(SetValue,"GWI_GIT_SetValue");
 };
 
 }

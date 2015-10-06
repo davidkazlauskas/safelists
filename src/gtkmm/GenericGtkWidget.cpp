@@ -35,7 +35,12 @@ namespace SafeLists {
                     StrongMsgPtr
                 >(
                     [=](ANY_CONV,const std::string& str,StrongMsgPtr& out) {
+                        Gtk::Widget* wgt = nullptr;
+                        _builder->get_widget(str.c_str(),wgt);
+                        assert( wgt != nullptr && "Could not get widget." );
 
+                        auto result = std::make_shared< GenericGtkLabel >(_int,wgt);
+                        out = result;
                     }
                 )
             )

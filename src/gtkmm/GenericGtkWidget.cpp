@@ -1,6 +1,6 @@
 
 #include <templatious/FullPack.hpp>
-#include <glibmm/weakref.h>
+#include <gtkmm.h>
 
 #include "GenericGtkWidgetInterface.hpp"
 #include "GenericGtkWidget.hpp"
@@ -15,13 +15,13 @@ namespace SafeLists {
 
         GenericGtkLabel(
             const std::shared_ptr<int>& dummy,
-            GenericGtkWidget* wgt
-        ) : _weakRef(dummy), _raw(wgt)
+            Gtk::Widget* wgt
+        ) : _weakRef(dummy), _myWidget(wgt)
         {}
 
     private:
         std::weak_ptr< int > _weakRef;
-        GenericGtkWidget* _raw;
+        Gtk::Widget* _myWidget;
     };
 
     GenericGtkWidget::GenericGtkWidget(Glib::RefPtr< Gtk::Builder >& builder)

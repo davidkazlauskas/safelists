@@ -2,11 +2,15 @@
 #define GENERICGTKWIDGET_EB02WCAA
 
 #include <util/GenericStMessageable.hpp>
+#include <gtkmm.h>
 
 namespace SafeLists {
 
 struct GenericGtkWidget : public GenericStMessageable {
-    GenericGtkWidget();
+    GenericGtkWidget(Glib::RefPtr< Gtk::Builder >& builder);
+
+private:
+    Glib::RefPtr< Gtk::Builder > _builder;
 };
 
 }

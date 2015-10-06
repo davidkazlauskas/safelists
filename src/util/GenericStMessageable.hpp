@@ -1,0 +1,9 @@
+#ifndef GENERICSTMESSAGEABLE_C1773IK5
+#define GENERICSTMESSAGEABLE_C1773IK5
+
+namespace SafeList {
+
+}
+
+#endif /* end of include guard: GENERICSTMESSAGEABLE_C1773IK5 */
+

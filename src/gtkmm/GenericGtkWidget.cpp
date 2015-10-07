@@ -11,6 +11,15 @@ typedef SafeLists::GenericGtkWidgetInterface GWI;
 
 namespace SafeLists {
 
+    struct GenericGtkWidgetSharedState {
+        GenericGtkWidgetSharedState() :
+            _hookId(0)
+        {}
+
+        WeakMsgPtr _toNotify;
+        int _hookId;
+    };
+
     struct GenericGtkWidgetNode : public GenericStMessageable {
 
         GenericGtkWidgetNode(

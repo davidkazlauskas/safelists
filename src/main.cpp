@@ -754,7 +754,7 @@ private:
             ),
             SF::virtualMatch< MWI::InAttachListener, StrongMsgPtr >(
                 [=](MWI::InAttachListener,const StrongMsgPtr& ptr) {
-                    this->_notifierCache.add(ptr);
+                    this->addToNotify(ptr);
                 }
             ),
             SF::virtualMatch<
@@ -1025,7 +1025,7 @@ private:
             }
         );
         auto msg = SF::vpack< MWI::OutDrawEnd >(nullptr);
-        _notifierCache.notify(msg);
+        notifyObservers(msg);
         _shutdownGuard->processMessages();
         return false;
     }
@@ -1040,7 +1040,7 @@ private:
             auto msg = SF::vpack< MainWindowInterface::OutDirChangedSignal, int >(
                 nullptr, id
             );
-            _notifierCache.notify(msg);
+            notifyObservers(msg);
         }
     }
 
@@ -1058,7 +1058,7 @@ private:
         auto msg = SF::vpack<Types...>(
             std::forward<Args>(args)...
         );
-        _notifierCache.notify(msg);
+        notifyObservers(msg);
     }
 
     bool leftListClicked(GdkEventButton* event) {
@@ -1163,7 +1163,6 @@ private:
 
     std::map< std::string, Gtk::Widget* > _wgtMap;
 
-    NotifierCache _notifierCache;
     CallbackCache _callbackCache;
     MessageCache _messageCache;
 

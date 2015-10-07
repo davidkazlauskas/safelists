@@ -1141,6 +1141,8 @@ private:
         _selectionStack[1] = iter;
     }
 
+    // what a mess... what can I do,
+    // I WAS YOUNG!
     Glib::RefPtr< Gtk::Builder > _builder;
 
     Gtk::Window* _wnd;

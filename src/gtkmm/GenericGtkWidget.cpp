@@ -12,16 +12,16 @@ typedef SafeLists::GenericGtkWidgetInterface GWI;
 namespace SafeLists {
 
     struct GenericGtkWidgetNode : public GenericStMessageable {
+        typedef GenericWidgetTrait GWT;
+        typedef GenericLabelTrait GLT;
+        typedef GenericInputTrait GIT;
+        typedef GenericButtonTrait GBT;
 
         GenericGtkWidgetNode(
             const std::shared_ptr<GenericGtkWidgetSharedState>& sharedState,
             Gtk::Widget* wgt
         ) : _weakRef(sharedState), _myWidget(wgt)
         {
-            typedef GenericWidgetTrait GWT;
-            typedef GenericLabelTrait GLT;
-            typedef GenericInputTrait GIT;
-            typedef GenericButtonTrait GBT;
             regHandler(
                 SF::virtualMatchFunctorPtr(
                     SF::virtualMatch< GWT::SetActive, const bool >(
@@ -93,7 +93,15 @@ namespace SafeLists {
     private:
 
         void clicked(int num) {
-            // todo
+            auto locked = _weakRef.lock();
+            assert( nullptr != locked && "Dead father?" );
+            auto lockedMsg = locked->_toNotify.lock();
+            if (nullptr != lockedMsg) {
+                auto msg = SF::vpack< GBT::OutClickEvent, int >(
+                    nullptr, num
+                );
+                lockedMsg->message(msg);
+            }
         }
 
         std::weak_ptr< GenericGtkWidgetSharedState > _weakRef;

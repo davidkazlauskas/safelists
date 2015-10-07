@@ -26,7 +26,8 @@ struct GenericGtkWidget : public GenericStMessageable {
     GenericGtkWidget(Glib::RefPtr< Gtk::Builder >& builder);
 
     void addToNotify(const StrongMsgPtr& ptr);
-
+protected:
+    void notifyObservers(templatious::VirtualPack& msg);
 private:
     Glib::RefPtr< Gtk::Builder > _builder;
     std::shared_ptr< GenericGtkWidgetSharedState > _sharedState;

@@ -115,6 +115,10 @@ namespace SafeLists {
         _sharedState->_cache.add(ptr);
     }
 
+    void GenericGtkWidget::notifyObservers(templatious::VirtualPack& msg) {
+        _sharedState->_cache.notify(msg);
+    }
+
     GenericGtkWidget::GenericGtkWidget(Glib::RefPtr< Gtk::Builder >& builder)
         : _builder(builder), _sharedState(std::make_shared< GenericGtkWidgetSharedState >())
     {

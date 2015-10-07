@@ -126,6 +126,11 @@ namespace SafeLists {
                         auto result = std::make_shared< GenericGtkWidgetNode >(_sharedState,wgt);
                         out = result;
                     }
+                ),
+                SF::virtualMatch< GWI::SetNotifier, const StrongMsgPtr >(
+                    [=](ANY_CONV,const StrongMsgPtr& res) {
+                        this->_sharedState->_toNotify = res;
+                    }
                 )
             )
         );

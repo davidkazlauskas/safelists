@@ -27,6 +27,7 @@ GenericWidget.mt = {
             local res = self.nodeCache[name]
             if (nil == res) then
                 local msg = self.luaCtx:messageRetValues(
+                    self.messageable,
                     VSig("GWI_GetWidgetFromTree"),
                     VString(name),
                     VMsg(nil)

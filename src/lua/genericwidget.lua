@@ -35,7 +35,7 @@ GenericWidget.mt = {
 
                 res = {
                     messageable = msg,
-                    luaCtx = self.context
+                    luaCtx = self.luaCtx
                 }
 
                 setmetatable(res,GenericWidgetNode.mt)

@@ -1,19 +1,23 @@
 
 GenericWidget = {
+    -- make generic widget from messageable
+    putOn = function(strongMsg,context)
+        if (nil == context) then
+            context = luaContext()
+        end
+        local res = {
+            messageable = strongMsg,
+            nodeCache = {},
+            luaCtx = context
+        }
+        setmetatable(res,GenericWidget)
+        return res
+    end
+}
+
+-- GenericWidget metatable
+GenericWidget.mt = {
     __index = {
-        -- make generic widget from messageable
-        putOn = function(strongMsg,context)
-            if (nil == context) then
-                context = luaContext()
-            end
-            local res = {
-                messageable = strongMsg,
-                nodeCache = {},
-                luaCtx = context
-            }
-            setmetatable(res,GenericWidget)
-            return res
-        end,
         -- get widget from glade tree according
         -- to it's id name. Returns GenericWidgetNode
         getWidget = function(self,name)
@@ -33,7 +37,7 @@ GenericWidget = {
                     luaCtx = self.context
                 }
 
-                setmetatable(res,GenericWidgetNode)
+                setmetatable(res,GenericWidgetNode.mt)
 
                 self.nodeCache[name] = res
             end

@@ -10,7 +10,7 @@ GenericWidget = {
             nodeCache = {},
             luaCtx = context
         }
-        setmetatable(res,GenericWidget)
+        setmetatable(res,GenericWidget.mt)
         return res
     end
 }
@@ -48,6 +48,10 @@ GenericWidget.mt = {
 }
 
 GenericWidgetNode = {
+    -- no statics yet
+}
+
+GenericWidgetNode.mt = {
     __index = {
         -- hook button event. to notify
         -- object will now receive

@@ -63,7 +63,7 @@ GenericWidgetNode.mt = {
                 self.messageable,
                 VSig("GWI_GBT_HookClickEvent"),
                 VInt(-1)
-            )._3
+            )._2
         end
     }
 }

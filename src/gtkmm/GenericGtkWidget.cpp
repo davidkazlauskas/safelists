@@ -11,9 +11,9 @@ typedef SafeLists::GenericGtkWidgetInterface GWI;
 
 namespace SafeLists {
 
-    struct GenericGtkLabel : public GenericStMessageable {
+    struct GenericGtkWidgetNode : public GenericStMessageable {
 
-        GenericGtkLabel(
+        GenericGtkWidgetNode(
             const std::shared_ptr<int>& dummy,
             Gtk::Widget* wgt
         ) : _weakRef(dummy), _myWidget(wgt)
@@ -88,7 +88,7 @@ namespace SafeLists {
                         _builder->get_widget(str.c_str(),wgt);
                         assert( wgt != nullptr && "Could not get widget." );
 
-                        auto result = std::make_shared< GenericGtkLabel >(_int,wgt);
+                        auto result = std::make_shared< GenericGtkWidgetNode >(_int,wgt);
                         out = result;
                     }
                 )

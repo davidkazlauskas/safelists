@@ -11,15 +11,6 @@ typedef SafeLists::GenericGtkWidgetInterface GWI;
 
 namespace SafeLists {
 
-    struct GenericGtkWidgetSharedState {
-        GenericGtkWidgetSharedState() :
-            _hookId(0)
-        {}
-
-        WeakMsgPtr _toNotify;
-        int _hookId;
-    };
-
     struct GenericGtkWidgetNode : public GenericStMessageable {
 
         GenericGtkWidgetNode(
@@ -63,7 +54,7 @@ namespace SafeLists {
                         }
                     ),
                     SF::virtualMatch< GIT::SetValue, const std::string >(
-                        [=](ANY_CONV,std::string& val) {
+                        [=](ANY_CONV,const std::string& val) {
                             auto locked = _weakRef.lock();
                             assert( nullptr != locked && "Parent object dead." );
 
@@ -110,7 +101,7 @@ namespace SafeLists {
     };
 
     GenericGtkWidget::GenericGtkWidget(Glib::RefPtr< Gtk::Builder >& builder)
-        : _builder(builder), _int(std::make_shared<int>(7))
+        : _builder(builder), _sharedState(std::make_shared< GenericGtkWidgetSharedState >())
     {
         regHandler(
             SF::virtualMatchFunctorPtr(
@@ -124,7 +115,7 @@ namespace SafeLists {
                         _builder->get_widget(str.c_str(),wgt);
                         assert( wgt != nullptr && "Could not get widget." );
 
-                        auto result = std::make_shared< GenericGtkWidgetNode >(_int,wgt);
+                        auto result = std::make_shared< GenericGtkWidgetNode >(_sharedState,wgt);
                         out = result;
                     }
                 )

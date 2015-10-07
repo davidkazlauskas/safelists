@@ -6,12 +6,28 @@
 
 namespace SafeLists {
 
+struct GenericGtkWidgetSharedState {
+    GenericGtkWidgetSharedState() :
+        _hookId(0)
+    {}
+
+    GenericGtkWidgetSharedState(const GenericGtkWidgetSharedState&) = delete;
+    GenericGtkWidgetSharedState(GenericGtkWidgetSharedState&&) = delete;
+
+    friend struct GenericGtkWidget;
+    friend struct GenericGtkWidgetNode;
+
+private:
+    WeakMsgPtr _toNotify;
+    int _hookId;
+};
+
 struct GenericGtkWidget : public GenericStMessageable {
     GenericGtkWidget(Glib::RefPtr< Gtk::Builder >& builder);
 
 private:
     Glib::RefPtr< Gtk::Builder > _builder;
-    std::shared_ptr< int > _int;
+    std::shared_ptr< GenericGtkWidgetSharedState > _sharedState;
 };
 
 }

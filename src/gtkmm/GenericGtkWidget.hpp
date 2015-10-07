@@ -18,12 +18,14 @@ struct GenericGtkWidgetSharedState {
     friend struct GenericGtkWidgetNode;
 
 private:
-    WeakMsgPtr _toNotify;
+    NotifierCache _cache;
     int _hookId;
 };
 
 struct GenericGtkWidget : public GenericStMessageable {
     GenericGtkWidget(Glib::RefPtr< Gtk::Builder >& builder);
+
+    void addToNotify(const StrongMsgPtr& ptr);
 
 private:
     Glib::RefPtr< Gtk::Builder > _builder;

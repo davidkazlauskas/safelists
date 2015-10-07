@@ -92,21 +92,28 @@ namespace SafeLists {
 
     private:
 
-        void clicked(int num) {
+        template <class... Args,class... Raw>
+        void notifySingleThreaded(Raw&&... args) {
             auto locked = _weakRef.lock();
             assert( nullptr != locked && "Dead father?" );
-            auto lockedMsg = locked->_toNotify.lock();
-            if (nullptr != lockedMsg) {
-                auto msg = SF::vpack< GBT::OutClickEvent, int >(
-                    nullptr, num
-                );
-                lockedMsg->message(msg);
-            }
+            auto msg = SF::vpack< Args... >(
+                std::forward<Raw>(args)...);
+            locked->_cache.notify(msg);
+        }
+
+        void clicked(int num) {
+            notifySingleThreaded< GBT::OutClickEvent, int >(
+                nullptr, num
+            );
         }
 
         std::weak_ptr< GenericGtkWidgetSharedState > _weakRef;
         Gtk::Widget* _myWidget;
     };
+
+    void GenericGtkWidget::addToNotify(const StrongMsgPtr& ptr) {
+        _sharedState->_cache.add(ptr);
+    }
 
     GenericGtkWidget::GenericGtkWidget(Glib::RefPtr< Gtk::Builder >& builder)
         : _builder(builder), _sharedState(std::make_shared< GenericGtkWidgetSharedState >())
@@ -129,7 +136,7 @@ namespace SafeLists {
                 ),
                 SF::virtualMatch< GWI::SetNotifier, const StrongMsgPtr >(
                     [=](ANY_CONV,const StrongMsgPtr& res) {
-                        this->_sharedState->_toNotify = res;
+                        this->_sharedState->_cache.add(res);
                     }
                 )
             )

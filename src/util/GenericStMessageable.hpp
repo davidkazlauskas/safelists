@@ -15,6 +15,7 @@ struct GenericStMessageable : public Messageable {
     // this is for sending stack allocated (faster)
     // if we know we're on the same thread as GUI
     void message(templatious::VirtualPack& msg) override;
+
 protected:
     GenericStMessageable();
     GenericStMessageable(const GenericStMessageable&) = delete;
@@ -25,6 +26,9 @@ protected:
     // SHOULD ONLY BE CALLED IN CONSTRUCTOR
     void regHandler(VmfPtr&& toreg);
 
+    // to possibly remove virtual call overhead in some cases...
+    // (if it even exists)
+    void messageNonVirtual(templatious::VirtualPack& msg);
 private:
     std::vector< VmfPtr > _handlers;
 };

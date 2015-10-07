@@ -14,9 +14,9 @@ namespace SafeLists {
     struct GenericGtkWidgetNode : public GenericStMessageable {
 
         GenericGtkWidgetNode(
-            const std::shared_ptr<int>& dummy,
+            const std::shared_ptr<GenericGtkWidgetSharedState>& sharedState,
             Gtk::Widget* wgt
-        ) : _weakRef(dummy), _myWidget(wgt)
+        ) : _weakRef(sharedState), _myWidget(wgt)
         {
             typedef GenericWidgetTrait GWT;
             typedef GenericLabelTrait GLT;
@@ -96,7 +96,7 @@ namespace SafeLists {
             // todo
         }
 
-        std::weak_ptr< int > _weakRef;
+        std::weak_ptr< GenericGtkWidgetSharedState > _weakRef;
         Gtk::Widget* _myWidget;
     };
 

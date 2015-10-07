@@ -48,6 +48,11 @@ struct GenericButtonTrait {
     // Signature:
     // < HookClickEvent, int (out identifier) >
     DUMMY_REG(HookClickEvent,"GWI_GBT_HookClickEvent");
+
+    // Output click event with identifier
+    // Signature:
+    // < OutClickEvent, int (identifier) >
+    DUMMY_REG(OutClickEvent,"GWI_GBT_OutClickEvent");
 };
 
 }

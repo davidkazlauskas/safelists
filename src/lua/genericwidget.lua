@@ -1,6 +1,7 @@
 
 GenericWidget = {
     __index = {
+        -- make generic widget from messageable
         putOn = function(strongMsg,context)
             if (nil == context) then
                 context = luaContext()
@@ -13,6 +14,8 @@ GenericWidget = {
             setmetatable(res,GenericWidget)
             return res
         end,
+        -- get widget from glade tree according
+        -- to it's id name. Returns GenericWidgetNode
         getWidget = function(self,name)
             assert( type(name) == "string",
                 "Expected string for name." )
@@ -42,7 +45,11 @@ GenericWidget = {
 
 GenericWidgetNode = {
     __index = {
-        hookButton = function(self)
+        -- hook button event. to notify
+        -- object will now receive
+        -- "GWI_GBT_OutClickEvent" with
+        -- the integer returned.
+        hookButtonClick = function(self)
             return self.luaCtx:messageRetValues(
                 self.messageable,
                 VSig("GWI_GBT_HookClickEvent"),

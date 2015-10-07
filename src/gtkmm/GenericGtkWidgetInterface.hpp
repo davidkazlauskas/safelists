@@ -10,6 +10,11 @@ struct GenericGtkWidgetInterface {
     // Signature:
     // < GetWidgetFromTree, std::string (name), StrongMsgPtr (out) >
     DUMMY_REG(GetWidgetFromTree,"GWI_GetWidgetFromTree");
+
+    // Set notifier for output signals
+    // Signature:
+    // < SetNotifier, StrongMsgPtr >
+    DUMMY_REG(SetNotifier,"GWI_SetNotifier");
 };
 
 struct GenericWidgetTrait {
@@ -36,6 +41,13 @@ struct GenericInputTrait {
     // Signature:
     // < SetValue, std::string (in value) >
     DUMMY_REG(SetValue,"GWI_GIT_SetValue");
+};
+
+struct GenericButtonTrait {
+    // Hook click event and set output number
+    // Signature:
+    // < HookClickEvent, int (out identifier) >
+    DUMMY_REG(HookClickEvent,"GWI_GBT_HookClickEvent");
 };
 
 }

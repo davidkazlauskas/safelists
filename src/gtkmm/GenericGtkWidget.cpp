@@ -21,6 +21,7 @@ namespace SafeLists {
             typedef GenericWidgetTrait GWT;
             typedef GenericLabelTrait GLT;
             typedef GenericInputTrait GIT;
+            typedef GenericButtonTrait GBT;
             regHandler(
                 SF::virtualMatchFunctorPtr(
                     SF::virtualMatch< GWT::SetActive, const bool >(
@@ -62,12 +63,38 @@ namespace SafeLists {
 
                             cast->set_text(val.c_str());
                         }
+                    ),
+                    SF::virtualMatch< GBT::HookClickEvent, int >(
+                        [=](ANY_CONV,int& val) {
+                            auto locked = _weakRef.lock();
+                            assert( nullptr != locked && "Parent object dead." );
+
+                            Gtk::Button* cast = dynamic_cast< Gtk::Button* >(_myWidget);
+                            assert( nullptr != cast && "Cast to label failed." );
+
+                            int outNum = *locked;
+                            ++(*locked);
+
+                            cast->signal_clicked().connect(
+                                sigc::bind< int >(
+                                    sigc::mem_fun(*this,
+                                        &GenericGtkWidgetNode::clicked),
+                                    outNum
+                                )
+                            );
+
+                            val = outNum;
+                        }
                     )
                 )
             );
         }
 
     private:
+
+        void clicked(int num) {
+            // todo
+        }
 
         std::weak_ptr< int > _weakRef;
         Gtk::Widget* _myWidget;

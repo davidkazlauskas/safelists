@@ -42,7 +42,13 @@ GenericWidget = {
 
 GenericWidgetNode = {
     __index = {
-        -- todo
+        hookButton = function(self)
+            return self.luaCtx:messageRetValues(
+                self.messageable,
+                VSig("GWI_GBT_HookClickEvent"),
+                VInt(-1)
+            )._3
+        end
     }
 }
 

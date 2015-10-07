@@ -343,17 +343,19 @@ private:
         sigc::mem_fun(*this,funcName)       \
     );
 
-struct GtkMainWindow : public Messageable {
+struct GtkMainWindow : public SafeLists::GenericGtkWidget {
 
     typedef MainWindowInterface MWI;
 
     GtkMainWindow(Glib::RefPtr<Gtk::Builder>& bld) :
+        SafeLists::GenericGtkWidget(bld),
         _builder(bld),
         _left(nullptr),
         _right(nullptr),
-        _messageHandler(genHandler()),
         _lastSelectedDirId(-1)
     {
+        regHandler(genHandler());
+
         registerAndGetWidget("window1",_wnd);
         registerAndGetWidget("fileList",_right);
         registerAndGetWidget("dirList",_left);
@@ -439,7 +441,7 @@ struct GtkMainWindow : public Messageable {
     }
 
     void message(templatious::VirtualPack& msg) override {
-        _messageHandler->tryMatch(msg);
+        messageNonVirtual(msg);
     }
 
     void message(const std::shared_ptr< templatious::VirtualPack >& msg) override {
@@ -1019,7 +1021,7 @@ private:
         _callbackCache.process();
         _messageCache.process(
             [&](templatious::VirtualPack& pack) {
-                this->_messageHandler->tryMatch(pack);
+                this->messageNonVirtual(pack);
             }
         );
         auto msg = SF::vpack< MWI::OutDrawEnd >(nullptr);
@@ -1160,8 +1162,6 @@ private:
     ModelColumns _mdl;
 
     std::map< std::string, Gtk::Widget* > _wgtMap;
-
-    VmfPtr _messageHandler;
 
     NotifierCache _notifierCache;
     CallbackCache _callbackCache;

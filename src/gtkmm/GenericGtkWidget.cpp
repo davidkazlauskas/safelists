@@ -72,8 +72,8 @@ namespace SafeLists {
                             Gtk::Button* cast = dynamic_cast< Gtk::Button* >(_myWidget);
                             assert( nullptr != cast && "Cast to label failed." );
 
-                            int outNum = *locked;
-                            ++(*locked);
+                            int outNum = locked->_hookId;
+                            ++locked->_hookId;
 
                             cast->signal_clicked().connect(
                                 sigc::bind< int >(

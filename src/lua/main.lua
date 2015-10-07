@@ -1,6 +1,7 @@
 
 require('lua/mobdebug').start()
 require('lua/safelist-constants')
+require('lua/genericwidget')
 
 setStatus = function(context,widget,text)
     context:message(widget,VSig("MWI_InSetStatusText"),VString(text))
@@ -399,6 +400,15 @@ initAll = function()
 
     local ctx = luaContext()
     local mainWnd = ctx:namedMessageable("mainWindow")
+    local genMainWnd = GenericWidget.putOn(mainWnd)
+
+    local mainWndButtonHandlers = {}
+
+    -- HOOK EXAMPLE
+    --local awkButton = genMainWnd:getWidget("awkwardButton")
+    --mainWndButtonHandlers[awkButton:hookButtonClick()] = function()
+        --print("awk hooked")
+    --end
 
     local safelistDependantWigets = {
         "dirList",
@@ -1259,6 +1269,10 @@ initAll = function()
             end
             --print('Draw ended!')
         end,"MWI_OutDrawEnd"),
+        VMatch(function(nat,val)
+            local index = val:values()._2
+            mainWndButtonHandlers[index]()
+        end,"GWI_GBT_OutClickEvent","int"),
         VMatch(function()
             local mainModel = ctx:namedMessageable("mainModel")
             local asyncSqlite = currentAsyncSqlite

@@ -1998,6 +1998,8 @@ initAll = function()
                                 "Specify new folder name to create under " .. dirName .. "."
                             ))
 
+                            local newId = objRetainer:newId()
+
                             local handler = ctx:makeLuaMatchHandler(
                                 VMatch(function()
                                     print("Ok!")
@@ -2057,12 +2059,16 @@ initAll = function()
                                     )
                                     -- todo: optimize, don't reload all
                                     showOrHide(false)
+                                    objRetainer:release(newId)
                                 end,"INDLG_OutOkClicked"),
                                 VMatch(function()
                                     print("Cancel!")
                                     showOrHide(false)
+                                    objRetainer:release(newId)
                                 end,"INDLG_OutCancelClicked")
                             )
+
+                            objRetainer:retain(newId,handler)
 
                             ctx:message(dialog,VSig("INDLG_InSetNotifier"),VMsg(handler))
                             showOrHide(true)

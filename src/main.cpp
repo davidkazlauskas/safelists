@@ -1757,6 +1757,7 @@ private:
             SF::virtualMatch< INT::InShowDialog, bool >(
                 [=](INT::InShowDialog,bool show) {
                     if (show) {
+                        _dlg->set_modal(true);
                         _dlg->show();
                     } else {
                         _dlg->hide();

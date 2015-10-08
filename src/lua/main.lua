@@ -585,12 +585,24 @@ initAll = function()
             return false
         end
 
+        local uniqueMirrMap = {}
         if (result.mirrors ~= nil) then
             -- todo validate mirrors
             local mirrors = string.split(result.mirrors,"\n")
             local mirrTrimmed = {}
             for k,v in ipairs(mirrors) do
                 local trimmed = trimString(v)
+
+                if (uniqueMirrMap[trimmed] == 1) then
+                    messageBoxWParent(
+                        "Invalid input",
+                        "Mirror field contains duplicate mirror '"
+                        .. trimmed .. "'.",
+                        dialog
+                    )
+                    return false
+                end
+                uniqueMirrMap[trimmed] = 1
                 -- todo: add checking for valid
                 -- url (don't know what valid url is yet)
                 if (trimmed ~= "") then

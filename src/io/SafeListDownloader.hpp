@@ -51,7 +51,7 @@ struct SafeListDownloader {
     // messaged when total downloads of session are known
     // Signature:
     // < OutTotalDownloads, int (count) >
-    DUMMY_REG(OutTotalDownloads,"SLDF_OutTotalDownloads");
+    DUMMY_REG(OutTotalDownloads,"SLD_OutTotalDownloads");
 
     static StrongMsgPtr startNew(
         const char* path,

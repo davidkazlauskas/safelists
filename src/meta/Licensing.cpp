@@ -3,7 +3,7 @@
 
 namespace SafeLists {
 
-static StrongMsgPtr LicenseDaemon::getDaemon() {
+StrongMsgPtr LicenseDaemon::getDaemon() {
     static StrongMsgPtr theObject = nullptr;
     return nullptr;
 }

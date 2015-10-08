@@ -48,6 +48,7 @@ SET( DOMAIN_SOURCES
     src/io/SafeListDownloaderFactory.cpp
     src/io/RandomFileWriter.cpp
     src/model/AsyncSqliteFactory.cpp
+    src/meta/Licensing.cpp
     )
 
 include_directories(

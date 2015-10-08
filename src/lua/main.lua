@@ -1200,6 +1200,10 @@ initAll = function()
             )
 
             local merged = mergeTables(orig,diffTable)
+            local toUp = -1
+            if (merged.size ~= "") then
+                toUp = tonumber(merged.size)
+            end
 
             ctx:message(
                 mainWnd,
@@ -1207,7 +1211,7 @@ initAll = function()
                 VInt(fileId),
                 VInt(currentDirId),
                 VString(merged.name),
-                VDouble(tonumber(merged.size)),
+                VDouble(toUp),
                 VString(merged.hash)
             )
             hideDlg()

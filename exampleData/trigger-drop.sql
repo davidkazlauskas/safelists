@@ -1,0 +1,9 @@
+DROP TRIGGER after_insert_files;
+DROP TRIGGER after_delete_files;
+DROP TRIGGER after_update_files;
+DROP TRIGGER after_insert_directories;
+DROP TRIGGER after_delete_directories;
+DROP TRIGGER after_update_directories;
+DROP TRIGGER after_insert_mirrors;
+DROP TRIGGER after_delete_mirrors;
+DROP TRIGGER after_update_mirrors;

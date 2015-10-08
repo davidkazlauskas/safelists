@@ -48,6 +48,12 @@ struct SafeListDownloader {
     // < OutSizeUpdate, int (id), double (size) >
     DUMMY_REG(OutSizeUpdate,"SLD_OutSizeUpdate");
 
+    // messaged when download has finished successfully
+    // with a mirror.
+    // Signature:
+    // < OutMirrorUsed, int (id), std::string (mirror) >
+    DUMMY_REG(OutMirrorUsed,"SLD_OutMirrorUsed");
+
     // messaged when total downloads of session are known
     // Signature:
     // < OutTotalDownloads, int (count) >

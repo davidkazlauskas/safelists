@@ -62,9 +62,15 @@ private:
                 }
             ),
             SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(
-                [=](ANY_CONV,StrongMsgPtr& outRes) {
+                [=](ANY_CONV,StrongMsgPtr& ptr) {
                     auto handler = std::make_shared< GenericShutdownGuard >();
                     handler->setMaster(_myself);
+                    auto msg = SF::vpackPtr< GSI::OutRegisterItself, StrongMsgPtr >(
+                        nullptr, handler
+                    );
+                    assert( nullptr == _notifyExit.lock() );
+                    _notifyExit = handler;
+                    ptr->message(msg);
                 }
             )
         );

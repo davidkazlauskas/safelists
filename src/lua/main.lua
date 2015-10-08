@@ -1598,6 +1598,11 @@ initAll = function()
                     DownloadsModel:dropSession(currSess)
                     objRetainer:release(newId)
                 end,"SLD_OutDone"),
+                VMatch(function(natpack,val)
+                    local tbl = val:values()
+                    local fileId = tbl._2
+                    local theMirror = tbl._3
+                end,"SLD_OutMirrorUsed","int","string"),
                 VMatch(function(natPack,val)
                     local values = val:values()
                     local hash = values._3

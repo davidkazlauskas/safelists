@@ -42,7 +42,7 @@ BEGIN
     UPDATE metadata
     SET revision_number=revision_number+1,modification_date=strftime('%s','now');
 END;
-CREATE TRIGGER after_update_mirrors AFTER UPDATE ON mirrors
+CREATE TRIGGER after_update_mirrors AFTER UPDATE ON mirrors OF file_id, url
 BEGIN
     UPDATE metadata
     SET revision_number=revision_number+1,modification_date=strftime('%s','now');

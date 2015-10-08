@@ -514,6 +514,13 @@ private:
                         nullptr, dl->_id
                     );
 
+                    notifyObserver<
+                        SLD::OutMirrorUsed, int,
+                        std::string
+                    >(
+                        nullptr, dl->_id, dl->_link
+                    );
+
                     char buf[128];
                     dl->_hasher.toString(buf);
                     if (dl->_dumbHash256 != buf) {

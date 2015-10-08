@@ -72,6 +72,11 @@ private:
                     _notifyExit = handler;
                     ptr->message(msg);
                 }
+            ),
+            SF::virtualMatch< GenericShutdownGuard::ShutdownTarget >(
+                [=](GenericShutdownGuard::ShutdownTarget) {
+                    this->_keepGoing = false;
+                }
             )
         );
     }

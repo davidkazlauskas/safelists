@@ -90,8 +90,9 @@ private:
 };
 
 StrongMsgPtr LicenseDaemon::getDaemon() {
-    static StrongMsgPtr theObject = nullptr;
-    return nullptr;
+    static StrongMsgPtr theObject =
+        LicenseDaemonDummyImpl::makeNew();
+    return theObject;
 }
 
 }

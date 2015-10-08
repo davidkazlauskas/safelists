@@ -1602,6 +1602,17 @@ initAll = function()
                     local tbl = val:values()
                     local fileId = tbl._2
                     local theMirror = tbl._3
+                    local current = currentAsyncSqlite
+                    if (nil ~= current) then
+                        ctx:messageAsync(
+                            current,
+                            VSig("ASQL_Execute"),
+                            VString(
+                                "UPDATE mirrors SET use_count=use_count+1"
+                                .. " WHERE file_id=" .. fileId .. ";"
+                            )
+                        )
+                    end
                 end,"SLD_OutMirrorUsed","int","string"),
                 VMatch(function(natPack,val)
                     local values = val:values()

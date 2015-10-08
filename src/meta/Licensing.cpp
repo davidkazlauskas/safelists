@@ -50,7 +50,8 @@ private:
         }
     }
 
-    LicenseDaemonDummyImpl() : _handler(genHandler()) {}
+    LicenseDaemonDummyImpl() :
+        _handler(genHandler()), _keepGoing(true) {}
 
     VmfPtr genHandler() {
         typedef LicenseDaemon LD;
@@ -58,7 +59,7 @@ private:
             SF::virtualMatch< LD::IsExpired, bool >(
                 [=](ANY_CONV,bool& res) {
                     // do something, read files or whatever
-                    return res = true;
+                    return res = false;
                 }
             ),
             SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(

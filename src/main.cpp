@@ -16,6 +16,7 @@
 #include <io/RandomFileWriter.hpp>
 #include <io/AsyncDownloader.hpp>
 #include <model/AsyncSqliteFactory.hpp>
+#include <meta/Licensing.hpp>
 
 TEMPLATIOUS_TRIPLET_STD;
 
@@ -1825,6 +1826,7 @@ int main(int argc,char** argv) {
 
     auto downloader = SafeLists::AsyncDownloader::createNew("imitation");
     auto randomFileWriter = SafeLists::RandomFileWriter::make();
+    auto licenseService = SafeLists::LicenseDaemon::getDaemon();
 
     auto dlFactory = SafeLists::
         SafeListDownloaderFactory::createNew(downloader,randomFileWriter);
@@ -1840,6 +1842,7 @@ int main(int argc,char** argv) {
     auto shutdownGuard = SafeLists::GracefulShutdownGuard::makeNew();
     shutdownGuard->add(randomFileWriter);
     shutdownGuard->add(downloader);
+    shutdownGuard->add(licenseService);
 
     mainWnd->setShutdownGuard(shutdownGuard);
     ctx->addMessageableWeak("mainWindow",mainWnd);
@@ -1847,6 +1850,7 @@ int main(int argc,char** argv) {
     ctx->addMessageableWeak("mainModel",mainModel);
     ctx->addMessageableWeak("shutdownGuard",shutdownGuard);
     ctx->addMessageableWeak("randomFileWriter",randomFileWriter);
+    ctx->addMessageableWeak("licenseService",licenseService);
     ctx->addMessageableStrong("dlSessionFactory",dlFactory);
     ctx->addMessageableStrong("asyncSqliteFactory",asyncSqliteFactory);
     ctx->addMessageableStrong("dialogService",dialogService);

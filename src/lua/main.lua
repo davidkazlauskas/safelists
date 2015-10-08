@@ -1162,15 +1162,20 @@ initAll = function()
             end
 
             if (diffTable.mirrors ~= nil) then
-                push("DELETE FROM mirrors WHERE file_id=" .. fileId .. ";")
-
                 local mirrSplit = string.split(diffTable.mirrors,"\n")
 
                 for k,v in ipairs(mirrSplit) do
-                    push("INSERT INTO mirrors (file_id,url,use_count) ")
-                    push("VALUES")
-                    push("(" .. fileId .. ",'" .. v .. "',0);")
+                    push("INSERT INTO mirrors (file_id,url,use_count) SELECT ")
+                    push("" .. fileId .. ",'" .. v .. "',0")
+                    push(" WHERE '" .. v .. "' NOT IN ")
+                    push(" (SELECT url FROM mirrors WHERE file_id=" .. fileId .. ");")
                 end
+
+                push("DELETE FROM mirrors WHERE file_id=" .. fileId)
+                for k,v in ipairs(mirrSplit) do
+                    push(" AND NOT url='" .. v .. "' ")
+                end
+                push(";")
             end
 
             push("COMMIT;")

@@ -1,14 +1,16 @@
 
 #include <cassert>
 #include <util/Semaphore.hpp>
+#include <util/GenericShutdownGuard.hpp>
 #include "Licensing.hpp"
 
 TEMPLATIOUS_TRIPLET_STD;
 
+typedef SafeLists::GracefulShutdownInterface GSI;
+
 namespace SafeLists {
 
 struct LicenseDaemonDummyImpl : public Messageable {
-    LicenseDaemonDummyImpl() : _handler(genHandler()) {}
     LicenseDaemonDummyImpl(const LicenseDaemonDummyImpl&) = delete;
     LicenseDaemonDummyImpl(LicenseDaemonDummyImpl&&) = delete;
 
@@ -24,6 +26,19 @@ struct LicenseDaemonDummyImpl : public Messageable {
         assert( false && "Only async messages in license daemon." );
     }
 
+    static std::shared_ptr< LicenseDaemonDummyImpl > makeNew() {
+        std::shared_ptr< LicenseDaemonDummyImpl > result(
+            new LicenseDaemonDummyImpl()
+        );
+        result->_myself = result;
+        std::thread(
+            [=]() {
+                result->mainLoop();
+            }
+        ).detach();
+        return result;
+    }
+private:
     void mainLoop() {
         while (_keepGoing) {
             _sem.wait();
@@ -34,7 +49,9 @@ struct LicenseDaemonDummyImpl : public Messageable {
             );
         }
     }
-private:
+
+    LicenseDaemonDummyImpl() : _handler(genHandler()) {}
+
     VmfPtr genHandler() {
         typedef LicenseDaemon LD;
         return SF::virtualMatchFunctorPtr(
@@ -42,6 +59,12 @@ private:
                 [=](ANY_CONV,bool& res) {
                     // do something, read files or whatever
                     return res = true;
+                }
+            ),
+            SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(
+                [=](ANY_CONV,StrongMsgPtr& outRes) {
+                    auto handler = std::make_shared< GenericShutdownGuard >();
+                    handler->setMaster(_myself);
                 }
             )
         );
@@ -51,6 +74,8 @@ private:
     StackOverflow::Semaphore _sem;
     VmfPtr _handler;
     bool _keepGoing;
+    WeakMsgPtr _myself;
+    WeakMsgPtr _notifyExit;
 };
 
 StrongMsgPtr LicenseDaemon::getDaemon() {

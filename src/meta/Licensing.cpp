@@ -2,6 +2,8 @@
 #include <cassert>
 #include <util/Semaphore.hpp>
 #include <util/GenericShutdownGuard.hpp>
+#include <util/ScopeGuard.hpp>
+
 #include "Licensing.hpp"
 
 TEMPLATIOUS_TRIPLET_STD;
@@ -40,6 +42,15 @@ struct LicenseDaemonDummyImpl : public Messageable {
     }
 private:
     void mainLoop() {
+        auto sendMsg = SCOPE_GUARD_LC(
+            auto locked = _notifyExit.lock();
+            if (nullptr != locked) {
+                auto msg = SF::vpack<
+                    GenericShutdownGuard::SetFuture >(nullptr);
+                locked->message(msg);
+            }
+        );
+
         while (_keepGoing) {
             _sem.wait();
             _cache.process(

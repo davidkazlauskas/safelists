@@ -2,6 +2,7 @@
 #include <fstream>
 #include <templatious/FullPack.hpp>
 #include <crypto++/sha.h>
+#include <util/ScopeGuard.hpp>
 
 #include "SignatureCheck.hpp"
 
@@ -10,21 +11,25 @@ TEMPLATIOUS_TRIPLET_STD;
 namespace {
 
     bool hashSingleFile(CryptoPP::SHA256& hash,const std::string& string) {
-        std::ifstream stream(string.c_str(),std::ios::binary);
-        if (!stream.is_open()) {
+        auto file = ::fopen(string.c_str(),"rb");
+        if (nullptr == file) {
             return false;
         }
+        auto guard = SCOPE_GUARD_LC(
+            ::fclose(file);
+        );
 
         char buf;
         unsigned char* rein = reinterpret_cast<unsigned char*>(&buf);
 
-        // I hate c++ so much, I can't even
-        // find how to read some bytes and hash
-        // it up in 10 minutes.
-        while (stream && !stream.eof()) {
-            stream.get(buf);
-            hash.Update(rein,1);
-        }
+        int state;
+        do {
+            state = ::fgetc(file);
+            if (state != EOF) {
+                buf = static_cast<char>(state);
+                hash.Update(rein,1);
+            }
+        } while (state != EOF);
 
         return true;
     }
@@ -32,9 +37,10 @@ namespace {
     void bytesToCStr(char* raw,char* string,int rawNum) {
         TEMPLATIOUS_0_TO_N(i,rawNum) {
             char* strPtr = string + i * 2;
-            char toConv = raw[i];
+            unsigned char toConv = raw[i];
             sprintf(strPtr,"%02x",toConv);
         }
+        string[rawNum * 2 + 1] = '\0';
     }
 
 }
@@ -50,12 +56,13 @@ std::string hashFileListSha256(const std::vector<std::string>& paths) {
             return "";
         }
     }
+    //hash.Update(reinterpret_cast<const byte*>("Nice day\n"),9);
 
     char bytes[1024];
     char bytesStr[2048];
 
     hash.Final(reinterpret_cast<unsigned char*>(bytes));
-    bytesToCStr(bytes,bytesStr,sizeof(bytes));
+    bytesToCStr(bytes,bytesStr,hash.DigestSize());
     return bytesStr;
 }
 

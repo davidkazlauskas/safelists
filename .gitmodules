@@ -4,3 +4,9 @@
 [submodule "submodules/LibLuaPlumbing/LuaPlumbing"]
 	path = submodules/LibLuaPlumbing/LuaPlumbing
 	url = /home/deividas/Desktop/Dropbox/MyPrj/Templatious/LuaPlumbing/
+[submodule "submodules/aff51055698873166c93d83ce09578d2ec613e64"]
+	path = submodules/aff51055698873166c93d83ce09578d2ec613e64
+	url = https://github.com/weidai11/cryptopp.git
+[submodule "submodules/cryptopp"]
+	path = submodules/cryptopp
+	url = https://github.com/weidai11/cryptopp.git

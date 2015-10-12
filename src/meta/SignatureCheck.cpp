@@ -16,7 +16,7 @@ namespace {
         }
 
         char buf;
-        unsigned char* rein = reinterpret_cast<unsigned char*>(buf);
+        unsigned char* rein = reinterpret_cast<unsigned char*>(&buf);
 
         // I hate c++ so much, I can't even
         // find how to read some bytes and hash

@@ -4,6 +4,14 @@ project( SafeLists CXX )
 find_package(PkgConfig REQUIRED)
 find_package(Boost COMPONENTS system filesystem REQUIRED)
 
+# cryptopp
+FIND_LIBRARY(CRYPTOPP crypto++ /usr/lib) ## location of libcryptopp.so or libcryptopp.a
+IF ( NOT CRYPTOPP )
+    message( FATAL_ERROR "No cryptopp library installed." )
+#TARGET_LINK_LIBRARIES(${PROGRAM_NAME} cryptopp )
+## Specifying cryptopp in uppercase gave me link error.
+ENDIF( CRYPTOPP )
+
 pkg_check_modules(GTKMM gtkmm-3.0)
 
 SET( PLUMBING_DIR submodules/LibLuaPlumbing/LuaPlumbing )

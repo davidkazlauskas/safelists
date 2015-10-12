@@ -1,4 +1,6 @@
 
+#include <crypto++/sha.h>
+
 #include "SignatureCheck.hpp"
 
 namespace SafeLists {

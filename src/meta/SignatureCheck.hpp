@@ -6,7 +6,7 @@
 
 namespace SafeLists {
 
-    void hashFileListSha256(const std::vector<std::string>& paths);
+std::string hashFileListSha256(const std::vector<std::string>& paths);
 
 }
 

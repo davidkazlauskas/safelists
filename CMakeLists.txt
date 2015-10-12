@@ -49,6 +49,7 @@ SET( DOMAIN_SOURCES
     src/io/RandomFileWriter.cpp
     src/model/AsyncSqliteFactory.cpp
     src/meta/Licensing.cpp
+    src/meta/SignatureCheck.cpp
     )
 
 include_directories(

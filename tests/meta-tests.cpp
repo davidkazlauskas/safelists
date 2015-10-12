@@ -13,7 +13,10 @@ namespace fs = boost::filesystem;
 
 TEST_CASE("sha_256_many_files","[meta]") {
     std::vector< std::string > files;
-    SA::add(files,"a.txt","b.txt");
+    SA::add(files,
+        "a.txt",
+        "b.txt"
+    );
     auto sg = SCOPE_GUARD_LC(
         TEMPLATIOUS_FOREACH(auto& i,files) {
             fs::remove(i);
@@ -25,5 +28,7 @@ TEST_CASE("sha_256_many_files","[meta]") {
 
     auto res = SafeLists::hashFileListSha256(files);
 
-    REQUIRE( res == "" );
+    REQUIRE( res ==
+            "2dd1f026127f394924d48f3c44e8044c"
+            "b64739d2c268053e0907037006a818ed" );
 }

@@ -5,6 +5,7 @@ find_package(PkgConfig REQUIRED)
 find_package(Boost COMPONENTS system filesystem REQUIRED)
 
 # cryptopp
+# sudo apt-get install libcryptopp-dev
 FIND_LIBRARY(CRYPTOPP crypto++ /usr/lib) ## location of libcryptopp.so or libcryptopp.a
 IF ( NOT CRYPTOPP )
     message( FATAL_ERROR "No cryptopp library installed." )
@@ -93,6 +94,7 @@ target_link_libraries( domain
     sqlite3 pthread
     ${Boost_FILESYSTEM_LIBRARY}
     ${Boost_SYSTEM_LIBRARY}
+    ${CRYPTOPP}
 )
 
 SET( TEST_SOURCES

@@ -56,7 +56,6 @@ std::string hashFileListSha256(const std::vector<std::string>& paths) {
             return "";
         }
     }
-    //hash.Update(reinterpret_cast<const byte*>("Nice day\n"),9);
 
     char bytes[1024];
     char bytesStr[2048];

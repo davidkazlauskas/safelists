@@ -125,6 +125,14 @@ SignFileListError signFileList(
         fclose(file);
     );
 
+    auto key = ::PEM_read_RSAPrivateKey(file,nullptr,nullptr,nullptr);
+    if (nullptr == key) {
+        return SignFileListError::KeyReadFail;
+    }
+    auto rsaFreeGuard = SCOPE_GUARD_LC(
+        ::RSA_free(key);
+    );
+
     return SignFileListError::Success;
 }
 

@@ -256,8 +256,21 @@ VerifyFileListError verifyFileList(
     // this no more.
     closeGuard.fire();
 
+
     int sigLen = strlen(signature);
-    ::RSA_public_decrypt(sigLen,)
+    unsigned char originalHash[1024 * 2];
+    unsigned char output[64];
+    encodeHexString(sigLen,signature,originalHash);
+    int recSize = ::RSA_public_decrypt(
+        sigLen/2,
+        originalHash,
+        output,
+        key,
+        RSA_PKCS1_PADDING);
+
+    if (32 != recSize) {
+        return VerifyFileListError::DigestRecoveryFail;
+    }
 
     unsigned char hashOfAll[32];
     int res = hashFileListSha256(paths,hashOfAll);
@@ -265,7 +278,9 @@ VerifyFileListError verifyFileList(
         return VerifyFileListError::HashingFailed;
     }
 
-    assert( outLen < sizeof(sigret) );
+    return 0 == memcmp(hashOfAll,output,sizeof(hashOfAll)) ?
+        VerifyFileListError::Success :
+        VerifyFileListError::VerificationFailed;
 }
 
 }

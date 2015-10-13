@@ -40,6 +40,7 @@ enum class VerifyFileListError {
     VerificationFailed,
     CouldNotOpenKey,
     KeyReadFail,
+    DigestRecoveryFail,
     HashingFailed
 };
 

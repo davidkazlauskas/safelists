@@ -4,6 +4,7 @@
 #include <crypto++/sha.h>
 #include <rapidjson/document.h>
 #include <rapidjson/filereadstream.h>
+#include <openssl/pem.h>
 #include <util/ScopeGuard.hpp>
 
 #include "SignatureCheck.hpp"
@@ -115,6 +116,15 @@ SignFileListError signFileList(
     const char* keyPath,
     const std::vector< std::string >& paths)
 {
+    auto file = fopen(keyPath,"r");
+    if (nullptr == file) {
+        return SignFileListError::CouldNotOpenKey;
+    }
+
+    auto closeGuard = SCOPE_GUARD_LC(
+        fclose(file);
+    );
+
     return SignFileListError::Success;
 }
 

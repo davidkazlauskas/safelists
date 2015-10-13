@@ -30,7 +30,7 @@ enum class SignFileListError {
 };
 
 SignFileListError signFileList(
-    const char* keyPath,
+    const char* privateKeyPath,
     const std::vector< std::string >& paths,
     std::string& outSig
 );

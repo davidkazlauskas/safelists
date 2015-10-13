@@ -133,11 +133,11 @@ GetFileListError getFileListWSignature(
 }
 
 SignFileListError signFileList(
-    const char* keyPath,
+    const char* privateKeyPath,
     const std::vector< std::string >& paths,
     std::string& outSig)
 {
-    auto file = fopen(keyPath,"r");
+    auto file = fopen(privateKeyPath,"r");
     if (nullptr == file) {
         return SignFileListError::CouldNotOpenKey;
     }

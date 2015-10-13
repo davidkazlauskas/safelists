@@ -2,6 +2,8 @@
 #include <fstream>
 #include <templatious/FullPack.hpp>
 #include <crypto++/sha.h>
+#include <rapidjson/document.h>
+#include <rapidjson/filereadstream.h>
 #include <util/ScopeGuard.hpp>
 
 #include "SignatureCheck.hpp"
@@ -43,6 +45,7 @@ namespace {
         string[rawNum * 2 + 1] = '\0';
     }
 
+    namespace rj = rapidjson;
 }
 
 namespace SafeLists {
@@ -65,9 +68,18 @@ std::string hashFileListSha256(const std::vector<std::string>& paths) {
     return bytesStr;
 }
 
-std::vector< std::string > getFileList(const char* jsonPath) {
-    std::vector< std::string > result;
-    return result;
+GetFileListError getFileList(const char* jsonPath,std::vector< std::string >& out) {
+    auto file = ::fopen(jsonPath,"r");
+    if (nullptr == file) {
+        return GetFileListError::CouldNotOpenFile;
+    }
+    auto closeGuard = SCOPE_GUARD_LC(
+        ::fclose(file);
+    );
+
+    //rj::FileReadStream doc(jsonPath);
+
+    return GetFileListError::Success;
 }
 
 }

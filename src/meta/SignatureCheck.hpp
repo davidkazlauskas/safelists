@@ -7,7 +7,13 @@
 namespace SafeLists {
 
 std::string hashFileListSha256(const std::vector<std::string>& paths);
-std::vector< std::string > getFileList(const char* jsonPath);
+
+enum class GetFileListError {
+    Success,
+    CouldNotOpenFile
+};
+
+GetFileListError getFileList(const char* jsonPath,std::vector< std::string >& out);
 
 }
 

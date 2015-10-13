@@ -182,6 +182,22 @@ TEST_CASE("scope_guard_dismiss","[util]") {
     REQUIRE( !called );
 }
 
+TEST_CASE("scope_guard_fire","[util]") {
+    int count = 0;
+    {
+        auto g = SCOPE_GUARD_LC(
+            ++count;
+        );
+
+        REQUIRE( count == 0 );
+
+        g.fire();
+
+        REQUIRE( count == 1 );
+    }
+    REQUIRE( count == 1 );
+}
+
 struct MessA : public SafeLists::GenericStMessageable {
     MessA() {
         regHandler(

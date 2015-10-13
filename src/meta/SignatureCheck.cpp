@@ -46,6 +46,34 @@ namespace {
         string[rawNum * 2 + 1] = '\0';
     }
 
+    char singleByteNumeric(char original) {
+        if (original >= 'a' && original <= 'f') {
+            return original - 'a' + 10;
+        }
+
+        if (original >= 'A' && original <= 'F') {
+            return original - 'A' + 10;
+        }
+
+        if (original >= '0' && original <= '9') {
+            return original - '0';
+        }
+
+        assert( false && "Invalid input." );
+    }
+
+    unsigned char decodeByte(const char* twoHex) {
+        char higher = twoHex[0];
+        char lower = twoHex[1];
+
+        unsigned char outRes = 0;
+
+        outRes += singleByteNumeric(higher) * 16;
+        outRes += singleByteNumeric(lower);
+
+        return outRes;
+    }
+
     namespace rj = rapidjson;
 }
 
@@ -196,35 +224,38 @@ VerifyFileListError verifyFileList(
     const std::vector< std::string >& paths
 )
 {
-    //auto file = fopen(publicKeyPath,"r");
-    //if (nullptr == file) {
-        //return VerifyFileListError::CouldNotOpenKey;
-    //}
+    auto file = fopen(publicKeyPath,"r");
+    if (nullptr == file) {
+        return VerifyFileListError::CouldNotOpenKey;
+    }
 
-    //auto closeGuard = SCOPE_GUARD_LC(
-        //fclose(file);
-    //);
+    auto closeGuard = SCOPE_GUARD_LC(
+        fclose(file);
+    );
 
-    //auto key = ::PEM_read_RSAPublicKey(file,nullptr,nullptr,nullptr);
-    //if (nullptr == key) {
-        //return VerifyFileListError::KeyReadFail;
-    //}
+    auto key = ::PEM_read_RSAPublicKey(file,nullptr,nullptr,nullptr);
+    if (nullptr == key) {
+        return VerifyFileListError::KeyReadFail;
+    }
 
-    //auto rsaFreeGuard = SCOPE_GUARD_LC(
-        //::RSA_free(key);
-    //);
+    auto rsaFreeGuard = SCOPE_GUARD_LC(
+        ::RSA_free(key);
+    );
 
-    //// close right away, we don't need
-    //// this no more.
-    //closeGuard.fire();
+    // close right away, we don't need
+    // this no more.
+    closeGuard.fire();
 
-    //unsigned char hashOfAll[32];
-    //int res = hashFileListSha256(paths,hashOfAll);
-    //if (0 != res) {
-        //return VerifyFileListError::HashingFailed;
-    //}
+    int sigLen = strlen(signature);
+    ::RSA_public_decrypt(sigLen,)
 
-    //assert( outLen < sizeof(sigret) );
+    unsigned char hashOfAll[32];
+    int res = hashFileListSha256(paths,hashOfAll);
+    if (0 != res) {
+        return VerifyFileListError::HashingFailed;
+    }
+
+    assert( outLen < sizeof(sigret) );
 }
 
 }

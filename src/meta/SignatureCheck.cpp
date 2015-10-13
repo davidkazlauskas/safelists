@@ -74,6 +74,16 @@ namespace {
         return outRes;
     }
 
+    void encodeHexString(int strLen,const char* string,unsigned char* outBuf) {
+        assert( strLen % 2 == 0 );
+        for (int i = 0; i < strLen; i += 2) {
+            int half = i / 2;
+            const char* ptr = string + i;
+
+            outBuf[half] = decodeByte(ptr);
+        }
+    }
+
     namespace rj = rapidjson;
 }
 

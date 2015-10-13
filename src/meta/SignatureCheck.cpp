@@ -65,4 +65,9 @@ std::string hashFileListSha256(const std::vector<std::string>& paths) {
     return bytesStr;
 }
 
+std::vector< std::string > getFileList(const char* jsonPath) {
+    std::vector< std::string > result;
+    return result;
+}
+
 }

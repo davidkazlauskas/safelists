@@ -95,7 +95,7 @@ add_custom_target( copy-lua-scripts ALL
 
 add_library( domain ${DOMAIN_SOURCES} )
 target_link_libraries( domain
-    sqlite3 pthread
+    sqlite3 pthread crypto
     ${Boost_FILESYSTEM_LIBRARY}
     ${Boost_SYSTEM_LIBRARY}
     ${CRYPTOPP}

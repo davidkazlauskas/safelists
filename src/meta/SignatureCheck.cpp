@@ -69,6 +69,26 @@ std::string hashFileListSha256(const std::vector<std::string>& paths) {
     return bytesStr;
 }
 
+int hashFileListSha256(
+    const std::vector<std::string>& paths,
+    unsigned char (&arr)[32])
+{
+    CryptoPP::SHA256 hash;
+
+    TEMPLATIOUS_FOREACH(auto& i, paths) {
+        bool res = hashSingleFile(hash,i);
+        if (!res) {
+            return 1;
+        }
+    }
+
+    char bytes[1024];
+    char bytesStr[2048];
+
+    hash.Final(arr);
+    return 0;
+}
+
 GetFileListError getFileListWSignature(
     const char* jsonPath,
     std::vector< std::string >& out,
@@ -138,10 +158,21 @@ SignFileListError signFileList(
     // this no more.
     closeGuard.fire();
 
-    auto hash = hashFileListSha256(paths);
-    if (hash == "") {
+    unsigned char hashOfAll[32];
+    int res = hashFileListSha256(paths,hashOfAll);
+    if (0 != res) {
         return SignFileListError::HashingFailed;
     }
+
+    unsigned int outLen = 0;
+    unsigned char sigret[1024];
+    ::RSA_sign(
+        NID_sha256,
+        hashOfAll,
+        sizeof(hashOfAll),
+        sigret,
+        &outLen,
+        key);
 
     return SignFileListError::Success;
 }

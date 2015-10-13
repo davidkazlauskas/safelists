@@ -174,6 +174,10 @@ SignFileListError signFileList(
         &outLen,
         key);
 
+    if (0 == outLen) {
+        return SignFileListError::SigningFailed;
+    }
+
     return SignFileListError::Success;
 }
 

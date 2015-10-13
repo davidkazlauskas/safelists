@@ -99,6 +99,14 @@ GetFileListError getFileListWSignature(
     if (!d.HasMember("files") || !d["files"].IsArray()) {
         return GetFileListError::InvalidJson;
     }
+    auto beg = d["files"].MemberBegin();
+    auto end = d["files"].MemberEnd();
+    for (; beg != end; ++beg) {
+        if (!beg->value.IsString()) {
+            return GetFileListError::InvalidJson;
+        }
+        SA::add(out,beg->value.GetString());
+    }
 
     return GetFileListError::Success;
 }

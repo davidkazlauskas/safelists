@@ -37,7 +37,10 @@ SignFileListError signFileList(
 
 enum class VerifyFileListError {
     Success,
-    VerificationFailed
+    VerificationFailed,
+    CouldNotOpenKey,
+    KeyReadFail,
+    HashingFailed
 };
 
 VerifyFileListError verifyFileList(

@@ -35,6 +35,17 @@ SignFileListError signFileList(
     std::string& outSig
 );
 
+enum class VerifyFileListError {
+    Success,
+    VerificationFailed
+};
+
+VerifyFileListError verifyFileList(
+    const char* publicKeyPath,
+    const char* signature,
+    const std::vector< std::string >& paths
+);
+
 }
 
 #endif /* end of include guard: SIGNATURECHECK_DEV9MTG8 */

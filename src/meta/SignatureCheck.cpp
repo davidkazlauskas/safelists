@@ -87,6 +87,14 @@ GetFileListError getFileListWSignature(
 
     rj::Document d;
     d.ParseStream(stream);
+    if (d.HasParseError()) {
+        return GetFileListError::ParseError;
+    }
+
+    if (!d.HasMember("signature") || !d["signature"].IsString()) {
+        return GetFileListError::InvalidJson;
+    }
+    signature = d["signature"].GetString();
 
     return GetFileListError::Success;
 }

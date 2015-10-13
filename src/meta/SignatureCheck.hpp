@@ -10,7 +10,9 @@ std::string hashFileListSha256(const std::vector<std::string>& paths);
 
 enum class GetFileListError {
     Success,
-    CouldNotOpenFile
+    CouldNotOpenFile,
+    ParseError,
+    InvalidJson
 };
 
 GetFileListError getFileList(

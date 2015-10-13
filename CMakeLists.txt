@@ -17,6 +17,7 @@ pkg_check_modules(GTKMM gtkmm-3.0)
 
 SET( PLUMBING_DIR submodules/LibLuaPlumbing/LuaPlumbing )
 SET( RAPID_JSON_DIR submodules/rapidjson )
+SET( RAPID_JSON_INCLUDE_DIR ${RAPID_JSON_DIR}/include )
 SET( SRC_DIR src )
 
 ADD_DEFINITIONS(
@@ -31,7 +32,8 @@ SET( LIBINCLUDE_DIRS
     ${GTKMM_INCLUDE_DIRS}
     $ENV{TEMPLATIOUS_DIR}
     ${PLUMBING_DIR}
-    ${Boost_INCLUDE_DIRS} )
+    ${Boost_INCLUDE_DIRS}
+    ${RAPID_JSON_INCLUDE_DIR} )
 
 SET( APPINCLUDE_DIRS
     ${SRC_DIR} )

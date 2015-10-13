@@ -130,6 +130,10 @@ SignFileListError signFileList(
         return SignFileListError::KeyReadFail;
     }
 
+    auto rsaFreeGuard = SCOPE_GUARD_LC(
+        ::RSA_free(key);
+    );
+
     // close right away, we don't need
     // this no more.
     closeGuard.fire();
@@ -138,10 +142,6 @@ SignFileListError signFileList(
     if (hash == "") {
         return SignFileListError::HashingFailed;
     }
-
-    auto rsaFreeGuard = SCOPE_GUARD_LC(
-        ::RSA_free(key);
-    );
 
     return SignFileListError::Success;
 }

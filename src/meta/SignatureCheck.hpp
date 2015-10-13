@@ -21,6 +21,16 @@ GetFileListError getFileList(
     std::string& outSignature
 );
 
+enum class SignFileListError {
+    Success,
+    CouldNotOpenKey
+};
+
+SignFileListError signFileList(
+    const char* keyPath,
+    const std::vector< std::string >& paths
+);
+
 }
 
 #endif /* end of include guard: SIGNATURECHECK_DEV9MTG8 */

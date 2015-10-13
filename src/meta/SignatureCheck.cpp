@@ -111,4 +111,11 @@ GetFileListError getFileListWSignature(
     return GetFileListError::Success;
 }
 
+SignFileListError signFileList(
+    const char* keyPath,
+    const std::vector< std::string >& paths)
+{
+    return SignFileListError::Success;
+}
+
 }

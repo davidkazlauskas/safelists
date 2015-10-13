@@ -77,7 +77,12 @@ GetFileListError getFileList(const char* jsonPath,std::vector< std::string >& ou
         ::fclose(file);
     );
 
-    //rj::FileReadStream doc(jsonPath);
+    // hopefully signature doesn't exceed this...
+    char readBuffer[256*256];
+    rj::FileReadStream stream(file,readBuffer,sizeof(readBuffer));
+
+    rj::Document d;
+    d.ParseStream(stream);
 
     return GetFileListError::Success;
 }

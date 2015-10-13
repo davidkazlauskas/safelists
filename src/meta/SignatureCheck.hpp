@@ -23,7 +23,9 @@ GetFileListError getFileList(
 
 enum class SignFileListError {
     Success,
-    CouldNotOpenKey
+    CouldNotOpenKey,
+    KeyReadFail,
+    HashingFailed
 };
 
 SignFileListError signFileList(

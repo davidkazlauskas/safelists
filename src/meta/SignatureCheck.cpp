@@ -134,6 +134,11 @@ SignFileListError signFileList(
     // this no more.
     closeGuard.fire();
 
+    auto hash = hashFileListSha256(paths);
+    if (hash == "") {
+        return SignFileListError::HashingFailed;
+    }
+
     auto rsaFreeGuard = SCOPE_GUARD_LC(
         ::RSA_free(key);
     );

@@ -13,7 +13,11 @@ enum class GetFileListError {
     CouldNotOpenFile
 };
 
-GetFileListError getFileList(const char* jsonPath,std::vector< std::string >& out);
+GetFileListError getFileList(
+    const char* jsonPath,
+    std::vector< std::string >& out,
+    std::string& outSignature
+);
 
 }
 

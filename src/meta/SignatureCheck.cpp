@@ -68,7 +68,11 @@ std::string hashFileListSha256(const std::vector<std::string>& paths) {
     return bytesStr;
 }
 
-GetFileListError getFileList(const char* jsonPath,std::vector< std::string >& out) {
+GetFileListError getFileListWSignature(
+    const char* jsonPath,
+    std::vector< std::string >& out,
+    std::string& signature)
+{
     auto file = ::fopen(jsonPath,"r");
     if (nullptr == file) {
         return GetFileListError::CouldNotOpenFile;

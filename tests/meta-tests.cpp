@@ -51,6 +51,12 @@ TEST_CASE("sign_files","[meta]") {
     std::string outSig;
     auto res = SafeLists::signFileList("exampleData/rsa-keys/private-test.pem",files,outSig);
     REQUIRE( res == SafeLists::SignFileListError::Success );
+    REQUIRE( outSig != "" );
+
+    auto resVer = SafeLists::verifyFileList(
+        "exampleData/rsa-keys/public-test.pem",outSig.c_str(),files);
+
+    REQUIRE( resVer == SafeLists::VerifyFileListError::Success );
 
     REQUIRE( outSig ==
             "" );

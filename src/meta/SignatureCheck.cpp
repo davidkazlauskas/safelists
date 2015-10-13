@@ -243,7 +243,7 @@ VerifyFileListError verifyFileList(
         fclose(file);
     );
 
-    auto key = ::PEM_read_RSAPublicKey(file,nullptr,nullptr,nullptr);
+    auto key = ::PEM_read_RSA_PUBKEY(file,nullptr,nullptr,nullptr);
     if (nullptr == key) {
         return VerifyFileListError::KeyReadFail;
     }

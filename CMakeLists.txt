@@ -16,6 +16,7 @@ ENDIF( CRYPTOPP )
 pkg_check_modules(GTKMM gtkmm-3.0)
 
 SET( PLUMBING_DIR submodules/LibLuaPlumbing/LuaPlumbing )
+SET( RAPID_JSON_DIR submodules/rapidjson )
 SET( SRC_DIR src )
 
 ADD_DEFINITIONS(
@@ -75,6 +76,7 @@ if (UNIX)
 endif(UNIX)
 
 add_subdirectory( ${PLUMBING_DIR} )
+add_subdirectory( ${RAPID_JSON_DIR} )
 
 SET( CMAKE_EXPORT_COMPILE_COMMANDS yes )
 

@@ -96,6 +96,10 @@ GetFileListError getFileListWSignature(
     }
     signature = d["signature"].GetString();
 
+    if (!d.HasMember("files") || !d["files"].IsArray()) {
+        return GetFileListError::InvalidJson;
+    }
+
     return GetFileListError::Success;
 }
 

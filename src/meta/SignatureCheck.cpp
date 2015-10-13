@@ -134,7 +134,8 @@ GetFileListError getFileListWSignature(
 
 SignFileListError signFileList(
     const char* keyPath,
-    const std::vector< std::string >& paths)
+    const std::vector< std::string >& paths,
+    std::string& outSig)
 {
     auto file = fopen(keyPath,"r");
     if (nullptr == file) {
@@ -165,7 +166,7 @@ SignFileListError signFileList(
     }
 
     unsigned int outLen = 0;
-    unsigned char sigret[1024];
+    unsigned char sigret[1024 * 4];
     res = ::RSA_sign(
         NID_sha256,
         hashOfAll,
@@ -178,6 +179,15 @@ SignFileListError signFileList(
         return SignFileListError::SigningFailed;
     }
 
+    assert( outLen < sizeof(sigret) );
+
+    char sigRetString[sizeof(sigret) * 2 + 1];
+    for (int i = 0; i < outLen; ++i) {
+        auto ptr = sigRetString + i * 2;
+        sprintf(ptr,"%02x",sigret[i]);
+    }
+
+    outSig = sigRetString;
     return SignFileListError::Success;
 }
 

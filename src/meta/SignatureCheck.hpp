@@ -25,12 +25,14 @@ enum class SignFileListError {
     Success,
     CouldNotOpenKey,
     KeyReadFail,
-    HashingFailed
+    HashingFailed,
+    SigningFailed
 };
 
 SignFileListError signFileList(
     const char* keyPath,
-    const std::vector< std::string >& paths
+    const std::vector< std::string >& paths,
+    std::string& outSig
 );
 
 }

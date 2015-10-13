@@ -129,6 +129,11 @@ SignFileListError signFileList(
     if (nullptr == key) {
         return SignFileListError::KeyReadFail;
     }
+
+    // close right away, we don't need
+    // this no more.
+    closeGuard.fire();
+
     auto rsaFreeGuard = SCOPE_GUARD_LC(
         ::RSA_free(key);
     );

@@ -166,7 +166,7 @@ SignFileListError signFileList(
 
     unsigned int outLen = 0;
     unsigned char sigret[1024];
-    ::RSA_sign(
+    res = ::RSA_sign(
         NID_sha256,
         hashOfAll,
         sizeof(hashOfAll),
@@ -174,7 +174,7 @@ SignFileListError signFileList(
         &outLen,
         key);
 
-    if (0 == outLen) {
+    if (res != 1 || 0 == outLen) {
         return SignFileListError::SigningFailed;
     }
 

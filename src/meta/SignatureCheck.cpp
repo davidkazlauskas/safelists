@@ -165,17 +165,16 @@ SignFileListError signFileList(
         return SignFileListError::HashingFailed;
     }
 
-    unsigned int outLen = 0;
+    int outLen = 0;
     unsigned char sigret[1024 * 4];
-    res = ::RSA_sign(
-        NID_sha256,
-        hashOfAll,
+    outLen = ::RSA_private_encrypt(
         sizeof(hashOfAll),
+        hashOfAll,
         sigret,
-        &outLen,
-        key);
+        key,
+        RSA_PKCS1_PADDING);
 
-    if (res != 1 || 0 == outLen) {
+    if (outLen < 0) {
         return SignFileListError::SigningFailed;
     }
 
@@ -189,6 +188,43 @@ SignFileListError signFileList(
 
     outSig = sigRetString;
     return SignFileListError::Success;
+}
+
+VerifyFileListError verifyFileList(
+    const char* publicKeyPath,
+    const char* signature,
+    const std::vector< std::string >& paths
+)
+{
+    //auto file = fopen(publicKeyPath,"r");
+    //if (nullptr == file) {
+        //return VerifyFileListError::CouldNotOpenKey;
+    //}
+
+    //auto closeGuard = SCOPE_GUARD_LC(
+        //fclose(file);
+    //);
+
+    //auto key = ::PEM_read_RSAPublicKey(file,nullptr,nullptr,nullptr);
+    //if (nullptr == key) {
+        //return VerifyFileListError::KeyReadFail;
+    //}
+
+    //auto rsaFreeGuard = SCOPE_GUARD_LC(
+        //::RSA_free(key);
+    //);
+
+    //// close right away, we don't need
+    //// this no more.
+    //closeGuard.fire();
+
+    //unsigned char hashOfAll[32];
+    //int res = hashFileListSha256(paths,hashOfAll);
+    //if (0 != res) {
+        //return VerifyFileListError::HashingFailed;
+    //}
+
+    //assert( outLen < sizeof(sigret) );
 }
 
 }

@@ -26,11 +26,13 @@ TEST_CASE("sha_256_many_files","[meta]") {
     fs::copy_file("exampleData/full-schema.sql","a.txt");
     fs::copy_file("exampleData/trigger-drop.sql","b.txt");
 
-    auto res = SafeLists::hashFileListSha256(files);
+    std::string rootPath = "./";
+    auto res = SafeLists::hashFileListSha256(rootPath,files);
 
-    REQUIRE( res ==
-            "2dd1f026127f394924d48f3c44e8044c"
-            "b64739d2c268053e0907037006a818ed" );
+    const char* EXPECTED =
+        "42f640590efd829a8f360a1f6dd3ee10"
+        "3cfb366fae5f2c2c8a4653e15f4a63ee";
+    REQUIRE( res == EXPECTED );
 }
 
 TEST_CASE("sign_files","[meta]") {
@@ -48,22 +50,26 @@ TEST_CASE("sign_files","[meta]") {
     fs::copy_file("exampleData/full-schema.sql","a.txt");
     fs::copy_file("exampleData/trigger-drop.sql","b.txt");
 
+    std::string rootPath = "./";
     std::string outSig;
-    auto res = SafeLists::signFileList("exampleData/rsa-keys/private-test.pem",files,outSig);
+    auto res = SafeLists::signFileList("exampleData/rsa-keys/private-test.pem",rootPath,files,outSig);
     REQUIRE( res == SafeLists::SignFileListError::Success );
     REQUIRE( outSig != "" );
 
     auto resVer = SafeLists::verifyFileList(
-        "exampleData/rsa-keys/public-test.pem",outSig.c_str(),files);
+        "exampleData/rsa-keys/public-test.pem",outSig.c_str(),rootPath,files);
 
     REQUIRE( resVer == SafeLists::VerifyFileListError::Success );
 
-    REQUIRE( outSig ==
-        "6153f401ba6bfecbff926152abf39545a2f0d987f4483673de30fcb94eb5d5807c8acd61cdc"
-        "0c5b733a17dec7fc6d48818772890d35ea29c60ff7aa5c92203aff9f45b7d32cd840d9cec1d"
-        "428f96f4aebc96eb5f723f99e3f1ae20f9b6c80e5a6667bc67b0e1e143ec18db6d5111cd3c2"
-        "622b2cfee96fe6323618a657d1d130d882e90a6bc0ecbf22cf46ea73074d1299e697e8b4ad8"
-        "47512080564f123a363b63ea563fe1ab1414a05659873386a1a1ead11abc0cea96b06f445f1"
-        "46ec0254df7bd7e904b043eaa9e184a991767127007ad3af6d8bbde9912218a44c61df21e90"
-        "74a4585237fe1f243db6f905782b0c008b62528d5f682b6b50f0a12f29171c" );
+    const char* EXPECTED =
+      "138016af591e7b87798457d1eb60423c55de96438ecee23107c38b448b9a608782075cf5d64"
+      "520b47f74b0e820badf985a5b736815da208dc865e149803d94a97484e525d5417387500460"
+      "e67f36232c91da32a1ab3c83390b4508290344ee062c11dda1b8d76b7f0128f8e79ec2743e2"
+      "789290d80dc25ad7b613acd2a8e35a93e8832a69ded43484176fe95e6561431a9a54c86d48f"
+      "4cb8a7e456c1d4149002baef199b461efab8d10a0bb7503a909973ca0363a74bf7bdf88a37b"
+      "720a0e2f4c1cf7989cc3dd858e9aa9c961b0de8410732deef6c67bfc3100110643ca5aeab05"
+      "5ca3b10f1e43b11adb12bdb73216f92199826da6b3a22777b0da873b537f3a";
+
+    REQUIRE( outSig == EXPECTED );
 }
+

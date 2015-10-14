@@ -6,7 +6,9 @@
 
 namespace SafeLists {
 
-std::string hashFileListSha256(const std::vector<std::string>& paths);
+std::string hashFileListSha256(
+    const std::string& rootPath,
+    const std::vector<std::string>& paths);
 
 enum class GetFileListError {
     Success,
@@ -15,7 +17,7 @@ enum class GetFileListError {
     InvalidJson
 };
 
-GetFileListError getFileList(
+GetFileListError getFileListWSignature(
     const char* jsonPath,
     std::vector< std::string >& out,
     std::string& outSignature
@@ -31,6 +33,7 @@ enum class SignFileListError {
 
 SignFileListError signFileList(
     const char* privateKeyPath,
+    const std::string& rootPath,
     const std::vector< std::string >& paths,
     std::string& outSig
 );
@@ -47,6 +50,7 @@ enum class VerifyFileListError {
 VerifyFileListError verifyFileList(
     const char* publicKeyPath,
     const char* signature,
+    const std::string& rootPath,
     const std::vector< std::string >& paths
 );
 

@@ -15,7 +15,7 @@ int main(int argc,char* argv[]) {
 
     std::vector< std::string > paths;
     std::string outSig;
-    auto res = SafeLists::getFileList(argv[1],paths,outSig);
+    auto res = SafeLists::getFileListWSignature(argv[1],paths,outSig);
     if (res != SafeLists::GetFileListError::Success) {
         if (res == SafeLists::GetFileListError::InvalidJson) {
             printf("Invalid json...\n");
@@ -36,12 +36,17 @@ int main(int argc,char* argv[]) {
     auto parentDir = fs::absolute(sigPath.parent_path());
     std::string absStr = parentDir.string();
     std::string tmp;
-    TEMPLATIOUS_FOREACH(auto& i,paths) {
-        tmp = i;
-        i = absStr;
-        i += "/";
-        i += tmp;
-    }
-    auto signRes = SafeLists::signFileList(argv[0],paths,outSig);
+    auto goodPaths =
+        SM::map< std::string >(
+            [&](const std::string& i) {
+                std::string res = absStr;
+                res += "/";
+                res += i;
+                return res;
+            },
+            paths
+        );
+
+    //auto signRes = SafeLists::signFileList(argv[0],goodPaths,outSig);
 }
 

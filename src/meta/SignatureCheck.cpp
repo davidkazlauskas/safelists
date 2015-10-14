@@ -12,8 +12,13 @@ TEMPLATIOUS_TRIPLET_STD;
 
 namespace {
 
-    bool hashSingleFile(SHA256_CTX& hash,const std::string& string) {
-        auto file = ::fopen(string.c_str(),"rb");
+    bool hashSingleFile(
+        SHA256_CTX& hash,
+        const std::string& rootPath,
+        const std::string& relPath)
+    {
+        std::string rightPath = rootPath + relPath;
+        auto file = ::fopen(rightPath.c_str(),"rb");
         if (nullptr == file) {
             return false;
         }
@@ -23,6 +28,8 @@ namespace {
 
         char buf;
         unsigned char* rein = reinterpret_cast<unsigned char*>(&buf);
+
+        ::SHA256_Update(&hash,relPath.c_str(),relPath.size());
 
         int state;
         do {
@@ -88,12 +95,15 @@ namespace {
 
 namespace SafeLists {
 
-std::string hashFileListSha256(const std::vector<std::string>& paths) {
+std::string hashFileListSha256(
+        const std::string& rootPath,
+        const std::vector<std::string>& paths)
+{
     SHA256_CTX ctx;
     ::SHA256_Init(&ctx);
 
     TEMPLATIOUS_FOREACH(auto& i, paths) {
-        bool res = hashSingleFile(ctx,i);
+        bool res = hashSingleFile(ctx,rootPath,i);
         if (!res) {
             return "";
         }
@@ -108,6 +118,7 @@ std::string hashFileListSha256(const std::vector<std::string>& paths) {
 }
 
 int hashFileListSha256(
+    const std::string& rootPath,
     const std::vector<std::string>& paths,
     unsigned char (&arr)[32])
 {
@@ -115,7 +126,7 @@ int hashFileListSha256(
     ::SHA256_Init(&ctx);
 
     TEMPLATIOUS_FOREACH(auto& i, paths) {
-        bool res = hashSingleFile(ctx,i);
+        bool res = hashSingleFile(ctx,rootPath,i);
         if (!res) {
             return 1;
         }
@@ -173,6 +184,7 @@ GetFileListError getFileListWSignature(
 
 SignFileListError signFileList(
     const char* privateKeyPath,
+    const std::string& rootPath,
     const std::vector< std::string >& paths,
     std::string& outSig)
 {
@@ -199,7 +211,7 @@ SignFileListError signFileList(
     closeGuard.fire();
 
     unsigned char hashOfAll[32];
-    int res = hashFileListSha256(paths,hashOfAll);
+    int res = hashFileListSha256(rootPath,paths,hashOfAll);
     if (0 != res) {
         return SignFileListError::HashingFailed;
     }
@@ -232,6 +244,7 @@ SignFileListError signFileList(
 VerifyFileListError verifyFileList(
     const char* publicKeyPath,
     const char* signature,
+    const std::string& rootPath,
     const std::vector< std::string >& paths
 )
 {
@@ -274,7 +287,7 @@ VerifyFileListError verifyFileList(
     }
 
     unsigned char hashOfAll[32];
-    int res = hashFileListSha256(paths,hashOfAll);
+    int res = hashFileListSha256(rootPath,paths,hashOfAll);
     if (0 != res) {
         return VerifyFileListError::HashingFailed;
     }

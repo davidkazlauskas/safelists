@@ -1,8 +1,11 @@
 
+#include <templatious/FullPack.hpp>
 #include <boost/filesystem.hpp>
 #include <meta/SignatureCheck.hpp>
 
 namespace fs = boost::filesystem;
+
+TEMPLATIOUS_TRIPLET_STD;
 
 int main(int argc,char* argv[]) {
     if (argc != 2) {
@@ -29,6 +32,16 @@ int main(int argc,char* argv[]) {
         return 1;
     }
 
+    fs::path sigPath(argv[1]);
+    auto parentDir = fs::absolute(sigPath.parent_path());
+    std::string absStr = parentDir.string();
+    std::string tmp;
+    TEMPLATIOUS_FOREACH(auto& i,paths) {
+        tmp = i;
+        i = absStr;
+        i += "/";
+        i += tmp;
+    }
     auto signRes = SafeLists::signFileList(argv[0],paths,outSig);
 }
 

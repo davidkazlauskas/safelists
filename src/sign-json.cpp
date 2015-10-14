@@ -34,19 +34,22 @@ int main(int argc,char* argv[]) {
 
     fs::path sigPath(argv[1]);
     auto parentDir = fs::absolute(sigPath.parent_path());
-    std::string absStr = parentDir.string();
-    std::string tmp;
-    auto goodPaths =
-        SM::map< std::string >(
-            [&](const std::string& i) {
-                std::string res = absStr;
-                res += "/";
-                res += i;
-                return res;
-            },
-            paths
-        );
+    std::string absParent = parentDir.string();
+    absParent += "/";
 
-    //auto signRes = SafeLists::signFileList(argv[0],goodPaths,outSig);
+    auto signRes = SafeLists::signFileList(argv[0],absParent,paths,outSig);
+    if (signRes != SafeLists::SignFileListError::Success) {
+        if (signRes == SafeLists::SignFileListError::CouldNotOpenKey) {
+            printf("Could not open key...\n");
+        } else if (signRes == SafeLists::SignFileListError::KeyReadFail) {
+            printf("Invalid key format (PEM expected)...\n");
+        } else if (signRes == SafeLists::SignFileListError::HashingFailed) {
+            printf("Hasing failed...\n");
+        } else if (signRes == SafeLists::SignFileListError::SigningFailed) {
+            printf("Signing failed...\n");
+        }
+
+        return 1;
+    }
 }
 

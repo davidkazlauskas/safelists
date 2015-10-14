@@ -170,13 +170,13 @@ GetFileListError getFileListWSignature(
     if (!d.HasMember("files") || !d["files"].IsArray()) {
         return GetFileListError::InvalidJson;
     }
-    auto beg = d["files"].MemberBegin();
-    auto end = d["files"].MemberEnd();
-    for (; beg != end; ++beg) {
-        if (!beg->value.IsString()) {
+    auto& arr = d["files"];
+    auto end = arr.Size();
+    for (int i = 0; i < end ; ++i) {
+        if (!arr[i].IsString()) {
             return GetFileListError::InvalidJson;
         }
-        SA::add(out,beg->value.GetString());
+        SA::add(out,arr[i].GetString());
     }
 
     return GetFileListError::Success;

@@ -63,6 +63,7 @@ int main(int argc,char* argv[]) {
     assert( outSig != "" && "Huh?!?" );
 
     rj::Document out;
+    out.SetObject();
     auto& alloc = out.GetAllocator();
 
     rj::Value sig(rj::kStringType);
@@ -77,7 +78,7 @@ int main(int argc,char* argv[]) {
         arr.PushBack(iPath,alloc);
     }
 
-    out["files"] = arr;
+    out.AddMember("files",arr,alloc);
 
     char writeBuf[256*256];
 

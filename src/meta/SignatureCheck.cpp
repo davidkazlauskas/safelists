@@ -1,7 +1,6 @@
 
 #include <fstream>
 #include <templatious/FullPack.hpp>
-#include <crypto++/sha.h>
 #include <rapidjson/document.h>
 #include <rapidjson/filereadstream.h>
 #include <openssl/pem.h>

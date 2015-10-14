@@ -95,6 +95,10 @@ int main(int argc,char* argv[]) {
     rj::Writer< rj::FileWriteStream > w(os);
     out.Accept(w);
 
+    close.fire();
+
+    printf("SIGN_SUCCESSFUL\n");
+
     return 0;
 }
 

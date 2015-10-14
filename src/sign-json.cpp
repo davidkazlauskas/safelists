@@ -60,11 +60,18 @@ int main(int argc,char* argv[]) {
     assert( outSig != "" && "Huh?!?" );
 
     rj::Document out;
-    out["signature"] = outSig;
+    auto& alloc = out.GetAllocator();
+
+    rj::Value sig(rj::kStringType);
+    sig.SetString(outSig.c_str(),outSig.size(),alloc);
+
+    out.AddMember("signature",sig,alloc);
 
     rj::Value arr(rj::kArrayType);
     TEMPLATIOUS_FOREACH(auto& i,paths) {
-        arr.PushBack(i,out.GetAllocator());
+        rj::Value iPath(rj::kStringType);
+        iPath.SetString(i.c_str(),i.size(),alloc);
+        arr.PushBack(iPath,alloc);
     }
 
     out["files"] = arr;
@@ -81,7 +88,6 @@ int main(int argc,char* argv[]) {
     );
 
     rj::FileWriteStream os(toWrite,writeBuf,sizeof(writeBuf));
-
     rj::Writer< rj::FileWriteStream > w(os);
     out.Accept(w);
 

@@ -1,9 +1,11 @@
 
 #include <templatious/FullPack.hpp>
 #include <boost/filesystem.hpp>
+#include <rapidjson/document.h>
 #include <meta/SignatureCheck.hpp>
 
 namespace fs = boost::filesystem;
+namespace rj = rapidjson;
 
 TEMPLATIOUS_TRIPLET_STD;
 
@@ -51,5 +53,12 @@ int main(int argc,char* argv[]) {
 
         return 1;
     }
+
+    assert( outSig != "" && "Huh?!?" );
+
+    rj::Document out;
+    out["signature"] = outSig;
+
+    return 0;
 }
 

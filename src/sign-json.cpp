@@ -49,7 +49,7 @@ int main(int argc,char* argv[]) {
         } else if (signRes == SafeLists::SignFileListError::KeyReadFail) {
             printf("Invalid key format (PEM expected)...\n");
         } else if (signRes == SafeLists::SignFileListError::HashingFailed) {
-            printf("Hasing failed...\n");
+            printf("Hashing failed...\n");
         } else if (signRes == SafeLists::SignFileListError::SigningFailed) {
             printf("Signing failed...\n");
         }

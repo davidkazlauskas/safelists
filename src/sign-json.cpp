@@ -18,9 +18,12 @@ int main(int argc,char* argv[]) {
         return 1;
     }
 
+    const char* privKey = argv[1];
+    const char* jsonSig = argv[2];
+
     std::vector< std::string > paths;
     std::string outSig;
-    auto res = SafeLists::getFileListWSignature(argv[2],paths,outSig);
+    auto res = SafeLists::getFileListWSignature(jsonSig,paths,outSig);
     if (res != SafeLists::GetFileListError::Success) {
         if (res == SafeLists::GetFileListError::InvalidJson) {
             printf("Invalid json...\n");
@@ -37,12 +40,12 @@ int main(int argc,char* argv[]) {
         return 1;
     }
 
-    fs::path sigPath(argv[2]);
+    fs::path sigPath(jsonSig);
     auto parentDir = fs::absolute(sigPath.parent_path());
     std::string absParent = parentDir.string();
     absParent += "/";
 
-    auto signRes = SafeLists::signFileList(argv[1],absParent,paths,outSig);
+    auto signRes = SafeLists::signFileList(privKey,absParent,paths,outSig);
     if (signRes != SafeLists::SignFileListError::Success) {
         if (signRes == SafeLists::SignFileListError::CouldNotOpenKey) {
             printf("Could not open key...\n");
@@ -78,7 +81,7 @@ int main(int argc,char* argv[]) {
 
     char writeBuf[256*256];
 
-    auto toWrite = fopen(argv[2],"w");
+    auto toWrite = fopen(jsonSig,"w");
     if (nullptr == toWrite) {
         printf("Io error... Could not write json.\n");
         return 1;

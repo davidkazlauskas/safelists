@@ -2,7 +2,10 @@
 #include <templatious/FullPack.hpp>
 #include <boost/filesystem.hpp>
 #include <rapidjson/document.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/filewritestream.h>
 #include <meta/SignatureCheck.hpp>
+#include <util/ScopeGuard.hpp>
 
 namespace fs = boost::filesystem;
 namespace rj = rapidjson;
@@ -58,6 +61,29 @@ int main(int argc,char* argv[]) {
 
     rj::Document out;
     out["signature"] = outSig;
+
+    rj::Value arr(rj::kArrayType);
+    TEMPLATIOUS_FOREACH(auto& i,paths) {
+        arr.PushBack(i,out.GetAllocator());
+    }
+
+    out["files"] = arr;
+
+    char writeBuf[256*256];
+
+    auto toWrite = fopen(argv[1],"w");
+    if (nullptr == toWrite) {
+        printf("Io error... Could not write json.\n");
+        return 1;
+    }
+    auto close = SCOPE_GUARD_LC(
+        ::fclose(toWrite);
+    );
+
+    rj::FileWriteStream os(toWrite,writeBuf,sizeof(writeBuf));
+
+    rj::Writer< rj::FileWriteStream > w(os);
+    out.Accept(w);
 
     return 0;
 }

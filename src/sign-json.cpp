@@ -37,7 +37,7 @@ int main(int argc,char* argv[]) {
         return 1;
     }
 
-    fs::path sigPath(argv[1]);
+    fs::path sigPath(argv[2]);
     auto parentDir = fs::absolute(sigPath.parent_path());
     std::string absParent = parentDir.string();
     absParent += "/";

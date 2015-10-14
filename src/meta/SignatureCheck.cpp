@@ -13,7 +13,7 @@ TEMPLATIOUS_TRIPLET_STD;
 
 namespace {
 
-    bool hashSingleFile(CryptoPP::SHA256& hash,const std::string& string) {
+    bool hashSingleFile(SHA256_CTX& hash,const std::string& string) {
         auto file = ::fopen(string.c_str(),"rb");
         if (nullptr == file) {
             return false;
@@ -30,7 +30,7 @@ namespace {
             state = ::fgetc(file);
             if (state != EOF) {
                 buf = static_cast<char>(state);
-                hash.Update(rein,1);
+                ::SHA256_Update(&hash,rein,1);
             }
         } while (state != EOF);
 
@@ -90,10 +90,11 @@ namespace {
 namespace SafeLists {
 
 std::string hashFileListSha256(const std::vector<std::string>& paths) {
-    CryptoPP::SHA256 hash;
+    SHA256_CTX ctx;
+    ::SHA256_Init(&ctx);
 
     TEMPLATIOUS_FOREACH(auto& i, paths) {
-        bool res = hashSingleFile(hash,i);
+        bool res = hashSingleFile(ctx,i);
         if (!res) {
             return "";
         }
@@ -102,8 +103,8 @@ std::string hashFileListSha256(const std::vector<std::string>& paths) {
     char bytes[1024];
     char bytesStr[2048];
 
-    hash.Final(reinterpret_cast<unsigned char*>(bytes));
-    bytesToCStr(bytes,bytesStr,hash.DigestSize());
+    ::SHA256_Final(reinterpret_cast<unsigned char*>(bytes),&ctx);
+    bytesToCStr(bytes,bytesStr,SHA256_DIGEST_LENGTH);
     return bytesStr;
 }
 
@@ -111,10 +112,11 @@ int hashFileListSha256(
     const std::vector<std::string>& paths,
     unsigned char (&arr)[32])
 {
-    CryptoPP::SHA256 hash;
+    SHA256_CTX ctx;
+    ::SHA256_Init(&ctx);
 
     TEMPLATIOUS_FOREACH(auto& i, paths) {
-        bool res = hashSingleFile(hash,i);
+        bool res = hashSingleFile(ctx,i);
         if (!res) {
             return 1;
         }
@@ -123,7 +125,7 @@ int hashFileListSha256(
     char bytes[1024];
     char bytesStr[2048];
 
-    hash.Final(arr);
+    ::SHA224_Final(arr,&ctx);
     return 0;
 }
 

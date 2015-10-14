@@ -20,5 +20,12 @@ int main(int argc,char* argv[]) {
         }
         return 1;
     }
+
+    if (outSig != "") {
+        printf("Expected empty signature.\n");
+        return 1;
+    }
+
+    auto signRes = SafeLists::signFileList(argv[0],paths,outSig);
 }
 

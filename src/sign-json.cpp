@@ -1,5 +1,8 @@
 
+#include <boost/filesystem.hpp>
 #include <meta/SignatureCheck.hpp>
+
+namespace fs = boost::filesystem;
 
 int main(int argc,char* argv[]) {
     if (argc != 2) {

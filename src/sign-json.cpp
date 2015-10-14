@@ -13,14 +13,14 @@ namespace rj = rapidjson;
 TEMPLATIOUS_TRIPLET_STD;
 
 int main(int argc,char* argv[]) {
-    if (argc != 2) {
+    if (argc != 3) {
         printf("Usage: signjson <private key path> <signature file>\n");
         return 1;
     }
 
     std::vector< std::string > paths;
     std::string outSig;
-    auto res = SafeLists::getFileListWSignature(argv[1],paths,outSig);
+    auto res = SafeLists::getFileListWSignature(argv[2],paths,outSig);
     if (res != SafeLists::GetFileListError::Success) {
         if (res == SafeLists::GetFileListError::InvalidJson) {
             printf("Invalid json...\n");
@@ -42,7 +42,7 @@ int main(int argc,char* argv[]) {
     std::string absParent = parentDir.string();
     absParent += "/";
 
-    auto signRes = SafeLists::signFileList(argv[0],absParent,paths,outSig);
+    auto signRes = SafeLists::signFileList(argv[1],absParent,paths,outSig);
     if (signRes != SafeLists::SignFileListError::Success) {
         if (signRes == SafeLists::SignFileListError::CouldNotOpenKey) {
             printf("Could not open key...\n");
@@ -78,7 +78,7 @@ int main(int argc,char* argv[]) {
 
     char writeBuf[256*256];
 
-    auto toWrite = fopen(argv[1],"w");
+    auto toWrite = fopen(argv[2],"w");
     if (nullptr == toWrite) {
         printf("Io error... Could not write json.\n");
         return 1;

@@ -322,7 +322,7 @@ private:
                               StrongMsgPtr,
                               StrongMsgPtr >
             ([=](
-                MMI::InLoadFileList,
+                MMI::InLoadFolderTree,
                 const StrongMsgPtr& asyncSqlite,
                 const StrongMsgPtr& toNotify) {
                 this->handleLoadFolderTree(asyncSqlite,toNotify);

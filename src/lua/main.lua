@@ -429,6 +429,13 @@ initAll = function()
         --print("awk hooked")
     --end
 
+    -- THEME LOAD EXAMPLE
+    --ctx:message(
+        --mainWnd,
+        --VSig("MWI_InLoadCss"),
+        --VString("uischemes/themes/Arc-Dark-Red/gtk.css")
+    --)
+
     local safelistDependantWigets = {
         "dirList",
         "fileList",

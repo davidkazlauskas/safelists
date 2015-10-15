@@ -694,6 +694,18 @@ private:
                     }
                 }
             ),
+            SF::virtualMatch< MWI::InLoadCss, std::string >(
+                [=](ANY_CONV,const std::string& path) {
+                    auto css = Gtk::CssProvider::create();
+                    css->load_from_path(path);
+                    auto screen = Gdk::Screen::get_default();
+                    auto ctx = _wnd->get_style_context();
+                    ctx->add_provider_for_screen(
+                        screen,
+                        css,
+                        GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+                }
+            ),
             SF::virtualMatch< MWI::QueryCurrentFileId, int >(
                 [=](MWI::QueryCurrentFileId,int& outId) {
                     auto selection = _fileSelection->get_selected();

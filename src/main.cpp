@@ -162,6 +162,13 @@ struct MainWindowInterface {
     // >
     DUMMY_REG(InSetCurrentFileValues,"MWI_InSetCurrentFileValues");
 
+    // load css from file.
+    // Signature: <
+    //     InLoadCss,
+    //     std::string (path)
+    // >
+    DUMMY_REG(InLoadCss,"MWI_InLoadCss");
+
     // query current directory id
     // Signature: < QueryCurrentDirId, int (output) >
     DUMMY_REG(QueryCurrentDirId,"MWI_QueryCurrentDirId");

@@ -1726,6 +1726,7 @@ initAll = function()
 
                     currentAsyncSqlite = newAsqlite(outPath)
 
+                    ctx:message(mainWnd,VSig("MWI_InClearCurrentFiles"))
                     ctx:message(mainModel,
                         VSig("MMI_InLoadFolderTree"),
                         VMsg(currentAsyncSqlite),VMsg(mainWnd))

@@ -140,6 +140,9 @@ struct MainWindowInterface {
     // Signature: < InAddChildUnderCurrentDir, std::string (name), int (id) >
     DUMMY_REG(InAddChildUnderCurrentDir,"MWI_InAddChildUnderCurrentDir");
 
+    // Clear file list.
+    DUMMY_REG(InClearCurrentFiles,"MWI_InClearCurrentFiles");
+
     // add new file under current directory
     // Signature: <
     //     InAddNewFileInCurrent,
@@ -643,6 +646,11 @@ private:
                     } else {
                         assert( false && "Setting current name when not selected." );
                     }
+                }
+            ),
+            SF::virtualMatch< MWI::InClearCurrentFiles >(
+                [=](ANY_CONV) {
+                    _fileStore->clear();
                 }
             ),
             SF::virtualMatch< MWI::QueryCurrentDirId, int >(

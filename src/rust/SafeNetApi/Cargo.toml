@@ -1,4 +1,7 @@
 [package]
-name = "SafeNetApi"
+name = "safe_net_api"
 version = "0.0.1"
 authors = ["David <david@templatious.org>"]
+
+[dependencies]
+safe_core = "0.3.0"

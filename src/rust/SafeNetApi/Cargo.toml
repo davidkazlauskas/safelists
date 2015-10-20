@@ -1,0 +1,4 @@
+[package]
+name = "SafeNetApi"
+version = "0.0.1"
+authors = ["David <david@templatious.org>"]

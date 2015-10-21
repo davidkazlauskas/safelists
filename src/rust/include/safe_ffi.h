@@ -6,6 +6,7 @@
 extern "C" {
 
     int32_t create_unregistered_client(void** out);
+    void drop_client(void* client);
 
 }
 

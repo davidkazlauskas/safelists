@@ -63,6 +63,8 @@ namespace SafeLists {
                 [=]() {
                     auto locked = weak.lock();
                     rawProm->set_value();
+                    void* unregClient = nullptr;
+                    ::create_unregistered_client(&unregClient);
                     result->messageLoop(locked);
                 }
             ).detach();

@@ -31,6 +31,131 @@ namespace {
 
 namespace SafeLists {
 
+    typedef std::unique_ptr< templatious::VirtualMatchFunctor > Handler;
+    typedef AsyncDownloader AD;
+    typedef std::function< bool(const char*,int64_t,int64_t) > ByteFunction;
+    typedef std::weak_ptr< Messageable > WeakMsgPtr;
+
+
+    struct AsyncDownloaderSafeNet : public Messageable {
+        AsyncDownloaderSafeNet() : _shutdown(false) {}
+
+        // this is for sending message across threads
+        void message(const std::shared_ptr< templatious::VirtualPack >& msg) {
+            _cache.enqueue(msg);
+        }
+
+        // this is for sending stack allocated (faster)
+        // if we know we're on the same thread as GUI
+        void message(templatious::VirtualPack& msg) {
+            assert( false && "Synchronous messages disabled for this object." );
+        }
+
+        static StrongMsgPtr spinupNew() {
+            auto result = std::make_shared< AsyncDownloaderSafeNet >();
+            result->_myself = result;
+
+            std::unique_ptr< std::promise<void> > prom( new std::promise<void> );
+            auto rawProm = prom.get();
+            auto future = prom->get_future();
+            std::weak_ptr< AsyncDownloaderSafeNet > weak = result;
+            std::thread(
+                [=]() {
+                    auto locked = weak.lock();
+                    rawProm->set_value();
+                    result->messageLoop(locked);
+                }
+            ).detach();
+
+            future.wait();
+
+            return result;
+        }
+
+        void messageLoop(const std::shared_ptr< AsyncDownloaderSafeNet >& myself) {
+            while (!_shutdown) {
+                if (myself.unique()) {
+                    shutdown();
+                    break;
+                }
+
+                // do stuff
+            }
+
+            auto locked = _notifyExit.lock();
+            if (nullptr != locked) {
+                auto msg = SF::vpack<
+                    GenericShutdownGuard::SetFuture >(nullptr);
+                locked->message(msg);
+            }
+        }
+
+        void shutdown() {
+            _shutdown = true;
+        }
+
+        Handler genHandler() {
+            return SF::virtualMatchFunctorPtr(
+                SF::virtualMatch<
+                    AD::ScheduleDownload,
+                    IntervalList,
+                    ByteFunction,
+                    std::weak_ptr< Messageable >
+                >(
+                    [=](AD::ScheduleDownload,
+                        IntervalList& interval,
+                        const ByteFunction& func,
+                        const std::weak_ptr< Messageable >& wmsg)
+                    {
+                        // do stuff
+                    }
+                ),
+                SF::virtualMatch<
+                    AD::ScheduleDownload,
+                    Interval,
+                    ByteFunction,
+                    std::weak_ptr< Messageable >
+                >(
+                    [=](AD::ScheduleDownload,
+                        const Interval& interval,
+                        const ByteFunction& func,
+                        const std::weak_ptr< Messageable >& wmsg)
+                    {
+                        // do stuff
+                    }
+                ),
+                SF::virtualMatch< AD::Shutdown >(
+                    [=](AD::Shutdown) {
+                        this->shutdown();
+                    }
+                ),
+                SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(
+                    [=](GSI::InRegisterItself,const StrongMsgPtr& ptr) {
+                        auto handler = std::make_shared< GenericShutdownGuard >();
+                        handler->setMaster(_myself);
+                        auto msg = SF::vpackPtr< GSI::OutRegisterItself, StrongMsgPtr >(
+                            nullptr, handler
+                        );
+                        assert( nullptr == _notifyExit.lock() );
+                        _notifyExit = handler;
+                        ptr->message(msg);
+                    }
+                ),
+                SF::virtualMatch< GenericShutdownGuard::ShutdownTarget >(
+                    [=](GenericShutdownGuard::ShutdownTarget) {
+                        this->shutdown();
+                    }
+                )
+            );
+        }
+
+    private:
+        MessageCache _cache;
+        WeakMsgPtr _myself;
+        WeakMsgPtr _notifyExit;
+        bool _shutdown;
+    };
+
     struct AsyncDownloaderImitationImpl : public Messageable {
 
         static const int DOWNLOAD_PERIODICITY_MS;
@@ -81,10 +206,6 @@ namespace SafeLists {
         }
 
     private:
-        typedef std::unique_ptr< templatious::VirtualMatchFunctor > Handler;
-
-        typedef std::function< bool(const char*,int64_t,int64_t) > ByteFunction;
-        typedef std::weak_ptr< Messageable > WeakMsgPtr;
 
         static std::unique_ptr< const char[] > s_dummyBuffer;
 
@@ -329,7 +450,6 @@ namespace SafeLists {
         }
 
         Handler genHandler() {
-            typedef AsyncDownloader AD;
             return SF::virtualMatchFunctorPtr(
                 SF::virtualMatch<
                     AD::ScheduleDownload,

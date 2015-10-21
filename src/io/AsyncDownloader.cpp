@@ -536,6 +536,9 @@ namespace SafeLists {
         if (0 == strcmp(type,"imitation")) {
             return AsyncDownloaderImitationImpl::spinupNew();
         }
+        if (0 == strcmp(type,"safenetwork")) {
+            return AsyncDownloaderSafeNet::spinupNew();
+        }
         return nullptr;
     }
 

@@ -5,6 +5,7 @@
 #include <templatious/FullPack.hpp>
 #include <io/Interval.hpp>
 #include <util/GenericShutdownGuard.hpp>
+#include <util/ScopeGuard.hpp>
 #include <safe_ffi.h>
 
 #include "AsyncDownloader.hpp"
@@ -65,6 +66,11 @@ namespace SafeLists {
                     rawProm->set_value();
                     void* unregClient = nullptr;
                     ::create_unregistered_client(&unregClient);
+                    assert( nullptr != unregClient
+                        && "Can't create safenet client." );
+                    auto cleanup = SCOPE_GUARD_LC(
+                        ::drop_client(unregClient);
+                    );
                     result->messageLoop(locked);
                 }
             ).detach();

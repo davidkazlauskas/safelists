@@ -5,6 +5,7 @@
 #include <templatious/FullPack.hpp>
 #include <io/Interval.hpp>
 #include <util/GenericShutdownGuard.hpp>
+#include <safe_ffi.h>
 
 #include "AsyncDownloader.hpp"
 

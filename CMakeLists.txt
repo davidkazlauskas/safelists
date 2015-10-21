@@ -85,6 +85,9 @@ add_custom_target( copy-lua-scripts ALL
     COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/src/lua ${CMAKE_BINARY_DIR}/lua )
 add_custom_target( copy-root-data ALL
     COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/rootData/ ${CMAKE_BINARY_DIR} )
+add_custom_target( build-safe-ffi ALL
+    COMMAND CARGO_TARGET_DIR=${CMAKE_BINARY_DIR}/rustlib cargo build
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/rust/safe_ffi )
 
 add_library( domain ${DOMAIN_SOURCES} )
 target_link_libraries( domain

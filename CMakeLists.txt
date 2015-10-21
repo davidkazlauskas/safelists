@@ -60,7 +60,9 @@ include_directories(
     ${APPINCLUDE_DIRS}
 )
 
-link_directories(${GTKMM_LIBRARY_DIRS})
+SET( RUST_LINK_DIRS ${CMAKE_BINARY_DIR}/rustlib/debug ${CMAKE_BINARY_DIR}/rustlib/release )
+
+link_directories(${GTKMM_LIBRARY_DIRS} ${RUST_LINK_DIRS})
 if (UNIX)
     # for newer version of sqlite built and installed
     # from source, ubuntu 14.04 only has sqlite3 3.8.2
@@ -94,7 +96,10 @@ target_link_libraries( domain
     sqlite3 pthread crypto
     ${Boost_FILESYSTEM_LIBRARY}
     ${Boost_SYSTEM_LIBRARY}
+    safe_ffi
 )
+
+add_dependencies( domain build-safe-ffi )
 
 SET( TEST_SOURCES
     tests/model-tests.cpp

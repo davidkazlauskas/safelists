@@ -27,7 +27,8 @@ SET( LIBINCLUDE_DIRS
     ${RAPID_JSON_INCLUDE_DIR} )
 
 SET( APPINCLUDE_DIRS
-    ${SRC_DIR} )
+    ${SRC_DIR}
+    ${SRC_DIR}/rust/include )
 
 SET( GTK_SOURCES
     src/gtkmm/GtkMMRangerModel.cpp

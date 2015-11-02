@@ -101,6 +101,7 @@ enum VerificationFailures {
     INVALID_BLOB_JSON = 201,
     MISSING_FIELDS_SECOND_TIER = 202,
     MISTYPED_FIELDS_SECOND_TIER = 203,
+    FORGED_SIGNATURE_SECOND_TIER = 204,
 
     INVALID_SERVER_PUB_KEY = 301,
     INVALID_SERVER_PUB_KEY_SIZE = 302
@@ -254,6 +255,17 @@ int secondTierJsonValidation(
         || !answerSignature.IsString())
     {
         return VerificationFailures::MISTYPED_FIELDS_SECOND_TIER;
+    }
+
+    std::string challengeAnswerStr = challengeAnswer.GetString();
+    std::string answerSignatureStr = answerSignature.GetString();
+    std::string serverPublicKey = getServerSignKey();
+
+    bool isValidSignature = verifySignature(
+        challengeAnswerStr,serverPublicKey,answerSignatureStr);
+
+    if (!isValidSignature) {
+        return VerificationFailures::FORGED_SIGNATURE_SECOND_TIER;
     }
 
     return 0;

@@ -97,7 +97,8 @@ enum VerificationFailures {
     MISSING_FIELDS_FIRST_TIER = 102,
     MISTYPED_FIELDS_FIRST_TIER = 103,
 
-    INVALID_SERVER_PUB_KEY = 201
+    INVALID_SERVER_PUB_KEY = 201,
+    INVALID_SERVER_PUB_KEY_SIZE = 202
 };
 
 int challengeBlobVerification(
@@ -120,6 +121,10 @@ int challengeBlobVerification(
 
     if (0 != res) {
         return VerificationFailures::INVALID_SERVER_PUB_KEY;
+    }
+
+    if (outBufSize != crypto_sign_PUBLICKEYBYTES) {
+        return VerificationFailures::INVALID_SERVER_PUB_KEY_SIZE;
     }
 
     char pkBytes[crypto_sign_PUBLICKEYBYTES];

@@ -100,6 +100,13 @@ int firstTierSignatureVerification(const std::string& theJson) {
         return VerificationFailures(FORGED_FIRST_TIER);
     }
 
+    if (   !doc.HasMember("userkey")
+        || !doc.HasMember("referral")
+        || !doc.HasMember("challengeblob"))
+    {
+        return VerificationFailures::MISSING_FIELDS_FIRST_TIER;
+    }
+
     return 0;
 }
 

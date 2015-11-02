@@ -95,7 +95,7 @@ int licenseReadOrRegisterRoutine() {
     if (0 == queryRes) {
         theJson.assign( outAnswer, outAnswer + outLen );
     } else {
-        std::cout << "Epic fail cholo..." << std::endl;
+        std::cout << "Could not query license info..." << std::endl;
         return 1;
     }
     return firstTierSignatureVerification(theJson);

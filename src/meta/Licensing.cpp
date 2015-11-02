@@ -156,6 +156,12 @@ int secondTierJsonValidation(
         return VerificationFailures::INVALID_BLOB_JSON;
     }
 
+    if (   !doc.HasMember("challengeanswer")
+        || !doc.HasMember("answersignature"))
+    {
+        return VerificationFailures::MISSING_FIELDS_SECOND_TIER;
+    }
+
     return 0;
 }
 

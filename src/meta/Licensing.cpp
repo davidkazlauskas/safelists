@@ -87,9 +87,19 @@ int querySignature(const std::string& user,char* out,int& buflen) {
     return s.outRes;
 }
 
+enum VerificationFailures {
+    FORGED_FIRST_TIER = 101,
+    MISSING_FIELDS_FIRST_TIER = 102
+};
+
 int firstTierSignatureVerification(const std::string& theJson) {
     rj::Document doc;
     doc.Parse(theJson.c_str());
+
+    if (doc.HasParseError()) {
+        return VerificationFailures(FORGED_FIRST_TIER);
+    }
+
     return 0;
 }
 

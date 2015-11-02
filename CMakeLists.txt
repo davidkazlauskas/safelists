@@ -89,7 +89,7 @@ add_custom_target( copy-root-data ALL
 
 add_library( domain ${DOMAIN_SOURCES} )
 target_link_libraries( domain
-    sqlite3 pthread crypto
+    sqlite3 pthread crypto curl
     ${Boost_FILESYSTEM_LIBRARY}
     ${Boost_SYSTEM_LIBRARY}
 )

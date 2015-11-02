@@ -135,6 +135,20 @@ int challengeBlobVerification(
     }
 
     char pkBytes[crypto_sign_PUBLICKEYBYTES];
+    ::memcpy(pkBytes,ubuf.rawBegin(),sizeof(pkBytes));
+
+    SA::clear(ubuf);
+
+    return 0;
+}
+
+int secondTierJsonValidation(
+    const std::string& publicKey,
+    const std::string& referral,
+    const std::string& theBlob)
+{
+    rj::Document doc;
+    doc.Parse(theBlob.c_str());
 
     return 0;
 }
@@ -169,7 +183,7 @@ int firstTierSignatureVerification(const std::string& theJson) {
     std::string referralStr(referral.GetString());
     std::string blobStr(blob.GetString());
 
-    return challengeBlobVerification(userKeyStr,referralStr,blobStr);
+    return secondTierJsonValidation(userKeyStr,referralStr,blobStr);
 }
 
 int licenseReadOrRegisterRoutine() {

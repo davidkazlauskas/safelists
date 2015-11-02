@@ -251,7 +251,7 @@ int secondTierJsonValidation(
     auto& answerSignature = doc["answersignature"];
 
     if (   !challengeAnswer.IsString()
-        || answerSignature.IsString())
+        || !answerSignature.IsString())
     {
         return VerificationFailures::MISTYPED_FIELDS_SECOND_TIER;
     }

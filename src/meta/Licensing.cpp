@@ -12,6 +12,11 @@ typedef SafeLists::GracefulShutdownInterface GSI;
 
 namespace SafeLists {
 
+std::string getCurrentUserIdBase64() {
+    // dummy implementation, matches play backend test
+    return "4j5iMF/54gJW/c4bPAdN28+4YcIeSQj3QGvOv2xIZjU=";
+}
+
 struct LicenseDaemonDummyImpl : public Messageable {
     LicenseDaemonDummyImpl(const LicenseDaemonDummyImpl&) = delete;
     LicenseDaemonDummyImpl(LicenseDaemonDummyImpl&&) = delete;

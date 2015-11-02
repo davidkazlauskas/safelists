@@ -23,7 +23,7 @@ std::string getCurrentUserIdBase64() {
 
 std::string getServerUrl() {
     // for testing
-    return "127.0.0.1:9000";
+    return "http://127.0.0.1:9000";
 }
 
 struct BufStruct {

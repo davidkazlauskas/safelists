@@ -63,17 +63,20 @@ int querySignature(const std::string& user,char* out,int& buflen) {
     s.bufLen = buflen;
     s.outRes = -2;
 
-    std::string server = getServerUrl();
-    server += "/getuser/";
-    server += user;
+    std::string url = getServerUrl();
+    url += "/getuser/";
+    url += user;
 
-    ::curl_easy_setopt(handle,::CURLOPT_URL,user.c_str());
+    ::curl_easy_setopt(handle,::CURLOPT_URL,url.c_str());
     ::curl_easy_setopt(handle,::CURLOPT_READFUNCTION,&curlReadFunc);
     ::curl_easy_setopt(handle,::CURLOPT_READDATA,&s);
 
     auto outRes = ::curl_easy_perform(handle);
     if (::CURLE_OK == outRes) {
+        buflen = s.iter;
         s.outRes = 0;
+    } else {
+        printf("CURL ERROR: |%d|\n",outRes);
     }
 
     return s.outRes;

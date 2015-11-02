@@ -131,6 +131,12 @@ bool verifySignature(
         return false;
     }
 
+    if (crypto_sign_PUBLICKEYBYTES != outSize) {
+        return false;
+    }
+
+    SA::clear(bufB);
+
     return true;
 }
 

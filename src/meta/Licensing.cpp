@@ -131,7 +131,7 @@ bool verifySignature(
         return false;
     }
 
-    if (crypto_sign_PUBLICKEYBYTES != outSize) {
+    if (crypto_sign_BYTES != outSize) {
         return false;
     }
 

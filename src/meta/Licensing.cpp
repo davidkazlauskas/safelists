@@ -112,10 +112,11 @@ bool verifySignature(
     const std::string& message)
 {
     const int CHUNK_SIZE = 4096;
-    templatious::StaticBuffer<unsigned char,2*CHUNK_SIZE> uCharBuf;
+    templatious::StaticBuffer<unsigned char,3*CHUNK_SIZE> uCharBuf;
 
     auto bufA = uCharBuf.getStaticVectorPre(CHUNK_SIZE);
-    auto bufB = uCharBuf.getStaticVector();
+    auto bufB = uCharBuf.getStaticVector(CHUNK_SIZE);
+    auto bufC = uCharBuf.getStaticVectorPre(CHUNK_SIZE);
 
     TEMPLATIOUS_0_TO_N(i,signature.size()) {
         SA::add(bufB,signature[i]);
@@ -143,6 +144,24 @@ bool verifySignature(
 
     SA::clear(bufB);
 
+    TEMPLATIOUS_0_TO_N(i,pubKeyBase64.size()) {
+        SA::add(bufB,pubKeyBase64[i]);
+    }
+
+    outSize = SA::size(bufC);
+    decodeRes = ::base64decode(
+        reinterpret_cast<char*>(bufB.rawBegin()),
+        SA::size(bufB),
+        bufC.rawBegin(),&outSize);
+
+    if (0 != decodeRes) {
+        return false;
+    }
+
+    if (crypto_sign_PUBLICKEYBYTES != outSize) {
+        return false;
+    }
+
     TEMPLATIOUS_0_TO_N(i,crypto_sign_BYTES) {
         SA::add(bufB,bufA[i]);
     }
@@ -151,7 +170,23 @@ bool verifySignature(
         SA::add(bufB,message[i]);
     }
 
-    return true;
+    // A might go overflow without
+    // this when written by sodium...
+    // but why should anyone care?
+    while (!bufA.isFull()) {
+        bufA.push('7');
+    }
+
+    unsigned long long cryptoOut;
+
+    outSize = SA::size(bufA);
+    int signRes = ::crypto_sign_open(
+        bufA.rawBegin(),&cryptoOut,
+        bufB.rawBegin(),SA::size(bufB),
+        bufC.rawBegin()
+    );
+
+    return signRes == 0;
 }
 
 int challengeBlobVerification(

@@ -271,4 +271,18 @@ TEST_CASE("base64","[util]") {
     int isEqual = ::strcmp(outBase64,EXPECTED);
 
     REQUIRE( 0 == isEqual );
+
+    unsigned char backToOriginal[64];
+    size_t outLen = sizeof(backToOriginal);
+
+    ::base64decode(
+        outBase64,
+        strlen(EXPECTED),
+        backToOriginal,
+        &outLen);
+
+    int isMemEqual = ::memcmp(
+        theString,backToOriginal,sizeof(theString));
+
+    REQUIRE( 0 == isMemEqual );
 }

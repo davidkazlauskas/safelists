@@ -106,18 +106,24 @@ int challengeBlobVerification(
     const std::string& referral,
     const std::string& theBlob)
 {
-    unsigned char buf[4096];
-    size_t outBufSize = sizeof(buf);
+
+    templatious::StaticBuffer<unsigned char,4096> uCharBuf;
     templatious::StaticBuffer<char,4096> charBuf;
+
+    auto ubuf = uCharBuf.getStaticVectorPre(uCharBuf.total_size);
     auto charVec = charBuf.getStaticVector();
+
+    size_t outBufSize = SA::size(ubuf);
+
     auto srvKey = getServerSignKey();
     TEMPLATIOUS_0_TO_N(i,srvKey.size()) {
         SA::add(charVec,srvKey[i]);
     }
+
     int res =
         ::base64decode(
             charVec.rawBegin(),SA::size(charVec),
-            buf,&outBufSize);
+            ubuf.rawBegin(),&outBufSize);
 
     if (0 != res) {
         return VerificationFailures::INVALID_SERVER_PUB_KEY;

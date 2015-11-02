@@ -9,6 +9,7 @@
 #include <util/Semaphore.hpp>
 #include <util/GenericShutdownGuard.hpp>
 #include <util/ScopeGuard.hpp>
+#include <util/Base64.hpp>
 
 #include "Licensing.hpp"
 

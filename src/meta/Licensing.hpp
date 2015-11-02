@@ -17,6 +17,8 @@ struct LicenseDaemon {
     static StrongMsgPtr getDaemon();
 };
 
+int firstTierSignatureVerification(const std::string& theJson);
+
 }
 
 #endif /* end of include guard: LICENSING_X1B9GTMJ */

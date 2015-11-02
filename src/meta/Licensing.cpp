@@ -99,10 +99,20 @@ enum VerificationFailures {
     MISTYPED_FIELDS_FIRST_TIER = 103,
 
     INVALID_BLOB_JSON = 201,
+    MISSING_FIELDS_SECOND_TIER = 202,
+    MISTYPED_FIELDS_SECOND_TIER = 203,
 
     INVALID_SERVER_PUB_KEY = 301,
     INVALID_SERVER_PUB_KEY_SIZE = 302
 };
+
+bool verifySignature(
+    const std::string& signature,
+    const std::string& pubKeyBase64,
+    const std::string& message)
+{
+    return true;
+}
 
 int challengeBlobVerification(
     const std::string& publicKey,

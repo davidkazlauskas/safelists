@@ -111,9 +111,10 @@ bool verifySignature(
     const std::string& pubKeyBase64,
     const std::string& message)
 {
-    templatious::StaticBuffer<unsigned char,2*4096> uCharBuf;
+    const int CHUNK_SIZE = 4096;
+    templatious::StaticBuffer<unsigned char,2*CHUNK_SIZE> uCharBuf;
 
-    auto bufA = uCharBuf.getStaticVectorPre(4096);
+    auto bufA = uCharBuf.getStaticVectorPre(CHUNK_SIZE);
     auto bufB = uCharBuf.getStaticVector();
 
     TEMPLATIOUS_0_TO_N(i,signature.size()) {
@@ -135,7 +136,20 @@ bool verifySignature(
         return false;
     }
 
+    int msgLen = message.length();
+    if (msgLen + crypto_sign_BYTES > CHUNK_SIZE) {
+        return false;
+    }
+
     SA::clear(bufB);
+
+    TEMPLATIOUS_0_TO_N(i,crypto_sign_BYTES) {
+        SA::add(bufB,bufA[i]);
+    }
+
+    TEMPLATIOUS_0_TO_N(i,msgLen) {
+        SA::add(bufB,message[i]);
+    }
 
     return true;
 }

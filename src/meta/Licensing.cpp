@@ -4,6 +4,7 @@
 #include <sodium.h>
 #include <curl/curl.h>
 #include <curl/easy.h>
+#include <rapidjson/document.h>
 
 #include <util/Semaphore.hpp>
 #include <util/GenericShutdownGuard.hpp>
@@ -14,6 +15,7 @@
 TEMPLATIOUS_TRIPLET_STD;
 
 typedef SafeLists::GracefulShutdownInterface GSI;
+namespace rj = rapidjson;
 
 namespace SafeLists {
 
@@ -86,6 +88,8 @@ int querySignature(const std::string& user,char* out,int& buflen) {
 }
 
 int firstTierSignatureVerification(const std::string& theJson) {
+    rj::Document doc;
+    doc.Parse(theJson.c_str());
     return 0;
 }
 

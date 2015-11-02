@@ -82,19 +82,23 @@ int querySignature(const std::string& user,char* out,int& buflen) {
     return s.outRes;
 }
 
+int firstTierSignatureVerification(const std::string& theJson) {
+    return 0;
+}
+
 int licenseReadOrRegisterRoutine() {
     char outAnswer[4096];
     int outLen = sizeof(outAnswer);
     int queryRes = querySignature(
         getCurrentUserIdBase64(),outAnswer,outLen);
+    std::string theJson;
     if (0 == queryRes) {
-        std::string outRes( outAnswer, outAnswer + outLen );
-        std::cout << outRes << std::endl;
-        std::cout << outLen << std::endl;
+        theJson.assign( outAnswer, outAnswer + outLen );
     } else {
         std::cout << "Epic fail cholo..." << std::endl;
+        return 1;
     }
-    return 0;
+    return firstTierSignatureVerification(theJson);
 }
 
 struct LicenseDaemonDummyImpl : public Messageable {

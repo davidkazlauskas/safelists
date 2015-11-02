@@ -21,6 +21,15 @@ std::string getCurrentUserIdBase64() {
     return "4j5iMF/54gJW/c4bPAdN28+4YcIeSQj3QGvOv2xIZjU=";
 }
 
+int querySignature(const std::string& user,char* out,int buflen) {
+    CURL* handle = ::curl_easy_init();
+    auto clean = SCOPE_GUARD_LC(
+        ::curl_easy_cleanup(handle);
+    );
+
+    return 0;
+}
+
 struct LicenseDaemonDummyImpl : public Messageable {
     LicenseDaemonDummyImpl(const LicenseDaemonDummyImpl&) = delete;
     LicenseDaemonDummyImpl(LicenseDaemonDummyImpl&&) = delete;

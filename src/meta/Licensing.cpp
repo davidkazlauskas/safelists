@@ -111,6 +111,11 @@ bool verifySignature(
     const std::string& pubKeyBase64,
     const std::string& message)
 {
+    templatious::StaticBuffer<unsigned char,2*4096> uCharBuf;
+
+    auto bufA = uCharBuf.getStaticVector(4096);
+    auto bufB = uCharBuf.getStaticVector();
+
     return true;
 }
 
@@ -186,6 +191,7 @@ int secondTierJsonValidation(
 
 int firstTierSignatureVerification(const std::string& theJson) {
     rj::Document doc;
+    std::cout << "|" << theJson << "|" << std::endl;
     doc.Parse(theJson.c_str());
 
     if (doc.HasParseError()) {

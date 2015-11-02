@@ -113,8 +113,8 @@ bool verifySignature(
 {
     templatious::StaticBuffer<unsigned char,2*4096> uCharBuf;
 
-    auto bufA = uCharBuf.getStaticVector(4096);
-    auto bufB = uCharBuf.getStaticVector();
+    auto bufA = uCharBuf.getStaticVectorPre(4096);
+    auto bufB = uCharBuf.getStaticVectorPre(4096);
 
     return true;
 }

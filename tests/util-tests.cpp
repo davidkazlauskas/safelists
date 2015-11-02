@@ -6,7 +6,7 @@
 #include <util/DumbHash.hpp>
 #include <util/ScopeGuard.hpp>
 #include <util/GenericStMessageable.hpp>
-#include <util/Base64.h>
+#include <util/Base64.hpp>
 
 TEMPLATIOUS_TRIPLET_STD;
 

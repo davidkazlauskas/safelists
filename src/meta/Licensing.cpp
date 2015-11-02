@@ -262,7 +262,7 @@ int secondTierJsonValidation(
     std::string serverPublicKey = getServerSignKey();
 
     bool isValidSignature = verifySignature(
-        challengeAnswerStr,serverPublicKey,answerSignatureStr);
+        answerSignatureStr,serverPublicKey,challengeAnswerStr);
 
     if (!isValidSignature) {
         return VerificationFailures::FORGED_SIGNATURE_SECOND_TIER;

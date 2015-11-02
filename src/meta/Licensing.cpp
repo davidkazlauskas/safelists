@@ -1,5 +1,6 @@
 
 #include <cassert>
+#include <iostream>
 #include <sodium.h>
 #include <curl/curl.h>
 #include <curl/easy.h>
@@ -50,7 +51,7 @@ int curlReadFunc(char* buffer,size_t size,size_t nitems,void* userdata) {
     return 0;
 }
 
-int querySignature(const std::string& user,char* out,int buflen) {
+int querySignature(const std::string& user,char* out,int& buflen) {
     CURL* handle = ::curl_easy_init();
     auto clean = SCOPE_GUARD_LC(
         ::curl_easy_cleanup(handle);
@@ -60,7 +61,7 @@ int querySignature(const std::string& user,char* out,int buflen) {
     s.buf = out;
     s.iter = 0;
     s.bufLen = buflen;
-    s.outRes = 0;
+    s.outRes = -2;
 
     std::string server = getServerUrl();
     server += "/getuser/";
@@ -70,12 +71,26 @@ int querySignature(const std::string& user,char* out,int buflen) {
     ::curl_easy_setopt(handle,::CURLOPT_READFUNCTION,&curlReadFunc);
     ::curl_easy_setopt(handle,::CURLOPT_READDATA,&s);
 
-    ::curl_easy_perform(handle);
+    auto outRes = ::curl_easy_perform(handle);
+    if (::CURLE_OK == outRes) {
+        s.outRes = 0;
+    }
 
     return s.outRes;
 }
 
 int licenseReadOrRegisterRoutine() {
+    char outAnswer[4096];
+    int outLen = sizeof(outAnswer);
+    int queryRes = querySignature(
+        getCurrentUserIdBase64(),outAnswer,outLen);
+    if (0 == queryRes) {
+        std::string outRes( outAnswer, outAnswer + outLen );
+        std::cout << outRes << std::endl;
+        std::cout << outLen << std::endl;
+    } else {
+        std::cout << "Epic fail cholo..." << std::endl;
+    }
     return 0;
 }
 

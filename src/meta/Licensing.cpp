@@ -75,6 +75,10 @@ int querySignature(const std::string& user,char* out,int buflen) {
     return s.outRes;
 }
 
+int licenseReadOrRegisterRoutine() {
+    return 0;
+}
+
 struct LicenseDaemonDummyImpl : public Messageable {
     LicenseDaemonDummyImpl(const LicenseDaemonDummyImpl&) = delete;
     LicenseDaemonDummyImpl(LicenseDaemonDummyImpl&&) = delete;
@@ -133,7 +137,8 @@ private:
             SF::virtualMatch< LD::IsExpired, bool >(
                 [=](ANY_CONV,bool& res) {
                     // do something, read files or whatever
-                    return res = false;
+                    int result = licenseReadOrRegisterRoutine();
+                    return res = result == 0;
                 }
             ),
             SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(

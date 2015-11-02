@@ -95,7 +95,9 @@ int querySignature(const std::string& user,char* out,int& buflen) {
 enum VerificationFailures {
     FORGED_FIRST_TIER = 101,
     MISSING_FIELDS_FIRST_TIER = 102,
-    MISTYPED_FIELDS_FIRST_TIER = 103
+    MISTYPED_FIELDS_FIRST_TIER = 103,
+
+    INVALID_SERVER_PUB_KEY = 201
 };
 
 int challengeBlobVerification(
@@ -103,6 +105,25 @@ int challengeBlobVerification(
     const std::string& referral,
     const std::string& theBlob)
 {
+    unsigned char buf[4096];
+    size_t outBufSize = sizeof(buf);
+    templatious::StaticBuffer<char,4096> charBuf;
+    auto charVec = charBuf.getStaticVector();
+    auto srvKey = getServerSignKey();
+    TEMPLATIOUS_0_TO_N(i,srvKey.size()) {
+        SA::add(charVec,srvKey[i]);
+    }
+    int res =
+        ::base64decode(
+            charVec.rawBegin(),SA::size(charVec),
+            buf,&outBufSize);
+
+    if (0 != res) {
+        return VerificationFailures::INVALID_SERVER_PUB_KEY;
+    }
+
+    char pkBytes[crypto_sign_PUBLICKEYBYTES];
+
     return 0;
 }
 

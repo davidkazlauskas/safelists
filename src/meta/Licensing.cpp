@@ -39,16 +39,19 @@ int curlReadFunc(char* buffer,size_t size,size_t nitems,void* userdata) {
 
     assert( size == 1 && "You're kidding me..." );
 
+    size_t written = 0;
+
     TEMPLATIOUS_0_TO_N(i,nitems) {
         if (bfr.iter < bfr.bufLen) {
             bfr.buf[bfr.iter++] = buffer[i];
+            ++written;
         } else {
             bfr.outRes = -1;
-            return -1;
+            break;
         }
     }
 
-    return 0;
+    return written;
 }
 
 int querySignature(const std::string& user,char* out,int& buflen) {
@@ -68,8 +71,8 @@ int querySignature(const std::string& user,char* out,int& buflen) {
     url += user;
 
     ::curl_easy_setopt(handle,::CURLOPT_URL,url.c_str());
-    ::curl_easy_setopt(handle,::CURLOPT_READFUNCTION,&curlReadFunc);
-    ::curl_easy_setopt(handle,::CURLOPT_READDATA,&s);
+    ::curl_easy_setopt(handle,::CURLOPT_WRITEFUNCTION,&curlReadFunc);
+    ::curl_easy_setopt(handle,::CURLOPT_WRITEDATA,&s);
 
     auto outRes = ::curl_easy_perform(handle);
     if (::CURLE_OK == outRes) {

@@ -1,5 +1,7 @@
 
 #include <cassert>
+#include <sodium.h>
+
 #include <util/Semaphore.hpp>
 #include <util/GenericShutdownGuard.hpp>
 #include <util/ScopeGuard.hpp>

@@ -89,8 +89,17 @@ int querySignature(const std::string& user,char* out,int& buflen) {
 
 enum VerificationFailures {
     FORGED_FIRST_TIER = 101,
-    MISSING_FIELDS_FIRST_TIER = 102
+    MISSING_FIELDS_FIRST_TIER = 102,
+    MISTYPED_FIELDS_FIRST_TIER = 103
 };
+
+int challengeBlobVerification(
+    const std::string& publicKey,
+    const std::string& referral,
+    const std::string& theBlob)
+{
+    return 0;
+}
 
 int firstTierSignatureVerification(const std::string& theJson) {
     rj::Document doc;
@@ -107,7 +116,22 @@ int firstTierSignatureVerification(const std::string& theJson) {
         return VerificationFailures::MISSING_FIELDS_FIRST_TIER;
     }
 
-    return 0;
+    auto& userkey = doc["userkey"];
+    auto& referral = doc["referral"];
+    auto& blob = doc["challengeblob"];
+
+    if (   !userkey.IsString()
+        || !referral.IsString()
+        || !blob.IsString())
+    {
+        return VerificationFailures::MISTYPED_FIELDS_FIRST_TIER;
+    }
+
+    std::string userKeyStr(userkey.GetString());
+    std::string referralStr(referral.GetString());
+    std::string blobStr(blob.GetString());
+
+    return challengeBlobVerification(userKeyStr,referralStr,blobStr);
 }
 
 int licenseReadOrRegisterRoutine() {

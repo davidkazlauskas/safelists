@@ -98,8 +98,10 @@ enum VerificationFailures {
     MISSING_FIELDS_FIRST_TIER = 102,
     MISTYPED_FIELDS_FIRST_TIER = 103,
 
-    INVALID_SERVER_PUB_KEY = 201,
-    INVALID_SERVER_PUB_KEY_SIZE = 202
+    INVALID_BLOB_JSON = 201,
+
+    INVALID_SERVER_PUB_KEY = 301,
+    INVALID_SERVER_PUB_KEY_SIZE = 302
 };
 
 int challengeBlobVerification(
@@ -149,6 +151,10 @@ int secondTierJsonValidation(
 {
     rj::Document doc;
     doc.Parse(theBlob.c_str());
+
+    if (doc.HasParseError()) {
+        return VerificationFailures::INVALID_BLOB_JSON;
+    }
 
     return 0;
 }

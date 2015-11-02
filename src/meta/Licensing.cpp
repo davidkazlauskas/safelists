@@ -24,6 +24,11 @@ std::string getCurrentUserIdBase64() {
     return "4j5iMF/54gJW/c4bPAdN28+4YcIeSQj3QGvOv2xIZjU=";
 }
 
+std::string getServerSignKey() {
+    // debug mode, different for production
+    return "liz538kE+U7V6dzigrw00JN2H0nCR9strNyxoj9cpn8=";
+}
+
 std::string getServerUrl() {
     // for testing
     return "http://127.0.0.1:9000";

@@ -21,13 +21,58 @@ std::string getCurrentUserIdBase64() {
     return "4j5iMF/54gJW/c4bPAdN28+4YcIeSQj3QGvOv2xIZjU=";
 }
 
+std::string getServerUrl() {
+    // for testing
+    return "127.0.0.1:9000";
+}
+
+struct BufStruct {
+    char* buf;
+    int iter;
+    int bufLen;
+    int outRes;
+};
+
+int curlReadFunc(char* buffer,size_t size,size_t nitems,void* userdata) {
+    BufStruct& bfr = *reinterpret_cast<BufStruct*>(userdata);
+
+    assert( size == 1 && "You're kidding me..." );
+
+    TEMPLATIOUS_0_TO_N(i,nitems) {
+        if (bfr.iter < bfr.bufLen) {
+            bfr.buf[bfr.iter++] = buffer[i];
+        } else {
+            bfr.outRes = -1;
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
 int querySignature(const std::string& user,char* out,int buflen) {
     CURL* handle = ::curl_easy_init();
     auto clean = SCOPE_GUARD_LC(
         ::curl_easy_cleanup(handle);
     );
 
-    return 0;
+    BufStruct s;
+    s.buf = out;
+    s.iter = 0;
+    s.bufLen = buflen;
+    s.outRes = 0;
+
+    std::string server = getServerUrl();
+    server += "/getuser/";
+    server += user;
+
+    ::curl_easy_setopt(handle,::CURLOPT_URL,user.c_str());
+    ::curl_easy_setopt(handle,::CURLOPT_READFUNCTION,&curlReadFunc);
+    ::curl_easy_setopt(handle,::CURLOPT_READDATA,&s);
+
+    ::curl_easy_perform(handle);
+
+    return s.outRes;
 }
 
 struct LicenseDaemonDummyImpl : public Messageable {

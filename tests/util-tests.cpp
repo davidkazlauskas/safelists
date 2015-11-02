@@ -265,4 +265,10 @@ TEST_CASE("base64","[util]") {
         sizeof(theString),
         outBase64,
         sizeof(outBase64));
+
+    const char* EXPECTED = "AAECAwQFBg==";
+
+    int isEqual = ::strcmp(outBase64,EXPECTED);
+
+    REQUIRE( 0 == isEqual );
 }

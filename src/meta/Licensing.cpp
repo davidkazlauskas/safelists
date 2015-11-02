@@ -166,6 +166,9 @@ struct LicenseDaemonDummyImpl : public Messageable {
     }
 
     static std::shared_ptr< LicenseDaemonDummyImpl > makeNew() {
+        // perfect spot
+        ::sodium_init();
+
         std::shared_ptr< LicenseDaemonDummyImpl > result(
             new LicenseDaemonDummyImpl()
         );

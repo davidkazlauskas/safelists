@@ -6,6 +6,7 @@
 #include <util/DumbHash.hpp>
 #include <util/ScopeGuard.hpp>
 #include <util/GenericStMessageable.hpp>
+#include <util/Base64.h>
 
 TEMPLATIOUS_TRIPLET_STD;
 
@@ -252,4 +253,16 @@ TEST_CASE("generic_messageable_inheritance","[util]") {
 
     REQUIRE( intMsg.fGet<0>() == 777 );
     REQUIRE( shortMsg.fGet<0>() == 77 );
+}
+
+TEST_CASE("base64","[util]") {
+    const char theString[] = {0,1,2,3,4,5,6};
+
+    char outBase64[64];
+
+    ::base64encode(
+        theString,
+        sizeof(theString),
+        outBase64,
+        sizeof(outBase64));
 }

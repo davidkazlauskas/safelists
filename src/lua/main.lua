@@ -402,24 +402,23 @@ initAll = function()
     local mainWnd = ctx:namedMessageable("mainWindow")
     local genMainWnd = GenericWidget.putOn(mainWnd)
 
-    --local licTest = function()
-        --local license = ctx:namedMessageable("licenseService")
-        --ctx:messageAsyncWCallback(
-            --license,
-            --function(val)
-                --local isExpired = val:values()._2
-                --if (isExpired) then
-                    --print("lucky you!")
-                --else
-                    --print("Nope cholo!")
-                --end
-            --end,
-            --VSig("LD_IsExpired"),
-            --VBool(true)
-        --)
-        --print("doin stuff!")
-    --end
-    --licTest()
+    local licTest = function()
+        local license = ctx:namedMessageable("licenseService")
+        ctx:messageAsyncWCallback(
+            license,
+            function(val)
+                local isExpired = val:values()._2
+                if (isExpired) then
+                    print("lucky you!")
+                else
+                    print("Nope cholo!")
+                end
+            end,
+            VSig("LD_IsExpired"),
+            VBool(true)
+        )
+    end
+    licTest()
 
     local mainWndButtonHandlers = {}
 

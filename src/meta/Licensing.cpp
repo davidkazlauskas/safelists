@@ -27,7 +27,7 @@ std::string getCurrentUserIdBase64() {
 
 std::string getServerSignKey() {
     // debug mode, different for production
-    return "liz538kE+U7V6dzigrw00JN2H0nCR9strNyxoj9cpn8=";
+    return "V9EFZB6xeocuQGW6BYubxVQV8MPtlwKzQnR0+317/xA=";
 }
 
 std::string getServerUrl() {

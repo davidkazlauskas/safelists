@@ -114,7 +114,22 @@ bool verifySignature(
     templatious::StaticBuffer<unsigned char,2*4096> uCharBuf;
 
     auto bufA = uCharBuf.getStaticVectorPre(4096);
-    auto bufB = uCharBuf.getStaticVectorPre(4096);
+    auto bufB = uCharBuf.getStaticVector();
+
+    TEMPLATIOUS_0_TO_N(i,signature.size()) {
+        SA::add(bufB,signature[i]);
+    }
+
+    size_t outSize = SA::size(bufA);
+
+    int decodeRes = ::base64decode(
+        reinterpret_cast<char*>(bufB.rawBegin()),
+        SA::size(bufB),
+        bufA.rawBegin(),&outSize);
+
+    if (0 != decodeRes) {
+        return false;
+    }
 
     return true;
 }

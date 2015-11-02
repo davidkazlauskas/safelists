@@ -162,6 +162,15 @@ int secondTierJsonValidation(
         return VerificationFailures::MISSING_FIELDS_SECOND_TIER;
     }
 
+    auto& challengeAnswer = doc["challengeanswer"];
+    auto& answerSignature = doc["answersignature"];
+
+    if (   !challengeAnswer.IsString()
+        || answerSignature.IsString())
+    {
+        return VerificationFailures::MISTYPED_FIELDS_SECOND_TIER;
+    }
+
     return 0;
 }
 

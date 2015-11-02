@@ -163,6 +163,8 @@ bool verifySignature(
         return false;
     }
 
+    SA::clear(bufB);
+
     TEMPLATIOUS_0_TO_N(i,crypto_sign_BYTES) {
         SA::add(bufB,bufA[i]);
     }
@@ -178,9 +180,7 @@ bool verifySignature(
         bufA.push('7');
     }
 
-    unsigned long long cryptoOut;
-
-    outSize = SA::size(bufA);
+    unsigned long long cryptoOut = SA::size(bufA);
     int signRes = ::crypto_sign_open(
         bufA.rawBegin(),&cryptoOut,
         bufB.rawBegin(),SA::size(bufB),

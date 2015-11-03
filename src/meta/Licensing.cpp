@@ -258,6 +258,14 @@ int hashStrength(const std::string& hash) {
     return strength;
 }
 
+int fifthTierJsonVerification(
+    const std::string& publicKey,
+    const std::string& challengeAnswer,
+    int hashStrength)
+{
+    return 0;
+}
+
 int fourthTierJsonVerification(
     const std::string& publicKey,
     const std::string& referral,
@@ -314,7 +322,11 @@ int fourthTierJsonVerification(
             ::CHALLENGE_SIGNATURE_FORGED;
     }
 
-    return 0;
+    std::string challengeTextHash = sha256(challengeTextSolved);
+    int hashStrengthRes = hashStrength(challengeTextHash);
+
+    return fifthTierJsonVerification(
+        publicKey,challengeTextSolved,hashStrengthRes);
 }
 
 int thirdTierChallengeVerification(

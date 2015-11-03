@@ -213,6 +213,28 @@ std::string sha256(const std::string& text) {
     return hex;
 }
 
+int byteStrength(unsigned char num) {
+    if (num >= 128) {
+        return 0;
+    } else if (num >= 64) {
+        return 1;
+    } else if (num >= 32) {
+        return 2;
+    } else if (num >= 16) {
+        return 3;
+    } else if (num >= 8) {
+        return 4;
+    } else if (num >= 4) {
+        return 5;
+    } else if (num >= 2) {
+        return 6;
+    } else if (num >= 1) {
+        return 7;
+    } else {
+        return 0;
+    }
+}
+
 int fourthTierJsonVerification(
     const std::string& publicKey,
     const std::string& referral,

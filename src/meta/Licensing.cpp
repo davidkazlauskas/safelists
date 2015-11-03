@@ -107,7 +107,8 @@ enum VerificationFailures {
     INVALID_SERVER_PUB_KEY_SIZE = 302,
 
     INVALID_CHALLENGE_JSON_SECOND_TIER = 401,
-    MISSING_FIELDS_THIRD_TIER = 402
+    MISSING_FIELDS_THIRD_TIER = 402,
+    MISTYPED_FIELDS_THIRD_TIER = 403
 };
 
 bool verifySignature(
@@ -251,6 +252,16 @@ int thirdTierChallengeVerification(
     {
         return VerificationFailures
             ::MISSING_FIELDS_THIRD_TIER;
+    }
+
+    auto& challengeAnswer = doc["challengeanswer"];
+    auto& answerSignature = doc["answersignature"];
+
+    if (   !challengeAnswer.IsString()
+        || !answerSignature.IsString())
+    {
+        return VerificationFailures
+            ::MISTYPED_FIELDS_THIRD_TIER;
     }
 
     return 0;

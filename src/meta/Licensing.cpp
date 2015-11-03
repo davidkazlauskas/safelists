@@ -116,7 +116,8 @@ enum VerificationFailures {
     INVALID_FOURTH_TIER_JSON = 501,
     MISSING_FIELDS_FOURTH_TIER = 502,
     MISTYPED_FIELDS_FOURTH_TIER = 503,
-    REFERRALS_DONT_MATCH = 504
+    REFERRALS_DONT_MATCH = 504,
+    CHALLENGE_SIGNATURE_FORGED = 505
 };
 
 bool verifySignature(
@@ -251,6 +252,7 @@ int fourthTierJsonVerification(
 
     std::string challengeTextSolved = challengeText.GetString();
     std::string challengeSignatureStr = challengeSignature.GetString();
+    std::string serverPublicKey = getServerSignKey();
 
     std::regex replaceAnswer("\"useranswer\":\"[a-zA-Z0-9]+\"");
     std::string challengeTextNoSolution =
@@ -259,6 +261,13 @@ int fourthTierJsonVerification(
             replaceAnswer,
             "\"useranswer\":\"\""
         );
+
+    bool validSignature = verifySignature(
+        challengeSignatureStr,serverPublicKey,challengeTextNoSolution);
+    if (!validSignature) {
+        return VerificationFailures
+            ::CHALLENGE_SIGNATURE_FORGED;
+    }
 
     return 0;
 }

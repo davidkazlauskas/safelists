@@ -119,7 +119,8 @@ enum VerificationFailures {
     REFERRALS_DONT_MATCH = 504,
     CHALLENGE_SIGNATURE_FORGED = 505,
 
-    INVALID_FIFTH_TIER_JSON = 601
+    INVALID_FIFTH_TIER_JSON = 601,
+    MISSING_FIELDS_FIFTH_TIER = 602
 };
 
 bool verifySignature(
@@ -270,6 +271,18 @@ int fifthTierJsonVerification(
     if (doc.HasParseError()) {
         return VerificationFailures
             ::INVALID_FIFTH_TIER_JSON;
+    }
+
+    if (   !doc.HasMember("challengestrength")
+        || !doc.HasMember("challengeversion")
+        || !doc.HasMember("encodedsalt")
+        || !doc.HasMember("publickeyrequest")
+        || !doc.HasMember("publickeyrequestsignature")
+        || !doc.HasMember("useranswer")
+        || !doc.HasMember("validuntil"))
+    {
+        return VerificationFailures
+            ::MISSING_FIELDS_FIFTH_TIER;
     }
 
     return 0;

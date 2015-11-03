@@ -111,7 +111,8 @@ enum VerificationFailures {
     MISTYPED_FIELDS_THIRD_TIER = 403,
     FORGED_SIGNATURE_THIRD_TIER = 404,
 
-    INVALID_FOURTH_TIER_JSON = 501
+    INVALID_FOURTH_TIER_JSON = 501,
+    MISSING_FIELDS_FOURTH_TIER = 502
 };
 
 bool verifySignature(
@@ -207,6 +208,14 @@ int fourthTierJsonVerification(
     if (doc.HasParseError()) {
         return VerificationFailures
             ::INVALID_FOURTH_TIER_JSON;
+    }
+
+    if (   !doc.HasMember("challengetext")
+        || !doc.HasMember("challengesignature")
+        || !doc.HasMember("referralname"))
+    {
+        return VerificationFailures
+            ::MISSING_FIELDS_FOURTH_TIER;
     }
 
     return 0;

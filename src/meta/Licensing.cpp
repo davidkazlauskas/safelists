@@ -104,7 +104,9 @@ enum VerificationFailures {
     FORGED_SIGNATURE_SECOND_TIER = 204,
 
     INVALID_SERVER_PUB_KEY = 301,
-    INVALID_SERVER_PUB_KEY_SIZE = 302
+    INVALID_SERVER_PUB_KEY_SIZE = 302,
+
+    INVALID_CHALLENGE_JSON_SECOND_TIER = 401
 };
 
 bool verifySignature(
@@ -235,6 +237,14 @@ int thirdTierChallengeVerification(
     const std::string& referral,
     const std::string& theBlob)
 {
+    rj::Document doc;
+    doc.Parse(theBlob.c_str());
+
+    if (doc.HasParseError()) {
+        return VerificationFailures
+            ::INVALID_CHALLENGE_JSON_SECOND_TIER;
+    }
+
     return 0;
 }
 

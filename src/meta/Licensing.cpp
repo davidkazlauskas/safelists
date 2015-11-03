@@ -112,7 +112,8 @@ enum VerificationFailures {
     FORGED_SIGNATURE_THIRD_TIER = 404,
 
     INVALID_FOURTH_TIER_JSON = 501,
-    MISSING_FIELDS_FOURTH_TIER = 502
+    MISSING_FIELDS_FOURTH_TIER = 502,
+    MISTYPED_FIELDS_FOURTH_TIER = 503
 };
 
 bool verifySignature(
@@ -216,6 +217,18 @@ int fourthTierJsonVerification(
     {
         return VerificationFailures
             ::MISSING_FIELDS_FOURTH_TIER;
+    }
+
+    auto& challengeText = doc["challengetext"];
+    auto& challengeSignature = doc["challengesignature"];
+    auto& referralName = doc["referralname"];
+
+    if (   !challengeText.IsString()
+        || !challengeSignature.IsString()
+        || !referralName.IsString())
+    {
+        return VerificationFailures
+            ::MISTYPED_FIELDS_FOURTH_TIER;
     }
 
     return 0;

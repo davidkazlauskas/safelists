@@ -242,14 +242,14 @@ int secondTierJsonValidation(
         return VerificationFailures::INVALID_BLOB_JSON;
     }
 
-    if (   !doc.HasMember("challengeanswer")
-        || !doc.HasMember("answersignature"))
+    if (   !doc.HasMember("signedblob")
+        || !doc.HasMember("signature"))
     {
         return VerificationFailures::MISSING_FIELDS_SECOND_TIER;
     }
 
-    auto& challengeAnswer = doc["challengeanswer"];
-    auto& answerSignature = doc["answersignature"];
+    auto& challengeAnswer = doc["signedblob"];
+    auto& answerSignature = doc["signature"];
 
     if (   !challengeAnswer.IsString()
         || !answerSignature.IsString())

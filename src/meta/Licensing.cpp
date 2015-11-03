@@ -120,7 +120,8 @@ enum VerificationFailures {
     CHALLENGE_SIGNATURE_FORGED = 505,
 
     INVALID_FIFTH_TIER_JSON = 601,
-    MISSING_FIELDS_FIFTH_TIER = 602
+    MISSING_FIELDS_FIFTH_TIER = 602,
+    MISTYPED_FIELDS_FIFTH_TIER = 603
 };
 
 bool verifySignature(
@@ -292,6 +293,18 @@ int fifthTierJsonVerification(
     auto& publicKeyRequestSignature = doc["publickeyrequestsignature"];
     auto& userAnswer = doc["useranswer"];
     auto& validUntil = doc["validuntil"];
+
+    if (   !challengeStrength.IsNumber()
+        || !challengeVersion.IsNumber()
+        || !encodedSalt.IsString()
+        || !publicKeyRequest.IsString()
+        || !publicKeyRequestSignature.IsString()
+        || !userAnswer.IsString()
+        || !validUntil.IsNumber())
+    {
+        return VerificationFailures
+            ::MISTYPED_FIELDS_FIFTH_TIER;
+    }
 
     return 0;
 }

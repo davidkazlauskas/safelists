@@ -106,7 +106,8 @@ enum VerificationFailures {
     INVALID_SERVER_PUB_KEY = 301,
     INVALID_SERVER_PUB_KEY_SIZE = 302,
 
-    INVALID_CHALLENGE_JSON_SECOND_TIER = 401
+    INVALID_CHALLENGE_JSON_SECOND_TIER = 401,
+    MISSING_FIELDS_THIRD_TIER = 402
 };
 
 bool verifySignature(
@@ -243,6 +244,13 @@ int thirdTierChallengeVerification(
     if (doc.HasParseError()) {
         return VerificationFailures
             ::INVALID_CHALLENGE_JSON_SECOND_TIER;
+    }
+
+    if (   !doc.HasMember("challengeanswer")
+        || !doc.HasMember("answersignature"))
+    {
+        return VerificationFailures
+            ::MISSING_FIELDS_THIRD_TIER;
     }
 
     return 0;

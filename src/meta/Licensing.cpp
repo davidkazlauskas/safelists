@@ -231,7 +231,7 @@ int byteStrength(unsigned char num) {
     } else if (num >= 1) {
         return 7;
     } else {
-        return 0;
+        return 8;
     }
 }
 

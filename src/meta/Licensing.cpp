@@ -1,6 +1,8 @@
 
 #include <cassert>
 #include <iostream>
+#include <regex>
+
 #include <sodium.h>
 #include <curl/curl.h>
 #include <curl/easy.h>
@@ -236,6 +238,17 @@ int fourthTierJsonVerification(
         return VerificationFailures
             ::REFERRALS_DONT_MATCH;
     }
+
+    std::string challengeTextSolved = challengeText.GetString();
+    std::string challengeSignatureStr = challengeSignature.GetString();
+
+    std::regex replaceAnswer("\"useranswer\":\"[a-zA-Z0-9]+\"");
+    std::string challengeTextNoSolution =
+        std::regex_replace(
+            challengeTextSolved,
+            replaceAnswer,
+            ""
+        );
 
     return 0;
 }

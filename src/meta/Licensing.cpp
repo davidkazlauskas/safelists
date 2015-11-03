@@ -195,46 +195,6 @@ bool verifySignature(
     return signRes == 0;
 }
 
-int challengeBlobVerification(
-    const std::string& publicKey,
-    const std::string& referral,
-    const std::string& theBlob)
-{
-
-    templatious::StaticBuffer<unsigned char,4096> uCharBuf;
-    templatious::StaticBuffer<char,4096> charBuf;
-
-    auto ubuf = uCharBuf.getStaticVectorPre(uCharBuf.total_size);
-    auto charVec = charBuf.getStaticVector();
-
-    size_t outBufSize = SA::size(ubuf);
-
-    auto srvKey = getServerSignKey();
-    TEMPLATIOUS_0_TO_N(i,srvKey.size()) {
-        SA::add(charVec,srvKey[i]);
-    }
-
-    int res =
-        ::base64decode(
-            charVec.rawBegin(),SA::size(charVec),
-            ubuf.rawBegin(),&outBufSize);
-
-    if (0 != res) {
-        return VerificationFailures::INVALID_SERVER_PUB_KEY;
-    }
-
-    if (outBufSize != crypto_sign_PUBLICKEYBYTES) {
-        return VerificationFailures::INVALID_SERVER_PUB_KEY_SIZE;
-    }
-
-    char pkBytes[crypto_sign_PUBLICKEYBYTES];
-    ::memcpy(pkBytes,ubuf.rawBegin(),sizeof(pkBytes));
-
-    SA::clear(ubuf);
-
-    return 0;
-}
-
 int thirdTierChallengeVerification(
     const std::string& publicKey,
     const std::string& referral,

@@ -230,6 +230,14 @@ int challengeBlobVerification(
     return 0;
 }
 
+int thirdTierChallengeVerification(
+    const std::string& publicKey,
+    const std::string& referral,
+    const std::string& theBlob)
+{
+    return 0;
+}
+
 int secondTierJsonValidation(
     const std::string& publicKey,
     const std::string& referral,
@@ -268,7 +276,8 @@ int secondTierJsonValidation(
         return VerificationFailures::FORGED_SIGNATURE_SECOND_TIER;
     }
 
-    return 0;
+    return thirdTierChallengeVerification(
+        publicKey,referral,challengeAnswerStr);
 }
 
 int firstTierSignatureVerification(const std::string& theJson) {

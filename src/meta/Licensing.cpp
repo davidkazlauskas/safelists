@@ -117,7 +117,9 @@ enum VerificationFailures {
     MISSING_FIELDS_FOURTH_TIER = 502,
     MISTYPED_FIELDS_FOURTH_TIER = 503,
     REFERRALS_DONT_MATCH = 504,
-    CHALLENGE_SIGNATURE_FORGED = 505
+    CHALLENGE_SIGNATURE_FORGED = 505,
+
+    INVALID_FIFTH_TIER_JSON = 601
 };
 
 bool verifySignature(
@@ -263,6 +265,13 @@ int fifthTierJsonVerification(
     const std::string& challengeAnswer,
     int hashStrength)
 {
+    rj::Document doc;
+    doc.Parse(challengeAnswer.c_str());
+    if (doc.HasParseError()) {
+        return VerificationFailures
+            ::INVALID_FIFTH_TIER_JSON;
+    }
+
     return 0;
 }
 

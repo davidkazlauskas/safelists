@@ -235,6 +235,29 @@ int byteStrength(unsigned char num) {
     }
 }
 
+int hashStrength(const std::string& hash) {
+    int strength = 0;
+    unsigned char outRes[crypto_hash_sha256_BYTES];
+    size_t binLen = 0;
+
+    int res = ::sodium_hex2bin(
+        outRes,sizeof(outRes),
+        hash.c_str(),hash.size(),
+        nullptr,&binLen,nullptr);
+
+    assert( 0 == res );
+    assert( binLen == crypto_hash_sha256_BYTES );
+    TEMPLATIOUS_FOREACH(auto& i,outRes) {
+        int thisAdd = byteStrength(i);
+        strength += thisAdd;
+        if (thisAdd < 8) {
+            break;
+        }
+    }
+
+    return strength;
+}
+
 int fourthTierJsonVerification(
     const std::string& publicKey,
     const std::string& referral,

@@ -195,6 +195,14 @@ bool verifySignature(
     return signRes == 0;
 }
 
+int fourthTierJsonVerification(
+    const std::string& publicKey,
+    const std::string& referral,
+    const std::string& theBlob)
+{
+    return 0;
+}
+
 int thirdTierChallengeVerification(
     const std::string& publicKey,
     const std::string& referral,
@@ -234,7 +242,8 @@ int thirdTierChallengeVerification(
             ::FORGED_SIGNATURE_THIRD_TIER;
     }
 
-    return 0;
+    return fourthTierJsonVerification(
+        publicKey,referral,answer);
 }
 
 int secondTierJsonValidation(

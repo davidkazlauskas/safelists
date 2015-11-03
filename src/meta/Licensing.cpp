@@ -108,7 +108,8 @@ enum VerificationFailures {
 
     INVALID_CHALLENGE_JSON_SECOND_TIER = 401,
     MISSING_FIELDS_THIRD_TIER = 402,
-    MISTYPED_FIELDS_THIRD_TIER = 403
+    MISTYPED_FIELDS_THIRD_TIER = 403,
+    FORGED_SIGNATURE_THIRD_TIER = 404
 };
 
 bool verifySignature(
@@ -262,6 +263,15 @@ int thirdTierChallengeVerification(
     {
         return VerificationFailures
             ::MISTYPED_FIELDS_THIRD_TIER;
+    }
+
+    std::string answer = challengeAnswer.GetString();
+    std::string signature = answerSignature.GetString();
+
+    bool isGood = verifySignature(signature,publicKey,answer);
+    if (!isGood) {
+        return VerificationFailures
+            ::FORGED_SIGNATURE_THIRD_TIER;
     }
 
     return 0;

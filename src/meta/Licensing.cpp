@@ -285,6 +285,14 @@ int fifthTierJsonVerification(
             ::MISSING_FIELDS_FIFTH_TIER;
     }
 
+    auto& challengeStrength = doc["challengestrength"];
+    auto& challengeVersion = doc["challengeversion"];
+    auto& encodedSalt = doc["encodedsalt"];
+    auto& publicKeyRequest = doc["publickeyrequest"];
+    auto& publicKeyRequestSignature = doc["publickeyrequestsignature"];
+    auto& userAnswer = doc["useranswer"];
+    auto& validUntil = doc["validuntil"];
+
     return 0;
 }
 

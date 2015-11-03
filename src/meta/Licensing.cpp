@@ -113,7 +113,8 @@ enum VerificationFailures {
 
     INVALID_FOURTH_TIER_JSON = 501,
     MISSING_FIELDS_FOURTH_TIER = 502,
-    MISTYPED_FIELDS_FOURTH_TIER = 503
+    MISTYPED_FIELDS_FOURTH_TIER = 503,
+    REFERRALS_DONT_MATCH = 504
 };
 
 bool verifySignature(
@@ -229,6 +230,11 @@ int fourthTierJsonVerification(
     {
         return VerificationFailures
             ::MISTYPED_FIELDS_FOURTH_TIER;
+    }
+
+    if (referral != referralName.GetString()) {
+        return VerificationFailures
+            ::REFERRALS_DONT_MATCH;
     }
 
     return 0;

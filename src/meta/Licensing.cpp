@@ -109,7 +109,9 @@ enum VerificationFailures {
     INVALID_CHALLENGE_JSON_SECOND_TIER = 401,
     MISSING_FIELDS_THIRD_TIER = 402,
     MISTYPED_FIELDS_THIRD_TIER = 403,
-    FORGED_SIGNATURE_THIRD_TIER = 404
+    FORGED_SIGNATURE_THIRD_TIER = 404,
+
+    INVALID_FOURTH_TIER_JSON = 501
 };
 
 bool verifySignature(
@@ -200,6 +202,13 @@ int fourthTierJsonVerification(
     const std::string& referral,
     const std::string& theBlob)
 {
+    rj::Document doc;
+    doc.Parse(theBlob.c_str());
+    if (doc.HasParseError()) {
+        return VerificationFailures
+            ::INVALID_FOURTH_TIER_JSON;
+    }
+
     return 0;
 }
 

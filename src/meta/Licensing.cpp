@@ -121,7 +121,8 @@ enum VerificationFailures {
 
     INVALID_FIFTH_TIER_JSON = 601,
     MISSING_FIELDS_FIFTH_TIER = 602,
-    MISTYPED_FIELDS_FIFTH_TIER = 603
+    MISTYPED_FIELDS_FIFTH_TIER = 603,
+    PUBLIC_KEY_REQUEST_FAIL_FIFTH_TIER = 604
 };
 
 bool verifySignature(
@@ -304,6 +305,14 @@ int fifthTierJsonVerification(
     {
         return VerificationFailures
             ::MISTYPED_FIELDS_FIFTH_TIER;
+    }
+
+    std::string expectedRequest = publicKey;
+    expectedRequest += " I_WANT_TO_USE_SAFELISTS";
+
+    if (expectedRequest != publicKeyRequest.GetString()) {
+        return VerificationFailures
+            ::PUBLIC_KEY_REQUEST_FAIL_FIFTH_TIER;
     }
 
     return 0;

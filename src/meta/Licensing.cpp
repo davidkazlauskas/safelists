@@ -206,10 +206,6 @@ std::string sha256(const std::string& text) {
     unsigned char out[crypto_hash_sha256_BYTES];
     ::crypto_hash_sha256(out,
         reinterpret_cast<const unsigned char*>(text.c_str()),text.size());
-    std::string res = "";
-    TEMPLATIOUS_FOREACH(auto& i,out) {
-
-    }
     char outStr[sizeof(out)*2 + 1];
     char* hex = ::sodium_bin2hex(outStr,sizeof(outStr),out,sizeof(out));
     assert( outStr == hex );

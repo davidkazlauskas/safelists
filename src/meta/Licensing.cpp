@@ -247,7 +247,7 @@ int fourthTierJsonVerification(
         std::regex_replace(
             challengeTextSolved,
             replaceAnswer,
-            ""
+            "\"useranswer\":\"\""
         );
 
     return 0;

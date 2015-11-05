@@ -573,7 +573,6 @@ int secondTierJsonValidation(
 
 int firstTierSignatureVerification(const std::string& theJson) {
     rj::Document doc;
-    std::cout << "|" << theJson << "|" << std::endl;
     doc.Parse(theJson.c_str());
 
     if (doc.HasParseError()) {

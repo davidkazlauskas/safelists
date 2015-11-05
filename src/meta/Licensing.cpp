@@ -619,6 +619,10 @@ int licenseReadOrRegisterRoutine() {
     return firstTierSignatureVerification(theJson);
 }
 
+int localLicensePath(const std::string& pubKey,std::string& out) {
+    return 0;
+}
+
 struct LicenseDaemonDummyImpl : public Messageable {
     LicenseDaemonDummyImpl(const LicenseDaemonDummyImpl&) = delete;
     LicenseDaemonDummyImpl(LicenseDaemonDummyImpl&&) = delete;
@@ -685,8 +689,8 @@ private:
                 }
             ),
             SF::virtualMatch< LD::LicenseForPublicKeyLocal, std::string, int >(
-                [=](ANY_CONV,std::string& outPath,int& outErrCode) {
-
+                [=](ANY_CONV,const std::string& pubKey,std::string& outPath,int& outErrCode) {
+                    outErrCode = localLicensePath(pubKey,outPath);
                 }
             ),
             SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(

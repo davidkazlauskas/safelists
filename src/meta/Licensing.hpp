@@ -15,7 +15,12 @@ struct LicenseDaemon {
 
     // Look for license locally
     // Signature:
-    // < LicenseForPublicKeyLocal, std::string (outpath), int (errcode) >
+    // <
+    //   LicenseForPublicKeyLocal,
+    //   std::string (pubkey base64),
+    //   std::string (outpath),
+    //   int (errcode)
+    // >
     DUMMY_REG(LicenseForPublicKeyLocal,"LD_LicenseForPublicKeyLocal");
 
     // singleton

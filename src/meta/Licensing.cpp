@@ -256,9 +256,19 @@ bool getScryptArgsForVersion(
 }
 
 bool scrypt(const std::string& text,int version,std::string& out) {
-    const char* SCRYPT_SALT =
-    const int SCRYPT_SALT_LEN = strlen(SCRYPT_SALT);
-    ::libscrypt_scrypt(text.c_str(),text.size(),)
+    unsigned char* salt = nullptr;
+    int saltLength,N,r,p,dkLen;
+    saltLength = N = r = p = dkLen = 0;
+    bool scryptRes = getScryptArgsForVersion(version,salt,saltLength,N,r,p,dkLen);
+    if (!scryptRes) {
+        return false;
+    }
+    std::vector< unsigned char > outRes(dkLen);
+    ::libscrypt_scrypt(
+        reinterpret_cast<unsigned const char*>(text.c_str()),text.size(),
+        salt,saltLength,
+        N,r,p,
+        outRes.data(),SA::size(outRes));
     return true;
 }
 

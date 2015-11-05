@@ -417,6 +417,17 @@ initAll = function()
             VSig("LD_IsExpired"),
             VBool(true)
         )
+        ctx:messageAsyncWCallback(
+            license,
+            function(val)
+                local vals = val:values()
+                print(vals._4 .. " -> |" .. vals._3 .. "|")
+            end,
+            VSig("LD_LicenseForPublicKeyLocal"),
+            VString("4j5iMF/54gJW/c4bPAdN28+4YcIeSQj3QGvOv2xIZjU="),
+            VString(""),
+            VInt(-1)
+        )
     end
     licTest()
 

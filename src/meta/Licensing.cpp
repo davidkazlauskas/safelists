@@ -8,11 +8,13 @@
 #include <curl/curl.h>
 #include <curl/easy.h>
 #include <rapidjson/document.h>
+#include <boost/filesystem.hpp>
 
 #include <util/Semaphore.hpp>
 #include <util/GenericShutdownGuard.hpp>
 #include <util/ScopeGuard.hpp>
 #include <util/Base64.hpp>
+#include <util/ProgramArgs.hpp>
 
 #include "Licensing.hpp"
 
@@ -20,6 +22,7 @@ TEMPLATIOUS_TRIPLET_STD;
 
 typedef SafeLists::GracefulShutdownInterface GSI;
 namespace rj = rapidjson;
+namespace fs = boost::filesystem;
 
 namespace SafeLists {
 
@@ -619,11 +622,21 @@ int licenseReadOrRegisterRoutine() {
     return firstTierSignatureVerification(theJson);
 }
 
+std::string executablePath() {
+    auto programArgs = SafeLists::getGlobalProgramArgs();
+    fs::path selfpath = programArgs[0];
+    selfpath = fs::absolute(selfpath.remove_filename());
+    return selfpath.string();
+}
+
 int localLicensePath(const std::string& pubKey,std::string& out) {
     // since key is base64 and
     // can contain slashes just get sha256...
     std::string pubKeyHash = "license-" + sha256(pubKey);
     pubKeyHash += ".json";
+    std::string absFilePath = executablePath();
+    absFilePath += "/";
+    absFilePath += pubKeyHash;
     return 0;
 }
 
@@ -692,7 +705,7 @@ private:
                     return res = result == 0;
                 }
             ),
-            SF::virtualMatch< LD::LicenseForPublicKeyLocal, std::string, int >(
+            SF::virtualMatch< LD::LicenseForPublicKeyLocal, const std::string, std::string, int >(
                 [=](ANY_CONV,const std::string& pubKey,std::string& outPath,int& outErrCode) {
                     outErrCode = localLicensePath(pubKey,outPath);
                 }

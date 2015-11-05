@@ -7,7 +7,7 @@
 
 namespace SafeLists {
 
-    void setGlobalProgramArgs(char** argv,int argc);
+    void setGlobalProgramArgs(int argc,char** argv);
     std::vector< std::string > getGlobalProgramArgs();
 
 }

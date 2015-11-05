@@ -9,6 +9,7 @@
 #include <util/Semaphore.hpp>
 #include <util/GracefulShutdownGuard.hpp>
 #include <util/GenericStMessageable.hpp>
+#include <util/ProgramArgs.hpp>
 #include <gtkmm/GtkMMSessionWidget.hpp>
 #include <gtkmm/GtkMMFileString.hpp>
 #include <gtkmm/GenericGtkWidget.hpp>
@@ -1846,6 +1847,7 @@ static templatious::DynVPackFactory* vFactory() {
 }
 
 int main(int argc,char** argv) {
+    SafeLists::setGlobalProgramArgs(argc,argv);
     auto app = Gtk::Application::create(argc,argv);
 
     auto ctx = LuaContext::makeContext("lua/plumbing.lua");

@@ -269,6 +269,18 @@ bool scrypt(const std::string& text,int version,std::string& out) {
         salt,saltLength,
         N,r,p,
         outRes.data(),SA::size(outRes));
+    std::vector< char > hexOutArr(dkLen * 2 + 1);
+    auto hexRes =
+        ::sodium_bin2hex(
+            hexOutArr.data(),
+            SA::size(hexOutArr),
+            outRes.data(),
+            SA::size(outRes));
+    assert( hexRes == hexOutArr.data() );
+    out.clear();
+    TEMPLATIOUS_FOREACH(auto& i,hexOutArr) {
+        out += i;
+    }
     return true;
 }
 

@@ -620,6 +620,10 @@ int licenseReadOrRegisterRoutine() {
 }
 
 int localLicensePath(const std::string& pubKey,std::string& out) {
+    // since key is base64 and
+    // can contain slashes just get sha256...
+    std::string pubKeyHash = "license-" + sha256(pubKey);
+    pubKeyHash += ".json";
     return 0;
 }
 

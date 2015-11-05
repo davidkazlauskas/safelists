@@ -87,6 +87,19 @@ add_custom_target( copy-lua-scripts ALL
 add_custom_target( copy-root-data ALL
     COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/rootData/ ${CMAKE_BINARY_DIR} )
 
+# <<<<<<< copied code for compilation
+
+# LIBSCRYPT
+SET( LIBSCRYPT_BUILD_DIR ${CMAKE_BINARY_DIR}/submodules/libscrypt )
+add_custom_target( copy-libscrypt-submodule ALL
+    COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/submodules/libscrypt ${LIBSCRYPT_BUILD_DIR} )
+add_custom_target( build-libscrypt-submodule ALL
+    COMMAND make
+    DEPENDS copy-libscrypt-submodule
+    WORKING_DIRECTORY ${LIBSCRYPT_BUILD_DIR} )
+
+# >>>>>>> copied code for compilation
+
 add_library( domain ${DOMAIN_SOURCES} )
 target_link_libraries( domain
     sqlite3 pthread crypto curl sodium

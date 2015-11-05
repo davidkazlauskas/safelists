@@ -124,7 +124,8 @@ enum VerificationFailures {
     MISSING_FIELDS_FIFTH_TIER = 602,
     MISTYPED_FIELDS_FIFTH_TIER = 603,
     HASH_TOO_WEAK_FIFTH_TIER = 604,
-    PUBLIC_KEY_REQUEST_FAIL_FIFTH_TIER = 605
+    PUBLIC_KEY_REQUEST_FAIL_FIFTH_TIER = 605,
+    BAD_SCRYPT_VERSION_FIFTH_TIER = 606
 };
 
 bool verifySignature(
@@ -341,8 +342,7 @@ int hashStrength(const std::string& hash) {
 
 int fifthTierJsonVerification(
     const std::string& publicKey,
-    const std::string& challengeAnswer,
-    int hashStrength)
+    const std::string& challengeAnswer)
 {
     rj::Document doc;
     doc.Parse(challengeAnswer.c_str());
@@ -383,9 +383,21 @@ int fifthTierJsonVerification(
             ::MISTYPED_FIELDS_FIFTH_TIER;
     }
 
+    int challengeVersionInt = challengeVersion.GetInt();
+
+    std::string challengeTextHash;
+    bool scryptSucc = scrypt(
+        challengeAnswer,challengeVersionInt,challengeTextHash);
+    if (!scryptSucc) {
+        return VerificationFailures
+            ::BAD_SCRYPT_VERSION_FIFTH_TIER;
+    }
+
+    int hashStrengthRes = hashStrength(challengeTextHash);
+
     // TODO: use scrypt with version params
     int challengeStrengthNum = challengeStrength.GetInt();
-    if (challengeStrengthNum > hashStrength) {
+    if (challengeStrengthNum > hashStrengthRes) {
         return VerificationFailures
             ::HASH_TOO_WEAK_FIFTH_TIER;
     }
@@ -459,11 +471,8 @@ int fourthTierJsonVerification(
             ::CHALLENGE_SIGNATURE_FORGED;
     }
 
-    std::string challengeTextHash = sha256(challengeTextSolved);
-    int hashStrengthRes = hashStrength(challengeTextHash);
-
     return fifthTierJsonVerification(
-        publicKey,challengeTextSolved,hashStrengthRes);
+        publicKey,challengeTextSolved);
 }
 
 int thirdTierChallengeVerification(

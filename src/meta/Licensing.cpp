@@ -125,7 +125,8 @@ enum VerificationFailures {
     MISTYPED_FIELDS_FIFTH_TIER = 603,
     HASH_TOO_WEAK_FIFTH_TIER = 604,
     PUBLIC_KEY_REQUEST_FAIL_FIFTH_TIER = 605,
-    BAD_SCRYPT_VERSION_FIFTH_TIER = 606
+    BAD_SCRYPT_VERSION_FIFTH_TIER = 606,
+    FORGED_USER_REQUEST_SIGNATURE_FIFTH_TIER = 607
 };
 
 bool verifySignature(
@@ -410,8 +411,18 @@ int fifthTierJsonVerification(
             ::PUBLIC_KEY_REQUEST_FAIL_FIFTH_TIER;
     }
 
-    // TODO: verify signature on public key request
+    std::string userPubKeySiganture =
+        publicKeyRequestSignature.GetString();
 
+
+    bool internalSigVerification = verifySignature(
+            userPubKeySiganture,publicKey,expectedRequest);
+    if (!internalSigVerification) {
+        return VerificationFailures
+            ::FORGED_USER_REQUEST_SIGNATURE_FIFTH_TIER;
+    }
+
+    // BOOM, verified
     return 0;
 }
 

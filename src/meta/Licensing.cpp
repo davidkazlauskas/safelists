@@ -209,6 +209,22 @@ bool verifySignature(
     return signRes == 0;
 }
 
+bool hexToBin(const char* str,std::vector< unsigned char >& out) {
+    unsigned char outRes[32];
+    size_t binLen = sizeof(outRes);
+    int res = ::sodium_hex2bin(
+        outRes,sizeof(outRes),str,strlen(str),nullptr,&binLen,nullptr);
+    if (res != 0) {
+        return false;
+    }
+
+    SA::clear(out);
+    TEMPLATIOUS_0_TO_N(i,binLen) {
+        SA::add(out,outRes[i]);
+    }
+    return true;
+}
+
 bool scrypt(const std::string& text,int version,std::string& out) {
     return true;
 }

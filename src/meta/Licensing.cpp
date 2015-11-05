@@ -637,6 +637,7 @@ int localLicensePath(const std::string& pubKey,std::string& out) {
     std::string absFilePath = executablePath();
     absFilePath += "/";
     absFilePath += pubKeyHash;
+    out = absFilePath;
     return 0;
 }
 

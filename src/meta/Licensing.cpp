@@ -209,6 +209,10 @@ bool verifySignature(
     return signRes == 0;
 }
 
+bool scrypt(const std::string& text,int version,std::string& out) {
+    return true;
+}
+
 std::string sha256(const std::string& text) {
     unsigned char out[crypto_hash_sha256_BYTES];
     ::crypto_hash_sha256(out,

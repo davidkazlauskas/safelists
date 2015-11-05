@@ -684,6 +684,11 @@ private:
                     return res = result == 0;
                 }
             ),
+            SF::virtualMatch< LD::LicenseForPublicKeyLocal, std::string, int >(
+                [=](ANY_CONV,std::string& outPath,int& outErrCode) {
+
+                }
+            ),
             SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(
                 [=](ANY_CONV,StrongMsgPtr& ptr) {
                     auto handler = std::make_shared< GenericShutdownGuard >();

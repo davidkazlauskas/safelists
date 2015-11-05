@@ -396,7 +396,6 @@ int fifthTierJsonVerification(
 
     int hashStrengthRes = hashStrength(challengeTextHash);
 
-    // TODO: use scrypt with version params
     int challengeStrengthNum = challengeStrength.GetInt();
     if (challengeStrengthNum > hashStrengthRes) {
         return VerificationFailures

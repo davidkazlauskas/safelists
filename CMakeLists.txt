@@ -10,6 +10,7 @@ SET( PLUMBING_DIR submodules/LibLuaPlumbing/LuaPlumbing )
 SET( RAPID_JSON_DIR submodules/rapidjson )
 SET( RAPID_JSON_INCLUDE_DIR ${RAPID_JSON_DIR}/include )
 SET( SRC_DIR src )
+SET( LIBSCRYPT_BUILD_DIR ${CMAKE_BINARY_DIR}/submodules/libscrypt )
 
 ADD_DEFINITIONS(
     -x c++
@@ -62,6 +63,7 @@ include_directories(
 )
 
 link_directories(${GTKMM_LIBRARY_DIRS})
+
 if (UNIX)
     # for newer version of sqlite built and installed
     # from source, ubuntu 14.04 only has sqlite3 3.8.2
@@ -89,20 +91,22 @@ add_custom_target( copy-root-data ALL
 
 # <<<<<<< copied code for compilation
 
-# LIBSCRYPT
-SET( LIBSCRYPT_BUILD_DIR ${CMAKE_BINARY_DIR}/submodules/libscrypt )
 add_custom_target( copy-libscrypt-submodule ALL
     COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/submodules/libscrypt ${LIBSCRYPT_BUILD_DIR} )
 add_custom_target( build-libscrypt-submodule ALL
     COMMAND make
     DEPENDS copy-libscrypt-submodule
     WORKING_DIRECTORY ${LIBSCRYPT_BUILD_DIR} )
+add_library( scrypt STATIC IMPORTED )
+add_dependencies( scrypt build-libscrypt-submodule )
+set_property( TARGET scrypt PROPERTY IMPORTED_LOCATION ${LIBSCRYPT_BUILD_DIR}/libscrypt.a )
 
 # >>>>>>> copied code for compilation
 
 add_library( domain ${DOMAIN_SOURCES} )
 target_link_libraries( domain
-    sqlite3 pthread crypto curl sodium
+    sqlite3 pthread crypto
+    curl sodium scrypt
     ${Boost_FILESYSTEM_LIBRARY}
     ${Boost_SYSTEM_LIBRARY}
 )

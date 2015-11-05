@@ -15,12 +15,12 @@ namespace {
 
 namespace SafeLists {
 
-void setGlobalProgramArgs(char** argv,int argc) {
+void setGlobalProgramArgs(int argc,char** argv) {
     static bool isSet = false;
 
     LGuard g(theArgMutex);
 
-    assert( isSet && "Arguments should not be set yet." );
+    assert( !isSet && "Arguments should not be set yet." );
     for (int i = 0; i < argc; ++i) {
         theArgArray.push_back(argv[i]);
     }

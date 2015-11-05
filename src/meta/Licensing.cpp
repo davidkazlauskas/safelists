@@ -4,6 +4,7 @@
 #include <regex>
 
 #include <sodium.h>
+#include <libscrypt.h>
 #include <curl/curl.h>
 #include <curl/easy.h>
 #include <rapidjson/document.h>
@@ -225,7 +226,39 @@ bool hexToBin(const char* str,std::vector< unsigned char >& out) {
     return true;
 }
 
+bool getScryptArgsForVersion(
+    int version,
+    unsigned char*& salt,
+    int& saltLength,
+    int& N,
+    int& r,
+    int& p,
+    int& dkLen)
+{
+    if (version == 1) {
+        const char* SCRYPT_SALT =
+            "f1705f7a9f458f3af425d0e9349a63c0"
+            "83a427fe4a8187d5c5edf526ef7f1359";
+        static std::vector< unsigned char > scryptSaltV1Vec;
+        static bool hex2BinV1Success = hexToBin(SCRYPT_SALT,scryptSaltV1Vec);
+        assert( hex2BinV1Success == true );
+
+        salt = scryptSaltV1Vec.data();
+        saltLength = SA::size(scryptSaltV1Vec);
+        // should match server values
+        N = 1024;
+        r = 8;
+        p = 8;
+        dkLen = 32;
+    }
+
+    return false;
+}
+
 bool scrypt(const std::string& text,int version,std::string& out) {
+    const char* SCRYPT_SALT =
+    const int SCRYPT_SALT_LEN = strlen(SCRYPT_SALT);
+    ::libscrypt_scrypt(text.c_str(),text.size(),)
     return true;
 }
 

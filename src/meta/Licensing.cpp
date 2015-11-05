@@ -251,6 +251,7 @@ bool getScryptArgsForVersion(
         r = 8;
         p = 8;
         dkLen = 32;
+        return true;
     }
 
     return false;

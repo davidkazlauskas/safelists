@@ -94,7 +94,7 @@ add_custom_target( copy-root-data ALL
 # <<<<<<< copied code for compilation
 
 add_custom_target( copy-libscrypt-submodule ALL
-    COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/submodules/libscrypt ${LIBSCRYPT_BUILD_DIR} )
+    COMMAND rsync -avz "${CMAKE_SOURCE_DIR}/submodules/libscrypt" "${CMAKE_BINARY_DIR}/submodules/" )
 add_custom_target( build-libscrypt-submodule ALL
     COMMAND make
     DEPENDS copy-libscrypt-submodule

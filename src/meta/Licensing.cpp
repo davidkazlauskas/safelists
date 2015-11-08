@@ -702,6 +702,12 @@ int localStoreLicense(
     return 0;
 }
 
+int localDeleteLicense(const std::string& pubKey) {
+    std::string path = localLicensePath(pubKey);
+    bool succeeded = fs::remove(path.c_str());
+    return succeeded ? 0 : 1;
+}
+
 struct LicenseDaemonDummyImpl : public Messageable {
     LicenseDaemonDummyImpl(const LicenseDaemonDummyImpl&) = delete;
     LicenseDaemonDummyImpl(LicenseDaemonDummyImpl&&) = delete;
@@ -786,6 +792,11 @@ private:
             SF::virtualMatch< LD::StoreLocalLicense, const std::string, const std::string, int >(
                 [=](ANY_CONV,const std::string& pubKey,const std::string& contents,int& outErrCode) {
                     outErrCode = localStoreLicense(pubKey,contents);
+                }
+            ),
+            SF::virtualMatch< LD::DeleteLocalLicense, const std::string, int >(
+                [=](ANY_CONV,const std::string& pubKey,int& outErrCode) {
+                    outErrCode = localDeleteLicense(pubKey);
                 }
             ),
             SF::virtualMatch< LD::UserRecordValidity, const std::string, int >(

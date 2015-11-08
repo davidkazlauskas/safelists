@@ -49,6 +49,15 @@ struct LicenseDaemon {
     // >
     DUMMY_REG(StoreLocalLicense,"LD_StoreLocalIcense");
 
+    // Delete local license
+    // Signature:
+    // <
+    //   DeleteLocalLicense,
+    //   std::string (pubkey base64),
+    //   int (error code, 0 success)
+    // >
+    DUMMY_REG(DeleteLocalLicense,"LD_DeleteLocalLicense");
+
     // Check if user record is valid. Json, retrieved from
     // server expected.
     // Signature:

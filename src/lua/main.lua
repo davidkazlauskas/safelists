@@ -462,6 +462,7 @@ initAll = function()
                         -- user signature forged.
                         -- query from server or offer
                         -- offline version?
+                        -- also, delete local license.
                         print("User signature forged.")
                     else
                         verificationSuccess()

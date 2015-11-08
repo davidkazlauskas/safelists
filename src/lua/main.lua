@@ -439,17 +439,20 @@ initAll = function()
                     local vals = val:values()
                     local didSucceed = vals._4 == 0
                     if (didSucceed) then
-                        localIdSucc(userid)
+                        localIdSucc(userid,vals._3)
                     else
                         localIdFail(userid)
                     end
-                    print(vals._4 .. " -> |" .. vals._3 .. "|")
                 end,
                 VSig("LD_GetLocalRecord"),
                 VString(userid),
                 VString(""),
                 VInt(-1)
             )
+        end
+
+        localIdSucc = function(theId,contents)
+            print("|" .. theId .. "| -> |" .. contents .. "|")
         end
 
         localIdFail = function(theId)

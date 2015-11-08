@@ -778,6 +778,11 @@ private:
                     outErrCode = serverGetLicense(pubKey,outlicense);
                 }
             ),
+            SF::virtualMatch< LD::StoreLocalLicense, const std::string, const std::string, int >(
+                [=](ANY_CONV,const std::string& pubKey,const std::string& contents,int& outErrCode) {
+                    outErrCode = localStoreLicense(pubKey,contents);
+                }
+            ),
             SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(
                 [=](ANY_CONV,StrongMsgPtr& ptr) {
                     auto handler = std::make_shared< GenericShutdownGuard >();

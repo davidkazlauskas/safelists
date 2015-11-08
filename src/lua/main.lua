@@ -418,27 +418,32 @@ initAll = function()
             VBool(true)
         )
 
+        local afterId = nil
+
         ctx:messageAsyncWCallback(
             license,
             function(val)
                 local theId = val:values()._2
                 print("Queried: |" .. theId .. "|")
+                afterId(theId)
             end,
             VSig("LD_GetCurrentUserId"),
             VString("empty")
         )
 
-        ctx:messageAsyncWCallback(
-            license,
-            function(val)
-                local vals = val:values()
-                print(vals._4 .. " -> |" .. vals._3 .. "|")
-            end,
-            VSig("LD_GetLocalRecord"),
-            VString("4j5iMF/54gJW/c4bPAdN28+4YcIeSQj3QGvOv2xIZjU="),
-            VString(""),
-            VInt(-1)
-        )
+        afterId = function(userid)
+            ctx:messageAsyncWCallback(
+                license,
+                function(val)
+                    local vals = val:values()
+                    print(vals._4 .. " -> |" .. vals._3 .. "|")
+                end,
+                VSig("LD_GetLocalRecord"),
+                VString(userid),
+                VString(""),
+                VInt(-1)
+            )
+        end
     end
     licTest()
 

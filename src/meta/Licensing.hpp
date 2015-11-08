@@ -49,6 +49,16 @@ struct LicenseDaemon {
     // >
     DUMMY_REG(StoreLocalLicense,"LD_StoreLocalIcense");
 
+    // Check if user record is valid. Json, retrieved from
+    // server expected.
+    // Signature:
+    // <
+    //   UserRecordValidity,
+    //   std::string (json),
+    //   int (out result, 0 success)
+    // >
+    DUMMY_REG(UserRecordValidity,"LD_UserRecordValidity");
+
     // singleton
     static StrongMsgPtr getDaemon();
 };

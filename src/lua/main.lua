@@ -418,7 +418,8 @@ initAll = function()
             VBool(true)
         )
 
-        local afterId,localIdSucc,localIdFail = nil
+        local afterId,localIdSucc,localIdFail,
+              offlineMode = nil
 
         ctx:messageAsyncWCallback(
             license,
@@ -463,9 +464,15 @@ initAll = function()
                     end
                 end,
                 VSig("LD_GetServerRecord"),
+                VString(theId),
                 VString(""),
                 VInt(-1)
             )
+        end
+
+        offlineMode = function()
+            -- show dialog if user
+            -- wants to go to offline mode
         end
     end
     licTest()

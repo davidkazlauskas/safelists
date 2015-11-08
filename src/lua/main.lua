@@ -418,7 +418,7 @@ initAll = function()
             VBool(true)
         )
 
-        local afterId = nil
+        local afterId,localIdSucc,localIdFail = nil
 
         ctx:messageAsyncWCallback(
             license,
@@ -436,6 +436,12 @@ initAll = function()
                 license,
                 function(val)
                     local vals = val:values()
+                    local didSucceed = vals._4 == 0
+                    if (didSucceed) then
+                        localIdSucc(userid)
+                    else
+                        localIdFail(userid)
+                    end
                     print(vals._4 .. " -> |" .. vals._3 .. "|")
                 end,
                 VSig("LD_GetLocalRecord"),
@@ -443,6 +449,10 @@ initAll = function()
                 VString(""),
                 VInt(-1)
             )
+        end
+
+        localIdFail = function(theId)
+            print("Id query failed... " .. theId)
         end
     end
     licTest()

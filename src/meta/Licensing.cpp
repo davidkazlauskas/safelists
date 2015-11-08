@@ -638,7 +638,7 @@ std::string localLicensePath(const std::string& pubKey) {
     std::string pubKeyHash = "license-" + sha256(pubKey);
     pubKeyHash += ".json";
     std::string absFilePath = executablePath();
-    absFilePath += "/";
+    absFilePath += "/userdata/licensecache/";
     absFilePath += pubKeyHash;
     return absFilePath;
 }

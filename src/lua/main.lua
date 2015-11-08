@@ -453,6 +453,19 @@ initAll = function()
 
         localIdFail = function(theId)
             print("Id query failed... " .. theId)
+            ctx:messageAsyncWCallback(
+                license,
+                function(val)
+                    local vals = val:values()
+                    local didSucceed = vals._4 == 0
+                    if (didSucceed) then
+                        print("Could not query server for user info...")
+                    end
+                end,
+                VSig("LD_GetServerRecord"),
+                VString(""),
+                VInt(-1)
+            )
         end
     end
     licTest()

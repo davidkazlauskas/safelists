@@ -419,7 +419,8 @@ initAll = function()
         )
 
         local afterId,localIdSucc,localIdFail,
-              offlineMode,localStoreLic = nil
+              offlineMode,localStoreLic,
+              verificationSuccess= nil
 
         ctx:messageAsyncWCallback(
             license,
@@ -453,6 +454,24 @@ initAll = function()
 
         localIdSucc = function(theId,contents)
             print("|" .. theId .. "| -> |" .. contents .. "|")
+            ctx:messageAsyncWCallback(
+                license,
+                function(val)
+                    local vals = val:values()
+                    if (vals._3 ~= 0) then
+                        -- user signature forged.
+                        -- query from server or offer
+                        -- offline version?
+                        print("User signature forged.")
+                    else
+                        print("Verification success")
+                        verificationSuccess()
+                    end
+                end,
+                VSig("LD_UserRecordValidity"),
+                VString(contents),
+                VInt(-1)
+            )
         end
 
         localIdFail = function(theId)
@@ -496,6 +515,11 @@ initAll = function()
                 VString(content),
                 VInt(-1)
             )
+        end
+
+        verificationSuccess = function()
+            -- further check if license
+            -- is expired.
         end
     end
     licTest()

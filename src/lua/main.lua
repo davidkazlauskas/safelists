@@ -460,7 +460,9 @@ initAll = function()
                     local vals = val:values()
                     local didSucceed = vals._4 == 0
                     if (didSucceed) then
-                        print("Could not query server for user info...")
+                        print("The license: |" .. vals._3 .. "|")
+                    else
+                        print("Could not query server for user info..." .. vals._4)
                     end
                 end,
                 VSig("LD_GetServerRecord"),

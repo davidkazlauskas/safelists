@@ -788,6 +788,11 @@ private:
                     outErrCode = localStoreLicense(pubKey,contents);
                 }
             ),
+            SF::virtualMatch< LD::UserRecordValidity, const std::string, int >(
+                [=](ANY_CONV,const std::string& json,int& outRes) {
+                    outRes = firstTierSignatureVerification(json);
+                }
+            ),
             SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(
                 [=](ANY_CONV,StrongMsgPtr& ptr) {
                     auto handler = std::make_shared< GenericShutdownGuard >();

@@ -719,6 +719,12 @@ private:
                     return res = result == 0;
                 }
             ),
+            SF::virtualMatch< LD::GetCurrentUserId, std::string >(
+                [=](ANY_CONV,std::string& pubKey) {
+                    // TODO: query from safe app launcher.
+                    pubKey = getCurrentUserIdBase64();
+                }
+            ),
             SF::virtualMatch< LD::GetLocalRecord, const std::string, std::string, int >(
                 [=](ANY_CONV,const std::string& pubKey,std::string& outlicense,int& outErrCode) {
                     outErrCode = localLicensePath(pubKey,outlicense);

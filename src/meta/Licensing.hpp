@@ -13,6 +13,11 @@ struct LicenseDaemon {
     // < IsExpired, bool (out result) >
     DUMMY_REG(IsExpired,"LD_IsExpired");
 
+    // get current user id
+    // Signature:
+    // < GetCurrentUserId, std::string (out) >
+    DUMMY_REG(GetCurrentUserId,"LD_GetCurrentUserId");
+
     // Get local record.
     // Signature:
     // <

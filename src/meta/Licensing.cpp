@@ -677,6 +677,26 @@ int serverGetLicense(const std::string& pubKey,std::string& out) {
     return 0;
 }
 
+int localStoreLicense(
+    const std::string& pubKey,
+    const std::string& value)
+{
+    std::string path = localLicensePath(pubKey);
+    auto file = ::fopen(path.c_str(),"w");
+    if (nullptr == file) {
+        // could not open file
+        return 1;
+    }
+
+    auto closeGuard = SCOPE_GUARD_LC(
+        ::fclose(file);
+    );
+
+    ::fwrite(value.c_str(),1,value.size(),file);
+
+    return 0;
+}
+
 struct LicenseDaemonDummyImpl : public Messageable {
     LicenseDaemonDummyImpl(const LicenseDaemonDummyImpl&) = delete;
     LicenseDaemonDummyImpl(LicenseDaemonDummyImpl&&) = delete;

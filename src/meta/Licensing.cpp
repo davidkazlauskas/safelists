@@ -654,6 +654,23 @@ int localLicensePath(const std::string& pubKey,std::string& out) {
     return 0;
 }
 
+int serverGetLicense(const std::string& pubKey,std::string& out) {
+    // should fit
+    std::vector<char> buf(1024 * 16);
+
+    int bufLen = SA::size(buf);
+    int res = querySignature(pubKey,buf.data(),bufLen);
+
+    if (res != 0) {
+        return 1;
+    }
+
+    assert( bufLen > 0 && bufLen < SA::size(buf) );
+
+    out.assign(buf.data(),buf.data() + bufLen);
+    return 0;
+}
+
 struct LicenseDaemonDummyImpl : public Messageable {
     LicenseDaemonDummyImpl(const LicenseDaemonDummyImpl&) = delete;
     LicenseDaemonDummyImpl(LicenseDaemonDummyImpl&&) = delete;
@@ -728,6 +745,11 @@ private:
             SF::virtualMatch< LD::GetLocalRecord, const std::string, std::string, int >(
                 [=](ANY_CONV,const std::string& pubKey,std::string& outlicense,int& outErrCode) {
                     outErrCode = localLicensePath(pubKey,outlicense);
+                }
+            ),
+            SF::virtualMatch< LD::GetServerRecord, const std::string, std::string, int >(
+                [=](ANY_CONV,const std::string& pubKey,std::string& outlicense,int& outErrCode) {
+                    outErrCode = serverGetLicense(pubKey,outlicense);
                 }
             ),
             SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(

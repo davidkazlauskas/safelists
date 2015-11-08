@@ -682,6 +682,11 @@ int localStoreLicense(
     const std::string& value)
 {
     std::string path = localLicensePath(pubKey);
+
+    fs::path boostPath(path.c_str());
+    auto parent = boostPath.parent_path();
+    fs::create_directories(parent);
+
     auto file = ::fopen(path.c_str(),"w");
     if (nullptr == file) {
         // could not open file

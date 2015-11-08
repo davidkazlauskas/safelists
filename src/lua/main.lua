@@ -423,7 +423,7 @@ initAll = function()
                 local vals = val:values()
                 print(vals._4 .. " -> |" .. vals._3 .. "|")
             end,
-            VSig("LD_LicenseForPublicKeyLocal"),
+            VSig("LD_GetLocalRecord"),
             VString("4j5iMF/54gJW/c4bPAdN28+4YcIeSQj3QGvOv2xIZjU="),
             VString(""),
             VInt(-1)

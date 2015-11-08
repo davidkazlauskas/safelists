@@ -724,11 +724,6 @@ private:
                     outErrCode = localLicensePath(pubKey,outlicense);
                 }
             ),
-            SF::virtualMatch< LD::LicenseForPublicKeyLocal, const std::string, std::string, int >(
-                [=](ANY_CONV,const std::string& pubKey,std::string& outPath,int& outErrCode) {
-                    outErrCode = localLicensePath(pubKey,outPath);
-                }
-            ),
             SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(
                 [=](ANY_CONV,StrongMsgPtr& ptr) {
                     auto handler = std::make_shared< GenericShutdownGuard >();

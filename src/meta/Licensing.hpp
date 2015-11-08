@@ -13,16 +13,6 @@ struct LicenseDaemon {
     // < IsExpired, bool (out result) >
     DUMMY_REG(IsExpired,"LD_IsExpired");
 
-    // Look for license locally
-    // Signature:
-    // <
-    //   LicenseForPublicKeyLocal,
-    //   std::string (pubkey base64),
-    //   std::string (outpath),
-    //   int (errcode)
-    // >
-    DUMMY_REG(LicenseForPublicKeyLocal,"LD_LicenseForPublicKeyLocal");
-
     // Get local record.
     // Signature:
     // <

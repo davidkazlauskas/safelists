@@ -1,6 +1,7 @@
 
 #include <cassert>
 #include <iostream>
+#include <fstream>
 #include <regex>
 
 #include <sodium.h>
@@ -637,7 +638,19 @@ int localLicensePath(const std::string& pubKey,std::string& out) {
     std::string absFilePath = executablePath();
     absFilePath += "/";
     absFilePath += pubKeyHash;
-    out = absFilePath;
+
+    std::ifstream file(absFilePath.c_str());
+    if (!file.is_open()) {
+        return 1; // 1 - could not open file
+    }
+
+    std::string license;
+    char single;
+    while (file.get(single)) {
+        license += single;
+    }
+
+    out = license;
     return 0;
 }
 
@@ -704,6 +717,11 @@ private:
                     // do something, read files or whatever
                     int result = licenseReadOrRegisterRoutine();
                     return res = result == 0;
+                }
+            ),
+            SF::virtualMatch< LD::GetLocalRecord, const std::string, std::string, int >(
+                [=](ANY_CONV,const std::string& pubKey,std::string& outlicense,int& outErrCode) {
+                    outErrCode = localLicensePath(pubKey,outlicense);
                 }
             ),
             SF::virtualMatch< LD::LicenseForPublicKeyLocal, const std::string, std::string, int >(

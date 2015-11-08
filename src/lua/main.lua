@@ -419,7 +419,7 @@ initAll = function()
         )
 
         local afterId,localIdSucc,localIdFail,
-              offlineMode = nil
+              offlineMode,localStoreLic = nil
 
         ctx:messageAsyncWCallback(
             license,
@@ -461,6 +461,7 @@ initAll = function()
                     local didSucceed = vals._4 == 0
                     if (didSucceed) then
                         print("The license: |" .. vals._3 .. "|")
+                        localStoreLic(theId,vals._3)
                     else
                         print("Could not query server for user info..." .. vals._4)
                     end
@@ -475,6 +476,23 @@ initAll = function()
         offlineMode = function()
             -- show dialog if user
             -- wants to go to offline mode
+        end
+
+        localStoreLic = function(pubKey,content)
+            ctx:messageAsyncWCallback(
+                license,
+                function(val)
+                    local vals = val:values()
+                    local didSucceed = vals._4 == 0
+                    assert( didSucceed,
+                        "Didnt save user info locally, errcode: "
+                        .. vals._4 )
+                end,
+                VSig("LD_StoreLocalIcense"),
+                VString(pubKey),
+                VString(content),
+                VInt(-1)
+            )
         end
     end
     licTest()

@@ -23,6 +23,16 @@ struct LicenseDaemon {
     // >
     DUMMY_REG(LicenseForPublicKeyLocal,"LD_LicenseForPublicKeyLocal");
 
+    // Get local record.
+    // Signature:
+    // <
+    //   GetLocalRecord,
+    //   std::string (pubkey base64),
+    //   std::string (out license),
+    //   int (errocode, 0 success)
+    // >
+    DUMMY_REG(GetLocalRecord,"LD_GetLocalRecord");
+
     // singleton
     static StrongMsgPtr getDaemon();
 };

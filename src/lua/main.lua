@@ -417,6 +417,17 @@ initAll = function()
             VSig("LD_IsExpired"),
             VBool(true)
         )
+
+        ctx:messageAsyncWCallback(
+            license,
+            function(val)
+                local theId = val:values()._2
+                print("Queried: |" .. theId .. "|")
+            end,
+            VSig("LD_GetCurrentUserId"),
+            VString("empty")
+        )
+
         ctx:messageAsyncWCallback(
             license,
             function(val)

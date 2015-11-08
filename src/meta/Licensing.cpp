@@ -632,7 +632,7 @@ std::string executablePath() {
     return selfpath.string();
 }
 
-int localLicensePath(const std::string& pubKey,std::string& out) {
+std::string localLicensePath(const std::string& pubKey) {
     // since key is base64 and
     // can contain slashes just get sha256...
     std::string pubKeyHash = "license-" + sha256(pubKey);
@@ -640,7 +640,11 @@ int localLicensePath(const std::string& pubKey,std::string& out) {
     std::string absFilePath = executablePath();
     absFilePath += "/";
     absFilePath += pubKeyHash;
+    return absFilePath;
+}
 
+int localLicensePath(const std::string& pubKey,std::string& out) {
+    std::string absFilePath = localLicensePath(pubKey);
     std::ifstream file(absFilePath.c_str());
     if (!file.is_open()) {
         return 1; // 1 - could not open file

@@ -643,7 +643,7 @@ std::string localLicensePath(const std::string& pubKey) {
     return absFilePath;
 }
 
-int localLicensePath(const std::string& pubKey,std::string& out) {
+int localGetLicense(const std::string& pubKey,std::string& out) {
     std::string absFilePath = localLicensePath(pubKey);
     std::ifstream file(absFilePath.c_str());
     if (!file.is_open()) {
@@ -750,7 +750,7 @@ private:
             ),
             SF::virtualMatch< LD::GetLocalRecord, const std::string, std::string, int >(
                 [=](ANY_CONV,const std::string& pubKey,std::string& outlicense,int& outErrCode) {
-                    outErrCode = localLicensePath(pubKey,outlicense);
+                    outErrCode = localGetLicense(pubKey,outlicense);
                 }
             ),
             SF::virtualMatch< LD::GetServerRecord, const std::string, std::string, int >(

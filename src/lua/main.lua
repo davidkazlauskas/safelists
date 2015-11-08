@@ -464,7 +464,6 @@ initAll = function()
                         -- offline version?
                         print("User signature forged.")
                     else
-                        print("Verification success")
                         verificationSuccess()
                     end
                 end,
@@ -518,6 +517,7 @@ initAll = function()
         end
 
         verificationSuccess = function()
+            print("Verification success")
             -- further check if license
             -- is expired.
         end

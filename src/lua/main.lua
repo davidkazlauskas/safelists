@@ -591,7 +591,7 @@ initAll = function()
                     local vals = val:values()
                     local didSucceed = vals._4 == 0
                     if (didSucceed) then
-
+                        licenseOk(theId)
                     else
                         licenseExpired(theId)
                     end

@@ -424,7 +424,8 @@ initAll = function()
         local afterId,afterIdSuccess,localIdSucc,
               localIdFail,offlineMode,localStoreLic,
               verificationSuccess,localVerificationFail,
-              verifyTimespan,getServerTimespan
+              verifyTimespan,getServerTimespan,
+              tryVerifyUserRecord
               = nil
 
         local localUserKeyFlopped,localTimespanFlopped = false
@@ -457,7 +458,7 @@ initAll = function()
         )
 
         afterId = function(userid)
-            if (~localUserKeyFlopped) then
+            if (not localUserKeyFlopped) then
                 ctx:messageAsyncWCallback(
                     license,
                     function(val)
@@ -481,24 +482,33 @@ initAll = function()
 
         localIdSucc = function(theId,contents)
             print("|" .. theId .. "| -> |" .. contents .. "|")
+            tryVerifyUserRecord(
+                theId,
+                contents,
+                function()
+                    verificationSuccess(theId)
+                end,
+                function()
+                    localVerificationFail(theId)
+                    localUserKeyFlopped = true
+                    afterId(theId)
+                end
+            )
+        end
+
+        tryVerifyUserRecord = function(theId,key,success,fail)
             ctx:messageAsyncWCallback(
                 license,
                 function(val)
                     local vals = val:values()
                     if (vals._3 ~= 0) then
-                        -- user signature forged.
-                        -- query from server or offer
-                        -- offline version?
-                        -- also, delete local license.
-                        localVerificationFail(theId)
-                        localUserKeyFlopped = true
-                        afterId(userid)
+                        success(theId,key)
                     else
-                        verificationSuccess(theId)
+                        fail(theId,key)
                     end
                 end,
                 VSig("LD_UserRecordValidity"),
-                VString(contents),
+                VString(key),
                 VInt(-1)
             )
         end

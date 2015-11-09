@@ -428,11 +428,11 @@ initAll = function()
               = nil
 
         licenseOk = function(theId)
-
+            print("BALLIN")
         end
 
         licenseExpired = function(theId)
-
+            print("Ouch...")
         end
 
         ctx:messageAsyncWCallback(

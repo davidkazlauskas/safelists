@@ -421,8 +421,8 @@ initAll = function()
         local offlineMode,userInvalid,
               licenseOk,licenseExpired = nil
 
-        local afterId,localIdSucc,localIdFail,
-              offlineMode,localStoreLic,
+        local afterId,afterIdSuccess,localIdSucc,
+              localIdFail,offlineMode,localStoreLic,
               verificationSuccess,localVerificationFail,
               verifyTimespan,getServerTimespan
               = nil
@@ -457,22 +457,26 @@ initAll = function()
         )
 
         afterId = function(userid)
-            ctx:messageAsyncWCallback(
-                license,
-                function(val)
-                    local vals = val:values()
-                    local didSucceed = vals._4 == 0
-                    if (didSucceed) then
-                        localIdSucc(userid,vals._3)
-                    else
-                        localIdFail(userid)
-                    end
-                end,
-                VSig("LD_GetLocalRecord"),
-                VString(userid),
-                VString(""),
-                VInt(-1)
-            )
+            if (~localUserKeyFlopped) then
+                ctx:messageAsyncWCallback(
+                    license,
+                    function(val)
+                        local vals = val:values()
+                        local didSucceed = vals._4 == 0
+                        if (didSucceed) then
+                            localIdSucc(userid,vals._3)
+                        else
+                            localIdFail(userid)
+                        end
+                    end,
+                    VSig("LD_GetLocalRecord"),
+                    VString(userid),
+                    VString(""),
+                    VInt(-1)
+                )
+            else
+                localIdFail(userid)
+            end
         end
 
         localIdSucc = function(theId,contents)
@@ -487,6 +491,8 @@ initAll = function()
                         -- offline version?
                         -- also, delete local license.
                         localVerificationFail(theId)
+                        localUserKeyFlopped = true
+                        afterId(userid)
                     else
                         verificationSuccess(theId)
                     end
@@ -508,8 +514,8 @@ initAll = function()
                         localStoreLic(theId,vals._3)
                         verificationSuccess(theId)
                     else
-                        userInvalid(theId)
                         print("Could not query server for user info..." .. vals._4)
+                        userInvalid(theId)
                     end
                 end,
                 VSig("LD_GetServerRecord"),

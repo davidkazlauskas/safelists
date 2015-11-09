@@ -403,6 +403,16 @@ initAll = function()
     local genMainWnd = GenericWidget.putOn(mainWnd)
 
     local licTest = function()
+        local dialogService = ctx:namedMessageable("dialogService")
+
+        local dialog = ctx:messageRetValues(
+            dialogService,
+            VSig("GDS_MakeGenericDialog"),
+            VString("licensing"),
+            VString("spinnerwindow"),
+            VMsg(nil)
+        )._4
+
         local license = ctx:namedMessageable("licenseService")
 
         local offlineMode,userInvalid,

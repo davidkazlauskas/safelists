@@ -427,6 +427,14 @@ initAll = function()
               verifyTimespan,getServerTimespan
               = nil
 
+        offlineMode = function(theId)
+            print("Offline mode")
+        end
+
+        userInvalid = function(theId)
+            print("User invalid...")
+        end
+
         licenseOk = function(theId)
             print("BALLIN")
         end

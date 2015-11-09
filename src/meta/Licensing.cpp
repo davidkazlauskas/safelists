@@ -654,6 +654,10 @@ int checkUserTimespanValidityThirdTier(int64_t from,int64_t to,const std::string
         return TimespanErrors::TE_MISSING_FIELDS_THIRD_TIER;
     }
 
+    auto& user = doc["user"];
+    auto& fromJson = doc["from"];
+    auto& toJson = doc["to"];
+
     return 0;
 }
 

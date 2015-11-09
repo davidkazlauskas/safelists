@@ -142,7 +142,8 @@ enum TimespanErrors {
 
     TE_INVALID_JSON_SECOND_TIER = 201,
     TE_MISSING_FIELDS_SECOND_TIER = 202,
-    TE_MISTYPED_FIELDS_SECOND_TIER = 203
+    TE_MISTYPED_FIELDS_SECOND_TIER = 203,
+    TE_FORGED_SIGNATURE_SECOND_TIER = 204
 };
 
 bool verifySignature(
@@ -658,6 +659,17 @@ int checkUserTimespanValiditySecondTier(
         || !signatureInner.IsString())
     {
         return TimespanErrors::TE_MISTYPED_FIELDS_SECOND_TIER;
+    }
+
+    std::string sSpan = signedSpan.GetString();
+    std::string sSig = signatureInner.GetString();
+    std::string serverPublicKey = getServerSignKey();
+
+    bool isGood = SafeLists::verifySignature(
+        sSig,serverPublicKey,sSpan);
+
+    if (!isGood) {
+        return TimespanErrors::TE_FORGED_SIGNATURE_SECOND_TIER;
     }
 
     return 0;

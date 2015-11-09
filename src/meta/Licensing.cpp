@@ -643,6 +643,17 @@ std::string localLicensePath(const std::string& pubKey) {
     return absFilePath;
 }
 
+std::string localTimespanPath(const std::string& pubKey) {
+    // since key is base64 and
+    // can contain slashes just get sha256...
+    std::string pubKeyHash = "subscription-" + sha256(pubKey);
+    pubKeyHash += ".json";
+    std::string absFilePath = executablePath();
+    absFilePath += "/userdata/licensecache/";
+    absFilePath += pubKeyHash;
+    return absFilePath;
+}
+
 int localGetLicense(const std::string& pubKey,std::string& out) {
     std::string absFilePath = localLicensePath(pubKey);
     std::ifstream file(absFilePath.c_str());
@@ -674,6 +685,23 @@ int serverGetLicense(const std::string& pubKey,std::string& out) {
     assert( bufLen > 0 && bufLen < SA::size(buf) );
 
     out.assign(buf.data(),buf.data() + bufLen);
+    return 0;
+}
+
+int localGetTimespan(const std::string& pubKey,std::string& out) {
+    std::string absFilePath = localTimespanPath(pubKey);
+    std::ifstream file(absFilePath.c_str());
+    if (!file.is_open()) {
+        return 1; // 1 - could not open file
+    }
+
+    std::string license;
+    char single;
+    while (file.get(single)) {
+        license += single;
+    }
+
+    out = license;
     return 0;
 }
 
@@ -791,8 +819,7 @@ private:
             ),
             SF::virtualMatch< LD::GetLocalTimespan, const std::string, std::string, int >(
                 [=](ANY_CONV,const std::string& pubKey,std::string& outlicense,int& outErrCode) {
-                    //outErrCode = localGetLicense(pubKey,outlicense);
-                    outErrCode = -1;
+                    outErrCode = localGetTimespan(pubKey,outlicense);
                 }
             ),
             SF::virtualMatch< LD::GetServerTimespan, const std::string, std::string, int >(

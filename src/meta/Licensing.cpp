@@ -141,7 +141,8 @@ enum TimespanErrors {
     TE_MISTYPED_FIELDS_FIRST_TIER = 103,
 
     TE_INVALID_JSON_SECOND_TIER = 201,
-    TE_MISSING_FIELDS_SECOND_TIER = 202
+    TE_MISSING_FIELDS_SECOND_TIER = 202,
+    TE_MISTYPED_FIELDS_SECOND_TIER = 203
 };
 
 bool verifySignature(
@@ -648,6 +649,15 @@ int checkUserTimespanValiditySecondTier(
         || !doc.HasMember("signature"))
     {
         return TimespanErrors::TE_MISSING_FIELDS_SECOND_TIER;
+    }
+
+    auto& signedSpan = doc["signedspan"];
+    auto& signatureInner = doc["signature"];
+
+    if (   !signedSpan.IsString()
+        || !signatureInner.IsString())
+    {
+        return TimespanErrors::TE_MISTYPED_FIELDS_SECOND_TIER;
     }
 
     return 0;

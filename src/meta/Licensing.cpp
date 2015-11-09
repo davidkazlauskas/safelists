@@ -140,6 +140,7 @@ enum TimespanErrors {
     TE_MISSING_FIELDS_FIRST_TIER = 102,
     TE_MISTYPED_FIELDS_FIRST_TIER = 103,
     TE_INVALID_TIMESPAN = 104,
+    TE_LICENSE_EXPIRED = 105,
 
     TE_INVALID_JSON_SECOND_TIER = 201,
     TE_MISSING_FIELDS_SECOND_TIER = 202,
@@ -762,6 +763,12 @@ int checkUserTimespanValidityFirstTier(
         || fromNum > toNum)
     {
         return TimespanErrors::TE_INVALID_TIMESPAN;
+    }
+
+    auto currtime = std::time(nullptr);
+    // license expiry date
+    if (!(fromNum <= currtime && toNum >= currtime)) {
+        return TimespanErrors::TE_LICENSE_EXPIRED;
     }
 
     std::string signatureStr = signature.GetString();

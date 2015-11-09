@@ -563,17 +563,14 @@ initAll = function()
         end
 
         verifyTimespan = function(theId,span)
-            print("BOOm")
             ctx:messageAsyncWCallback(
                 license,
                 function(val)
                     local vals = val:values()
                     local didSucceed = vals._4 == 0
                     if (didSucceed) then
-                        print("GREAT SUCCESS!")
                         licenseOk(theId)
                     else
-                        print("BOO")
                         licenseExpired(theId)
                     end
                 end,

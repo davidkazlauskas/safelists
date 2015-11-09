@@ -686,7 +686,7 @@ initAll = function()
             )
         end
     end
-    licTest()
+    table.insert(OneOffFunctions,licTest)
 
     local mainWndButtonHandlers = {}
 

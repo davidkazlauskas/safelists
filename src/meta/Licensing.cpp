@@ -145,7 +145,8 @@ enum TimespanErrors {
     TE_MISTYPED_FIELDS_SECOND_TIER = 203,
     TE_FORGED_SIGNATURE_SECOND_TIER = 204,
 
-    TE_INVALID_JSON_THIRD_TIER = 205
+    TE_INVALID_JSON_THIRD_TIER = 205,
+    TE_MISSING_FIELDS_THIRD_TIER = 206
 };
 
 bool verifySignature(
@@ -644,6 +645,13 @@ int checkUserTimespanValidityThirdTier(int64_t from,int64_t to,const std::string
 
     if (doc.HasParseError()) {
         return TimespanErrors::TE_INVALID_JSON_THIRD_TIER;
+    }
+
+    if (   !doc.HasMember("user")
+        || !doc.HasMember("from")
+        || !doc.HasMember("to"))
+    {
+        return TimespanErrors::TE_MISSING_FIELDS_THIRD_TIER;
     }
 
     return 0;

@@ -143,7 +143,9 @@ enum TimespanErrors {
     TE_INVALID_JSON_SECOND_TIER = 201,
     TE_MISSING_FIELDS_SECOND_TIER = 202,
     TE_MISTYPED_FIELDS_SECOND_TIER = 203,
-    TE_FORGED_SIGNATURE_SECOND_TIER = 204
+    TE_FORGED_SIGNATURE_SECOND_TIER = 204,
+
+    TE_INVALID_JSON_THIRD_TIER = 205
 };
 
 bool verifySignature(
@@ -634,6 +636,17 @@ int licenseReadOrRegisterRoutine() {
         return 1;
     }
     return firstTierSignatureVerification(theJson);
+}
+
+int checkUserTimespanValidityThirdTier(int64_t from,int64_t to,const std::string& theJson) {
+    rj::Document doc;
+    doc.Parse(theJson.c_str());
+
+    if (doc.HasParseError()) {
+        return TimespanErrors::TE_INVALID_JSON_THIRD_TIER;
+    }
+
+    return 0;
 }
 
 int checkUserTimespanValiditySecondTier(

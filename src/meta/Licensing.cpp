@@ -138,7 +138,9 @@ enum VerificationFailures {
 enum TimespanErrors {
     INVALID_JSON_FIRST_TIER = 101,
     TE_MISSING_FIELDS_FIRST_TIER = 102,
-    TE_MISTYPED_FIELDS_FIRST_TIER = 103
+    TE_MISTYPED_FIELDS_FIRST_TIER = 103,
+
+    TE_INVALID_JSON_SECOND_TIER = 201
 };
 
 bool verifySignature(
@@ -634,6 +636,13 @@ int licenseReadOrRegisterRoutine() {
 int checkUserTimespanValiditySecondTier(
     int64_t from,int64_t to,const std::string& signature)
 {
+    rj::Document doc;
+    doc.Parse(signature.c_str());
+
+    if (doc.HasParseError()) {
+        return TimespanErrors::TE_INVALID_JSON_SECOND_TIER;
+    }
+
     return 0;
 }
 

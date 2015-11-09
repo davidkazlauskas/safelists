@@ -147,7 +147,8 @@ enum TimespanErrors {
 
     TE_INVALID_JSON_THIRD_TIER = 205,
     TE_MISSING_FIELDS_THIRD_TIER = 206,
-    TE_MISTYPED_FIELDS_THIRD_TIER = 207
+    TE_MISTYPED_FIELDS_THIRD_TIER = 207,
+    TE_MISMATCHING_TIMESPANS_FOURTH_TIER = 208
 };
 
 bool verifySignature(
@@ -664,6 +665,13 @@ int checkUserTimespanValidityThirdTier(int64_t from,int64_t to,const std::string
         || !toJson.IsNumber())
     {
         return TimespanErrors::TE_MISTYPED_FIELDS_THIRD_TIER;
+    }
+
+    int64_t fromJsNum = fromJson.GetInt64();
+    int64_t toJsNum = toJson.GetInt64();
+
+    if (from != fromJsNum || to != toJsNum) {
+        return TimespanErrors::TE_MISMATCHING_TIMESPANS_FOURTH_TIER;
     }
 
     return 0;

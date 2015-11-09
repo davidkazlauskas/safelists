@@ -656,6 +656,10 @@ int checkUserTimespanValidity(const std::string& json) {
         return TimespanErrors::TE_MISTYPED_FIELDS_FIRST_TIER;
     }
 
+    int64_t fromNum = from.GetInt64();
+    int64_t toNum = to.GetInt64();
+    std::string signatureStr = signature.GetString();
+
     return 0;
 }
 

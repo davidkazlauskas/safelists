@@ -465,26 +465,22 @@ initAll = function()
         )
 
         afterId = function(userid)
-            if (not localUserKeyFlopped) then
-                ctx:messageAsyncWCallback(
-                    license,
-                    function(val)
-                        local vals = val:values()
-                        local didSucceed = vals._4 == 0
-                        if (didSucceed) then
-                            localIdSucc(userid,vals._3)
-                        else
-                            localIdFail(userid)
-                        end
-                    end,
-                    VSig("LD_GetLocalRecord"),
-                    VString(userid),
-                    VString(""),
-                    VInt(-1)
-                )
-            else
-                localIdFail(userid)
-            end
+            ctx:messageAsyncWCallback(
+                license,
+                function(val)
+                    local vals = val:values()
+                    local didSucceed = vals._4 == 0
+                    if (didSucceed) then
+                        localIdSucc(userid,vals._3)
+                    else
+                        localIdFail(userid)
+                    end
+                end,
+                VSig("LD_GetLocalRecord"),
+                VString(userid),
+                VString(""),
+                VInt(-1)
+            )
         end
 
         localIdSucc = function(theId,contents)
@@ -497,8 +493,7 @@ initAll = function()
                 end,
                 function()
                     localVerificationFail(theId)
-                    localUserKeyFlopped = true
-                    afterId(theId)
+                    localIdFail(theId)
                 end
             )
         end

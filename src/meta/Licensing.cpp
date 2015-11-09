@@ -135,6 +135,10 @@ enum VerificationFailures {
     FORGED_USER_REQUEST_SIGNATURE_FIFTH_TIER = 607
 };
 
+enum TimespanErrors {
+    INVALID_JSON_FIRST_TIER = 101
+};
+
 bool verifySignature(
     const std::string& signature,
     const std::string& pubKeyBase64,
@@ -626,6 +630,13 @@ int licenseReadOrRegisterRoutine() {
 }
 
 int checkUserTimespanValidity(const std::string& json) {
+    rj::Document doc;
+    doc.Parse(json.c_str());
+
+    if (doc.HasParseError()) {
+        return TimespanErrors::INVALID_JSON_FIRST_TIER;
+    }
+
     return 0;
 }
 

@@ -404,19 +404,6 @@ initAll = function()
 
     local licTest = function()
         local license = ctx:namedMessageable("licenseService")
-        ctx:messageAsyncWCallback(
-            license,
-            function(val)
-                local isExpired = val:values()._2
-                if (isExpired) then
-                    print("lucky you!")
-                else
-                    print("Nope cholo!")
-                end
-            end,
-            VSig("LD_IsExpired"),
-            VBool(true)
-        )
 
         local offlineMode,userInvalid,
               licenseOk,licenseExpired,

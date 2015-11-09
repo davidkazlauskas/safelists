@@ -235,6 +235,7 @@ sessionWidget = nil
 currentAsyncSqlite = nil
 
 FrameEndFunctions = {}
+OneOffFunctions = {}
 
 HashRevisionModel = {
     hashRevisionUpdate = 0,
@@ -1577,6 +1578,12 @@ initAll = function()
 
     mainWindowPushButtonHandler = ctx:makeLuaMatchHandler(
         VMatch(function()
+            for k,v in ipairs(OneOffFunctions) do
+                v()
+            end
+
+            OneOffFunctions = {}
+
             for k,v in ipairs(FrameEndFunctions) do
                 v()
             end

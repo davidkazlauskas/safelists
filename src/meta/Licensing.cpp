@@ -136,7 +136,8 @@ enum VerificationFailures {
 };
 
 enum TimespanErrors {
-    INVALID_JSON_FIRST_TIER = 101
+    INVALID_JSON_FIRST_TIER = 101,
+    TE_MISSING_FIELDS_FIRST_TIER = 102
 };
 
 bool verifySignature(
@@ -635,6 +636,13 @@ int checkUserTimespanValidity(const std::string& json) {
 
     if (doc.HasParseError()) {
         return TimespanErrors::INVALID_JSON_FIRST_TIER;
+    }
+
+    if (   !doc.HasMember("from")
+        || !doc.HasMember("to")
+        || !doc.HasMember("signature"))
+    {
+        return TimespanErrors::TE_MISSING_FIELDS_FIRST_TIER;
     }
 
     return 0;

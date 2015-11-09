@@ -631,7 +631,7 @@ int licenseReadOrRegisterRoutine() {
     return firstTierSignatureVerification(theJson);
 }
 
-int checkUserTimespanValidity(const std::string& json) {
+int checkUserTimespanValidityFirstTier(const std::string& json) {
     rj::Document doc;
     doc.Parse(json.c_str());
 
@@ -901,7 +901,7 @@ private:
             ),
             SF::virtualMatch< LD::TimeSpanValidity, const std::string, int >(
                 [=](ANY_CONV,const std::string& json,int& outRes) {
-                    outRes = checkUserTimespanValidity(json);
+                    outRes = checkUserTimespanValidityFirstTier(json);
                 }
             ),
             SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(

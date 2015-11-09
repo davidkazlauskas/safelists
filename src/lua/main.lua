@@ -508,7 +508,7 @@ initAll = function()
                 license,
                 function(val)
                     local vals = val:values()
-                    if (vals._3 ~= 0) then
+                    if (vals._3 == 0) then
                         success(theId,key)
                     else
                         fail(theId,key)
@@ -545,6 +545,7 @@ initAll = function()
                 function(val)
                     local vals = val:values()
                     local didSucceed = vals._4 == 0
+                    print("VER:|" .. theId .. "|" .. vals._3 .. "|")
                     if (didSucceed) then
                         tryVerifyUserRecord(
                             theId,

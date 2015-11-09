@@ -420,7 +420,8 @@ initAll = function()
 
         local afterId,localIdSucc,localIdFail,
               offlineMode,localStoreLic,
-              verificationSuccess,localVerificationFail
+              verificationSuccess,localVerificationFail,
+              verifyTimespan
               = nil
 
         ctx:messageAsyncWCallback(
@@ -466,7 +467,7 @@ initAll = function()
                         -- also, delete local license.
                         localVerificationFail(theId)
                     else
-                        verificationSuccess()
+                        verificationSuccess(theId)
                     end
                 end,
                 VSig("LD_UserRecordValidity"),
@@ -518,10 +519,24 @@ initAll = function()
             )
         end
 
-        verificationSuccess = function()
+        verificationSuccess = function(theId)
             print("Verification success")
             -- further check if license
             -- is expired.
+            ctx:messageAsyncWCallback(
+                license,
+                function(val)
+                    local vals = val:values()
+                    local didSucceed = vals._4 == 0
+                    if (didSucceed) then
+                        verifyTimespan(theId,vals._3)
+                    end
+                end,
+                VSig("LD_GetLocalTimespan"),
+                VString(theId),
+                VString("empty"),
+                VInt(-1)
+            )
         end
 
         localVerificationFail = function(theId)
@@ -532,6 +547,10 @@ initAll = function()
                 VString(theId),
                 VInt(-1)
             )
+        end
+
+        verifyTimespan = function(theId,span)
+
         end
     end
     licTest()

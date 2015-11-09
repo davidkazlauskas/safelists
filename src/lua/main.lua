@@ -429,8 +429,6 @@ initAll = function()
               tryVerifyUserRecord,tryVerifyTimespan
               = nil
 
-        local localUserKeyFlopped = false
-
         offlineMode = function(theId)
             print("Offline mode")
         end

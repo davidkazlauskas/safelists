@@ -907,6 +907,12 @@ int localDeleteLicense(const std::string& pubKey) {
     return succeeded ? 0 : 1;
 }
 
+int localDeleteSpan(const std::string& pubKey) {
+    std::string path = localTimespanPath(pubKey);
+    bool succeeded = fs::remove(path.c_str());
+    return succeeded ? 0 : 1;
+}
+
 struct LicenseDaemonDummyImpl : public Messageable {
     LicenseDaemonDummyImpl(const LicenseDaemonDummyImpl&) = delete;
     LicenseDaemonDummyImpl(LicenseDaemonDummyImpl&&) = delete;
@@ -1006,6 +1012,11 @@ private:
             SF::virtualMatch< LD::DeleteLocalLicense, const std::string, int >(
                 [=](ANY_CONV,const std::string& pubKey,int& outErrCode) {
                     outErrCode = localDeleteLicense(pubKey);
+                }
+            ),
+            SF::virtualMatch< LD::DeleteLocalSpan, const std::string, int >(
+                [=](ANY_CONV,const std::string& pubKey,int& outErrCode) {
+                    outErrCode = localDeleteSpan(pubKey);
                 }
             ),
             SF::virtualMatch< LD::UserRecordValidity, const std::string, int >(

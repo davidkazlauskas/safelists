@@ -528,7 +528,6 @@ initAll = function()
                     local vals = val:values()
                     local didSucceed = vals._4 == 0
                     if (didSucceed) then
-                        verificationSuccess(theId)
                         tryVerifyUserRecord(
                             theId,
                             vals._3,

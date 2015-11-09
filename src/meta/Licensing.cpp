@@ -625,6 +625,10 @@ int licenseReadOrRegisterRoutine() {
     return firstTierSignatureVerification(theJson);
 }
 
+int checkUserTimespanValidity(const std::string& json) {
+    return 0;
+}
+
 std::string executablePath() {
     auto programArgs = SafeLists::getGlobalProgramArgs();
     fs::path selfpath = programArgs[0];
@@ -859,6 +863,11 @@ private:
             SF::virtualMatch< LD::UserRecordValidity, const std::string, int >(
                 [=](ANY_CONV,const std::string& json,int& outRes) {
                     outRes = firstTierSignatureVerification(json);
+                }
+            ),
+            SF::virtualMatch< LD::TimeSpanValidity, const std::string, int >(
+                [=](ANY_CONV,const std::string& json,int& outRes) {
+                    outRes = checkUserTimespanValidity(json);
                 }
             ),
             SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(

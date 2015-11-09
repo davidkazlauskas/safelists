@@ -450,6 +450,7 @@ initAll = function()
         fishyStuffGoingOn = function()
             assert( false, "Totally shouldn't happen..." )
             print(debug.traceback())
+            os.exit()
         end
 
         ctx:messageAsyncWCallback(

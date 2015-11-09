@@ -1578,11 +1578,11 @@ initAll = function()
 
     mainWindowPushButtonHandler = ctx:makeLuaMatchHandler(
         VMatch(function()
-            for k,v in ipairs(OneOffFunctions) do
+            local oneOffSteal = OneOffFunctions
+            OneOffFunctions = {}
+            for k,v in ipairs(oneOffSteal) do
                 v()
             end
-
-            OneOffFunctions = {}
 
             for k,v in ipairs(FrameEndFunctions) do
                 v()

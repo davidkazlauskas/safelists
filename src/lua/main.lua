@@ -425,11 +425,11 @@ initAll = function()
         local afterId,afterIdSuccess,localIdSucc,
               localIdFail,offlineMode,localStoreLic,
               verificationSuccess,localVerificationFail,
-              verifyTimespan,getServerTimespan,
+              verifyTimespan,getServerTimespan,localSpanFail,
               tryVerifyUserRecord,tryVerifyTimespan
               = nil
 
-        local localUserKeyFlopped,localTimespanFlopped = false
+        local localUserKeyFlopped = false
 
         offlineMode = function(theId)
             print("Offline mode")
@@ -567,6 +567,15 @@ initAll = function()
             )
         end
 
+        localSpanFail = function(theId)
+            ctx:messageAsync(
+                license,
+                VSig("LD_DeleteLocalSpan"),
+                VString(pubKey),
+                VInt(-1)
+            )
+        end
+
         offlineMode = function()
             -- show dialog if user
             -- wants to go to offline mode
@@ -607,6 +616,7 @@ initAll = function()
                             end,
                             function()
                                 getServerTimespan(theId)
+                                localSpanFail(theId)
                             end
                         )
                     else

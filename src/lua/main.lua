@@ -535,9 +535,7 @@ initAll = function()
                                 localStoreLic(theId,vals._3)
                                 verificationSuccess(theId)
                             end,
-                            function()
-
-                            end
+                            fishyStuffGoingOn
                         )
                     else
                         print("Could not query server for user info..." .. vals._4)

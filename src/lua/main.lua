@@ -495,9 +495,10 @@ initAll = function()
                     local vals = val:values()
                     local didSucceed = vals._4 == 0
                     if (didSucceed) then
-                        print("The license: |" .. vals._3 .. "|")
                         localStoreLic(theId,vals._3)
+                        verificationSuccess(theId)
                     else
+                        userInvalid(theId)
                         print("Could not query server for user info..." .. vals._4)
                     end
                 end,
@@ -553,7 +554,6 @@ initAll = function()
         end
 
         localVerificationFail = function(theId)
-            print("User signature forged.")
             ctx:messageAsync(
                 license,
                 VSig("LD_DeleteLocalLicense"),

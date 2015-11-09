@@ -413,6 +413,22 @@ initAll = function()
             VMsg(nil)
         )._4
 
+        local showDialog = function(val)
+            if (val) then
+                ctx:message(
+                    dialog,
+                    VSig("INDLG_InShowDialog")
+                )
+            else
+                ctx:message(
+                    dialog,
+                    VSig("INDLG_InHideDialog")
+                )
+            end
+        end
+
+        showDialog(true)
+
         local license = ctx:namedMessageable("licenseService")
 
         local offlineMode,userInvalid,

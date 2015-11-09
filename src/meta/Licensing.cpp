@@ -677,7 +677,7 @@ int serverGetLicense(const std::string& pubKey,std::string& out) {
 
     int bufLen = SA::size(buf);
     int res = querySignature(
-        pubKey,"/thepath/",buf.data(),bufLen);
+        pubKey,"/getuser/",buf.data(),bufLen);
 
     if (res != 0) {
         return 1;

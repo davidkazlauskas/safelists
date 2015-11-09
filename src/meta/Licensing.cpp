@@ -631,6 +631,12 @@ int licenseReadOrRegisterRoutine() {
     return firstTierSignatureVerification(theJson);
 }
 
+int checkUserTimespanValiditySecondTier(
+    int64_t from,int64_t to,const std::string& signature)
+{
+    return 0;
+}
+
 int checkUserTimespanValidityFirstTier(const std::string& json) {
     rj::Document doc;
     doc.Parse(json.c_str());
@@ -660,7 +666,8 @@ int checkUserTimespanValidityFirstTier(const std::string& json) {
     int64_t toNum = to.GetInt64();
     std::string signatureStr = signature.GetString();
 
-    return 0;
+    return checkUserTimespanValiditySecondTier(
+        fromNum,toNum,signatureStr);
 }
 
 std::string executablePath() {

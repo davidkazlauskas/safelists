@@ -426,7 +426,7 @@ initAll = function()
               localIdFail,offlineMode,localStoreLic,
               verificationSuccess,localVerificationFail,
               verifyTimespan,getServerTimespan,
-              tryVerifyUserRecord
+              tryVerifyUserRecord,tryVerifyTimespan
               = nil
 
         local localUserKeyFlopped,localTimespanFlopped = false
@@ -520,6 +520,24 @@ initAll = function()
             )
         end
 
+        tryVerifyTimespan = function(theId,span,success,fail)
+            ctx:messageAsyncWCallback(
+                license,
+                function(val)
+                    local vals = val:values()
+                    if (vals._3 ~= 0) then
+                        success(theId,span)
+                    else
+                        fail(theId,span)
+                    end
+                end,
+                VSig("LD_TimeSpanValidity"),
+                VString(theId),
+                VString(span),
+                VInt(-1)
+            )
+        end
+
         localIdFail = function(theId)
             print("Id query failed... " .. theId)
             ctx:messageAsyncWCallback(
@@ -582,6 +600,15 @@ initAll = function()
                     local didSucceed = vals._4 == 0
                     if (didSucceed) then
                         verifyTimespan(theId,vals._3)
+                        tryVerifyTimespan(
+                            theId,vals._3,
+                            function()
+                                licenseOk(theId)
+                            end,
+                            function()
+                                getServerTimespan(theId)
+                            end
+                        )
                     else
                         getServerTimespan(theId)
                     end

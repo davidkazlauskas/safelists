@@ -553,7 +553,7 @@ initAll = function()
                                 localStoreLic(theId,vals._3)
                                 verificationSuccess(theId)
                             end,
-                            fishyStuffGoingOn
+                            offlineMode
                         )
                     else
                         print("Could not query server for user info..." .. vals._4)
@@ -579,6 +579,7 @@ initAll = function()
         offlineMode = function()
             -- show dialog if user
             -- wants to go to offline mode
+            print("GOUN OFFLINE YO")
         end
 
         localStoreLic = function(pubKey,content)

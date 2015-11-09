@@ -419,7 +419,8 @@ initAll = function()
         )
 
         local offlineMode,userInvalid,
-              licenseOk,licenseExpired = nil
+              licenseOk,licenseExpired,
+              fishyStuffGoingOn = nil
 
         local afterId,afterIdSuccess,localIdSucc,
               localIdFail,offlineMode,localStoreLic,
@@ -444,6 +445,11 @@ initAll = function()
 
         licenseExpired = function(theId)
             print("Ouch...")
+        end
+
+        fishyStuffGoingOn = function()
+            assert( false, "Totally shouldn't happen..." )
+            print(debug.traceback())
         end
 
         ctx:messageAsyncWCallback(
@@ -521,8 +527,18 @@ initAll = function()
                     local vals = val:values()
                     local didSucceed = vals._4 == 0
                     if (didSucceed) then
-                        localStoreLic(theId,vals._3)
                         verificationSuccess(theId)
+                        tryVerifyUserRecord(
+                            theId,
+                            vals._3,
+                            function()
+                                localStoreLic(theId,vals._3)
+                                verificationSuccess(theId)
+                            end,
+                            function()
+
+                            end
+                        )
                     else
                         print("Could not query server for user info..." .. vals._4)
                         userInvalid(theId)

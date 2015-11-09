@@ -418,11 +418,22 @@ initAll = function()
             VBool(true)
         )
 
+        local offlineMode,userInvalid,
+              licenseOk,licenseExpired = nil
+
         local afterId,localIdSucc,localIdFail,
               offlineMode,localStoreLic,
               verificationSuccess,localVerificationFail,
-              verifyTimespan
+              verifyTimespan,getServerTimespan
               = nil
+
+        licenseOk = function(theId)
+
+        end
+
+        licenseExpired = function(theId)
+
+        end
 
         ctx:messageAsyncWCallback(
             license,
@@ -530,6 +541,8 @@ initAll = function()
                     local didSucceed = vals._4 == 0
                     if (didSucceed) then
                         verifyTimespan(theId,vals._3)
+                    else
+                        getServerTimespan(theId)
                     end
                 end,
                 VSig("LD_GetLocalTimespan"),
@@ -550,15 +563,42 @@ initAll = function()
         end
 
         verifyTimespan = function(theId,span)
+            print("BOOm")
             ctx:messageAsyncWCallback(
                 license,
                 function(val)
                     local vals = val:values()
                     local didSucceed = vals._4 == 0
+                    if (didSucceed) then
+                        print("GREAT SUCCESS!")
+                        licenseOk(theId)
+                    else
+                        print("BOO")
+                        licenseExpired(theId)
+                    end
                 end,
                 VSig("LD_TimeSpanValidity"),
                 VString(theId),
                 VString(span),
+                VInt(-1)
+            )
+        end
+
+        getServerTimespan = function(theId)
+            ctx:messageAsyncWCallback(
+                license,
+                function(val)
+                    local vals = val:values()
+                    local didSucceed = vals._4 == 0
+                    if (didSucceed) then
+
+                    else
+                        licenseExpired(theId)
+                    end
+                end,
+                VSig("LD_GetServerTimespan"),
+                VString(theId),
+                VString("empty"),
                 VInt(-1)
             )
         end

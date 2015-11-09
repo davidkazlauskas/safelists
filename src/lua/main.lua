@@ -427,6 +427,8 @@ initAll = function()
               verifyTimespan,getServerTimespan
               = nil
 
+        local localUserKeyFlopped,localTimespanFlopped = false
+
         offlineMode = function(theId)
             print("Offline mode")
         end

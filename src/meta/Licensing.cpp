@@ -149,7 +149,8 @@ enum TimespanErrors {
     TE_INVALID_JSON_THIRD_TIER = 301,
     TE_MISSING_FIELDS_THIRD_TIER = 302,
     TE_MISTYPED_FIELDS_THIRD_TIER = 303,
-    TE_MISMATCHING_TIMESPANS_FOURTH_TIER = 304
+    TE_MISMATCHED_USERS_THIRD_TIER = 304,
+    TE_MISMATCHING_TIMESPANS_THIRD_TIER = 305
 };
 
 bool verifySignature(
@@ -642,7 +643,10 @@ int licenseReadOrRegisterRoutine() {
     return firstTierSignatureVerification(theJson);
 }
 
-int checkUserTimespanValidityThirdTier(int64_t from,int64_t to,const std::string& theJson) {
+int checkUserTimespanValidityThirdTier(
+    int64_t from,int64_t to,
+    const std::string& theJson,const std::string& userkey)
+{
     rj::Document doc;
     doc.Parse(theJson.c_str());
 
@@ -670,16 +674,23 @@ int checkUserTimespanValidityThirdTier(int64_t from,int64_t to,const std::string
 
     int64_t fromJsNum = fromJson.GetInt64();
     int64_t toJsNum = toJson.GetInt64();
+    std::string userStr = user.GetString();
+
+    if (userkey != userStr) {
+        return TimespanErrors::TE_MISMATCHED_USERS_THIRD_TIER;
+    }
 
     if (from != fromJsNum || to != toJsNum) {
-        return TimespanErrors::TE_MISMATCHING_TIMESPANS_FOURTH_TIER;
+        return TimespanErrors::TE_MISMATCHING_TIMESPANS_THIRD_TIER;
     }
 
     return 0;
 }
 
 int checkUserTimespanValiditySecondTier(
-    int64_t from,int64_t to,const std::string& signature)
+    int64_t from,int64_t to,
+    const std::string& signature,
+    const std::string& userkey)
 {
     rj::Document doc;
     doc.Parse(signature.c_str());
@@ -714,7 +725,7 @@ int checkUserTimespanValiditySecondTier(
         return TimespanErrors::TE_FORGED_SIGNATURE_SECOND_TIER;
     }
 
-    return checkUserTimespanValidityThirdTier(from,to,sSpan);
+    return checkUserTimespanValidityThirdTier(from,to,sSpan,userkey);
 }
 
 int checkUserTimespanValidityFirstTier(
@@ -756,7 +767,7 @@ int checkUserTimespanValidityFirstTier(
     std::string signatureStr = signature.GetString();
 
     return checkUserTimespanValiditySecondTier(
-        fromNum,toNum,signatureStr);
+        fromNum,toNum,signatureStr,userid);
 }
 
 std::string executablePath() {

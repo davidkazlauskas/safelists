@@ -38,6 +38,26 @@ struct LicenseDaemon {
     // >
     DUMMY_REG(GetServerRecord,"LD_GetServerRecord");
 
+    // Get local tiemspan.
+    // Signature:
+    // <
+    //   GetLocalRecord,
+    //   std::string (pubkey base64),
+    //   std::string (out timespan),
+    //   int (errocode, 0 success)
+    // >
+    DUMMY_REG(GetLocalTimespan,"LD_GetLocalTimespan");
+
+    // Get local tiemspan.
+    // Signature:
+    // <
+    //   GetLocalRecord,
+    //   std::string (pubkey base64),
+    //   std::string (out timespan),
+    //   int (errocode, 0 success)
+    // >
+    DUMMY_REG(GetServerTimespan,"LD_GetServerTimespan");
+
     // Store local license into file for
     // faster retrieval in the future.
     // Signature:

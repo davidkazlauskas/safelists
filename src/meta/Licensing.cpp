@@ -147,7 +147,7 @@ enum TimespanErrors {
     TE_FORGED_SIGNATURE_SECOND_TIER = 204,
 
     TE_INVALID_JSON_THIRD_TIER = 301,
-    TE_MISSING_FIELDS_THIRD_TIER = 302
+    TE_MISSING_FIELDS_THIRD_TIER = 302,
     TE_MISTYPED_FIELDS_THIRD_TIER = 303,
     TE_MISMATCHING_TIMESPANS_FOURTH_TIER = 304
 };
@@ -717,7 +717,10 @@ int checkUserTimespanValiditySecondTier(
     return checkUserTimespanValidityThirdTier(from,to,sSpan);
 }
 
-int checkUserTimespanValidityFirstTier(const std::string& json) {
+int checkUserTimespanValidityFirstTier(
+    const std::string& json,
+    const std::string& userid)
+{
     rj::Document doc;
     doc.Parse(json.c_str());
 
@@ -992,9 +995,9 @@ private:
                     outRes = firstTierSignatureVerification(json);
                 }
             ),
-            SF::virtualMatch< LD::TimeSpanValidity, const std::string, int >(
-                [=](ANY_CONV,const std::string& json,int& outRes) {
-                    outRes = checkUserTimespanValidityFirstTier(json);
+            SF::virtualMatch< LD::TimeSpanValidity, const std::string, const std::string, int >(
+                [=](ANY_CONV,const std::string& json,const std::string& user,int& outRes) {
+                    outRes = checkUserTimespanValidityFirstTier(json,user);
                 }
             ),
             SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(

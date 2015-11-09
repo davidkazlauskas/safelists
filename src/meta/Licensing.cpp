@@ -685,7 +685,7 @@ int checkUserTimespanValiditySecondTier(
         return TimespanErrors::TE_FORGED_SIGNATURE_SECOND_TIER;
     }
 
-    return 0;
+    return checkUserTimespanValidityThirdTier(from,to,sSpan);
 }
 
 int checkUserTimespanValidityFirstTier(const std::string& json) {

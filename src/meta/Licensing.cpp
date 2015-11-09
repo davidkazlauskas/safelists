@@ -139,16 +139,17 @@ enum TimespanErrors {
     INVALID_JSON_FIRST_TIER = 101,
     TE_MISSING_FIELDS_FIRST_TIER = 102,
     TE_MISTYPED_FIELDS_FIRST_TIER = 103,
+    TE_INVALID_TIMESPAN = 104,
 
     TE_INVALID_JSON_SECOND_TIER = 201,
     TE_MISSING_FIELDS_SECOND_TIER = 202,
     TE_MISTYPED_FIELDS_SECOND_TIER = 203,
     TE_FORGED_SIGNATURE_SECOND_TIER = 204,
 
-    TE_INVALID_JSON_THIRD_TIER = 205,
-    TE_MISSING_FIELDS_THIRD_TIER = 206,
-    TE_MISTYPED_FIELDS_THIRD_TIER = 207,
-    TE_MISMATCHING_TIMESPANS_FOURTH_TIER = 208
+    TE_INVALID_JSON_THIRD_TIER = 301,
+    TE_MISSING_FIELDS_THIRD_TIER = 302
+    TE_MISTYPED_FIELDS_THIRD_TIER = 303,
+    TE_MISMATCHING_TIMESPANS_FOURTH_TIER = 304
 };
 
 bool verifySignature(
@@ -743,6 +744,12 @@ int checkUserTimespanValidityFirstTier(const std::string& json) {
 
     int64_t fromNum = from.GetInt64();
     int64_t toNum = to.GetInt64();
+    if (   (fromNum == toNum && fromNum != -1)
+        || fromNum > toNum)
+    {
+        return TimespanErrors::TE_INVALID_TIMESPAN;
+    }
+
     std::string signatureStr = signature.GetString();
 
     return checkUserTimespanValiditySecondTier(

@@ -88,6 +88,15 @@ struct LicenseDaemon {
     // >
     DUMMY_REG(UserRecordValidity,"LD_UserRecordValidity");
 
+    // Check user timespan is valid.
+    // Signature:
+    // <
+    //   TimeSpanValidity,
+    //   std::string (json),
+    //   int (out result, 0 success)
+    // >
+    DUMMY_REG(TimeSpanValidity,"LD_TimeSpanValidity");
+
     // singleton
     static StrongMsgPtr getDaemon();
 };

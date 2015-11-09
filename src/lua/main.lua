@@ -550,7 +550,17 @@ initAll = function()
         end
 
         verifyTimespan = function(theId,span)
-
+            ctx:messageAsyncWCallback(
+                license,
+                function(val)
+                    local vals = val:values()
+                    local didSucceed = vals._4 == 0
+                end,
+                VSig("LD_TimeSpanValidity"),
+                VString(theId),
+                VString(span),
+                VInt(-1)
+            )
         end
     end
     licTest()

@@ -8,11 +8,6 @@ namespace SafeLists {
 
 struct LicenseDaemon {
 
-    // asynchronous check if license is expied.
-    // Signature:
-    // < IsExpired, bool (out result) >
-    DUMMY_REG(IsExpired,"LD_IsExpired");
-
     // get current user id
     // Signature:
     // < GetCurrentUserId, std::string (out) >

@@ -629,21 +629,6 @@ int firstTierSignatureVerification(const std::string& theJson) {
     return secondTierJsonValidation(userKeyStr,referralStr,blobStr);
 }
 
-int licenseReadOrRegisterRoutine() {
-    char outAnswer[4096];
-    int outLen = sizeof(outAnswer);
-    int queryRes = querySignature(
-        getCurrentUserIdBase64(),"/getuser/",outAnswer,outLen);
-    std::string theJson;
-    if (0 == queryRes) {
-        theJson.assign( outAnswer, outAnswer + outLen );
-    } else {
-        std::cout << "Could not query license info..." << std::endl;
-        return 1;
-    }
-    return firstTierSignatureVerification(theJson);
-}
-
 int checkUserTimespanValidityThirdTier(
     int64_t from,int64_t to,
     const std::string& theJson,const std::string& userkey)
@@ -971,13 +956,6 @@ private:
     VmfPtr genHandler() {
         typedef LicenseDaemon LD;
         return SF::virtualMatchFunctorPtr(
-            SF::virtualMatch< LD::IsExpired, bool >(
-                [=](ANY_CONV,bool& res) {
-                    // do something, read files or whatever
-                    int result = licenseReadOrRegisterRoutine();
-                    return res = result == 0;
-                }
-            ),
             SF::virtualMatch< LD::GetCurrentUserId, std::string >(
                 [=](ANY_CONV,std::string& pubKey) {
                     // TODO: query from safe app launcher.

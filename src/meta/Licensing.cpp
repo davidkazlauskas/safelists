@@ -71,7 +71,7 @@ int curlReadFunc(char* buffer,size_t size,size_t nitems,void* userdata) {
 
 // TODO: query the pseudonymous server
 // behind safe network tunnel.
-int querySignature(const std::string& user,char* out,int& buflen) {
+int querySignature(const std::string& user,const char* thePath,char* out,int& buflen) {
     CURL* handle = ::curl_easy_init();
     auto clean = SCOPE_GUARD_LC(
         ::curl_easy_cleanup(handle);
@@ -84,7 +84,7 @@ int querySignature(const std::string& user,char* out,int& buflen) {
     s.outRes = -2;
 
     std::string url = getServerUrl();
-    url += "/getuser/";
+    url += thePath;
     url += user;
 
     ::curl_easy_setopt(handle,::CURLOPT_URL,url.c_str());
@@ -614,7 +614,7 @@ int licenseReadOrRegisterRoutine() {
     char outAnswer[4096];
     int outLen = sizeof(outAnswer);
     int queryRes = querySignature(
-        getCurrentUserIdBase64(),outAnswer,outLen);
+        getCurrentUserIdBase64(),"/thepath/",outAnswer,outLen);
     std::string theJson;
     if (0 == queryRes) {
         theJson.assign( outAnswer, outAnswer + outLen );
@@ -676,7 +676,8 @@ int serverGetLicense(const std::string& pubKey,std::string& out) {
     std::vector<char> buf(1024 * 16);
 
     int bufLen = SA::size(buf);
-    int res = querySignature(pubKey,buf.data(),bufLen);
+    int res = querySignature(
+        pubKey,"/thepath/",buf.data(),bufLen);
 
     if (res != 0) {
         return 1;

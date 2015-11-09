@@ -41,17 +41,17 @@ struct LicenseDaemon {
     // Get local tiemspan.
     // Signature:
     // <
-    //   GetLocalRecord,
+    //   GetLocalTimespan,
     //   std::string (pubkey base64),
     //   std::string (out timespan),
     //   int (errocode, 0 success)
     // >
     DUMMY_REG(GetLocalTimespan,"LD_GetLocalTimespan");
 
-    // Get local tiemspan.
+    // Get server tiemspan.
     // Signature:
     // <
-    //   GetLocalRecord,
+    //   GetServerTimespan,
     //   std::string (pubkey base64),
     //   std::string (out timespan),
     //   int (errocode, 0 success)

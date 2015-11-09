@@ -448,7 +448,7 @@ initAll = function()
         end
 
         fishyStuffGoingOn = function()
-            assert( false, "Totally shouldn't happen..." )
+            print( "Totally shouldn't happen..." )
             print(debug.traceback())
             os.exit()
         end

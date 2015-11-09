@@ -614,7 +614,7 @@ int licenseReadOrRegisterRoutine() {
     char outAnswer[4096];
     int outLen = sizeof(outAnswer);
     int queryRes = querySignature(
-        getCurrentUserIdBase64(),"/thepath/",outAnswer,outLen);
+        getCurrentUserIdBase64(),"/getuser/",outAnswer,outLen);
     std::string theJson;
     if (0 == queryRes) {
         theJson.assign( outAnswer, outAnswer + outLen );

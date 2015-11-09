@@ -706,6 +706,24 @@ int localGetTimespan(const std::string& pubKey,std::string& out) {
     return 0;
 }
 
+int serverGetTimespan(const std::string& pubKey,std::string& out) {
+    // should fit
+    std::vector<char> buf(1024 * 16);
+
+    int bufLen = SA::size(buf);
+    int res = querySignature(
+        pubKey,"/getrelevantsubscription/",buf.data(),bufLen);
+
+    if (res != 0) {
+        return 1;
+    }
+
+    assert( bufLen > 0 && bufLen < SA::size(buf) );
+
+    out.assign(buf.data(),buf.data() + bufLen);
+    return 0;
+}
+
 int localStoreLicense(
     const std::string& pubKey,
     const std::string& value)

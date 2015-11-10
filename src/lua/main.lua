@@ -410,13 +410,15 @@ initAll = function()
             dialogService,
             VSig("GDS_MakeGenericWidget"),
             VString("licensing"),
-            VString("spinnerwindow"),
+            VString("spinnerWindow"),
             VMsg(nil)
         )._4
 
         local genericDialog = GenericWidget.putOn(dialog)
+        local dlgWindow = genericDialog:getWidget("spinnerWindow")
         local theNotebook = genericDialog:getWidget("dialogPages")
-        theNotebook:notebookSwitchTab(1)
+        dlgWindow:setVisible(true)
+        theNotebook:notebookSwitchTab(0)
 
         local showDialog = function(val)
             if (val) then

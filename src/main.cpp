@@ -1533,6 +1533,7 @@ struct GtkDialogService : public Messageable {
     // outres -> 0: ok, 1: cancel, -1: none
     DUMMY_REG(OkCancelDialog,"GDS_OkCancelDialog");
 
+    // DEPRECATED
     // make generic dialog which is hookable
     // and setable with buttons, etc.
     // Signature:
@@ -1542,6 +1543,15 @@ struct GtkDialogService : public Messageable {
     //     StrongMsgPtr (output)
     // >
     DUMMY_REG(MakeGenericDialog,"GDS_MakeGenericDialog");
+
+    // make generic widget.
+    // Signature:
+    // < MakeGenericWidget,
+    //     std::string (resource),
+    //     std::string (widget name),
+    //     StrongMsgPtr (output)
+    // >
+    DUMMY_REG(MakeGenericWidget,"GDS_MakeGenericWidget");
 
     void message(templatious::VirtualPack& msg) override {
         _handler->tryMatch(msg);
@@ -1693,6 +1703,28 @@ struct GtkDialogService : public Messageable {
 
                     auto dialog = std::make_shared< GenericDialog >(
                         bld,widgetName.c_str());
+                    outPtr = dialog;
+                }
+            ),
+            SF::virtualMatch<
+                MakeGenericWidget,
+                const std::string,
+                const std::string,
+                StrongMsgPtr
+            >(
+                [=](MakeGenericDialog,
+                    const std::string& resource,
+                    const std::string& widgetName,
+                    StrongMsgPtr& outPtr)
+                {
+                    auto iter = _schemaMap.find(resource);
+                    assert( iter != _schemaMap.end() && "No resource." );
+                    auto& string = *iter->second;
+                    auto bld = Gtk::Builder::create_from_string(
+                        string,widgetName.c_str());
+
+                    auto dialog = std::make_shared<
+                        SafeLists::GenericGtkWidget >(bld);
                     outPtr = dialog;
                 }
             ),

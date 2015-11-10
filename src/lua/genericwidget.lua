@@ -8,7 +8,8 @@ GenericWidget = {
         local res = {
             messageable = strongMsg,
             nodeCache = {},
-            luaCtx = context
+            luaCtx = context,
+            hookedEvents = {}
         }
         setmetatable(res,GenericWidget.mt)
         return res
@@ -35,7 +36,8 @@ GenericWidget.mt = {
 
                 res = {
                     messageable = msg,
-                    luaCtx = self.luaCtx
+                    luaCtx = self.luaCtx,
+                    parent = self
                 }
 
                 setmetatable(res,GenericWidgetNode.mt)
@@ -58,12 +60,14 @@ GenericWidgetNode.mt = {
         -- object will now receive
         -- "GWI_GBT_OutClickEvent" with
         -- the integer returned.
-        hookButtonClick = function(self)
-            return self.luaCtx:messageRetValues(
+        hookButtonClick = function(self,theFunction)
+            local theId = self.luaCtx:messageRetValues(
                 self.messageable,
                 VSig("GWI_GBT_HookClickEvent"),
                 VInt(-1)
             )._2
+            self.parent.hookedEvents[theId] = theFunction
+            return theId
         end,
         notebookSwitchTab = function(self,index)
             assert( type(index) == "number", "Number value expected for tab." )

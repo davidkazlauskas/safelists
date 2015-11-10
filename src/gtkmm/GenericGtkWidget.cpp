@@ -16,6 +16,7 @@ namespace SafeLists {
         typedef GenericLabelTrait GLT;
         typedef GenericInputTrait GIT;
         typedef GenericButtonTrait GBT;
+        typedef GenericNotebookTrait GNT;
 
         GenericGtkWidgetNode(
             const std::shared_ptr<GenericGtkWidgetSharedState>& sharedState,
@@ -84,6 +85,17 @@ namespace SafeLists {
                             );
 
                             val = outNum;
+                        }
+                    ),
+                    SF::virtualMatch< GNT::SetCurrentTab, const int >(
+                        [=](ANY_CONV,int val) {
+                            auto locked = _weakRef.lock();
+                            assert( nullptr != locked && "Parent object dead." );
+
+                            Gtk::Notebook* cast = dynamic_cast< Gtk::Notebook* >(_myWidget);
+                            assert( nullptr != cast && "Cast to label failed." );
+
+                            cast->set_current_page(val);
                         }
                     )
                 )

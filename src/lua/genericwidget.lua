@@ -64,6 +64,14 @@ GenericWidgetNode.mt = {
                 VSig("GWI_GBT_HookClickEvent"),
                 VInt(-1)
             )._2
+        end,
+        notebookSwitchTab = function(self,index)
+            assert( type(index) == "number", "Number value expected for tab." )
+            self.luaCtx:message(
+                self.messageable,
+                VSig("GWI_GNT_SetCurrentTab"),
+                VInt(index)
+            )
         end
     }
 }

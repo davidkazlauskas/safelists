@@ -68,7 +68,7 @@ GenericWidgetNode.mt = {
                 VInt(-1)
             )._2
             self.parent.hookedEvents[theId] = theFunction
-            if (hookedEventTypes["singleclick"] == nil) then
+            if (self.parent.hookedEventTypes["singleclick"] == nil) then
                 self.luaCtx:message(
                     self.parent.messageable,
                     VSig("GWI_SetNotifier"),
@@ -79,7 +79,7 @@ GenericWidgetNode.mt = {
                         end,"GWI_GBT_OutClickEvent","int")
                     )
                 )
-                hookedEventTypes["singleclick"] = true
+                self.parent.hookedEventTypes["singleclick"] = true
             end
             return theId
         end,

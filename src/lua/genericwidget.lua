@@ -72,6 +72,14 @@ GenericWidgetNode.mt = {
                 VSig("GWI_GNT_SetCurrentTab"),
                 VInt(index)
             )
+        end,
+        setVisible = function(self,value)
+            assert( type(value) == "boolean", "True or false expected for visibility." )
+            self.luaCtx:message(
+                self.messageable,
+                VSig("GWI_GWT_SetVisible"),
+                VBool(value)
+            )
         end
     }
 }

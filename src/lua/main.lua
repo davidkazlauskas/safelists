@@ -408,11 +408,15 @@ initAll = function()
 
         local dialog = ctx:messageRetValues(
             dialogService,
-            VSig("GDS_MakeGenericDialog"),
+            VSig("GDS_MakeGenericWidget"),
             VString("licensing"),
             VString("spinnerwindow"),
             VMsg(nil)
         )._4
+
+        local genericDialog = GenericWidget.putOn(dialog)
+        local theNotebook = genericDialog:getWidget("dialogPages")
+        theNotebook:notebookSwitchTab(1)
 
         local showDialog = function(val)
             if (val) then

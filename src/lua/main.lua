@@ -414,11 +414,24 @@ initAll = function()
             VMsg(nil)
         )._4
 
-        local genericDialog = GenericWidget.putOn(dialog)
-        local dlgWindow = genericDialog:getWidget("spinnerWindow")
-        local theNotebook = genericDialog:getWidget("dialogPages")
-        dlgWindow:setVisible(true)
-        theNotebook:notebookSwitchTab(0)
+
+        local setupDialog = function()
+            local genericDialog = GenericWidget.putOn(dialog)
+            local dlgWindow = genericDialog:getWidget("spinnerWindow")
+            local offlineButton = genericDialog:getWidget("buttonGoOffline")
+            local theNotebook = genericDialog:getWidget("dialogPages")
+
+            local eventClosure =
+                function()
+                    -- TODO: GO OFFLINE (set state)
+                    dlgWindow:setVisible(false)
+                end
+
+            offlineButton:hookButtonClick(eventClosure)
+            dlgWindow:setVisible(true)
+            theNotebook:notebookSwitchTab(1)
+        end
+        setupDialog()
 
         local showDialog = function(val)
             if (val) then

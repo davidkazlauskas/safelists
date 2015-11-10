@@ -9,7 +9,8 @@ GenericWidget = {
             messageable = strongMsg,
             nodeCache = {},
             luaCtx = context,
-            hookedEvents = {}
+            hookedEvents = {},
+            hookedEventTypes = {}
         }
         setmetatable(res,GenericWidget.mt)
         return res
@@ -67,6 +68,19 @@ GenericWidgetNode.mt = {
                 VInt(-1)
             )._2
             self.parent.hookedEvents[theId] = theFunction
+            if (hookedEventTypes["singleclick"] == nil) then
+                self.luaCtx:message(
+                    self.parent.messageable,
+                    VSig("GWI_SetNotifier"),
+                    self.luaCtx:makeLuaMatchHandler(
+                        VMatch(function(natpack,val)
+                            local theId = val:values()._2
+                            self.parent.hookedEvents[theId]()
+                        end,"GWI_GBT_OutClickEvent","int")
+                    )
+                )
+                hookedEventTypes["singleclick"] = true
+            end
             return theId
         end,
         notebookSwitchTab = function(self,index)

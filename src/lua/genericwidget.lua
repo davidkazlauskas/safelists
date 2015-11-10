@@ -67,17 +67,24 @@ GenericWidgetNode.mt = {
                 VSig("GWI_GBT_HookClickEvent"),
                 VInt(-1)
             )._2
-            self.parent.hookedEvents[theId] = theFunction
+            local theHandler =
+                self.luaCtx:makeLuaMatchHandler(
+                    VMatch(function(natpack,val)
+                        local theId = val:values()._2
+                        self.parent.hookedEvents[theId].routine()
+                    end,"GWI_GBT_OutClickEvent","int")
+                )
+
+            self.parent.hookedEvents[theId] = {
+                routine = theFunction,
+                handler = theHandler
+            }
+
             if (self.parent.hookedEventTypes["singleclick"] == nil) then
                 self.luaCtx:message(
                     self.parent.messageable,
                     VSig("GWI_SetNotifier"),
-                    self.luaCtx:makeLuaMatchHandler(
-                        VMatch(function(natpack,val)
-                            local theId = val:values()._2
-                            self.parent.hookedEvents[theId]()
-                        end,"GWI_GBT_OutClickEvent","int")
-                    )
+                    theHandler
                 )
                 self.parent.hookedEventTypes["singleclick"] = true
             end

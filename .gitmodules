@@ -3,7 +3,7 @@
 	url = https://github.com/davidkazlauskas/templatious.git
 [submodule "submodules/LibLuaPlumbing/LuaPlumbing"]
 	path = submodules/LibLuaPlumbing/LuaPlumbing
-	url = /home/deividas/Desktop/Dropbox/MyPrj/Templatious/LuaPlumbing/
+	url = https://github.com/davidkazlauskas/LuaPlumbing.git
 [submodule "submodules/aff51055698873166c93d83ce09578d2ec613e64"]
 	path = submodules/aff51055698873166c93d83ce09578d2ec613e64
 	url = https://github.com/weidai11/cryptopp.git

@@ -32,6 +32,13 @@ namespace SafeLists {
                             _myWidget->set_sensitive(val);
                         }
                     ),
+                    SF::virtualMatch< GWT::SetVisible, const bool >(
+                        [=](ANY_CONV,bool val) {
+                            auto locked = _weakRef.lock();
+                            assert( nullptr != locked && "Parent object dead." );
+                            _myWidget->set_visible(val);
+                        }
+                    ),
                     SF::virtualMatch< GLT::SetValue, const std::string >(
                         [=](ANY_CONV,const std::string& val) {
                             auto locked = _weakRef.lock();

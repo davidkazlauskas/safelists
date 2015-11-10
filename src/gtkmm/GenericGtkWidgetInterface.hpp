@@ -22,6 +22,11 @@ struct GenericWidgetTrait {
     // Signature:
     // < SetActive, bool (value) >
     DUMMY_REG(SetActive,"GWI_GWT_SetActive");
+
+    // Set wether widget is visible.
+    // Signature:
+    // < SetVisible, bool (value) >
+    DUMMY_REG(SetVisible,"GWI_GWT_SetVisible");
 };
 
 struct GenericLabelTrait {

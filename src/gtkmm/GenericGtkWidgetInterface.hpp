@@ -55,6 +55,13 @@ struct GenericButtonTrait {
     DUMMY_REG(OutClickEvent,"GWI_GBT_OutClickEvent");
 };
 
+struct GenericNotebookTrait {
+    // Set current tab
+    // Signature:
+    // < SetCurrentTab, int (number) >
+    DUMMY_REG(SetCurrentTab,"GWI_GNT_SetCurrentTab");
+};
+
 }
 
 #endif /* end of include guard: GENERICGTKWIDGETINTERFACE_MDS06G4N */

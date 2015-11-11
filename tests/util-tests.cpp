@@ -220,15 +220,21 @@ struct MessA : public SafeLists::GenericStMessageable {
 
 struct MessB : public MessA {
     MessB() {
-        regHandler(
-            SF::virtualMatchFunctorPtr(
-                SF::virtualMatch< int >(
-                    [](int& i) {
-                        i = 777;
-                    }
+        _inheritanceLevel =
+            regHandler(
+                SF::virtualMatchFunctorPtr(
+                    SF::virtualMatch< int >(
+                        [](int& i) {
+                            i = 777;
+                        }
+                    )
                 )
-            )
-        );
+            );
+    }
+
+    int _inheritanceLevel;
+    void messageToParent(templatious::VirtualPack& msg) {
+        passMessageUp(_inheritanceLevel,msg);
     }
 };
 
@@ -253,6 +259,16 @@ TEST_CASE("generic_messageable_inheritance","[util]") {
 
     REQUIRE( intMsg.fGet<0>() == 777 );
     REQUIRE( shortMsg.fGet<0>() == 77 );
+}
+
+TEST_CASE("generic_messageable_passtoparent","[util]") {
+    MessB b;
+
+    auto intMsg = SF::vpack< int >(0);
+
+    b.messageToParent(intMsg);
+
+    REQUIRE( intMsg.fGet<0>() == 7 );
 }
 
 TEST_CASE("base64","[util]") {

@@ -424,6 +424,8 @@ initAll = function()
         local REGISTRATION_TAB = 2
 
         local setupFromScratch = nil
+        local registerUser = nil
+        local currUserId = nil
 
         local offlineMode,userInvalid,
               licenseOk,licenseExpired,
@@ -444,6 +446,7 @@ initAll = function()
             local theNotebook = genericDialog:getWidget("dialogPages")
             local loadingText = genericDialog:getWidget("mainLabel")
             local offlineButtonReg = genericDialog:getWidget("buttonGoOffline2")
+            local registerButton = genericDialog:getWidget("buttonRegister")
 
             closeDialog =
                 function()
@@ -469,6 +472,7 @@ initAll = function()
                         function(val)
                             local theId = val:values()._2
                             print("Queried: |" .. theId .. "|")
+                            currUserId = theId
                             afterId(theId)
                         end,
                         VSig("LD_GetCurrentUserId"),
@@ -476,9 +480,15 @@ initAll = function()
                     )
                 end
 
+            registerUser =
+                function()
+                    print("Sunshine reggae")
+                end
+
             offlineButton:hookButtonClick(closeDialog)
             tryAgainButton:hookButtonClick(setupFromScratch)
             offlineButtonReg:hookButtonClick(closeDialog)
+            registerButton:hookButtonClick(registerUser)
             dlgWindow:setVisible(true)
         end
         setupDialog()

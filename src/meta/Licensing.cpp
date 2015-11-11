@@ -252,6 +252,32 @@ bool sodiumSign(
 {
     unsigned char outSig[crypto_sign_BYTES];
     unsigned long long sigLen = sizeof(outSig);
+
+    const int CHUNK_SIZE = 4096;
+    templatious::StaticBuffer<unsigned char,3*CHUNK_SIZE> uCharBuf;
+
+    auto bufA = uCharBuf.getStaticVectorPre(CHUNK_SIZE);
+    auto bufB = uCharBuf.getStaticVector(CHUNK_SIZE);
+    auto bufC = uCharBuf.getStaticVectorPre(CHUNK_SIZE);
+
+    auto msgSz = message.size();
+
+    TEMPLATIOUS_0_TO_N(i,msgSz) {
+        SA::add(bufB,message[i]);
+    }
+
+    size_t outSize = SA::size(bufA);
+
+    int decodeRes = ::base64decode(
+        reinterpret_cast<char*>(bufB.rawBegin()),
+        SA::size(bufB),
+        bufA.rawBegin(),&outSize
+    );
+
+    if (0 != decodeRes) {
+        return false;
+    }
+
     const unsigned char* msgPtr =
         reinterpret_cast<const unsigned char*>(message.c_str());
     int out = ::crypto_sign_detached(

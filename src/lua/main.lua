@@ -483,6 +483,14 @@ initAll = function()
             registerUser =
                 function()
                     print("Sunshine reggae")
+                    assert( nil ~= currUserId,
+                        "Id should be known by now..." )
+                    ctx:messageAsync(
+                        license,
+                        VSig("LD_RegisterUser"),
+                        VString(currUserId),
+                        VMsg(nil)
+                    )
                 end
 
             offlineButton:hookButtonClick(closeDialog)

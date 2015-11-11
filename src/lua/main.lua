@@ -421,6 +421,8 @@ initAll = function()
         local LOADER_TAB = 0
         local OFFLINE_MODE_TAB = 1
 
+        local setupFromScratch = nil
+
         local setupDialog = function()
             local genericDialog = GenericWidget.putOn(dialog)
             local dlgWindow = genericDialog:getWidget("spinnerWindow")
@@ -505,16 +507,20 @@ initAll = function()
         end
 
         changeLoadingText("Querying id...")
-        ctx:messageAsyncWCallback(
-            license,
-            function(val)
-                local theId = val:values()._2
-                print("Queried: |" .. theId .. "|")
-                afterId(theId)
-            end,
-            VSig("LD_GetCurrentUserId"),
-            VString("empty")
-        )
+
+        setupFromScratch = function()
+            ctx:messageAsyncWCallback(
+                license,
+                function(val)
+                    local theId = val:values()._2
+                    print("Queried: |" .. theId .. "|")
+                    afterId(theId)
+                end,
+                VSig("LD_GetCurrentUserId"),
+                VString("empty")
+            )
+        end
+        setupFromScratch()
 
         afterId = function(userid)
             changeLoadingText("Fetching registration record...")

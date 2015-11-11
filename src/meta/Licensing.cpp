@@ -978,8 +978,14 @@ void regUserRoutine(const std::string& name,const StrongMsgPtr& toNotify) {
     assert( didSucceed && "Yo signature trippin' brah." );
 
     rj::Document doc;
-    doc["request"] = requestString;
-    doc["signature"] = outSig;
+    rj::Pointer("/request").Set(doc,requestString.c_str());
+    rj::Pointer("/signature").Set(doc,outSig.c_str());
+
+    rj::StringBuffer buf;
+    rj::Writer<rj::StringBuffer> writer(buf);
+    doc.Accept(writer);
+    std::string toSend = buf.GetString();
+    printf("ZE SIGNATURE! |%s|\n",toSend.c_str());
 }
 
 struct LicenseDaemonDummyImpl : public Messageable {

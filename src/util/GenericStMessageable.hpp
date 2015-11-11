@@ -31,7 +31,9 @@ protected:
     // (if it even exists)
     void messageNonVirtual(templatious::VirtualPack& msg);
 
-    void invokeAttachedCallbacks();
+    // Basically, allows calling base class methods.
+    // Process message starting at so and so level.
+    void passMessageUp(int myInheritanceLevel,templatious::VirtualPack& msg);
 private:
     std::vector< VmfPtr > _handlers;
 };

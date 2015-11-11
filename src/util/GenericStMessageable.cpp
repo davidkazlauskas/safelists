@@ -28,6 +28,14 @@ namespace SafeLists {
     // may reg handler some time
     GenericStMessageable::GenericStMessageable() {}
 
+    void GenericStMessageable::passMessageUp(int myInheritanceLevel,templatious::VirtualPack& msg) {
+        int currSize = SA::size(_handlers);
+        int theIndex = currSize - myInheritanceLevel + 1;
+        if (theIndex < currSize) {
+            _handlers[theIndex]->tryMatch(msg);
+        }
+    }
+
     GenericStMessageableWCallbacks::GenericStMessageableWCallbacks() :
         GenericStMessageable()
     {

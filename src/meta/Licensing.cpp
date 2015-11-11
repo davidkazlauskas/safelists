@@ -32,6 +32,12 @@ std::string getCurrentUserIdBase64() {
     return "4j5iMF/54gJW/c4bPAdN28+4YcIeSQj3QGvOv2xIZjU=";
 }
 
+std::string getCurrentUserPrivateKeyBase64() {
+    // dummy implementation, matches play backend test
+    return "y3hQUBVr/dBlrV/3MhgudnDC1t7tur2AondP/"
+        "XJwZSXiPmIwX/niAlb9zhs8B03bz7hhwh5JCPdAa86/bEhmNQ==";
+}
+
 std::string getServerSignKey() {
     // debug mode, different for production
     return "V9EFZB6xeocuQGW6BYubxVQV8MPtlwKzQnR0+317/xA=";

@@ -898,6 +898,9 @@ int localDeleteSpan(const std::string& pubKey) {
     return succeeded ? 0 : 1;
 }
 
+void regUserRoutine(const std::string& name,const StrongMsgPtr& toNotify) {
+}
+
 struct LicenseDaemonDummyImpl : public Messageable {
     LicenseDaemonDummyImpl(const LicenseDaemonDummyImpl&) = delete;
     LicenseDaemonDummyImpl(LicenseDaemonDummyImpl&&) = delete;
@@ -1005,6 +1008,11 @@ private:
             SF::virtualMatch< LD::TimeSpanValidity, const std::string, const std::string, int >(
                 [=](ANY_CONV,const std::string& json,const std::string& user,int& outRes) {
                     outRes = checkUserTimespanValidityFirstTier(json,user);
+                }
+            ),
+            SF::virtualMatch< LD::RegisterUser, const std::string, const StrongMsgPtr >(
+                [=](ANY_CONV,const std::string& name,const StrongMsgPtr& toNotify) {
+                    regUserRoutine(name,toNotify);
                 }
             ),
             SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(

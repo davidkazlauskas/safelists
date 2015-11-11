@@ -105,6 +105,7 @@ struct LicenseDaemon {
     // Signature:
     // <
     //   RegisterUser,
+    //   std::string (username),
     //   StrongMsgPtr (tonotify)
     // >
     DUMMY_REG(RegisterUser,"LD_RegisterUser");

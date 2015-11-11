@@ -31,6 +31,8 @@ protected:
 private:
     Glib::RefPtr< Gtk::Builder > _builder;
     std::shared_ptr< GenericGtkWidgetSharedState > _sharedState;
+
+    int _myInheritanceLevel;
 };
 
 }

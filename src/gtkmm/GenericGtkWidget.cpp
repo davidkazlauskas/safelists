@@ -23,7 +23,7 @@ namespace SafeLists {
             Gtk::Widget* wgt
         ) : _weakRef(sharedState), _myWidget(wgt)
         {
-            regHandler(
+            _myInheritanceLevel = regHandler(
                 SF::virtualMatchFunctorPtr(
                     SF::virtualMatch< GWT::SetActive, const bool >(
                         [=](ANY_CONV,bool val) {

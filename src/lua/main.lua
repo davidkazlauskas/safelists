@@ -416,6 +416,10 @@ initAll = function()
 
         local closeDialog = nil
         local changeLoadingText = nil
+        local switchLoaderTab = nil
+
+        local LOADER_TAB = 0
+        local OFFLINE_MODE_TAB = 1
 
         local setupDialog = function()
             local genericDialog = GenericWidget.putOn(dialog)
@@ -435,11 +439,17 @@ initAll = function()
                     loadingText:labelSetText(value)
                 end
 
+            switchLoaderTab =
+                function(value)
+                    theNotebook:notebookSwitchTab(value)
+                end
+
             offlineButton:hookButtonClick(closeDialog)
             dlgWindow:setVisible(true)
-            theNotebook:notebookSwitchTab(0)
         end
         setupDialog()
+
+        switchLoaderTab(0)
 
         local showDialog = function(val)
             if (val) then
@@ -476,6 +486,7 @@ initAll = function()
 
         userInvalid = function(theId)
             print("User invalid...")
+            switchLoaderTab(OFFLINE_MODE_TAB)
         end
 
         licenseOk = function(theId)
@@ -527,6 +538,7 @@ initAll = function()
 
         localIdSucc = function(theId,contents)
             print("|" .. theId .. "| -> |" .. contents .. "|")
+            changeLoadingText("Record loaded, verifying...")
             tryVerifyUserRecord(
                 theId,
                 contents,

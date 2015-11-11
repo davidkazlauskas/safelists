@@ -965,6 +965,19 @@ int localDeleteSpan(const std::string& pubKey) {
 }
 
 void regUserRoutine(const std::string& name,const StrongMsgPtr& toNotify) {
+    // ASK SAFENETWORK SERVER TO SIGN THIS
+    std::string requestString = name + " I_WANT_TO_USE_SAFELISTS";
+    rj::Document doc;
+    doc["request"] = requestString;
+
+    std::string pubKey = getCurrentUserIdBase64();
+    std::string secret = getCurrentUserPrivateKeyBase64();
+
+    assert( name == pubKey && "Epic fail, this aint test enviroment slick." );
+
+    std::string outSig;
+    bool didSucceed = SafeLists::sodiumSign(requestString,secret,outSig);
+    assert( didSucceed && "Yo signature trippin' brah." );
 }
 
 struct LicenseDaemonDummyImpl : public Messageable {

@@ -105,6 +105,14 @@ GenericWidgetNode.mt = {
                 VSig("GWI_GWT_SetVisible"),
                 VBool(value)
             )
+        end,
+        labelSetText = function(self,value)
+            assert( type(value) == "string", "Text expected in set text." )
+            self.luaCtx:message(
+                self.messageable,
+                VSig("GWI_GLT_SetValue"),
+                VString(value)
+            )
         end
     }
 }

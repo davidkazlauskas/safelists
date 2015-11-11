@@ -101,6 +101,14 @@ struct LicenseDaemon {
     // >
     DUMMY_REG(TimeSpanValidity,"LD_TimeSpanValidity");
 
+    // Register user.
+    // Signature:
+    // <
+    //   RegisterUser,
+    //   StrongMsgPtr (tonotify)
+    // >
+    DUMMY_REG(RegisterUser,"LD_RegisterUser");
+
     // singleton
     static StrongMsgPtr getDaemon();
 };

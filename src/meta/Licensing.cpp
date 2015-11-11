@@ -243,6 +243,23 @@ bool verifySignature(
     return signRes == 0;
 }
 
+// This shouldn't exist, user should sign
+// from app launcher.
+bool sodiumSign(
+    const std::string& message,
+    const std::string& privateKey,
+    std::string& outSignature)
+{
+    unsigned char outSig[crypto_sign_BYTES];
+    unsigned long long sigLen = sizeof(outSig);
+    const unsigned char* msgPtr =
+        reinterpret_cast<const unsigned char*>(message.c_str());
+    int out = ::crypto_sign_detached(
+        outSig,&sigLen,msgPtr,message.size(),nullptr);
+
+    return out == 0;
+}
+
 bool hexToBin(const char* str,std::vector< unsigned char >& out) {
     unsigned char outRes[32];
     size_t binLen = sizeof(outRes);

@@ -493,6 +493,7 @@ initAll = function()
             os.exit()
         end
 
+        changeLoadingText("Querying id...")
         ctx:messageAsyncWCallback(
             license,
             function(val)
@@ -505,6 +506,7 @@ initAll = function()
         )
 
         afterId = function(userid)
+            changeLoadingText("Fetching registration record...")
             ctx:messageAsyncWCallback(
                 license,
                 function(val)

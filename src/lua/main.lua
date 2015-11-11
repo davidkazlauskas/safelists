@@ -443,6 +443,7 @@ initAll = function()
             local tryAgainButton = genericDialog:getWidget("buttonTryAgain")
             local theNotebook = genericDialog:getWidget("dialogPages")
             local loadingText = genericDialog:getWidget("mainLabel")
+            local offlineButtonReg = genericDialog:getWidget("buttonGoOffline2")
 
             closeDialog =
                 function()
@@ -477,6 +478,7 @@ initAll = function()
 
             offlineButton:hookButtonClick(closeDialog)
             tryAgainButton:hookButtonClick(setupFromScratch)
+            offlineButtonReg:hookButtonClick(closeDialog)
             dlgWindow:setVisible(true)
         end
         setupDialog()

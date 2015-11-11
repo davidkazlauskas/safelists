@@ -26,5 +26,24 @@ namespace SafeLists {
 
     // may reg handler some time
     GenericStMessageable::GenericStMessageable() {}
+
+    GenericStMessageableWCallbacks::GenericStMessageableWCallbacks() :
+        GenericStMessageable()
+    {
+        typedef GenericMessageableInterface GMI;
+        regHandler(
+            SF::virtualMatchFunctorPtr(
+                SF::virtualMatch< GMI::InAttachToEventLoop, std::function<bool()> >(
+                    [=](GMI::InAttachToEventLoop,const std::function<bool()>& func) {
+                        this->_cache.attach(func);
+                    }
+                )
+            )
+        );
+    }
+
+    void GenericStMessageableWCallbacks::fireCallbacks() {
+        _cache.process();
+    }
 }
 

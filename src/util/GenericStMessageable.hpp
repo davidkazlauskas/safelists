@@ -3,11 +3,12 @@
 
 #include <cassert>
 #include <LuaPlumbing/messageable.hpp>
+#include <LuaPlumbing/plumbing.hpp>
 
 namespace SafeLists {
 
 struct GenericStMessageable : public Messageable {
-    // this is for sending message across threads
+    // this is for sending message across threads (disabled)
     void message(const std::shared_ptr< templatious::VirtualPack >& msg) override {
         assert( false && "GenericStMessageable only deals with single threaded messages." );
     }
@@ -29,8 +30,22 @@ protected:
     // to possibly remove virtual call overhead in some cases...
     // (if it even exists)
     void messageNonVirtual(templatious::VirtualPack& msg);
+
+    void invokeAttachedCallbacks();
 private:
     std::vector< VmfPtr > _handlers;
+};
+
+struct GenericStMessageableWCallbacks : public GenericStMessageable {
+protected:
+    GenericStMessageableWCallbacks();
+    GenericStMessageableWCallbacks(const GenericStMessageableWCallbacks&) = delete;
+    GenericStMessageableWCallbacks(GenericStMessageableWCallbacks&&) = delete;
+
+    // drive attached events with this function
+    void fireCallbacks();
+private:
+    CallbackCache _cache;
 };
 
 }

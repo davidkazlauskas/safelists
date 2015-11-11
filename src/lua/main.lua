@@ -405,6 +405,7 @@ initAll = function()
 
     local licTest = function()
         local dialogService = ctx:namedMessageable("dialogService")
+        local license = ctx:namedMessageable("licenseService")
 
         local dialog = ctx:messageRetValues(
             dialogService,
@@ -423,10 +424,22 @@ initAll = function()
 
         local setupFromScratch = nil
 
+        local offlineMode,userInvalid,
+              licenseOk,licenseExpired,
+              fishyStuffGoingOn = nil
+
+        local afterId,afterIdSuccess,localIdSucc,
+              localIdFail,offlineMode,localStoreLic,
+              verificationSuccess,localVerificationFail,
+              verifyTimespan,getServerTimespan,localSpanFail,
+              tryVerifyUserRecord,tryVerifyTimespan
+              = nil
+
         local setupDialog = function()
             local genericDialog = GenericWidget.putOn(dialog)
             local dlgWindow = genericDialog:getWidget("spinnerWindow")
             local offlineButton = genericDialog:getWidget("buttonGoOffline")
+            local tryAgainButton = genericDialog:getWidget("buttonTryAgain")
             local theNotebook = genericDialog:getWidget("dialogPages")
             local loadingText = genericDialog:getWidget("mainLabel")
 
@@ -446,12 +459,26 @@ initAll = function()
                     theNotebook:notebookSwitchTab(value)
                 end
 
+            setupFromScratch =
+                function()
+                    switchLoaderTab(0)
+                    ctx:messageAsyncWCallback(
+                        license,
+                        function(val)
+                            local theId = val:values()._2
+                            print("Queried: |" .. theId .. "|")
+                            afterId(theId)
+                        end,
+                        VSig("LD_GetCurrentUserId"),
+                        VString("empty")
+                    )
+                end
+
             offlineButton:hookButtonClick(closeDialog)
+            tryAgainButton:hookButtonClick(setupFromScratch)
             dlgWindow:setVisible(true)
         end
         setupDialog()
-
-        switchLoaderTab(0)
 
         local showDialog = function(val)
             if (val) then
@@ -467,20 +494,8 @@ initAll = function()
             end
         end
 
+        setupFromScratch()
         showDialog(true)
-
-        local license = ctx:namedMessageable("licenseService")
-
-        local offlineMode,userInvalid,
-              licenseOk,licenseExpired,
-              fishyStuffGoingOn = nil
-
-        local afterId,afterIdSuccess,localIdSucc,
-              localIdFail,offlineMode,localStoreLic,
-              verificationSuccess,localVerificationFail,
-              verifyTimespan,getServerTimespan,localSpanFail,
-              tryVerifyUserRecord,tryVerifyTimespan
-              = nil
 
         offlineMode = function(theId)
             print("Offline mode")
@@ -507,20 +522,6 @@ initAll = function()
         end
 
         changeLoadingText("Querying id...")
-
-        setupFromScratch = function()
-            ctx:messageAsyncWCallback(
-                license,
-                function(val)
-                    local theId = val:values()._2
-                    print("Queried: |" .. theId .. "|")
-                    afterId(theId)
-                end,
-                VSig("LD_GetCurrentUserId"),
-                VString("empty")
-            )
-        end
-        setupFromScratch()
 
         afterId = function(userid)
             changeLoadingText("Fetching registration record...")

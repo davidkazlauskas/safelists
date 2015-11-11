@@ -978,6 +978,8 @@ void regUserRoutine(const std::string& name,const StrongMsgPtr& toNotify) {
     std::string outSig;
     bool didSucceed = SafeLists::sodiumSign(requestString,secret,outSig);
     assert( didSucceed && "Yo signature trippin' brah." );
+
+    doc["signature"] = outSig;
 }
 
 struct LicenseDaemonDummyImpl : public Messageable {

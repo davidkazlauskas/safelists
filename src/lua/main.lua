@@ -497,10 +497,6 @@ initAll = function()
         setupFromScratch()
         showDialog(true)
 
-        offlineMode = function(theId)
-            print("Offline mode")
-        end
-
         userInvalid = function(theId)
             print("User invalid...")
             switchLoaderTab(OFFLINE_MODE_TAB)
@@ -603,15 +599,22 @@ initAll = function()
                     local didSucceed = vals._4 == 0
                     print("VER:|" .. theId .. "|" .. vals._3 .. "|")
                     if (didSucceed) then
-                        tryVerifyUserRecord(
-                            theId,
-                            vals._3,
-                            function()
-                                localStoreLic(theId,vals._3)
-                                verificationSuccess(theId)
-                            end,
-                            offlineMode
-                        )
+                        if (vals._3 == "NO_SUCH_USER") then
+                            print("NO SUCH USER, OFFER TO REGISTER")
+                        else
+                            tryVerifyUserRecord(
+                                theId,
+                                vals._3,
+                                function()
+                                    localStoreLic(theId,vals._3)
+                                    verificationSuccess(theId)
+                                end,
+                                function()
+                                    assert( false,
+                                    "HUH?!? Server verification failed?" )
+                                end
+                            )
+                        end
                     else
                         print("Could not query server for user info..." .. vals._4)
                         userInvalid(theId)

@@ -414,22 +414,30 @@ initAll = function()
             VMsg(nil)
         )._4
 
+        local closeDialog = nil
+        local changeLoadingText = nil
 
         local setupDialog = function()
             local genericDialog = GenericWidget.putOn(dialog)
             local dlgWindow = genericDialog:getWidget("spinnerWindow")
             local offlineButton = genericDialog:getWidget("buttonGoOffline")
             local theNotebook = genericDialog:getWidget("dialogPages")
+            local loadingText = genericDialog:getWidget("mainLabel")
 
-            local eventClosure =
+            closeDialog =
                 function()
                     -- TODO: GO OFFLINE (set state)
                     dlgWindow:setVisible(false)
                 end
 
-            offlineButton:hookButtonClick(eventClosure)
+            changeLoadingText =
+                function(value)
+                    loadingText:labelSetText(value)
+                end
+
+            offlineButton:hookButtonClick(closeDialog)
             dlgWindow:setVisible(true)
-            theNotebook:notebookSwitchTab(1)
+            theNotebook:notebookSwitchTab(0)
         end
         setupDialog()
 
@@ -472,6 +480,7 @@ initAll = function()
 
         licenseOk = function(theId)
             print("BALLIN")
+            closeDialog()
         end
 
         licenseExpired = function(theId)

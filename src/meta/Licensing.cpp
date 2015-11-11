@@ -286,6 +286,20 @@ bool sodiumSign(
     int out = ::crypto_sign_detached(
         outSig,&sigLen,msgPtr,message.size(),bufA.rawBegin());
 
+    // hide "traces"...
+    // But whatever, secret key
+    // is as Base64 string
+    SM::set('7',bufA);
+
+    int encodeRes = ::base64encode(outSig,sigLen,
+        reinterpret_cast<char*>(bufA.rawBegin()),SA::size(bufA));
+
+    if (0 != encodeRes) {
+        return false;
+    }
+
+    outSignature = reinterpret_cast<const char*>(bufA.rawCBegin());
+
     return out == 0;
 }
 

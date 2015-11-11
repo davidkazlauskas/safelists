@@ -22,7 +22,7 @@ private:
     int _hookId;
 };
 
-struct GenericGtkWidget : public GenericStMessageable {
+struct GenericGtkWidget : public GenericStMessageableWCallbacks {
     GenericGtkWidget(Glib::RefPtr< Gtk::Builder >& builder);
 
     void addToNotify(const StrongMsgPtr& ptr);

@@ -108,7 +108,7 @@ set_property( TARGET scrypt PROPERTY IMPORTED_LOCATION ${LIBSCRYPT_BUILD_DIR}/li
 add_library( domain ${DOMAIN_SOURCES} )
 target_link_libraries( domain
     sqlite3 pthread crypto
-    curl sodium scrypt
+    curl sodium scrypt plumbing
     ${Boost_FILESYSTEM_LIBRARY}
     ${Boost_SYSTEM_LIBRARY}
 )
@@ -144,5 +144,5 @@ add_library( gtkspec ${GTK_SOURCES} )
 target_link_libraries( gtkspec domain ${GTKMM_LIBRARIES} )
 
 add_executable( safelists src/main.cpp )
-target_link_libraries( safelists gtkspec plumbing )
+target_link_libraries( safelists gtkspec )
 

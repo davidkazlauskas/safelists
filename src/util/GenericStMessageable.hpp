@@ -25,7 +25,7 @@ protected:
     typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
 
     // SHOULD ONLY BE CALLED IN CONSTRUCTOR
-    void regHandler(VmfPtr&& toreg);
+    int regHandler(VmfPtr&& toreg);
 
     // to possibly remove virtual call overhead in some cases...
     // (if it even exists)

@@ -421,6 +421,7 @@ initAll = function()
 
         local LOADER_TAB = 0
         local OFFLINE_MODE_TAB = 1
+        local REGISTRATION_TAB = 2
 
         local setupFromScratch = nil
 
@@ -461,7 +462,7 @@ initAll = function()
 
             setupFromScratch =
                 function()
-                    switchLoaderTab(0)
+                    switchLoaderTab(LOADER_TAB)
                     ctx:messageAsyncWCallback(
                         license,
                         function(val)
@@ -601,6 +602,7 @@ initAll = function()
                     if (didSucceed) then
                         if (vals._3 == "NO_SUCH_USER") then
                             print("NO SUCH USER, OFFER TO REGISTER")
+                            switchLoaderTab(REGISTRATION_TAB)
                         else
                             tryVerifyUserRecord(
                                 theId,

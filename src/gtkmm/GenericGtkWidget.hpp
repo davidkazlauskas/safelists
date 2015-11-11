@@ -23,7 +23,7 @@ private:
 };
 
 struct GenericGtkWidget : public GenericStMessageableWCallbacks {
-    GenericGtkWidget(Glib::RefPtr< Gtk::Builder >& builder);
+    GenericGtkWidget(Glib::RefPtr< Gtk::Builder >& builder,const char* rootName);
 
     void addToNotify(const StrongMsgPtr& ptr);
 protected:
@@ -31,8 +31,8 @@ protected:
 private:
     Glib::RefPtr< Gtk::Builder > _builder;
     std::shared_ptr< GenericGtkWidgetSharedState > _sharedState;
-
-    int _myInheritanceLevel;
+    std::string _rootWidgetName;
+    bool _onDrawHooked;
 };
 
 }

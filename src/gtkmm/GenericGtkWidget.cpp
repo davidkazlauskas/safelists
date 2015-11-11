@@ -128,6 +128,7 @@ namespace SafeLists {
 
         std::weak_ptr< GenericGtkWidgetSharedState > _weakRef;
         Gtk::Widget* _myWidget;
+        int _myInheritanceLevel;
     };
 
     void GenericGtkWidget::addToNotify(const StrongMsgPtr& ptr) {
@@ -138,8 +139,11 @@ namespace SafeLists {
         _sharedState->_cache.notify(msg);
     }
 
-    GenericGtkWidget::GenericGtkWidget(Glib::RefPtr< Gtk::Builder >& builder)
-        : _builder(builder), _sharedState(std::make_shared< GenericGtkWidgetSharedState >())
+    GenericGtkWidget::GenericGtkWidget(Glib::RefPtr< Gtk::Builder >& builder,const char* rootName)
+        : _builder(builder),
+          _sharedState(std::make_shared< GenericGtkWidgetSharedState >()),
+          _rootWidgetName(rootName),
+          _onDrawHooked(false)
     {
         regHandler(
             SF::virtualMatchFunctorPtr(

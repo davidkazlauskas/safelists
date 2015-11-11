@@ -360,7 +360,7 @@ struct GtkMainWindow : public SafeLists::GenericGtkWidget {
     typedef MainWindowInterface MWI;
 
     GtkMainWindow(Glib::RefPtr<Gtk::Builder>& bld) :
-        SafeLists::GenericGtkWidget(bld),
+        SafeLists::GenericGtkWidget(bld,"window1"),
         _builder(bld),
         _left(nullptr),
         _right(nullptr),
@@ -1724,7 +1724,8 @@ struct GtkDialogService : public Messageable {
                         string,widgetName.c_str());
 
                     auto dialog = std::make_shared<
-                        SafeLists::GenericGtkWidget >(bld);
+                        SafeLists::GenericGtkWidget >(
+                            bld,widgetName.c_str());
                     outPtr = dialog;
                 }
             ),

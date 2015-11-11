@@ -260,10 +260,10 @@ bool sodiumSign(
     auto bufB = uCharBuf.getStaticVector(CHUNK_SIZE);
     auto bufC = uCharBuf.getStaticVectorPre(CHUNK_SIZE);
 
-    auto msgSz = message.size();
+    auto msgSz = privateKey.size();
 
     TEMPLATIOUS_0_TO_N(i,msgSz) {
-        SA::add(bufB,message[i]);
+        SA::add(bufB,privateKey[i]);
     }
 
     size_t outSize = SA::size(bufA);
@@ -275,6 +275,10 @@ bool sodiumSign(
     );
 
     if (0 != decodeRes) {
+        return false;
+    }
+
+    if (outSize != crypto_sign_SECRETKEYBYTES) {
         return false;
     }
 

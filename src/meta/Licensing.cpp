@@ -9,6 +9,8 @@
 #include <curl/curl.h>
 #include <curl/easy.h>
 #include <rapidjson/document.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/pointer.h>
 #include <boost/filesystem.hpp>
 
 #include <util/Semaphore.hpp>

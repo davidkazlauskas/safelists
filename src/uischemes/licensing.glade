@@ -3,8 +3,8 @@
 <interface>
   <requires lib="gtk+" version="3.10"/>
   <object class="GtkWindow" id="spinnerWindow">
-    <property name="width_request">400</property>
-    <property name="height_request">50</property>
+    <property name="width_request">300</property>
+    <property name="height_request">120</property>
     <property name="can_focus">False</property>
     <property name="opacity">0.93000000000000005</property>
     <property name="halign">center</property>
@@ -40,7 +40,7 @@
                 <property name="active">True</property>
               </object>
               <packing>
-                <property name="expand">False</property>
+                <property name="expand">True</property>
                 <property name="fill">False</property>
                 <property name="position">0</property>
               </packing>
@@ -55,7 +55,7 @@
                 <property name="ellipsize">start</property>
               </object>
               <packing>
-                <property name="expand">False</property>
+                <property name="expand">True</property>
                 <property name="fill">False</property>
                 <property name="position">1</property>
               </packing>
@@ -72,7 +72,6 @@
             <property name="margin_left">10</property>
             <property name="margin_right">10</property>
             <property name="orientation">vertical</property>
-            <property name="homogeneous">True</property>
             <child>
               <object class="GtkLabel" id="offlineModeLabel">
                 <property name="visible">True</property>
@@ -81,11 +80,13 @@
                 <property name="label" translatable="yes">Trouble authenticating. Switch to offline mode? Offline mode allows downloading files only.</property>
                 <property name="justify">center</property>
                 <property name="wrap">True</property>
+                <property name="max_width_chars">60</property>
                 <property name="track_visited_links">False</property>
+                <property name="lines">4</property>
               </object>
               <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
+                <property name="expand">True</property>
+                <property name="fill">False</property>
                 <property name="position">0</property>
               </packing>
             </child>

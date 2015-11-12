@@ -1113,6 +1113,7 @@ void challengeJsonBack(
 {
     auto defRefName = defaultReferralName();
     auto servUrl = getServerUrl();
+    servUrl += "/register";
 
     rj::Document doc;
     rj::Pointer("/challengetext").Set(doc,challengeAnswer.c_str());
@@ -1124,6 +1125,10 @@ void challengeJsonBack(
     doc.Accept(writer);
 
     std::string toSend = buf.GetString();
+    std::string out;
+
+    int res = curlPostData(toSend,servUrl,out);
+    // REPORT RESULTS TO HANDLER
 }
 
 void solveChallenge(

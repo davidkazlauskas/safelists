@@ -1112,10 +1112,18 @@ void challengeJsonBack(
     const StrongMsgPtr& toNotify)
 {
     auto defRefName = defaultReferralName();
+    auto servUrl = getServerUrl();
+
     rj::Document doc;
     rj::Pointer("/challengetext").Set(doc,challengeAnswer.c_str());
     rj::Pointer("/challengesignature").Set(doc,challengeSignature.c_str());
     rj::Pointer("/referralname").Set(doc,defRefName.c_str());
+
+    rj::StringBuffer buf;
+    rj::Writer< rj::StringBuffer > writer(buf);
+    doc.Accept(writer);
+
+    std::string toSend = buf.GetString();
 }
 
 void solveChallenge(

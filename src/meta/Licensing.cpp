@@ -1044,6 +1044,16 @@ bool verifyChallengeJson(
     return true;
 }
 
+void solveJsonChallenge(const std::string& original,std::string& out) {
+    const char* TO_FIND = "\"useranswer\":\"";
+    const int TO_FIND_LEN = strlen(TO_FIND);
+    auto pos = original.find(TO_FIND);
+    auto left = original.substr(0,pos+TO_FIND_LEN);
+    auto right = original.substr(pos+TO_FIND_LEN);
+    printf("LEFTHALF:|%s|\n",left.c_str());
+    printf("RIGHTHALF:|%s|\n",right.c_str());
+}
+
 void solveChallenge(
     const std::string& userPubKey,
     const std::string& str,
@@ -1053,7 +1063,8 @@ void solveChallenge(
     bool jsonVerification = verifyChallengeJson(
         userPubKey,str,challengeText);
     if (jsonVerification) {
-
+        std::string challengeAnswer;
+        solveJsonChallenge(challengeText,challengeAnswer);
     } else {
         assert( false && "A duck is not a chicken." );
     }

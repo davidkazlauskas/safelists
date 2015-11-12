@@ -985,6 +985,15 @@ int curlPostData(const std::string& data,const std::string& url,std::string& res
         ::curl_easy_cleanup(handle);
     );
 
+    // json header
+    curl_slist* chunk = nullptr;
+    chunk = curl_slist_append(chunk,"Content-Type: application/json");
+
+    auto cleanHeaders = SCOPE_GUARD_LC(
+        ::curl_slist_free_all(chunk);
+    );
+
+    ::curl_easy_setopt(handle,CURLOPT_HTTPHEADER,chunk);
     ::curl_easy_setopt(handle,CURLOPT_URL,url.c_str());
     ::curl_easy_setopt(handle,CURLOPT_POSTFIELDS,data.c_str());
     ::curl_easy_setopt(handle,CURLOPT_WRITEFUNCTION,&curlPostCallback);

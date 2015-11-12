@@ -1052,6 +1052,21 @@ void solveJsonChallenge(const std::string& original,std::string& out) {
     auto right = original.substr(pos+TO_FIND_LEN);
     printf("LEFTHALF:|%s|\n",left.c_str());
     printf("RIGHTHALF:|%s|\n",right.c_str());
+
+    std::string victim;
+    victim.reserve(1024);
+
+    int value = 0;
+    char buf[16];
+    for (;;) {
+
+        victim = left;
+        sprintf(buf,"%d",value);
+        victim += buf;
+        victim += right;
+
+        ++value;
+    }
 }
 
 void solveChallenge(

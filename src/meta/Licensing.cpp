@@ -1023,6 +1023,18 @@ bool verifyChallengeJson(const std::string& userPubKey,const std::string& json) 
         return false;
     }
 
+    std::string signedChallengeStr = signedChallenge.GetString();
+    std::string challengeSignatureStr = challengeSignature.GetString();
+    std::string servPubKey = getServerSignKey();
+
+    bool verificationResult =
+        verifySignature(challengeSignatureStr,
+                servPubKey,signedChallengeStr);
+
+    if (!verificationResult) {
+        return false;
+    }
+
     return true;
 }
 

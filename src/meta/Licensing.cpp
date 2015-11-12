@@ -1003,6 +1003,18 @@ int curlPostData(const std::string& data,const std::string& url,std::string& res
 }
 
 bool verifyChallengeJson(const std::string& userPubKey,const std::string& json) {
+    rj::Document doc;
+    doc.Parse(userPubKey.c_str());
+    if (doc.HasParseError()) {
+        return false;
+    }
+
+    if (   !doc.HasMember("signedchallenge")
+        || !doc.HasMember("challengesignature"))
+    {
+        return false;
+    }
+
     return true;
 }
 

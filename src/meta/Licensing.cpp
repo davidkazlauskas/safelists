@@ -966,11 +966,16 @@ int localDeleteSpan(const std::string& pubKey) {
     return succeeded ? 0 : 1;
 }
 
-void curlPostData(const std::string& data,const std::string& url) {
+int curlPostData(const std::string& data,const std::string& url,std::string& res) {
     CURL* handle = ::curl_easy_init();
     auto guard = SCOPE_GUARD_LC(
         ::curl_easy_cleanup(handle);
     );
+
+    ::curl_easy_setopt(handle,CURLOPT_URL,url.c_str());
+    ::curl_easy_setopt(handle,CURLOPT_POSTFIELDS,data.c_str());
+
+    return ::curl_easy_perform(handle);
 }
 
 void regUserRoutine(const std::string& name,const StrongMsgPtr& toNotify) {

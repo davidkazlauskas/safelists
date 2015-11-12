@@ -1004,7 +1004,7 @@ int curlPostData(const std::string& data,const std::string& url,std::string& res
 
 bool verifyChallengeJson(const std::string& userPubKey,const std::string& json) {
     rj::Document doc;
-    doc.Parse(userPubKey.c_str());
+    doc.Parse(json.c_str());
     if (doc.HasParseError()) {
         return false;
     }

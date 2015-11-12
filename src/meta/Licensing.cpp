@@ -966,6 +966,13 @@ int localDeleteSpan(const std::string& pubKey) {
     return succeeded ? 0 : 1;
 }
 
+void curlPostData(const std::string& data,const std::string& url) {
+    CURL* handle = ::curl_easy_init();
+    auto guard = SCOPE_GUARD_LC(
+        ::curl_easy_cleanup(handle);
+    );
+}
+
 void regUserRoutine(const std::string& name,const StrongMsgPtr& toNotify) {
     // ASK SAFENETWORK SERVER TO SIGN THIS
     std::string requestString = name + " I_WANT_TO_USE_SAFELISTS";

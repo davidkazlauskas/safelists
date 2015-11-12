@@ -1002,8 +1002,20 @@ int curlPostData(const std::string& data,const std::string& url,std::string& res
     return ::curl_easy_perform(handle);
 }
 
-void solveChallenge(const std::string& str,const StrongMsgPtr& toNotify) {
+bool verifyChallengeJson(const std::string& userPubKey,const std::string& json) {
+    return true;
+}
 
+void solveChallenge(
+    const std::string& userPubKey,
+    const std::string& str,
+    const StrongMsgPtr& toNotify)
+{
+    if (verifyChallengeJson(userPubKey,str)) {
+
+    } else {
+        assert( false && "A duck is not a chicken." );
+    }
 }
 
 void regUserRoutine(const std::string& name,const StrongMsgPtr& toNotify) {
@@ -1037,7 +1049,7 @@ void regUserRoutine(const std::string& name,const StrongMsgPtr& toNotify) {
     int resp = curlPostData(toSend,servUrl,outChallenge);
     if (0 == resp) {
         printf("Retrieved challenge: |%s|\n",outChallenge.c_str());
-        solveChallenge(outChallenge,toNotify);
+        solveChallenge(name,outChallenge,toNotify);
     } else {
         assert( false && "Bad stuff happens..." );
     }

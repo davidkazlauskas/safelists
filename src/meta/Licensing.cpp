@@ -1043,7 +1043,8 @@ void solveChallenge(
     const std::string& str,
     const StrongMsgPtr& toNotify)
 {
-    if (verifyChallengeJson(userPubKey,str)) {
+    bool jsonVerification = verifyChallengeJson(userPubKey,str);
+    if (jsonVerification) {
 
     } else {
         assert( false && "A duck is not a chicken." );

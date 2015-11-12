@@ -987,6 +987,8 @@ int curlPostData(const std::string& data,const std::string& url,std::string& res
 
     ::curl_easy_setopt(handle,CURLOPT_URL,url.c_str());
     ::curl_easy_setopt(handle,CURLOPT_POSTFIELDS,data.c_str());
+    ::curl_easy_setopt(handle,CURLOPT_WRITEFUNCTION,&curlPostCallback);
+    ::curl_easy_setopt(handle,CURLOPT_WRITEDATA,&res);
 
     return ::curl_easy_perform(handle);
 }

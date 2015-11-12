@@ -1046,17 +1046,22 @@ bool verifyChallengeJson(
 
 void solveJsonChallenge(const std::string& original,std::string& out) {
     int requiredStrength = 0;
+    int challengeVersion = 0;
     {
         rj::Document parsed;
         parsed.Parse(original.c_str());
         assert( !parsed.HasParseError() );
 
+        assert( parsed.HasMember("challengeversion") );
         assert( parsed.HasMember("challengestrength") );
 
+        auto& version = parsed["challengeversion"];
         auto& strength = parsed["challengestrength"];
 
+        assert( version.IsNumber() );
         assert( strength.IsNumber() );
         requiredStrength = strength.GetInt();
+        challengeVersion = version.GetInt();
     }
 
     const char* TO_FIND = "\"useranswer\":\"";
@@ -1066,6 +1071,7 @@ void solveJsonChallenge(const std::string& original,std::string& out) {
     auto right = original.substr(pos+TO_FIND_LEN);
     printf("LEFTHALF:|%s|\n",left.c_str());
     printf("RIGHTHALF:|%s|\n",right.c_str());
+    printf("STRENGTH:|%d|\n",requiredStrength);
 
     std::string victim;
     victim.reserve(1024);

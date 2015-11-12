@@ -1050,6 +1050,13 @@ void solveJsonChallenge(const std::string& original,std::string& out) {
         rj::Document parsed;
         parsed.Parse(original.c_str());
         assert( !parsed.HasParseError() );
+
+        assert( parsed.HasMember("challengestrength") );
+
+        auto& strength = parsed["challengestrength"];
+
+        assert( strength.IsNumber() );
+        requiredStrength = strength.GetInt();
     }
 
     const char* TO_FIND = "\"useranswer\":\"";

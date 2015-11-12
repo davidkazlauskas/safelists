@@ -50,6 +50,10 @@ std::string getServerUrl() {
     return "http://127.0.0.1:9000";
 }
 
+std::string defaultReferralName() {
+    return "default";
+}
+
 struct BufStruct {
     char* buf;
     int iter;
@@ -1005,7 +1009,8 @@ int curlPostData(const std::string& data,const std::string& url,std::string& res
 bool verifyChallengeJson(
     const std::string& userPubKey,
     const std::string& json,
-    std::string& outChallengeText)
+    std::string& outChallengeText,
+    std::string& outChallengeSignature)
 {
     rj::Document doc;
     doc.Parse(json.c_str());
@@ -1040,11 +1045,12 @@ bool verifyChallengeJson(
     }
 
     outChallengeText = signedChallengeStr;
+    outChallengeSignature = challengeSignatureStr;
 
     return true;
 }
 
-void solveJsonChallenge(const std::string& original,std::string& out) {
+void solveJsonChallenge(const std::string& original,std::string& out,std::string& outSignature) {
     int requiredStrength = 0;
     int challengeVersion = 0;
     {
@@ -1101,10 +1107,15 @@ void solveJsonChallenge(const std::string& original,std::string& out) {
 
 void challengeJsonBack(
     const std::string& userPubKey,
-    const std::string& challangeAnswer,
+    const std::string& challengeAnswer,
+    const std::string& challengeSignature,
     const StrongMsgPtr& toNotify)
 {
-
+    auto defRefName = defaultReferralName();
+    rj::Document doc;
+    rj::Pointer("/challengetext").Set(doc,challengeAnswer.c_str());
+    rj::Pointer("/challengesignature").Set(doc,challengeSignature.c_str());
+    rj::Pointer("/referralname").Set(doc,defRefName.c_str());
 }
 
 void solveChallenge(
@@ -1113,14 +1124,20 @@ void solveChallenge(
     const StrongMsgPtr& toNotify)
 {
     std::string challengeText;
+    std::string challengeSignature;
     bool jsonVerification = verifyChallengeJson(
-        userPubKey,str,challengeText);
+        userPubKey,str,challengeText,challengeSignature);
     if (jsonVerification) {
         std::string challengeAnswer;
-        solveJsonChallenge(challengeText,challengeAnswer);
+        solveJsonChallenge(
+            challengeText,
+            challengeAnswer,
+            challengeSignature);
 
         printf("ZE ANSWER:|%s|\n",challengeAnswer.c_str());
-        challengeJsonBack(userPubKey,challengeAnswer,toNotify);
+        challengeJsonBack(
+            userPubKey,challengeAnswer,
+            challengeSignature,toNotify);
     } else {
         assert( false && "A duck is not a chicken." );
     }

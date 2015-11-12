@@ -966,6 +966,19 @@ int localDeleteSpan(const std::string& pubKey) {
     return succeeded ? 0 : 1;
 }
 
+size_t curlPostCallback(char* ptr,size_t size,size_t nmemb,void* str) {
+    std::string& out = *reinterpret_cast< std::string* >(str);
+
+    assert( size == 1 );
+    size_t pushed = 0;
+    TEMPLATIOUS_REPEAT(nmemb) {
+        out += ptr[pushed];
+        ++pushed;
+    }
+
+    return pushed;
+}
+
 int curlPostData(const std::string& data,const std::string& url,std::string& res) {
     CURL* handle = ::curl_easy_init();
     auto guard = SCOPE_GUARD_LC(

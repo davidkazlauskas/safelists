@@ -1045,6 +1045,13 @@ bool verifyChallengeJson(
 }
 
 void solveJsonChallenge(const std::string& original,std::string& out) {
+    int requiredStrength = 0;
+    {
+        rj::Document parsed;
+        parsed.Parse(original.c_str());
+        assert( !parsed.HasParseError() );
+    }
+
     const char* TO_FIND = "\"useranswer\":\"";
     const int TO_FIND_LEN = strlen(TO_FIND);
     auto pos = original.find(TO_FIND);

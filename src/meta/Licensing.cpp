@@ -1015,6 +1015,15 @@ void regUserRoutine(const std::string& name,const StrongMsgPtr& toNotify) {
     doc.Accept(writer);
     std::string toSend = buf.GetString();
     printf("ZE SIGNATURE! |%s|\n",toSend.c_str());
+
+    std::string servUrl = getServerUrl();
+    servUrl += "/issuechallenge";
+
+    std::string outChallenge;
+
+    int resp = curlPostData(toSend,servUrl,outChallenge);
+
+    printf("Retrieved challenge: |%s|\n",outChallenge.c_str());
 }
 
 struct LicenseDaemonDummyImpl : public Messageable {

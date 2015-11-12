@@ -1002,6 +1002,10 @@ int curlPostData(const std::string& data,const std::string& url,std::string& res
     return ::curl_easy_perform(handle);
 }
 
+void solveChallenge(const std::string& str,const StrongMsgPtr& toNotify) {
+
+}
+
 void regUserRoutine(const std::string& name,const StrongMsgPtr& toNotify) {
     // ASK SAFENETWORK SERVER TO SIGN THIS
     std::string requestString = name + " I_WANT_TO_USE_SAFELISTS";
@@ -1031,8 +1035,12 @@ void regUserRoutine(const std::string& name,const StrongMsgPtr& toNotify) {
     std::string outChallenge;
 
     int resp = curlPostData(toSend,servUrl,outChallenge);
-
-    printf("Retrieved challenge: |%s|\n",outChallenge.c_str());
+    if (0 == resp) {
+        printf("Retrieved challenge: |%s|\n",outChallenge.c_str());
+        solveChallenge(outChallenge,toNotify);
+    } else {
+        assert( false && "Bad stuff happens..." );
+    }
 }
 
 struct LicenseDaemonDummyImpl : public Messageable {

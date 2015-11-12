@@ -1015,6 +1015,14 @@ bool verifyChallengeJson(const std::string& userPubKey,const std::string& json) 
         return false;
     }
 
+    auto& signedChallenge = doc["signedchallenge"];
+    auto& challengeSignature = doc["challengesignature"];
+    if (   !signedChallenge.IsString()
+        || !challengeSignature.IsString())
+    {
+        return false;
+    }
+
     return true;
 }
 

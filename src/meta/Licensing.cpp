@@ -1002,7 +1002,11 @@ int curlPostData(const std::string& data,const std::string& url,std::string& res
     return ::curl_easy_perform(handle);
 }
 
-bool verifyChallengeJson(const std::string& userPubKey,const std::string& json) {
+bool verifyChallengeJson(
+    const std::string& userPubKey,
+    const std::string& json,
+    std::string& outChallengeText)
+{
     rj::Document doc;
     doc.Parse(json.c_str());
     if (doc.HasParseError()) {
@@ -1035,6 +1039,8 @@ bool verifyChallengeJson(const std::string& userPubKey,const std::string& json) 
         return false;
     }
 
+    outChallengeText = signedChallengeStr;
+
     return true;
 }
 
@@ -1043,7 +1049,9 @@ void solveChallenge(
     const std::string& str,
     const StrongMsgPtr& toNotify)
 {
-    bool jsonVerification = verifyChallengeJson(userPubKey,str);
+    std::string challengeText;
+    bool jsonVerification = verifyChallengeJson(
+        userPubKey,str,challengeText);
     if (jsonVerification) {
 
     } else {

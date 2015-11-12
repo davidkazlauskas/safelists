@@ -1089,6 +1089,12 @@ void solveJsonChallenge(const std::string& original,std::string& out) {
         bool isGood = scrypt(victim,challengeVersion,outHash);
         assert( isGood );
 
+        int currStrength = hashStrength(outHash);
+        if (currStrength >= requiredStrength) {
+            out = victim;
+            return;
+        }
+
         ++value;
     }
 }

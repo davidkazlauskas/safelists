@@ -1099,6 +1099,14 @@ void solveJsonChallenge(const std::string& original,std::string& out) {
     }
 }
 
+void challengeJsonBack(
+    const std::string& userPubKey,
+    const std::string& challangeAnswer,
+    const StrongMsgPtr& toNotify)
+{
+
+}
+
 void solveChallenge(
     const std::string& userPubKey,
     const std::string& str,
@@ -1110,6 +1118,9 @@ void solveChallenge(
     if (jsonVerification) {
         std::string challengeAnswer;
         solveJsonChallenge(challengeText,challengeAnswer);
+
+        printf("ZE ANSWER:|%s|\n",challengeAnswer.c_str());
+        challengeJsonBack(userPubKey,challengeAnswer,toNotify);
     } else {
         assert( false && "A duck is not a chicken." );
     }

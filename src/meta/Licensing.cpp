@@ -1146,6 +1146,23 @@ void challengeJsonBack(
 
         toSend = buf.GetString();
     }
+    std::string answerSig;
+    int sign = serverSign(userPubKey,toSend,answerSig);
+    assert( sign == 0 );
+
+    std::string withSig;
+    {
+        rj::Document doc;
+        rj::Pointer("/challengeanswer").Set(doc,toSend.c_str());
+        rj::Pointer("/answersignature").Set(doc,answerSig.c_str());
+
+        rj::StringBuffer buf;
+        rj::Writer< rj::StringBuffer > writer(buf);
+        doc.Accept(writer);
+
+        withSig = buf.GetString();
+    }
+
     std::string out;
 
     int res = curlPostData(toSend,servUrl,out);

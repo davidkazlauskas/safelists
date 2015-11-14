@@ -1115,16 +1115,19 @@ void challengeJsonBack(
     auto servUrl = getServerUrl();
     servUrl += "/register";
 
-    rj::Document doc;
-    rj::Pointer("/challengetext").Set(doc,challengeAnswer.c_str());
-    rj::Pointer("/challengesignature").Set(doc,challengeSignature.c_str());
-    rj::Pointer("/referralname").Set(doc,defRefName.c_str());
+    std::string toSend;
+    {
+        rj::Document doc;
+        rj::Pointer("/challengetext").Set(doc,challengeAnswer.c_str());
+        rj::Pointer("/challengesignature").Set(doc,challengeSignature.c_str());
+        rj::Pointer("/referralname").Set(doc,defRefName.c_str());
 
-    rj::StringBuffer buf;
-    rj::Writer< rj::StringBuffer > writer(buf);
-    doc.Accept(writer);
+        rj::StringBuffer buf;
+        rj::Writer< rj::StringBuffer > writer(buf);
+        doc.Accept(writer);
 
-    std::string toSend = buf.GetString();
+        toSend = buf.GetString();
+    }
     std::string out;
 
     int res = curlPostData(toSend,servUrl,out);

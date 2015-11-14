@@ -309,6 +309,24 @@ bool sodiumSign(
     return out == 0;
 }
 
+int serverSign(
+    const std::string& publicKey,
+    const std::string& message,
+    std::string& out
+)
+{
+    auto defaultPubKey = getCurrentUserIdBase64();
+    auto privKey = getCurrentUserPrivateKeyBase64();
+
+    if (defaultPubKey != publicKey) {
+        return 1;
+    }
+
+    bool res = sodiumSign(message,privKey,out);
+
+    return res ? 0 : 1;
+}
+
 bool hexToBin(const char* str,std::vector< unsigned char >& out) {
     unsigned char outRes[32];
     size_t binLen = sizeof(outRes);

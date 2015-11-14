@@ -1165,7 +1165,7 @@ void challengeJsonBack(
 
     std::string out;
 
-    int res = curlPostData(toSend,servUrl,out);
+    int res = curlPostData(withSig,servUrl,out);
     if (0 == res) {
         printf("OUTREGRES:|%s|\n",out.c_str());
     } else {

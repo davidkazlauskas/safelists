@@ -1129,7 +1129,7 @@ void solveJsonChallenge(const std::string& original,std::string& out,std::string
     }
 }
 
-void challengeJsonBack(
+int challengeJsonBack(
     const std::string& userPubKey,
     const std::string& challengeAnswer,
     const std::string& challengeSignature,
@@ -1154,7 +1154,9 @@ void challengeJsonBack(
     }
     std::string answerSig;
     int sign = serverSign(userPubKey,toSend,answerSig);
-    assert( sign == 0 );
+    if (0 != sign) {
+        return -3;
+    }
 
     std::string withSig;
     {
@@ -1174,13 +1176,15 @@ void challengeJsonBack(
     int res = curlPostData(withSig,servUrl,out);
     if (0 == res) {
         printf("OUTREGRES:|%s|\n",out.c_str());
+        return 0;
     } else {
         assert( false && "Nope milky..." );
+        return -4;
     }
     // REPORT RESULTS TO HANDLER
 }
 
-void solveChallenge(
+int solveChallenge(
     const std::string& userPubKey,
     const std::string& str,
     const StrongMsgPtr& toNotify)
@@ -1197,12 +1201,11 @@ void solveChallenge(
             challengeSignature);
 
         printf("ZE ANSWER:|%s|\n",challengeAnswer.c_str());
-        challengeJsonBack(
+        return challengeJsonBack(
             userPubKey,challengeAnswer,
             challengeSignature,toNotify);
-    } else {
-        assert( false && "A duck is not a chicken." );
     }
+    return -2;
 }
 
 void regUserRoutine(const std::string& name,const StrongMsgPtr& toNotify) {
@@ -1244,8 +1247,8 @@ void regUserRoutine(const std::string& name,const StrongMsgPtr& toNotify) {
 
     std::string outChallenge;
 
-    int resp = curlPostData(toSend,servUrl,outChallenge);
-    if (0 == resp) {
+    outResult = curlPostData(toSend,servUrl,outChallenge);
+    if (0 == outResult) {
         printf("Retrieved challenge: |%s|\n",outChallenge.c_str());
         solveChallenge(name,outChallenge,toNotify);
     } else {

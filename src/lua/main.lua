@@ -598,7 +598,7 @@ initAll = function()
                 license,
                 function(val)
                     local vals = val:values()
-                    if (vals._3 ~= 0) then
+                    if (vals._3 == 0) then
                         success(theId,span)
                     else
                         fail(theId,span)
@@ -691,7 +691,6 @@ initAll = function()
                     local vals = val:values()
                     local didSucceed = vals._4 == 0
                     if (didSucceed) then
-                        verifyTimespan(theId,vals._3)
                         tryVerifyTimespan(
                             theId,vals._3,
                             function()

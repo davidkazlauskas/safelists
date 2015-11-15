@@ -434,7 +434,7 @@ initAll = function()
         local afterId,afterIdSuccess,localIdSucc,
               localIdFail,offlineMode,localStoreLic,
               verificationSuccess,localVerificationFail,
-              verifyTimespan,getServerTimespan,localSpanFail,
+              getServerTimespan,localSpanFail,
               tryVerifyUserRecord,tryVerifyTimespan
               = nil
 
@@ -717,25 +717,6 @@ initAll = function()
                 license,
                 VSig("LD_DeleteLocalLicense"),
                 VString(theId),
-                VInt(-1)
-            )
-        end
-
-        verifyTimespan = function(theId,span)
-            ctx:messageAsyncWCallback(
-                license,
-                function(val)
-                    local vals = val:values()
-                    local didSucceed = vals._4 == 0
-                    if (didSucceed) then
-                        licenseOk(theId)
-                    else
-                        licenseExpired(theId)
-                    end
-                end,
-                VSig("LD_TimeSpanValidity"),
-                VString(theId),
-                VString(span),
                 VInt(-1)
             )
         end

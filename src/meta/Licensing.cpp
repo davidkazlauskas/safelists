@@ -149,10 +149,11 @@ enum VerificationFailures {
 
 enum TimespanErrors {
     INVALID_JSON_FIRST_TIER = 101,
-    TE_MISSING_FIELDS_FIRST_TIER = 102,
-    TE_MISTYPED_FIELDS_FIRST_TIER = 103,
-    TE_INVALID_TIMESPAN = 104,
-    TE_LICENSE_EXPIRED = 105,
+    NULL_JSON_FIRST_TIER = 102,
+    TE_MISSING_FIELDS_FIRST_TIER = 103,
+    TE_MISTYPED_FIELDS_FIRST_TIER = 104,
+    TE_INVALID_TIMESPAN = 105,
+    TE_LICENSE_EXPIRED = 106,
 
     TE_INVALID_JSON_SECOND_TIER = 201,
     TE_MISSING_FIELDS_SECOND_TIER = 202,
@@ -813,6 +814,10 @@ int checkUserTimespanValidityFirstTier(
 
     if (doc.HasParseError()) {
         return TimespanErrors::INVALID_JSON_FIRST_TIER;
+    }
+
+    if (doc.IsNull()) {
+        return TimespanErrors::NULL_JSON_FIRST_TIER;
     }
 
     if (   !doc.HasMember("from")

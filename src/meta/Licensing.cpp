@@ -1206,6 +1206,17 @@ void solveChallenge(
 }
 
 void regUserRoutine(const std::string& name,const StrongMsgPtr& toNotify) {
+    int outResult = -1;
+    auto notifyLambda =
+        [&]() {
+            auto sendPack = SF::vpackPtr< LicenseDaemon::RU_OutFinished, int >(
+                nullptr, outResult
+            );
+            toNotify->message(sendPack);
+        };
+
+    auto sendGuard = SCOPE_GUARD(notifyLambda);
+
     // ASK SAFENETWORK SERVER TO SIGN THIS
     std::string requestString = name + " I_WANT_TO_USE_SAFELISTS";
 

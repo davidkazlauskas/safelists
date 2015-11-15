@@ -728,7 +728,16 @@ initAll = function()
                     local vals = val:values()
                     local didSucceed = vals._4 == 0
                     if (didSucceed) then
-                        licenseOk(theId)
+                        tryVerifyTimespan(
+                            theId,vals._3,
+                            function()
+                                licenseOk(theId)
+                            end,
+                            function()
+                                assert( false,
+                                    "Server timespan fail..." )
+                            end
+                        )
                     else
                         licenseExpired(theId)
                     end

@@ -734,12 +734,11 @@ initAll = function()
                                 licenseOk(theId)
                             end,
                             function()
-                                assert( false,
-                                    "Server timespan fail..." )
+                                userInvalid(theId)
                             end
                         )
                     else
-                        licenseExpired(theId)
+                        userInvalid(theId)
                     end
                 end,
                 VSig("LD_GetServerTimespan"),

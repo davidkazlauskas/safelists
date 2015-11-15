@@ -1341,7 +1341,7 @@ private:
                 }
             ),
             SF::virtualMatch< LD::TimeSpanValidity, const std::string, const std::string, int >(
-                [=](ANY_CONV,const std::string& json,const std::string& user,int& outRes) {
+                [=](ANY_CONV,const std::string& user,const std::string& json,int& outRes) {
                     outRes = checkUserTimespanValidityFirstTier(json,user);
                 }
             ),

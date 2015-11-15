@@ -485,11 +485,28 @@ initAll = function()
                     print("Sunshine reggae")
                     assert( nil ~= currUserId,
                         "Id should be known by now..." )
+
+                    local nextId = objRetainer:newId()
+
+                    local handler = ctx:makeLuaMatchHandler(
+                        VMatch(function(natpack,values)
+                            changeLoadingText("Solving challenge...")
+                        end,"LD_RU_OutSolving"),
+                        VMatch(function(natpack,values)
+                            objRetainer:release(nextId)
+                            setupFromScratch()
+                        end,"LD_RU_OutFinished","int")
+                    )
+
+                    objRetainer:retain(nextId,handler)
+
+                    changeLoadingText("Registering...")
+                    switchLoaderTab(LOADER_TAB)
                     ctx:messageAsync(
                         license,
                         VSig("LD_RegisterUser"),
                         VString(currUserId),
-                        VMsg(nil)
+                        VMsg(handler)
                     )
                 end
 

@@ -110,6 +110,21 @@ struct LicenseDaemon {
     // >
     DUMMY_REG(RegisterUser,"LD_RegisterUser");
 
+    // Register user, solving challenge.
+    // Signature:
+    // <
+    //   RU_OutSolving
+    // >
+    DUMMY_REG(RU_OutSolving,"LD_RU_OutSolving");
+
+    // Register user finished.
+    // Signature:
+    // <
+    //   RU_OutFinished,
+    //   int (out result)
+    // >
+    DUMMY_REG(RU_OutFinished,"LD_RU_OutFinished");
+
     // singleton
     static StrongMsgPtr getDaemon();
 };

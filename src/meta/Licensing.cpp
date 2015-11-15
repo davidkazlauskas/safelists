@@ -1218,7 +1218,7 @@ void regUserRoutine(const std::string& name,const StrongMsgPtr& toNotify) {
             toNotify->message(sendPack);
         };
 
-    auto sendGuard = SCOPE_GUARD(notifyLambda);
+    auto sendGuard = SCOPE_GUARD(std::move(notifyLambda));
 
     // ASK SAFENETWORK SERVER TO SIGN THIS
     std::string requestString = name + " I_WANT_TO_USE_SAFELISTS";

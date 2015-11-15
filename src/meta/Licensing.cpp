@@ -149,7 +149,7 @@ enum VerificationFailures {
 
 enum TimespanErrors {
     INVALID_JSON_FIRST_TIER = 101,
-    NULL_JSON_FIRST_TIER = 102,
+    NOT_OBJECT_JSON_FIRST_TIER = 102,
     TE_MISSING_FIELDS_FIRST_TIER = 103,
     TE_MISTYPED_FIELDS_FIRST_TIER = 104,
     TE_INVALID_TIMESPAN = 105,
@@ -816,8 +816,8 @@ int checkUserTimespanValidityFirstTier(
         return TimespanErrors::INVALID_JSON_FIRST_TIER;
     }
 
-    if (doc.IsNull()) {
-        return TimespanErrors::NULL_JSON_FIRST_TIER;
+    if (!doc.IsObject()) {
+        return TimespanErrors::NOT_OBJECT_JSON_FIRST_TIER;
     }
 
     if (   !doc.HasMember("from")

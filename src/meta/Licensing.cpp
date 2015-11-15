@@ -827,7 +827,8 @@ int checkUserTimespanValidityFirstTier(
     auto& signature = doc["signature"];
 
     if (   !from.IsNumber()
-        || !to.IsNumber())
+        || !to.IsNumber()
+        || !signature.IsString())
     {
         return TimespanErrors::TE_MISTYPED_FIELDS_FIRST_TIER;
     }

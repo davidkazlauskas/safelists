@@ -598,7 +598,7 @@ initAll = function()
                 license,
                 function(val)
                     local vals = val:values()
-                    if (vals._3 == 0) then
+                    if (vals._4 == 0) then
                         success(theId,span)
                     else
                         fail(theId,span)

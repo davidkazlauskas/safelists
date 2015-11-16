@@ -29,7 +29,8 @@ SET( LIBINCLUDE_DIRS
     ${LIBSCRYPT_BUILD_DIR} )
 
 SET( APPINCLUDE_DIRS
-    ${SRC_DIR} )
+    ${SRC_DIR}
+    ${SRC_DIR}/rust/include )
 
 SET( GTK_SOURCES
     src/gtkmm/GtkMMRangerModel.cpp
@@ -64,7 +65,9 @@ include_directories(
     ${APPINCLUDE_DIRS}
 )
 
-link_directories(${GTKMM_LIBRARY_DIRS})
+SET( RUST_LINK_DIRS ${CMAKE_BINARY_DIR}/rustlib/debug ${CMAKE_BINARY_DIR}/rustlib/release )
+
+link_directories(${GTKMM_LIBRARY_DIRS} ${RUST_LINK_DIRS})
 
 if (UNIX)
     # for newer version of sqlite built and installed
@@ -90,6 +93,9 @@ add_custom_target( copy-lua-scripts ALL
     COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/src/lua ${CMAKE_BINARY_DIR}/lua )
 add_custom_target( copy-root-data ALL
     COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/rootData/ ${CMAKE_BINARY_DIR} )
+add_custom_target( build-safe-ffi ALL
+    COMMAND CARGO_TARGET_DIR=${CMAKE_BINARY_DIR}/rustlib cargo build
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/rust/safe_ffi )
 
 # <<<<<<< copied code for compilation
 
@@ -111,7 +117,10 @@ target_link_libraries( domain
     curl sodium scrypt plumbing
     ${Boost_FILESYSTEM_LIBRARY}
     ${Boost_SYSTEM_LIBRARY}
+    safe_ffi
 )
+
+add_dependencies( domain build-safe-ffi )
 
 SET( TEST_SOURCES
     tests/model-tests.cpp

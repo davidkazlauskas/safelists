@@ -13,3 +13,9 @@
 [submodule "submodules/libscrypt"]
 	path = submodules/libscrypt
 	url = https://github.com/technion/libscrypt.git
+[submodule "submodules/lua"]
+	path = submodules/lua
+	url = https://github.com/LuaDist/lua.git
+[submodule "src/rust/safe_ffi"]
+	path = src/rust/safe_ffi
+	url = https://github.com/maidsafe/safe_ffi.git

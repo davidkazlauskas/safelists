@@ -1,7 +1,8 @@
 extern crate libc;
 extern crate safe_nfs;
+extern crate safe_core;
 
-use std::sync::Arc;
+use std::sync::{Arc,Mutex};
 
 const CHUNK_SIZE : i64 = 64 * 1024;
 
@@ -14,6 +15,14 @@ struct DownloadTaskState<'a> {
     size: i64,
     progress: i64,
     reader: ::safe_nfs::helper::reader::Reader<'a>,
+}
+
+impl<'a> DownloadTaskState<'a> {
+    fn new(client: Arc<Mutex<::safe_core::client::Client>>)
+     -> DownloadTaskState<'a>
+    {
+
+    }
 }
 
 struct DownloadTask {

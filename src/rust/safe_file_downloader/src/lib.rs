@@ -84,11 +84,13 @@ pub extern fn safe_file_downloader_cleanup(ptr: *mut libc::c_void) {
     }
 }
 
-fn get_reader<'a>(client: Arc<Mutex<::safe_core::client::Client>>,
-              dns_ops: ::safe_dns::dns_operations::DnsOperations)
+fn get_reader<'a>(
+    client: Arc<Mutex<::safe_core::client::Client>>,
+    dns_ops: ::safe_dns::dns_operations::DnsOperations,
+    path: String)
     -> ::safe_nfs::helper::reader::Reader<'a>
 {
-
+    let trimmed = path.trim();
 }
 
 #[test]

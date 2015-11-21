@@ -1,4 +1,5 @@
 extern crate libc;
+extern crate safe_nfs;
 
 use std::sync::Arc;
 
@@ -9,9 +10,10 @@ fn get_chunk_size() -> i64 {
     CHUNK_SIZE
 }
 
-struct DownloadTaskState {
+struct DownloadTaskState<'a> {
     size: i64,
     progress: i64,
+    reader: ::safe_nfs::helper::reader::Reader<'a>,
 }
 
 struct DownloadTask {

@@ -117,7 +117,7 @@ target_link_libraries( domain
     curl sodium scrypt plumbing
     ${Boost_FILESYSTEM_LIBRARY}
     ${Boost_SYSTEM_LIBRARY}
-    safe_ffi
+    safefiledownloader
 )
 
 add_dependencies( domain build-safe-dl )

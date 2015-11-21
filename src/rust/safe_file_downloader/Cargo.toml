@@ -9,6 +9,8 @@ safe_core = { version="0.3.0", features=["use-mock-routing"] }
 safe_nfs = "0.3.0"
 safe_dns = "0.3.1"
 sodiumoxide = "0.0.9"
+regex = "0.1.8"
+regex_macros = "0.1.8"
 
 [lib]
 name = "safefiledownloader"

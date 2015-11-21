@@ -1,7 +1,11 @@
+#![feature(plugin)]
+#![plugin(regex_macros)]
+
 extern crate libc;
 extern crate safe_nfs;
 extern crate safe_dns;
 extern crate safe_core;
+extern crate regex;
 
 use std::sync::{Arc,Mutex};
 
@@ -91,6 +95,9 @@ fn get_reader<'a>(
     -> ::safe_nfs::helper::reader::Reader<'a>
 {
     let trimmed = path.trim();
+    let namergx = regex!(
+        r"^([a-zA-Z0-9_-]+).([a-zA-Z0-9_.-]+)/([a-zA-Z0-9_./]+)$");
+
 }
 
 #[test]

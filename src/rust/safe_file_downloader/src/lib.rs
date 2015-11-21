@@ -34,6 +34,7 @@ impl Drop for DownloaderActor {
     }
 }
 
+#[no_mangle]
 extern "C" fn safe_file_downloader_new() -> *mut libc::c_void {
     let the_arc = Box::new( Arc::new( DownloaderActor::new() ) );
     DownloaderActor::launch_thread((*the_arc).clone());
@@ -44,6 +45,7 @@ extern "C" fn safe_file_downloader_new() -> *mut libc::c_void {
     }
 }
 
+#[no_mangle]
 extern "C" fn safe_file_downloader_cleanup(ptr: *mut libc::c_void) {
     unsafe {
         let transmuted : *mut Arc<DownloaderActor> = std::mem::transmute(ptr);

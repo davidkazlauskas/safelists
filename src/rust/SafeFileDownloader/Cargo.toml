@@ -1,5 +1,5 @@
 [package]
-name = "SafeFileDownloader"
+name = "safe_file_downloader"
 version = "0.1.0"
 authors = ["David <david@templatious.org>"]
 

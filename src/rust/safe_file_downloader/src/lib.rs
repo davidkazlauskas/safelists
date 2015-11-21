@@ -22,6 +22,10 @@ impl DownloaderActor {
     }
 }
 
+extern "C" fn safe_file_downloader_new() -> *mut libc::c_void {
+    let the_arc = std::sync::Arc::new( DownloaderActor::new() );
+}
+
 #[test]
 fn it_works() {
 }

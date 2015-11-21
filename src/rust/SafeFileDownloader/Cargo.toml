@@ -2,3 +2,9 @@
 name = "SafeFileDownloader"
 version = "0.1.0"
 authors = ["David <david@templatious.org>"]
+
+[dependencies]
+safe_core = { version="0.3.0", features=["use-mock-routing"] }
+safe_nfs = "0.3.0"
+safe_dns = "0.3.1"
+sodiumoxide = "0.0.9"

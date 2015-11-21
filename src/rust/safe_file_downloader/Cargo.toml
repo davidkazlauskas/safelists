@@ -12,4 +12,4 @@ sodiumoxide = "0.0.9"
 
 [lib]
 name = "safefiledownloader"
-crate-type = [ "staticlib" ]
+crate-type = [ "dylib" ]

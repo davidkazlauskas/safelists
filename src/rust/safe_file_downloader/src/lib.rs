@@ -1,5 +1,7 @@
 extern crate libc;
 
+use std::sync::Arc;
+
 struct DownloadTask {
     userdata: *mut libc::c_void,
     userdata_buffer_func: extern fn(
@@ -20,10 +22,15 @@ impl DownloaderActor {
             tasks: vec![],
         }
     }
+
+    fn launch_thread(pointer: Arc<DownloaderActor>) {
+        println!("Thread lunched!");
+    }
 }
 
 extern "C" fn safe_file_downloader_new() -> *mut libc::c_void {
-    let the_arc = std::sync::Arc::new( DownloaderActor::new() );
+    let the_arc = Arc::new( DownloaderActor::new() );
+    DownloaderActor::launch_thread(pointer);
 }
 
 #[test]

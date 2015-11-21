@@ -29,10 +29,13 @@ impl DownloaderActor {
 }
 
 extern "C" fn safe_file_downloader_new() -> *mut libc::c_void {
-    let the_arc = Arc::new( DownloaderActor::new() );
-    DownloaderActor::launch_thread(the_arc.clone());
+    let the_arc = Box::new( Arc::new( DownloaderActor::new() ) );
+    DownloaderActor::launch_thread((*the_arc).clone());
 
-    std::ptr::null_mut()
+    let raw = Box::into_raw(the_arc);
+    unsafe {
+        std::mem::transmute(raw)
+    }
 }
 
 #[test]

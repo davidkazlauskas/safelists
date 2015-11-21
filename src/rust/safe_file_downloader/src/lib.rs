@@ -2,6 +2,18 @@ extern crate libc;
 
 use std::sync::Arc;
 
+const CHUNK_SIZE : i64 = 64 * 1024;
+
+// chunk size for each download
+fn get_chunk_size() -> i64 {
+    CHUNK_SIZE
+}
+
+struct DownloadTaskState {
+    size: i64,
+    progress: i64,
+}
+
 struct DownloadTask {
     userdata: *mut libc::c_void,
     userdata_buffer_func: extern fn(

@@ -1,0 +1,4 @@
+[package]
+name = "SafeFileDownloader"
+version = "0.1.0"
+authors = ["David <david@templatious.org>"]

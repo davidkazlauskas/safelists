@@ -30,7 +30,7 @@ impl DownloaderActor {
 
 extern "C" fn safe_file_downloader_new() -> *mut libc::c_void {
     let the_arc = Arc::new( DownloaderActor::new() );
-    DownloaderActor::launch_thread(pointer);
+    DownloaderActor::launch_thread(the_arc.clone());
 }
 
 #[test]

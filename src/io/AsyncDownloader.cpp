@@ -62,16 +62,16 @@ namespace SafeLists {
             std::weak_ptr< AsyncDownloaderSafeNet > weak = result;
             std::thread(
                 [=]() {
-                    auto locked = weak.lock();
-                    rawProm->set_value();
-                    void* unregClient = nullptr;
-                    ::create_unregistered_client(&unregClient);
-                    assert( nullptr != unregClient
-                        && "Can't create safenet client." );
-                    auto cleanup = SCOPE_GUARD_LC(
-                        ::drop_client(unregClient);
-                    );
-                    result->messageLoop(locked);
+                    //auto locked = weak.lock();
+                    //rawProm->set_value();
+                    //void* unregClient = nullptr;
+                    //::create_unregistered_client(&unregClient);
+                    //assert( nullptr != unregClient
+                        //&& "Can't create safenet client." );
+                    //auto cleanup = SCOPE_GUARD_LC(
+                        //::drop_client(unregClient);
+                    //);
+                    //result->messageLoop(locked);
                 }
             ).detach();
 

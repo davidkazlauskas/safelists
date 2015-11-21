@@ -9,3 +9,7 @@ safe_core = { version="0.3.0", features=["use-mock-routing"] }
 safe_nfs = "0.3.0"
 safe_dns = "0.3.1"
 sodiumoxide = "0.0.9"
+
+[lib]
+name = "safefiledownloader"
+crate-type = [ "staticlib" ]

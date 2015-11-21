@@ -14,7 +14,7 @@ struct DownloadTask {
 
 impl Drop for DownloadTask {
     fn drop(&mut self) {
-        self.userdata_destructor(self.userdata);
+        (self.userdata_destructor)(self.userdata);
         println!("Task destroyed!");
     }
 }

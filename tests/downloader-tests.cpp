@@ -12,6 +12,7 @@
 #include <io/SafeListDownloaderFactory.hpp>
 #include <model/AsyncSqlite.hpp>
 #include <util/ScopeGuard.hpp>
+#include <safe_file_downloader.h>
 
 #include <sqlite3.h>
 
@@ -1152,6 +1153,7 @@ TEST_CASE("safelist_create_session_dup_mirrors","[safelist_downloader]") {
 }
 
 TEST_CASE("maidsafe_downloader_init_and_destroy","[safe_network_downloader]") {
-
+    void* handle = ::safe_file_downloader_new();
+    ::safe_file_downloader_cleanup(handle);
 }
 

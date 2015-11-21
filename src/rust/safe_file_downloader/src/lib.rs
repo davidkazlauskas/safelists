@@ -12,6 +12,13 @@ struct DownloadTask {
     userdata_destructor: extern fn(param: *mut libc::c_void),
 }
 
+impl Drop for DownloadTask {
+    fn drop(&mut self) {
+        self.userdata_destructor(self.userdata);
+        println!("Task destroyed!");
+    }
+}
+
 struct DownloaderActor {
     tasks: Vec< DownloadTask >,
 }

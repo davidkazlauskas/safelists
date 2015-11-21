@@ -1150,3 +1150,8 @@ TEST_CASE("safelist_create_session_dup_mirrors","[safelist_downloader]") {
     bool res = ensureContentsOfExample3Session(dlPathAbs.c_str());
     REQUIRE( res );
 }
+
+TEST_CASE("maidsafe_downloader_init_and_destroy","[safe_network_downloader]") {
+
+}
+

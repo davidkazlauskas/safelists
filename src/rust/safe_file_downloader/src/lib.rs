@@ -1,5 +1,6 @@
 extern crate libc;
 extern crate safe_nfs;
+extern crate safe_dns;
 extern crate safe_core;
 
 use std::sync::{Arc,Mutex};
@@ -81,6 +82,13 @@ pub extern fn safe_file_downloader_cleanup(ptr: *mut libc::c_void) {
         let transmuted : *mut Arc<DownloaderActor> = std::mem::transmute(ptr);
         let boxed : Box< std::sync::Arc<DownloaderActor> > = Box::from_raw(transmuted);
     }
+}
+
+fn get_reader<'a>(client: Arc<Mutex<::safe_core::client::Client>>,
+              dns_ops: ::safe_dns::dns_operations::DnsOperations)
+    -> ::safe_nfs::helper::reader::Reader<'a>
+{
+
 }
 
 #[test]

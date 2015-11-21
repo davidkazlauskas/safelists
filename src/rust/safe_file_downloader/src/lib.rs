@@ -46,7 +46,8 @@ extern "C" fn safe_file_downloader_new() -> *mut libc::c_void {
 
 extern "C" fn safe_file_downloader_cleanup(ptr: *mut libc::c_void) {
     unsafe {
-        let boxed = Box::from_raw(ptr);
+        let transmuted : *mut Arc<DownloaderActor> = std::mem::transmute(ptr);
+        let boxed : Box< std::sync::Arc<DownloaderActor> > = Box::from_raw(transmuted);
     }
 }
 

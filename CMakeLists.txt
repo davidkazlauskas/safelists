@@ -93,9 +93,9 @@ add_custom_target( copy-lua-scripts ALL
     COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/src/lua ${CMAKE_BINARY_DIR}/lua )
 add_custom_target( copy-root-data ALL
     COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/rootData/ ${CMAKE_BINARY_DIR} )
-add_custom_target( build-safe-ffi ALL
+add_custom_target( build-safe-dl ALL
     COMMAND CARGO_TARGET_DIR=${CMAKE_BINARY_DIR}/rustlib cargo build
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/rust/safe_ffi )
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/rust/safe_file_downloader )
 
 # <<<<<<< copied code for compilation
 
@@ -120,7 +120,7 @@ target_link_libraries( domain
     safe_ffi
 )
 
-add_dependencies( domain build-safe-ffi )
+add_dependencies( domain build-safe-dl )
 
 SET( TEST_SOURCES
     tests/model-tests.cpp

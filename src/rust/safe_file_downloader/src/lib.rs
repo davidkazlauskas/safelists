@@ -14,6 +14,14 @@ struct DownloaderActor {
     tasks: Vec< DownloadTask >,
 }
 
+impl DownloaderActor {
+    fn new() -> DownloaderActor {
+        DownloaderActor {
+            tasks: vec![],
+        }
+    }
+}
+
 #[test]
 fn it_works() {
 }

@@ -162,7 +162,7 @@ fn get_reader<'a>(
     client: Arc<Mutex<::safe_core::client::Client>>,
     dns_ops: ::safe_dns::dns_operations::DnsOperations,
     path: String)
-    -> Result< ::safe_nfs::helper::reader::Reader<'a>, GetReaderError >
+    -> Result< ::safe_nfs::file::File, GetReaderError >
 {
     let trimmed = path.trim();
     let namergx = regex!(
@@ -209,11 +209,7 @@ fn get_reader<'a>(
                         }
 
                         let the_file_res = the_file.unwrap();
-
-                        let file_helper = ::safe_nfs::helper::file_helper
-                            ::FileHelper::new(client.clone());
-
-                        let mut reader = file_helper.read(the_file_res);
+                        return Ok(the_file_res);
                     },
                     Err(err) => return Err( GetReaderError::SafeNfs(err) )
                 }

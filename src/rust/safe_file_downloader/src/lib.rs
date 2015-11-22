@@ -24,11 +24,11 @@ struct DownloadTaskState<'a> {
 }
 
 impl<'a> DownloadTaskState<'a> {
-    fn new(client: Arc<Mutex<::safe_core::client::Client>>)
-     -> DownloadTaskState<'a>
-    {
+    //fn new(client: Arc<Mutex<::safe_core::client::Client>>)
+     //-> DownloadTaskState<'a>
+    //{
 
-    }
+    //}
 }
 
 struct DownloadTask {
@@ -104,6 +104,10 @@ quick_error! {
     }
 }
 
+pub fn path_tokeniser(the_path: String) -> Vec<String> {
+    the_path.split("/").filter(|a| !a.is_empty()).map(|a| a.to_string()).collect()
+}
+
 fn get_reader<'a>(
     client: Arc<Mutex<::safe_core::client::Client>>,
     dns_ops: ::safe_dns::dns_operations::DnsOperations,
@@ -119,6 +123,11 @@ fn get_reader<'a>(
         let name = i.at(2).unwrap().to_string();
         let file = i.at(3).unwrap().to_string();
 
+        let dir_key = dns_ops
+            .get_service_home_directory_key(
+                &name,&service,None);
+
+        let tokenized_path = path_tokenizer(file.clone());
     }
 
     Err( GetReaderError::Regex("Could not parse url.") )

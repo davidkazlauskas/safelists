@@ -255,18 +255,22 @@ impl DownloaderActorLocal {
         Some(&mut self.tasks[curr])
     }
 
-    fn main_tasks(&mut self) {
-        self.proc_messages_non_blocking();
+    fn main_tasks(&mut self) -> bool {
+        let res = self.proc_messages_non_blocking();
         self.download_next();
+        return res;
     }
 
-    fn proc_messages_non_blocking(&mut self) {
+    fn proc_messages_non_blocking(&mut self) -> bool {
         loop {
             let next = self.quick_check();
             if next.is_some() {
-                self.handle(next.unwrap());
+                let keepgoing = self.handle(next.unwrap());
+                if !keepgoing {
+                    return false;
+                }
             } else {
-                return;
+                return true;
             }
         }
     }
@@ -287,8 +291,7 @@ impl DownloaderActorLocal {
 
     fn perform_iteration(&mut self) -> bool {
         if self.tasks.len() > 0 {
-            self.main_tasks();
-            return true;
+            return self.main_tasks();
         } else {
             let recv = self.recv.recv();
             if recv.is_ok() {

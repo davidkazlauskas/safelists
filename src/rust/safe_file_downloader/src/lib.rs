@@ -256,6 +256,9 @@ impl DownloaderActorLocal {
     }
 
     fn main_tasks(&mut self) {
+    }
+
+    fn download_next(&mut self) {
         let next = self.next_task();
 
         if next.is_none() {

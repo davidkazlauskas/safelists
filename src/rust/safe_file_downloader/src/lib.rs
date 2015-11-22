@@ -67,18 +67,27 @@ fn get_chunk_size() -> i64 {
 }
 
 struct DownloadTaskState<'a> {
-    size: i64,
-    progress: i64,
-    file: ::safe_nfs::file::File,
+    size: u64,
+    progress: u64,
     reader: ::safe_nfs::helper::reader::Reader<'a>,
 }
 
 impl<'a> DownloadTaskState<'a> {
-    //fn new(client: Arc<Mutex<::safe_core::client::Client>>)
-     //-> DownloadTaskState<'a>
-    //{
+    fn new(rk: &ReaderKit,file: &'a ::safe_nfs::file::File)
+     -> DownloadTaskState<'a>
+    {
+        let reader = rk.file_helper.read(&file);
+        let size = reader.size();
 
-    //}
+        let res =
+            DownloadTaskState {
+                size: size,
+                progress: 0,
+                reader: reader,
+            };
+
+        res
+    }
 }
 
 struct DownloadTask {

@@ -102,6 +102,10 @@ quick_error! {
             description("Safe NFS error")
             display("Safe NFS error: {:?}",err)
         }
+        InvalidPath(err: &'static str) {
+            description(err)
+            display("Path is invalid: {}",err)
+        }
         DirectoryNotFound(err: &'static str) {
             description(err)
             display("No directory found: {}",err)
@@ -171,6 +175,11 @@ fn get_reader<'a>(
 
         let tokenized_path = path_tokenizer(file.clone());
 
+        if 0 == tokenized_path.len() {
+            return Err( GetReaderError::InvalidPath(
+                "No tokens in the path.") )
+        }
+
         match dir_key {
             Ok(val) => {
                 let dir_helper = ::safe_nfs::helper::directory_helper
@@ -181,6 +190,14 @@ fn get_reader<'a>(
                     Ok(lst) => {
                         let reslisting = recursive_find_path(
                             &tokenized_path,0,lst,dir_helper);
+
+                        if reslisting.is_err() {
+                            return Err( reslisting.err().unwrap() );
+                        }
+
+                        let unwrapped = reslisting.unwrap();
+                        let the_file = unwrapped.find_file(
+                            tokenized_path.last().unwrap());
                     },
                     Err(err) => return Err( GetReaderError::SafeNfs(err) )
                 }

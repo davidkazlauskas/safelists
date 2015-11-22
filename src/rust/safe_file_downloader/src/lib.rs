@@ -97,8 +97,9 @@ quick_error! {
             description("Safe DNS error")
             display("Safe DNS error: {:?}",err)
         }
-        Regex {
-            from(&'static str)
+        Regex(err: &'static str) {
+            description(err)
+            display("Regex error: {}",err)
         }
     }
 }

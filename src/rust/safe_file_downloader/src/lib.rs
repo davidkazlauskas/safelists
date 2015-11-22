@@ -158,7 +158,7 @@ fn recursive_find_path(
     }
 }
 
-fn get_reader<'a>(
+fn get_file(
     client: Arc<Mutex<::safe_core::client::Client>>,
     dns_ops: ::safe_dns::dns_operations::DnsOperations,
     path: String)
@@ -209,7 +209,7 @@ fn get_reader<'a>(
                         }
 
                         let the_file_res = the_file.unwrap();
-                        return Ok(the_file_res);
+                        return Ok(the_file_res.clone());
                     },
                     Err(err) => return Err( GetReaderError::SafeNfs(err) )
                 }

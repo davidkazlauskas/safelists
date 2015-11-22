@@ -109,6 +109,7 @@ impl Drop for DownloadTask {
 
 enum DownloaderMsgs {
     Schedule { path: String,task: DownloadTask },
+    Stop,
 }
 
 struct DownloaderActor {
@@ -124,7 +125,6 @@ impl DownloaderActor {
     fn new() -> (DownloaderActor,DownloaderActorLocal) {
         let (tx,rx) = ::std::sync::mpsc::channel();
 
-
         (
             DownloaderActor {
                 send: tx,
@@ -138,6 +138,26 @@ impl DownloaderActor {
 
     fn launch_thread(local: DownloaderActorLocal) {
         println!("Thread lunched!");
+
+        loop {
+            let recv = local.recv.recv();
+            if recv.is_ok() {
+
+            }
+        }
+    }
+}
+
+impl DownloaderActorLocal {
+    fn handle(&mut self,msg: DownloaderMsgs) {
+        match msg {
+            DownloaderMsgs::Schedule { path: path, task: task } => {
+
+            },
+            DownloaderMsgs::Stop => {
+
+            },
+        }
     }
 }
 

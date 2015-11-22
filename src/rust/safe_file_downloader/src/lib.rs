@@ -119,7 +119,7 @@ struct DownloaderActor {
 struct DownloaderActorLocal {
     recv: ::std::sync::mpsc::Receiver< DownloaderMsgs >,
     tasks: Vec< DownloadTask >,
-    iter: i32,
+    iter: usize,
 }
 
 impl DownloaderActor {
@@ -165,6 +165,23 @@ impl DownloaderActorLocal {
         }
 
         return true;
+    }
+
+    fn next_task(&mut self) -> Option< &mut DownloadTask > {
+        let len = self.tasks.len();
+        if 0 == len {
+            return None;
+        }
+
+        let curr =
+            {
+                if self.iter >= self.tasks.len() {
+                    self.iter = 0;
+                }
+                self.iter
+            };
+
+        Some(&mut self.tasks[curr])
     }
 }
 

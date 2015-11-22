@@ -207,6 +207,8 @@ fn get_reader<'a>(
                             return Err( GetReaderError::FileNotFound(
                                 "Could not find file.") )
                         }
+
+                        let the_file_res = the_file.unwrap();
                     },
                     Err(err) => return Err( GetReaderError::SafeNfs(err) )
                 }

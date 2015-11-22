@@ -131,7 +131,9 @@ fn get_reader<'a>(
 
         match dir_key {
             Ok(val) => {
-
+                let dir_helper = ::safe_nfs::helper::directory_helper
+                    ::DirectoryHelper::new(client.clone());
+                let listing = dir_helper.get(&val);
             },
             Err(err) => return Err( GetReaderError::SafeDns(err) ),
         }

@@ -279,7 +279,7 @@ impl DownloaderActorLocal {
     }
 
     fn download_next(&mut self) {
-        let readres = {
+        let (readres,chunkstart,chunkend) = {
             let nextu = {
                 let next = self.current_task();
 
@@ -294,19 +294,25 @@ impl DownloaderActorLocal {
                 res
             };
 
-            let readres = {
+            {
                 let (chunkstart,chunkend) =
                     nextu.next_chunk(get_chunk_size());
                 let mut reader = self.rkit.file_helper.read(&nextu.file);
-                reader.read(chunkstart,chunkend)
-            };
-
-            readres
+                (reader.read(chunkstart,chunkend),chunkstart,chunkstart+chunkend)
+            }
         };
 
         if readres.is_ok() {
+            {
+                let unwrapped = readres.unwrap();
+                let next = self.current_task().unwrap();
+                (next.task.userdata_buffer_func)(
+                    next.task.userdata,
+                    chunkstart,chunkend,
+                    unwrapped.as_mut_slice()
+                );
+            }
             self.next_task();
-            let unwrapped = readres.unwrap();
         } else {
             // possibly report read fail
         }

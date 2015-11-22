@@ -261,6 +261,12 @@ impl DownloaderActorLocal {
         if next.is_none() {
             return;
         }
+
+        let nextu = next.unwrap();
+
+        if nextu.is_done() {
+            return;
+        }
     }
 
     fn perform_iteration(&mut self) -> bool {

@@ -16,6 +16,7 @@ struct ReaderKit {
     client: Arc< Mutex< ::safe_core::client::Client > >,
     dns_ops: ::safe_dns::dns_operations::DnsOperations,
     dir_helper: ::safe_nfs::helper::directory_helper::DirectoryHelper,
+    file_helper: ::safe_nfs::helper::file_helper::FileHelper,
 }
 
 // chunk size for each download

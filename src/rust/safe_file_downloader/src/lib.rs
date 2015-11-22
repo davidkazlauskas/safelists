@@ -102,6 +102,10 @@ quick_error! {
             description("Safe NFS error")
             display("Safe NFS error: {:?}",err)
         }
+        DirectoryNotFound(err: &'static str) {
+            description(err)
+            display("No directory found: {}",err)
+        }
         Regex(err: &'static str) {
             description(err)
             display("Regex error: {}",err)
@@ -111,6 +115,39 @@ quick_error! {
 
 pub fn path_tokenizer(the_path: String) -> Vec<String> {
     the_path.split("/").filter(|a| !a.is_empty()).map(|a| a.to_string()).collect()
+}
+
+fn recursive_find_path(
+    tokens: &Vec< String >,num: usize,
+    root: ::safe_nfs::directory_listing::DirectoryListing,
+    dir_helper: ::safe_nfs::helper::directory_helper::DirectoryHelper)
+    -> Result< ::safe_nfs::directory_listing::DirectoryListing,
+               GetReaderError >
+{
+    if num < tokens.len() - 1 {
+        let current = tokens[num].clone();
+
+        let found = root.find_sub_directory(&current);
+        match found {
+            Some(val) => {
+                let thekey = val.get_key();
+                let next = dir_helper.get(thekey);
+                match next {
+                    Ok(val) => {
+                        recursive_find_path(tokens,num + 1,val,dir_helper)
+                    },
+                    Err(err) => {
+                        Err( GetReaderError::SafeNfs(err) )
+                    },
+                }
+            },
+            None => {
+                Err( GetReaderError::DirectoryNotFound("Path doesn't exist.") )
+            },
+        }
+    } else {
+        Ok(root)
+    }
 }
 
 fn get_reader<'a>(

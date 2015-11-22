@@ -118,6 +118,7 @@ struct DownloaderActor {
 
 struct DownloaderActorLocal {
     recv: ::std::sync::mpsc::Receiver< DownloaderMsgs >,
+    rkit: Option< ReaderKit >,
     tasks: Vec< DownloadTask >,
     iter: usize,
 }
@@ -132,6 +133,7 @@ impl DownloaderActor {
             },
             DownloaderActorLocal {
                 recv: rx,
+                rkit: None, // create later in another thread
                 tasks: vec![],
                 iter: 0,
             }

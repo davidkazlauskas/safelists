@@ -180,11 +180,22 @@ impl<'a> DownloaderActorLocal<'a> {
             // HANDLE ERROR
         }
 
-        let res = DownloadTaskWRreader {
+        let mut res = DownloadTaskWRreader {
             task: task,
             file: file.unwrap(),
             state: None,
         };
+
+        let reader = self.rkit.file_helper.read(&res.file);
+        let size = reader.size();
+
+        let state = DownloadTaskState {
+            size: size,
+            progress: 0,
+            reader: reader,
+        };
+
+        res.state = Some(state);
     }
 
     fn next_task(&'a mut self) -> Option< &mut DownloadTaskWRreader > {

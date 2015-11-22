@@ -20,7 +20,7 @@ fn get_chunk_size() -> i64 {
 struct DownloadTaskState<'a> {
     size: i64,
     progress: i64,
-    file: ::safe_nfs::file::File<'a>,
+    file: ::safe_nfs::file::File,
     reader: ::safe_nfs::helper::reader::Reader<'a>,
 }
 

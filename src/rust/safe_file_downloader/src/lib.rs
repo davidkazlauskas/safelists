@@ -110,6 +110,10 @@ quick_error! {
             description(err)
             display("No directory found: {}",err)
         }
+        FileNotFound(err: &'static str) {
+            description(err)
+            display("No file found: {}",err)
+        }
         Regex(err: &'static str) {
             description(err)
             display("Regex error: {}",err)
@@ -198,6 +202,11 @@ fn get_reader<'a>(
                         let unwrapped = reslisting.unwrap();
                         let the_file = unwrapped.find_file(
                             tokenized_path.last().unwrap());
+
+                        if the_file.is_none() {
+                            return Err( GetReaderError::FileNotFound(
+                                "Could not find file.") )
+                        }
                     },
                     Err(err) => return Err( GetReaderError::SafeNfs(err) )
                 }

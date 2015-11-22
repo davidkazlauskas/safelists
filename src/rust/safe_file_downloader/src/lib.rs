@@ -124,10 +124,10 @@ struct DownloaderActor {
     send: ::std::sync::mpsc::Sender< DownloaderMsgs >,
 }
 
-struct DownloaderActorLocal {
+struct DownloaderActorLocal<'a> {
     recv: ::std::sync::mpsc::Receiver< DownloaderMsgs >,
     rkit: ReaderKit,
-    tasks: Vec< DownloadTask >,
+    tasks: Vec< DownloadTaskWRreader<'a> >,
     iter: usize,
 }
 
@@ -148,10 +148,10 @@ impl DownloaderActor {
     }
 }
 
-impl DownloaderActorLocal {
+impl<'a> DownloaderActorLocal<'a> {
     fn new(kit: ReaderKit,
            receiver: std::sync::mpsc::Receiver< DownloaderMsgs >)
-        -> DownloaderActorLocal
+        -> DownloaderActorLocal<'a>
     {
         DownloaderActorLocal {
             recv: receiver,
@@ -174,7 +174,7 @@ impl DownloaderActorLocal {
         return true;
     }
 
-    fn next_task(&mut self) -> Option< &mut DownloadTask > {
+    fn next_task(&'a mut self) -> Option< &mut DownloadTaskWRreader > {
         let len = self.tasks.len();
         if 0 == len {
             return None;

@@ -1193,5 +1193,7 @@ TEST_CASE("maidsafe_downloader_init_and_destroy","[safe_network_downloader]") {
     args.userdata_arbitrary_message_func = &SomeState_userdata_arbitrary_message_func;
     args.userdata_destructor = &SomeState_userdata_destructor;
     args.path = "Dazlow";
+
+    ::safe_file_downloader_schedule(handle,&args);
 }
 

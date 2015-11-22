@@ -124,6 +124,7 @@ impl DownloaderActor {
     fn new() -> DownloaderActor {
         DownloaderActor {
             tasks: vec![],
+            send: None,
         }
     }
 

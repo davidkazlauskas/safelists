@@ -112,26 +112,31 @@ enum DownloaderMsgs {
 }
 
 struct DownloaderActor {
-    tasks: Vec< DownloadTask >,
     send: ::std::sync::mpsc::Sender< DownloaderMsgs >,
 }
 
-struct DownloaderActorLocalState {
+struct DownloaderActorLocal {
     recv: ::std::sync::mpsc::Receiver< DownloaderMsgs >,
+    tasks: Vec< DownloadTask >,
 }
 
 impl DownloaderActor {
-    fn new() -> DownloaderActor {
+    fn new() -> (DownloaderActor,DownloaderActorLocal) {
         let (tx,rx) = ::std::sync::mpsc::channel();
 
 
-        DownloaderActor {
-            tasks: vec![],
-            send: tx,
-        }
+        (
+            DownloaderActor {
+                send: tx,
+            },
+            DownloaderActorLocal {
+                recv: rx,
+                tasks: vec![],
+            }
+        )
     }
 
-    fn launch_thread(pointer: Arc<DownloaderActor>) {
+    fn launch_thread(local: DownloaderActorLocal) {
         println!("Thread lunched!");
     }
 }
@@ -144,8 +149,9 @@ impl Drop for DownloaderActor {
 
 #[no_mangle]
 pub extern fn safe_file_downloader_new() -> *mut libc::c_void {
-    let the_arc = Box::new( Arc::new( DownloaderActor::new() ) );
-    DownloaderActor::launch_thread((*the_arc).clone());
+    let (remote,local) = DownloaderActor::new();
+    let the_arc = Box::new( Arc::new( remote ) );
+    DownloaderActor::launch_thread(local);
 
     let raw = Box::into_raw(the_arc);
     unsafe {

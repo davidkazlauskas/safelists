@@ -118,6 +118,26 @@ struct DownloadTaskWRreader {
     state: DownloadTaskState,
 }
 
+impl DownloadTaskWRreader {
+    fn next_chunk(chunk_size: u64) -> (u64,u64) // start, length
+    {
+
+    }
+
+    fn advance(&self,chunk_size: u64) {
+        let remaining = self.state.size - self.state.progress;
+        if remaining > chunk_size {
+            self.state.progress += chunk_size;
+        } else {
+            self.state.progress = self.state.size;
+        }
+    }
+
+    fn is_done(&self) -> bool {
+        self.state.size == self.state.progress;
+    }
+}
+
 struct DownloaderActor {
     send: ::std::sync::mpsc::Sender< DownloaderMsgs >,
 }

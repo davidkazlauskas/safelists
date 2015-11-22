@@ -175,7 +175,7 @@ impl DownloaderActorLocal {
 
         let curr =
             {
-                if self.iter >= self.tasks.len() {
+                if self.iter >= len {
                     self.iter = 0;
                 }
                 self.iter

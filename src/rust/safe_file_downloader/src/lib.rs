@@ -95,6 +95,10 @@ struct DownloadTask {
         libc::uint64_t,
         libc::uint64_t,
         *const libc::uint8_t),
+    userdata_arbitrary_message_func: extern fn(
+        param: *mut libc::c_void,
+        msgtype: i32,
+        param: *const libc::c_void),
     userdata_destructor: extern fn(param: *mut libc::c_void),
 }
 

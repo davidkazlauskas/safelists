@@ -427,16 +427,15 @@ pub extern fn safe_file_downloader_schedule(
             userdata_destructor: (*argptr).userdata_destructor,
         };
 
-        let pathC = std::ffi::CString::from_ptr((*argptr).path);
-        let path = pathC.into_string();
-
-        if path.is_err() {
+        let pathC = std::ffi::CStr::from_ptr((*argptr).path);
+        let pathStr = pathC.to_str();
+        if pathStr.is_err() {
             return 1;
         }
 
         (*transmuted).send.send(
             DownloaderMsgs::Schedule {
-                path: path.unwrap(), task: task
+                path: pathStr.unwrap().to_string(), task: task
             }
         );
 

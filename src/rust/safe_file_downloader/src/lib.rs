@@ -142,12 +142,9 @@ impl DownloaderActor {
         println!("Thread lunched!");
 
         loop {
-            let recv = local.recv.recv();
-            if recv.is_ok() {
-                let res = local.handle(recv.unwrap());
-                if !res {
-                    return;
-                }
+            let curr = local.perform_iteration();
+            if !curr {
+                return;
             }
         }
     }
@@ -182,6 +179,20 @@ impl DownloaderActorLocal {
             };
 
         Some(&mut self.tasks[curr])
+    }
+
+    fn perform_iteration(&mut self) -> bool {
+        if self.tasks.len() > 0 {
+            return true;
+        } else {
+            let recv = self.recv.recv();
+            if recv.is_ok() {
+                let res = self.handle(recv.unwrap());
+                return res;
+            }
+
+            return true;
+        }
     }
 }
 

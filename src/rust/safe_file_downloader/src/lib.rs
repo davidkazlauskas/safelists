@@ -394,6 +394,30 @@ pub extern fn safe_file_downloader_cleanup(ptr: *mut libc::c_void) {
     }
 }
 
+#[repr(C)]
+struct ScheduleArgs {
+    userdata: *mut libc::c_void,
+    userdata_buffer_func: extern fn(
+        param: *mut libc::c_void,
+        libc::uint64_t,
+        libc::uint64_t,
+        *const libc::uint8_t),
+    userdata_arbitrary_message_func: extern fn(
+        param: *mut libc::c_void,
+        msgtype: i32,
+        param: *const libc::c_void),
+    userdata_destructor: extern fn(param: *mut libc::c_void),
+}
+
+#[no_mangle]
+pub extern fn safe_file_downloader_schedule(
+    ptr: *mut libc::c_void,args: *mut libc::c_void)
+{
+    unsafe {
+        let argptr: *mut ScheduleArgs = ::std::mem::transmute(args);
+    }
+}
+
 quick_error! {
     #[derive(Debug)]
     pub enum GetReaderError {

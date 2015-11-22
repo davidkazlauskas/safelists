@@ -194,6 +194,10 @@ impl DownloaderActorLocal {
             }
         }
     }
+
+    fn quick_check(&mut self) -> Option< DownloaderMsgs > {
+        None
+    }
 }
 
 impl Drop for DownloaderActor {

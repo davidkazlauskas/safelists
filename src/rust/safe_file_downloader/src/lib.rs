@@ -94,7 +94,7 @@ struct DownloadTask {
         param: *mut libc::c_void,
         libc::uint64_t,
         libc::uint64_t,
-        *mut libc::uint8_t),
+        *const libc::uint8_t),
     userdata_destructor: extern fn(param: *mut libc::c_void),
 }
 
@@ -309,7 +309,7 @@ impl DownloaderActorLocal {
                 (next.task.userdata_buffer_func)(
                     next.task.userdata,
                     chunkstart,chunkend,
-                    unwrapped.as_slice().as_ptr()
+                    unwrapped.as_ptr()
                 );
             }
             self.next_task();

@@ -107,8 +107,17 @@ impl Drop for DownloadTask {
     }
 }
 
+enum DownloaderMsgs {
+    Schedule{ path: String,task: DownloadTask },
+}
+
 struct DownloaderActor {
     tasks: Vec< DownloadTask >,
+    send: Option< ::std::sync::mpsc::Sender< DownloaderMsgs > >,
+}
+
+struct DownloaderActorLocalState {
+    recv: ::std::sync::mpsc::Receiver< DownloaderMsgs >,
 }
 
 impl DownloaderActor {

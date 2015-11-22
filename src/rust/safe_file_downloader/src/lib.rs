@@ -97,6 +97,11 @@ quick_error! {
             description("Safe DNS error")
             display("Safe DNS error: {:?}",err)
         }
+        SafeNfs(err: ::safe_nfs::errors::NfsError) {
+            from()
+            description("Safe NFS error")
+            display("Safe NFS error: {:?}",err)
+        }
         Regex(err: &'static str) {
             description(err)
             display("Regex error: {}",err)
@@ -139,7 +144,7 @@ fn get_reader<'a>(
                     Ok(lst) => {
 
                     },
-                    Err(err) => return Err( GetReaderError::SafeDns(err) )
+                    Err(err) => return Err( GetReaderError::SafeNfs(err) )
                 }
             },
             Err(err) => return Err( GetReaderError::SafeDns(err) ),

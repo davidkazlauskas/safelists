@@ -108,12 +108,12 @@ impl Drop for DownloadTask {
 }
 
 enum DownloaderMsgs {
-    Schedule{ path: String,task: DownloadTask },
+    Schedule { path: String,task: DownloadTask },
 }
 
 struct DownloaderActor {
     tasks: Vec< DownloadTask >,
-    send: Option< ::std::sync::mpsc::Sender< DownloaderMsgs > >,
+    send: ::std::sync::mpsc::Sender< DownloaderMsgs >,
 }
 
 struct DownloaderActorLocalState {
@@ -122,9 +122,12 @@ struct DownloaderActorLocalState {
 
 impl DownloaderActor {
     fn new() -> DownloaderActor {
+        let (tx,rx) = ::std::sync::mpsc::channel();
+
+
         DownloaderActor {
             tasks: vec![],
-            send: None,
+            send: tx,
         }
     }
 

@@ -92,9 +92,9 @@ struct DownloadTask {
     userdata: *mut libc::c_void,
     userdata_buffer_func: extern fn(
         param: *mut libc::c_void,
-        libc::int64_t,
-        libc::int64_t,
-        *mut libc::c_char),
+        libc::uint64_t,
+        libc::uint64_t,
+        *mut libc::uint8_t),
     userdata_destructor: extern fn(param: *mut libc::c_void),
 }
 
@@ -304,7 +304,7 @@ impl DownloaderActorLocal {
 
         if readres.is_ok() {
             {
-                let unwrapped = readres.unwrap();
+                let mut unwrapped = readres.unwrap();
                 let next = self.current_task().unwrap();
                 (next.task.userdata_buffer_func)(
                     next.task.userdata,

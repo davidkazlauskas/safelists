@@ -416,6 +416,15 @@ pub extern fn safe_file_downloader_schedule(
     unsafe {
         let argptr: *mut ScheduleArgs = ::std::mem::transmute(args);
         let transmuted : *mut Arc<DownloaderActor> = std::mem::transmute(ptr);
+
+        let task = DownloadTask {
+            userdata: (*argptr).userdata,
+            userdata_buffer_func:
+                (*argptr).userdata_buffer_func,
+            userdata_arbitrary_message_func:
+                (*argptr).userdata_arbitrary_message_func,
+            userdata_destructor: (*argptr).userdata_destructor,
+        };
     }
 }
 

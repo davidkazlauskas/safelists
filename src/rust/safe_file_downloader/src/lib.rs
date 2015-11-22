@@ -238,21 +238,21 @@ impl DownloaderActorLocal {
         Ok(true)
     }
 
-    fn next_task(&mut self) -> Option< &mut DownloadTaskWRreader > {
+    fn current_task(&self) -> Option< &DownloadTaskWRreader > {
         let len = self.tasks.len();
         if 0 == len {
             return None;
         }
 
-        let curr =
-            {
-                if self.iter >= len {
-                    self.iter = 0;
-                }
-                self.iter
-            };
+        Some(&self.tasks[self.iter])
+    }
 
-        Some(&mut self.tasks[curr])
+    fn next_task(&mut self) {
+        self.iter += 1;
+
+        if self.iter >= self.tasks.len() {
+            self.iter = 0;
+        }
     }
 
     fn main_tasks(&mut self) -> bool {
@@ -279,18 +279,22 @@ impl DownloaderActorLocal {
     }
 
     fn download_next(&mut self) {
-        let next = self.next_task();
+        let file_helper = &self.rkit.file_helper;
+        let nextu = {
+            let next = self.current_task();
 
-        if next.is_none() {
-            return;
-        }
+            if next.is_none() {
+                return;
+            }
 
-        let nextu = next.unwrap();
+            let res = next.unwrap();
+            if res.is_done() {
+                return;
+            }
+            res
+        };
 
-        if nextu.is_done() {
-            return;
-        }
-
+        let chunk = nextu.next_chunk(get_chunk_size());
         let reader = self.rkit.file_helper.read(&nextu.file);
     }
 

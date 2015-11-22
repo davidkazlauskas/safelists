@@ -118,30 +118,41 @@ struct DownloaderActor {
 
 struct DownloaderActorLocal {
     recv: ::std::sync::mpsc::Receiver< DownloaderMsgs >,
-    rkit: Option< ReaderKit >,
+    rkit: ReaderKit,
     tasks: Vec< DownloadTask >,
     iter: usize,
 }
 
 impl DownloaderActor {
-    fn new() -> (DownloaderActor,DownloaderActorLocal) {
+    fn new() -> (
+        DownloaderActor,
+        ::std::sync::mpsc::Receiver< DownloaderMsgs >
+    )
+    {
         let (tx,rx) = ::std::sync::mpsc::channel();
 
         (
             DownloaderActor {
                 send: tx,
             },
-            DownloaderActorLocal {
-                recv: rx,
-                rkit: None, // create later in another thread
-                tasks: vec![],
-                iter: 0,
-            }
+            rx
         )
     }
 }
 
 impl DownloaderActorLocal {
+    fn new(kit: ReaderKit,
+           receiver: std::sync::mpsc::Receiver< DownloaderMsgs >)
+        -> DownloaderActorLocal
+    {
+        DownloaderActorLocal {
+            recv: receiver,
+            rkit: kit,
+            tasks: vec![],
+            iter: 0,
+        }
+    }
+
     fn handle(&mut self,msg: DownloaderMsgs) -> bool {
         match msg {
             DownloaderMsgs::Schedule { path: path, task: task } => {
@@ -191,15 +202,26 @@ impl DownloaderActorLocal {
         }
     }
 
-    fn launch_thread(mut local: DownloaderActorLocal) {
+    fn launch_thread(recv: ::std::sync::mpsc::Receiver< DownloaderMsgs >) {
         println!("Thread lunched!");
 
-        loop {
-            let curr = local.perform_iteration();
-            if !curr {
-                return;
+        std::thread::spawn(
+            move || {
+                let kit = ReaderKit::unregistered_kit();
+                if kit.is_err() {
+                    return;
+                }
+
+                let local = DownloaderActorLocal::new(kit.unwrap(),recv);
+
+                loop {
+                    let curr = local.perform_iteration();
+                    if !curr {
+                        return;
+                    }
+                }
             }
-        }
+        );
     }
 
     fn quick_check(&mut self) -> Option< DownloaderMsgs > {

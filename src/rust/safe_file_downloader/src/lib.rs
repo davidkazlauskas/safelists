@@ -305,7 +305,10 @@ impl DownloaderActorLocal {
         };
 
         if readres.is_ok() {
+            let unwrapped = readres.unwrap();
             self.next_task();
+        } else {
+            // possibly report read fail
         }
     }
 

@@ -257,6 +257,9 @@ impl DownloaderActorLocal {
 
     fn main_tasks(&mut self) -> bool {
         let res = self.proc_messages_non_blocking();
+        if !res {
+            return false;
+        }
         self.download_next();
         return res;
     }

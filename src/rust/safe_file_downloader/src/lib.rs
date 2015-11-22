@@ -137,17 +137,6 @@ impl DownloaderActor {
             }
         )
     }
-
-    fn launch_thread(mut local: DownloaderActorLocal) {
-        println!("Thread lunched!");
-
-        loop {
-            let curr = local.perform_iteration();
-            if !curr {
-                return;
-            }
-        }
-    }
 }
 
 impl DownloaderActorLocal {
@@ -194,6 +183,17 @@ impl DownloaderActorLocal {
             return true;
         }
     }
+
+    fn launch_thread(mut local: DownloaderActorLocal) {
+        println!("Thread lunched!");
+
+        loop {
+            let curr = local.perform_iteration();
+            if !curr {
+                return;
+            }
+        }
+    }
 }
 
 impl Drop for DownloaderActor {
@@ -206,7 +206,7 @@ impl Drop for DownloaderActor {
 pub extern fn safe_file_downloader_new() -> *mut libc::c_void {
     let (remote,local) = DownloaderActor::new();
     let the_arc = Box::new( Arc::new( remote ) );
-    DownloaderActor::launch_thread(local);
+    DownloaderActorLocal::launch_thread(local);
 
     let raw = Box::into_raw(the_arc);
     unsafe {

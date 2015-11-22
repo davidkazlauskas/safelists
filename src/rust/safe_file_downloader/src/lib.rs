@@ -310,6 +310,7 @@ impl DownloaderActorLocal {
             {
                 let mut unwrapped = readres.unwrap();
                 let next = self.current_task().unwrap();
+                next.advance(chunkend-chunkstart);
                 (next.task.userdata_buffer_func)(
                     next.task.userdata,
                     chunkstart,chunkend,

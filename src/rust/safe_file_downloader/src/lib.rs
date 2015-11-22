@@ -196,7 +196,12 @@ impl DownloaderActorLocal {
     }
 
     fn quick_check(&mut self) -> Option< DownloaderMsgs > {
-        None
+        let res = self.recv.try_recv();
+        if res.is_err() {
+            None
+        } else {
+            Some(res.unwrap())
+        }
     }
 }
 

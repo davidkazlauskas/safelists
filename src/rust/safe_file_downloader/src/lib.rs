@@ -161,6 +161,7 @@ fn recursive_find_path(
 fn get_file(
     client: Arc<Mutex<::safe_core::client::Client>>,
     dns_ops: ::safe_dns::dns_operations::DnsOperations,
+    dir_helper: ::safe_nfs::helper::directory_helper::DirectoryHelper,
     path: String)
     -> Result< ::safe_nfs::file::File, GetReaderError >
 {
@@ -186,8 +187,6 @@ fn get_file(
 
         match dir_key {
             Ok(val) => {
-                let dir_helper = ::safe_nfs::helper::directory_helper
-                    ::DirectoryHelper::new(client.clone());
                 let listing = dir_helper.get(&val);
 
                 match listing {

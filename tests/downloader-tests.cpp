@@ -1152,8 +1152,38 @@ TEST_CASE("safelist_create_session_dup_mirrors","[safelist_downloader]") {
     REQUIRE( res );
 }
 
+struct SomeState {
+    int moo;
+};
+
+int32_t SomeState_userdata_buffer_func(
+    void* userdata,int64_t start,int64_t end,const uint8_t* buf)
+{
+    return 0;
+}
+
+void SomeState_userdata_arbitrary_message_func(
+    void* userdata,int32_t msgtype,const void* buf)
+{
+    SomeState* cast = reinterpret_cast<SomeState*>(userdata);
+    printf("Downloading... Userdata: %d\n",cast->moo);
+    printf("Downloading... Msgtype: %d\n",msgtype);
+}
+
+void SomeState_userdata_destructor(void* userdata) {
+    SomeState* cast = reinterpret_cast<SomeState*>(userdata);
+    delete cast;
+}
+
 TEST_CASE("maidsafe_downloader_init_and_destroy","[safe_network_downloader]") {
     void* handle = ::safe_file_downloader_new();
+
+    auto st = new SomeState();
+    st->moo = 777;
+
+    ::safe_file_downloader_args args;
+    args.userdata = st;
+
     ::safe_file_downloader_cleanup(handle);
 }
 

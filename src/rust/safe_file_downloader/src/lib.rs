@@ -179,7 +179,8 @@ fn get_reader<'a>(
 
                 match listing {
                     Ok(lst) => {
-
+                        let reslisting = recursive_find_path(
+                            &tokenized_path,0,lst,dir_helper);
                     },
                     Err(err) => return Err( GetReaderError::SafeNfs(err) )
                 }

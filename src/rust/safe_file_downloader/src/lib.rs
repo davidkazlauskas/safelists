@@ -279,27 +279,34 @@ impl DownloaderActorLocal {
     }
 
     fn download_next(&mut self) {
-        let file_helper = &self.rkit.file_helper;
-        let nextu = {
-            let next = self.current_task();
-
-            if next.is_none() {
-                return;
-            }
-
-            let res = next.unwrap();
-            if res.is_done() {
-                return;
-            }
-            res
-        };
-
         let readres = {
-            let (chunkstart,chunkend) =
-                nextu.next_chunk(get_chunk_size());
-            let mut reader = self.rkit.file_helper.read(&nextu.file);
-            reader.read(chunkstart,chunkend);
+            let nextu = {
+                let next = self.current_task();
+
+                if next.is_none() {
+                    return;
+                }
+
+                let res = next.unwrap();
+                if res.is_done() {
+                    return;
+                }
+                res
+            };
+
+            let readres = {
+                let (chunkstart,chunkend) =
+                    nextu.next_chunk(get_chunk_size());
+                let mut reader = self.rkit.file_helper.read(&nextu.file);
+                reader.read(chunkstart,chunkend)
+            };
+
+            readres
         };
+
+        if readres.is_ok() {
+            self.next_task();
+        }
     }
 
     fn perform_iteration(&mut self) -> bool {

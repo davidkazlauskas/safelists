@@ -230,7 +230,7 @@ impl DownloaderActorLocal {
     }
 
     fn main_tasks(&mut self) {
-
+        let next = self.next_task();
     }
 
     fn perform_iteration(&mut self) -> bool {

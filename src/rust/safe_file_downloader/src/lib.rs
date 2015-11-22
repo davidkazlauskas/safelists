@@ -170,8 +170,13 @@ impl DownloaderActorLocal {
         Some(&mut self.tasks[curr])
     }
 
+    fn main_tasks(&mut self) {
+
+    }
+
     fn perform_iteration(&mut self) -> bool {
         if self.tasks.len() > 0 {
+            self.main_tasks();
             return true;
         } else {
             let recv = self.recv.recv();

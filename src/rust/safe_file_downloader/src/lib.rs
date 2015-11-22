@@ -174,7 +174,7 @@ impl<'a> DownloaderActorLocal<'a> {
         return true;
     }
 
-    fn add_task(&mut self,path: String,task: DownloadTask) {
+    fn add_task(&'a mut self,path: String,task: DownloadTask) {
         let file = get_file(&self.rkit,&path);
         if file.is_err() {
             // HANDLE ERROR
@@ -186,16 +186,22 @@ impl<'a> DownloaderActorLocal<'a> {
             state: None,
         };
 
-        let reader = self.rkit.file_helper.read(&res.file);
-        let size = reader.size();
+        self.tasks.push(res);
 
-        let state = DownloadTaskState {
-            size: size,
-            progress: 0,
-            reader: reader,
-        };
+        let mut pushed = self.tasks.last_mut().unwrap();
+        let state =
+            {
+                let reader = self.rkit.file_helper.read(&pushed.file);
+                let size = reader.size();
 
-        res.state = Some(state);
+                DownloadTaskState {
+                    size: size,
+                    progress: 0,
+                    reader: reader,
+                }
+            };
+
+        pushed.state = Some(state);
     }
 
     fn next_task(&'a mut self) -> Option< &mut DownloadTaskWRreader > {

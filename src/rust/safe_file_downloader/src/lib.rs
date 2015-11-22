@@ -92,7 +92,7 @@ pub extern fn safe_file_downloader_cleanup(ptr: *mut libc::c_void) {
 quick_error! {
     #[derive(Debug)]
     pub enum GetReaderError {
-        Io(err: ::safe_dns::errors::DnsError) {
+        SafeDns(err: ::safe_dns::errors::DnsError) {
             from()
             description("Safe DNS error")
             display("Safe DNS error: {:?}",err)
@@ -128,6 +128,13 @@ fn get_reader<'a>(
                 &name,&service,None);
 
         let tokenized_path = path_tokenizer(file.clone());
+
+        match dir_key {
+            Ok(val) => {
+
+            },
+            Err(err) => return Err( GetReaderError::SafeDns(err) ),
+        }
     }
 
     Err( GetReaderError::Regex("Could not parse url.") )

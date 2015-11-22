@@ -407,11 +407,12 @@ struct ScheduleArgs {
         msgtype: i32,
         param: *const libc::c_void),
     userdata_destructor: extern fn(param: *mut libc::c_void),
+    path: *const libc::c_schar,
 }
 
 #[no_mangle]
 pub extern fn safe_file_downloader_schedule(
-    ptr: *mut libc::c_void,args: *mut libc::c_void)
+    ptr: *mut libc::c_void,args: *mut libc::c_void) -> libc::int32_t
 {
     unsafe {
         let argptr: *mut ScheduleArgs = ::std::mem::transmute(args);
@@ -425,6 +426,21 @@ pub extern fn safe_file_downloader_schedule(
                 (*argptr).userdata_arbitrary_message_func,
             userdata_destructor: (*argptr).userdata_destructor,
         };
+
+        let pathC = std::ffi::CString::from_ptr((*argptr).path);
+        let path = pathC.into_string();
+
+        if path.is_err() {
+            return 1;
+        }
+
+        (*transmuted).send.send(
+            DownloaderMsgs::Schedule {
+                path: path.unwrap(), task: task
+            }
+        );
+
+        return 0;
     }
 }
 

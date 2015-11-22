@@ -1159,6 +1159,9 @@ struct SomeState {
 int32_t SomeState_userdata_buffer_func(
     void* userdata,int64_t start,int64_t end,const uint8_t* buf)
 {
+    SomeState* cast = reinterpret_cast<SomeState*>(userdata);
+    printf("Downloading... Userdata: %d\n",cast->moo);
+    printf("Downloading... Range: %ld %ld\n",start,end);
     return 0;
 }
 

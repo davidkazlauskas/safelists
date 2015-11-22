@@ -148,6 +148,16 @@ impl DownloaderActor {
     }
 }
 
+quick_error! {
+    #[derive(Debug)]
+    pub enum AddTaskError {
+        FileNotFound(err: &'static str) {
+            description(err)
+            display("{}",err)
+        }
+    }
+}
+
 impl<'a> DownloaderActorLocal<'a> {
     fn new(kit: ReaderKit,
            receiver: std::sync::mpsc::Receiver< DownloaderMsgs >)
@@ -174,10 +184,12 @@ impl<'a> DownloaderActorLocal<'a> {
         return true;
     }
 
-    fn add_task(&'a mut self,path: String,task: DownloadTask) {
+    fn add_task(&'a mut self,path: String,task: DownloadTask)
+    -> Result< bool, AddTaskError > {
         let file = get_file(&self.rkit,&path);
         if file.is_err() {
-            // HANDLE ERROR
+            return Err( AddTaskError
+                ::FileNotFound("Could not find file.") );
         }
 
         let mut res = DownloadTaskWRreader {
@@ -202,6 +214,8 @@ impl<'a> DownloaderActorLocal<'a> {
             };
 
         pushed.state = Some(state);
+
+        Ok(true)
     }
 
     fn next_task(&'a mut self) -> Option< &mut DownloadTaskWRreader > {

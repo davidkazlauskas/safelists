@@ -66,15 +66,14 @@ fn get_chunk_size() -> i64 {
     CHUNK_SIZE
 }
 
-struct DownloadTaskState<'a> {
+struct DownloadTaskState {
     size: u64,
-    progress: u64,
-    reader: ::safe_nfs::helper::reader::Reader<'a>,
+    progress: u64
 }
 
-impl<'a> DownloadTaskState<'a> {
-    fn new(rk: &ReaderKit,file: &'a ::safe_nfs::file::File)
-     -> DownloadTaskState<'a>
+impl DownloadTaskState {
+    fn new(rk: &ReaderKit,file: &::safe_nfs::file::File)
+     -> DownloadTaskState
     {
         let reader = rk.file_helper.read(&file);
         let size = reader.size();
@@ -83,7 +82,6 @@ impl<'a> DownloadTaskState<'a> {
             DownloadTaskState {
                 size: size,
                 progress: 0,
-                reader: reader,
             };
 
         res
@@ -114,20 +112,20 @@ enum DownloaderMsgs {
     Stop,
 }
 
-struct DownloadTaskWRreader<'a> {
+struct DownloadTaskWRreader {
     task: DownloadTask,
     file: ::safe_nfs::file::File,
-    state: Option< DownloadTaskState<'a> >,
+    state: DownloadTaskState,
 }
 
 struct DownloaderActor {
     send: ::std::sync::mpsc::Sender< DownloaderMsgs >,
 }
 
-struct DownloaderActorLocal<'a> {
+struct DownloaderActorLocal {
     recv: ::std::sync::mpsc::Receiver< DownloaderMsgs >,
     rkit: ReaderKit,
-    tasks: Vec< DownloadTaskWRreader<'a> >,
+    tasks: Vec< DownloadTaskWRreader >,
     iter: usize,
 }
 
@@ -158,10 +156,10 @@ quick_error! {
     }
 }
 
-impl<'a> DownloaderActorLocal<'a> {
+impl DownloaderActorLocal {
     fn new(kit: ReaderKit,
            receiver: std::sync::mpsc::Receiver< DownloaderMsgs >)
-        -> DownloaderActorLocal<'a>
+        -> DownloaderActorLocal
     {
         DownloaderActorLocal {
             recv: receiver,
@@ -174,7 +172,7 @@ impl<'a> DownloaderActorLocal<'a> {
     fn handle(&mut self,msg: DownloaderMsgs) -> bool {
         match msg {
             DownloaderMsgs::Schedule { path: path, task: task } => {
-
+                self.add_task(path,task);
             },
             DownloaderMsgs::Stop => {
                 return false;
@@ -184,7 +182,7 @@ impl<'a> DownloaderActorLocal<'a> {
         return true;
     }
 
-    fn add_task(&'a mut self,path: String,task: DownloadTask)
+    fn add_task(&mut self,path: String,task: DownloadTask)
     -> Result< bool, AddTaskError > {
         let file = get_file(&self.rkit,&path);
         if file.is_err() {
@@ -192,33 +190,29 @@ impl<'a> DownloaderActorLocal<'a> {
                 ::FileNotFound("Could not find file.") );
         }
 
-        let mut res = DownloadTaskWRreader {
-            task: task,
-            file: file.unwrap(),
-            state: None,
-        };
+        let fileu = file.unwrap();
 
-        self.tasks.push(res);
-
-        let mut pushed = self.tasks.last_mut().unwrap();
         let state =
             {
-                let reader = self.rkit.file_helper.read(&pushed.file);
+                let reader = self.rkit.file_helper.read(&fileu);
                 let size = reader.size();
-
                 DownloadTaskState {
                     size: size,
                     progress: 0,
-                    reader: reader,
                 }
             };
 
-        pushed.state = Some(state);
+        let mut res = DownloadTaskWRreader {
+            task: task,
+            file: fileu,
+            state: state,
+        };
 
+        self.tasks.push(res);
         Ok(true)
     }
 
-    fn next_task(&'a mut self) -> Option< &mut DownloadTaskWRreader > {
+    fn next_task(&mut self) -> Option< &mut DownloadTaskWRreader > {
         let len = self.tasks.len();
         if 0 == len {
             return None;

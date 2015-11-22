@@ -25,6 +25,7 @@ extern "C" {
 
     void* safe_file_downloader_new();
     void safe_file_downloader_cleanup(void* handle);
+    void safe_file_downloader_schedule(void* handle,void* args /* safe_file_downloader_args */ );
 
 #ifdef __cplusplus
 }

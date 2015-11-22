@@ -294,8 +294,12 @@ impl DownloaderActorLocal {
             res
         };
 
-        let chunk = nextu.next_chunk(get_chunk_size());
-        let reader = self.rkit.file_helper.read(&nextu.file);
+        let readres = {
+            let (chunkstart,chunkend) =
+                nextu.next_chunk(get_chunk_size());
+            let mut reader = self.rkit.file_helper.read(&nextu.file);
+            reader.read(chunkstart,chunkend);
+        };
     }
 
     fn perform_iteration(&mut self) -> bool {

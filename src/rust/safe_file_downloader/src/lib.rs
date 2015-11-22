@@ -10,7 +10,12 @@ extern crate regex;
 
 use std::sync::{Arc,Mutex};
 
-const CHUNK_SIZE : i64 = 64 * 1024;
+const CHUNK_SIZE : u64 = 64 * 1024;
+
+// chunk size for each download
+fn get_chunk_size() -> u64 {
+    CHUNK_SIZE
+}
 
 struct ReaderKit {
     client: Arc< Mutex< ::safe_core::client::Client > >,
@@ -59,11 +64,6 @@ impl ReaderKit {
             }
         )
     }
-}
-
-// chunk size for each download
-fn get_chunk_size() -> i64 {
-    CHUNK_SIZE
 }
 
 struct DownloadTaskState {

@@ -19,6 +19,48 @@ struct ReaderKit {
     file_helper: ::safe_nfs::helper::file_helper::FileHelper,
 }
 
+quick_error! {
+    #[derive(Debug)]
+    pub enum GetReaderKitError {
+        CouldNotCreateClient(err: &'static str) {
+            description(err)
+            display("{}",err)
+        }
+    }
+}
+
+impl ReaderKit {
+    // should be created only once
+    // per program
+    fn unregistered_kit() -> Result< ReaderKit, GetReaderKitError >  {
+        let client = ::safe_core::client
+            ::Client::create_unregistered_client();
+
+        if client.is_err() {
+            return Err( GetReaderKitError::CouldNotCreateClient(
+                "Could not create unregistered client.") );
+        }
+
+        let clientu = Arc::new( Mutex::new( client.unwrap() ) );
+
+        let dns_ops = ::safe_dns::dns_operations
+            ::DnsOperations::new_unregistered(clientu.clone());
+        let dir_helper = ::safe_nfs::helper::directory_helper
+            ::DirectoryHelper::new(clientu.clone());
+        let file_helper = ::safe_nfs::helper::file_helper
+            ::FileHelper::new(clientu.clone());
+
+        Ok(
+            ReaderKit {
+                client: clientu,
+                dns_ops: dns_ops,
+                dir_helper: dir_helper,
+                file_helper: file_helper,
+            }
+        )
+    }
+}
+
 // chunk size for each download
 fn get_chunk_size() -> i64 {
     CHUNK_SIZE

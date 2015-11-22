@@ -12,6 +12,12 @@ use std::sync::{Arc,Mutex};
 
 const CHUNK_SIZE : i64 = 64 * 1024;
 
+struct ReaderKit {
+    client: Arc< Mutex< ::safe_core::client::Client > >,
+    dns_ops: ::safe_dns::dns_operations::DnsOperations,
+    dir_helper: ::safe_nfs::helper::directory_helper::DirectoryHelper,
+}
+
 // chunk size for each download
 fn get_chunk_size() -> i64 {
     CHUNK_SIZE

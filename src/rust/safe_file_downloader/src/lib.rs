@@ -367,6 +367,7 @@ impl DownloaderActorLocal {
                     if !curr {
                         return;
                     }
+                    local.filter_done();
                 }
             }
         );

@@ -136,28 +136,33 @@ impl DownloaderActor {
         )
     }
 
-    fn launch_thread(local: DownloaderActorLocal) {
+    fn launch_thread(mut local: DownloaderActorLocal) {
         println!("Thread lunched!");
 
         loop {
             let recv = local.recv.recv();
             if recv.is_ok() {
-
+                let res = local.handle(recv.unwrap());
+                if !res {
+                    return;
+                }
             }
         }
     }
 }
 
 impl DownloaderActorLocal {
-    fn handle(&mut self,msg: DownloaderMsgs) {
+    fn handle(&mut self,msg: DownloaderMsgs) -> bool {
         match msg {
             DownloaderMsgs::Schedule { path: path, task: task } => {
 
             },
             DownloaderMsgs::Stop => {
-
+                return false;
             },
         }
+
+        return true;
     }
 }
 

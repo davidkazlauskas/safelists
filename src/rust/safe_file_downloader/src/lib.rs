@@ -119,22 +119,28 @@ struct DownloadTaskWRreader {
 }
 
 impl DownloadTaskWRreader {
-    fn next_chunk(chunk_size: u64) -> (u64,u64) // start, length
+    fn next_chunk(&self,chunk_size: u64) -> (u64,u64) // start, length
     {
-
+        let remaining = self.remaining_size(chunk_size);
+        (self.state.progress,remaining)
     }
 
-    fn advance(&self,chunk_size: u64) {
+    fn remaining_size(&self,to_take: u64) -> u64 {
         let remaining = self.state.size - self.state.progress;
-        if remaining > chunk_size {
-            self.state.progress += chunk_size;
+        if remaining > to_take {
+            to_take
         } else {
-            self.state.progress = self.state.size;
+            remaining
         }
     }
 
+    fn advance(&mut self,chunk_size: u64) {
+        let remaining = self.remaining_size(chunk_size);
+        self.state.progress += remaining;
+    }
+
     fn is_done(&self) -> bool {
-        self.state.size == self.state.progress;
+        self.state.size == self.state.progress
     }
 }
 

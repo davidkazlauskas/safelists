@@ -256,6 +256,19 @@ impl DownloaderActorLocal {
     }
 
     fn main_tasks(&mut self) {
+        self.proc_messages_non_blocking();
+        self.download_next();
+    }
+
+    fn proc_messages_non_blocking(&mut self) {
+        loop {
+            let next = self.quick_check();
+            if next.is_some() {
+                self.handle(next.unwrap());
+            } else {
+                return;
+            }
+        }
     }
 
     fn download_next(&mut self) {

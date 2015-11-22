@@ -92,7 +92,7 @@ fn get_reader<'a>(
     client: Arc<Mutex<::safe_core::client::Client>>,
     dns_ops: ::safe_dns::dns_operations::DnsOperations,
     path: String)
-    -> ::safe_nfs::helper::reader::Reader<'a>
+    -> Result< ::safe_nfs::helper::reader::Reader<'a>, Box< ::std::error::Error > >
 {
     let trimmed = path.trim();
     let namergx = regex!(

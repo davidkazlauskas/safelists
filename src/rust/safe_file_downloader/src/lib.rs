@@ -6,6 +6,7 @@ extern crate safe_nfs;
 extern crate safe_dns;
 extern crate safe_core;
 extern crate regex;
+#[macro_use] extern crate quick_error;
 
 use std::sync::{Arc,Mutex};
 
@@ -88,16 +89,38 @@ pub extern fn safe_file_downloader_cleanup(ptr: *mut libc::c_void) {
     }
 }
 
+quick_error! {
+    #[derive(Debug)]
+    pub enum GetReaderError {
+        Io(err: ::safe_dns::errors::DnsError) {
+            from()
+            description("Safe DNS error")
+            display("Safe DNS error: {:?}",err)
+        }
+        Regex {
+            from(&'static str)
+        }
+    }
+}
+
 fn get_reader<'a>(
     client: Arc<Mutex<::safe_core::client::Client>>,
     dns_ops: ::safe_dns::dns_operations::DnsOperations,
     path: String)
-    -> Result< ::safe_nfs::helper::reader::Reader<'a>, Box< ::std::error::Error > >
+    -> Result< ::safe_nfs::helper::reader::Reader<'a>, GetReaderError >
 {
     let trimmed = path.trim();
     let namergx = regex!(
         r"^([a-zA-Z0-9_-]+).([a-zA-Z0-9_.-]+)/([a-zA-Z0-9_./]+)$");
 
+    for i in namergx.captures_iter(trimmed) {
+        let service = i.at(1).unwrap().to_string();
+        let name = i.at(2).unwrap().to_string();
+        let file = i.at(3).unwrap().to_string();
+
+    }
+
+    Err( GetReaderError::Regex("Could not parse url.") )
 }
 
 #[test]

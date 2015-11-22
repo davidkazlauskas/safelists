@@ -104,7 +104,7 @@ quick_error! {
     }
 }
 
-pub fn path_tokeniser(the_path: String) -> Vec<String> {
+pub fn path_tokenizer(the_path: String) -> Vec<String> {
     the_path.split("/").filter(|a| !a.is_empty()).map(|a| a.to_string()).collect()
 }
 

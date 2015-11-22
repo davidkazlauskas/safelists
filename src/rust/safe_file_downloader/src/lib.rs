@@ -344,6 +344,9 @@ impl DownloaderActorLocal {
             if recv.is_ok() {
                 let res = self.handle(recv.unwrap());
                 return res;
+            } else {
+                ::std::thread::sleep(
+                    ::std::time::Duration::from_millis(100));
             }
 
             return true;

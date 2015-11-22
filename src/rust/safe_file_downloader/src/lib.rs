@@ -174,6 +174,19 @@ impl<'a> DownloaderActorLocal<'a> {
         return true;
     }
 
+    fn add_task(&mut self,path: String,task: DownloadTask) {
+        let file = get_file(&self.rkit,&path);
+        if file.is_err() {
+            // HANDLE ERROR
+        }
+
+        let res = DownloadTaskWRreader {
+            task: task,
+            file: file.unwrap(),
+            state: None,
+        };
+    }
+
     fn next_task(&'a mut self) -> Option< &mut DownloadTaskWRreader > {
         let len = self.tasks.len();
         if 0 == len {
@@ -339,7 +352,7 @@ fn recursive_find_path(
 
 fn get_file(
     rk: &ReaderKit,
-    path: String)
+    path: &String)
     -> Result< ::safe_nfs::file::File, GetReaderError >
 {
     let trimmed = path.trim();

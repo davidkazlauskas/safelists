@@ -1154,6 +1154,7 @@ TEST_CASE("safelist_create_session_dup_mirrors","[safelist_downloader]") {
 
 struct SomeState {
     int moo;
+    void* handle;
 };
 
 int32_t SomeState_userdata_buffer_func(
@@ -1183,6 +1184,7 @@ TEST_CASE("maidsafe_downloader_init_and_destroy","[safe_network_downloader]") {
 
     auto st = new SomeState();
     st->moo = 777;
+    st->handle = handle;
 
     ::safe_file_downloader_args args;
     args.userdata = st;

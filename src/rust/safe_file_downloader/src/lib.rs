@@ -309,7 +309,7 @@ impl DownloaderActorLocal {
                 (next.task.userdata_buffer_func)(
                     next.task.userdata,
                     chunkstart,chunkend,
-                    unwrapped.as_mut_slice().as_mut_ptr()
+                    unwrapped.as_slice().as_ptr()
                 );
             }
             self.next_task();

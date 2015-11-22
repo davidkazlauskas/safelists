@@ -107,6 +107,8 @@ impl Drop for DownloadTask {
     }
 }
 
+unsafe impl Send for DownloadTask {}
+
 enum DownloaderMsgs {
     Schedule { path: String,task: DownloadTask },
     Stop,
@@ -212,7 +214,7 @@ impl DownloaderActorLocal {
                     return;
                 }
 
-                let local = DownloaderActorLocal::new(kit.unwrap(),recv);
+                let mut local = DownloaderActorLocal::new(kit.unwrap(),recv);
 
                 loop {
                     let curr = local.perform_iteration();

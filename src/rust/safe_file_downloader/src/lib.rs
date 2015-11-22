@@ -290,6 +290,8 @@ impl DownloaderActorLocal {
         if nextu.is_done() {
             return;
         }
+
+        let reader = self.rkit.file_helper.read(&nextu.file);
     }
 
     fn perform_iteration(&mut self) -> bool {

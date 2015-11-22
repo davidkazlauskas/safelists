@@ -1176,6 +1176,7 @@ void SomeState_userdata_arbitrary_message_func(
 
 void SomeState_userdata_destructor(void* userdata) {
     SomeState* cast = reinterpret_cast<SomeState*>(userdata);
+    ::safe_file_downloader_cleanup(cast->handle);
     delete cast;
 }
 
@@ -1188,7 +1189,5 @@ TEST_CASE("maidsafe_downloader_init_and_destroy","[safe_network_downloader]") {
 
     ::safe_file_downloader_args args;
     args.userdata = st;
-
-    ::safe_file_downloader_cleanup(handle);
 }
 

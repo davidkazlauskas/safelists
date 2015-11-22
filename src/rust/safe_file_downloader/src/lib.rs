@@ -114,6 +114,12 @@ enum DownloaderMsgs {
     Stop,
 }
 
+struct DownloadTaskWRreader<'a> {
+    task: DownloadTask,
+    file: ::safe_nfs::file::File,
+    state: Option< DownloadTaskState<'a> >,
+}
+
 struct DownloaderActor {
     send: ::std::sync::mpsc::Sender< DownloaderMsgs >,
 }

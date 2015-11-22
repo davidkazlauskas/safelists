@@ -1177,6 +1177,7 @@ void SomeState_userdata_arbitrary_message_func(
 void SomeState_userdata_destructor(void* userdata) {
     SomeState* cast = reinterpret_cast<SomeState*>(userdata);
     ::safe_file_downloader_cleanup(cast->handle);
+    printf("Dropped the sucka! Userdata: %d\n",cast->moo);
     delete cast;
 }
 

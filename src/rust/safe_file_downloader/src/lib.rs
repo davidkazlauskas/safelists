@@ -94,7 +94,7 @@ struct DownloadTask {
         param: *mut libc::c_void,
         libc::uint64_t,
         libc::uint64_t,
-        *const libc::uint8_t),
+        *const libc::uint8_t) -> libc::int32_t,
     userdata_arbitrary_message_func: extern fn(
         param: *mut libc::c_void,
         msgtype: i32,
@@ -401,7 +401,7 @@ struct ScheduleArgs {
         param: *mut libc::c_void,
         libc::uint64_t,
         libc::uint64_t,
-        *const libc::uint8_t),
+        *const libc::uint8_t) -> libc::int32_t,
     userdata_arbitrary_message_func: extern fn(
         param: *mut libc::c_void,
         msgtype: i32,

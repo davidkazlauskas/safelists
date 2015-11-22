@@ -212,6 +212,8 @@ fn get_reader<'a>(
 
                         let file_helper = ::safe_nfs::helper::file_helper
                             ::FileHelper::new(client.clone());
+
+                        let mut reader = file_helper.read(the_file_res);
                     },
                     Err(err) => return Err( GetReaderError::SafeNfs(err) )
                 }

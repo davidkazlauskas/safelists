@@ -136,7 +136,7 @@ pub fn path_tokenizer(the_path: String) -> Vec<String> {
 fn recursive_find_path(
     tokens: &Vec< String >,num: usize,
     root: ::safe_nfs::directory_listing::DirectoryListing,
-    dir_helper: ::safe_nfs::helper::directory_helper::DirectoryHelper)
+    dir_helper: &::safe_nfs::helper::directory_helper::DirectoryHelper)
     -> Result< ::safe_nfs::directory_listing::DirectoryListing,
                GetReaderError >
 {
@@ -167,9 +167,7 @@ fn recursive_find_path(
 }
 
 fn get_file(
-    client: Arc<Mutex<::safe_core::client::Client>>,
-    dns_ops: ::safe_dns::dns_operations::DnsOperations,
-    dir_helper: ::safe_nfs::helper::directory_helper::DirectoryHelper,
+    rk: &ReaderKit,
     path: String)
     -> Result< ::safe_nfs::file::File, GetReaderError >
 {
@@ -182,7 +180,7 @@ fn get_file(
         let name = i.at(2).unwrap().to_string();
         let file = i.at(3).unwrap().to_string();
 
-        let dir_key = dns_ops
+        let dir_key = rk.dns_ops
             .get_service_home_directory_key(
                 &name,&service,None);
 
@@ -195,12 +193,12 @@ fn get_file(
 
         match dir_key {
             Ok(val) => {
-                let listing = dir_helper.get(&val);
+                let listing = rk.dir_helper.get(&val);
 
                 match listing {
                     Ok(lst) => {
                         let reslisting = recursive_find_path(
-                            &tokenized_path,0,lst,dir_helper);
+                            &tokenized_path,0,lst,&rk.dir_helper);
 
                         if reslisting.is_err() {
                             return Err( reslisting.err().unwrap() );

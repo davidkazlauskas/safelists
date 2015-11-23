@@ -1188,6 +1188,7 @@ struct Waiter {
     std::future< void > fut;
 };
 
+// will be called from another thread
 void waiter_func(void* data) {
     Waiter& w = *reinterpret_cast< Waiter* >(data);
     w.prom.set_value();

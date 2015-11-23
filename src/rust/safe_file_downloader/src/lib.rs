@@ -251,6 +251,15 @@ impl DownloaderActorLocal {
         Some(&self.tasks[self.iter])
     }
 
+    fn current_task_mut(&mut self) -> Option< &mut DownloadTaskWRreader > {
+        let len = self.tasks.len();
+        if 0 == len {
+            return None;
+        }
+
+        Some(&mut self.tasks[self.iter])
+    }
+
     fn next_task(&mut self) {
         self.iter += 1;
 
@@ -312,7 +321,8 @@ impl DownloaderActorLocal {
                 let (chunkstart,chunkend) =
                     nextu.next_chunk(get_chunk_size());
                 let mut reader = self.rkit.file_helper.read(&nextu.file);
-                (reader.read(chunkstart,chunkend),chunkstart,chunkstart+chunkend)
+                let readres = reader.read(chunkstart,chunkend);
+                (readres,chunkstart,chunkstart+chunkend)
             }
         };
 
@@ -451,11 +461,14 @@ pub extern fn safe_file_downloader_schedule(
             return 1;
         }
 
-        (*transmuted).send.send(
+        let pathString = pathStr.unwrap().to_string();
+
+        let sched_struct =
             DownloaderMsgs::Schedule {
-                path: pathStr.unwrap().to_string(), task: task
-            }
-        );
+                path: pathString, task: task
+            };
+
+        (*transmuted).send.send(sched_struct);
 
         return 0;
     }

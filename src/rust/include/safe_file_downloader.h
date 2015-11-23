@@ -27,8 +27,17 @@ extern "C" {
 // additional arg is null.
 #define SAFE_DOWNLOADER_MSG_FILE_NOT_FOUND 7
 
+    // init safe file downloader and return handle.
     void* safe_file_downloader_new();
+
+    // cleanup handle, non blocking. if on_done function is not null it is
+    // called with on_done_data just before actor terminates.
     void safe_file_downloader_cleanup(void* handle,sfd_userdata_function on_done,void* on_done_data);
+
+    // args should be pointer safe_file_downloader_args structure.
+    // Ownership now belongs for safe_file_downloader actor.
+    // safe_file_downloader ensures that destructor on safe_file_downloader_args.userdata
+    // is called.
     void safe_file_downloader_schedule(void* handle,void* args /* safe_file_downloader_args */ );
 
 #ifdef __cplusplus

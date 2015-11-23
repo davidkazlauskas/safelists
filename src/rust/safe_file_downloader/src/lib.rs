@@ -213,6 +213,8 @@ impl DownloaderActorLocal {
                 self.add_task(path,task);
             },
             DownloaderMsgs::Stop { donedata, donefunc } => {
+                self.endfunc = Some(donefunc);
+                self.enddata = donedata;
                 return false;
             },
         }
@@ -386,6 +388,9 @@ impl DownloaderActorLocal {
                 loop {
                     let curr = local.perform_iteration();
                     if !curr {
+                        if local.endfunc.is_some() {
+                            (local.endfunc.unwrap())(local.enddata);
+                        }
                         return;
                     }
                     local.filter_done();

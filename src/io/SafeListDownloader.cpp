@@ -239,6 +239,11 @@ private:
                     // mainly to invoke semaphore, do nothing
                 }
             ),
+            SF::virtualMatch< FileNotFound, int >(
+                [&](FileNotFound,int id) {
+
+                }
+            ),
             SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(
                 [=](GSI::InRegisterItself, const StrongMsgPtr& ptr) {
                     auto handler = std::make_shared< GenericShutdownGuard >();
@@ -309,7 +314,7 @@ private:
                         this->_hasEnded = true;
                         auto locked = _session.lock();
                         if (nullptr != locked) {
-                            auto msg = SF::vpackPtr< FileNotFound >(nullptr);
+                            auto msg = SF::vpackPtr< FileNotFound, int >(nullptr,_id);
                             locked->message(msg);
                         }
                     }

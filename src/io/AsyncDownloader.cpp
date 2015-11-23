@@ -6,7 +6,7 @@
 #include <io/Interval.hpp>
 #include <util/GenericShutdownGuard.hpp>
 #include <util/ScopeGuard.hpp>
-#include <safe_ffi.h>
+#include <safe_file_downloader.h>
 
 #include "AsyncDownloader.hpp"
 
@@ -39,7 +39,17 @@ namespace SafeLists {
 
 
     struct AsyncDownloaderSafeNet : public Messageable {
-        AsyncDownloaderSafeNet() : _shutdown(false) {}
+        AsyncDownloaderSafeNet() :
+            _shutdown(false),
+            _safehandle(nullptr)
+        {}
+
+        ~AsyncDownloaderSafeNet() {
+            if (nullptr != _safehandle) {
+                ::safe_file_downloader_cleanup(
+                    _safehandle,nullptr,nullptr);
+            }
+        }
 
         // this is for sending message across threads
         void message(const std::shared_ptr< templatious::VirtualPack >& msg) {
@@ -56,26 +66,7 @@ namespace SafeLists {
             auto result = std::make_shared< AsyncDownloaderSafeNet >();
             result->_myself = result;
 
-            std::unique_ptr< std::promise<void> > prom( new std::promise<void> );
-            auto rawProm = prom.get();
-            auto future = prom->get_future();
-            std::weak_ptr< AsyncDownloaderSafeNet > weak = result;
-            std::thread(
-                [=]() {
-                    //auto locked = weak.lock();
-                    //rawProm->set_value();
-                    //void* unregClient = nullptr;
-                    //::create_unregistered_client(&unregClient);
-                    //assert( nullptr != unregClient
-                        //&& "Can't create safenet client." );
-                    //auto cleanup = SCOPE_GUARD_LC(
-                        //::drop_client(unregClient);
-                    //);
-                    //result->messageLoop(locked);
-                }
-            ).detach();
-
-            future.wait();
+            result->_safehandle = ::safe_file_downloader_new();
 
             return result;
         }
@@ -161,6 +152,7 @@ namespace SafeLists {
         MessageCache _cache;
         WeakMsgPtr _myself;
         WeakMsgPtr _notifyExit;
+        void* _safehandle;
         bool _shutdown;
     };
 

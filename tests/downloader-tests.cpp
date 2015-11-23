@@ -1176,7 +1176,7 @@ void SomeState_userdata_arbitrary_message_func(
 
 void SomeState_userdata_destructor(void* userdata) {
     SomeState* cast = reinterpret_cast<SomeState*>(userdata);
-    ::safe_file_downloader_cleanup(cast->handle);
+    ::safe_file_downloader_cleanup(cast->handle,nullptr,nullptr);
     printf("Dropped the sucka! Userdata: %d\n",cast->moo);
     delete cast;
 }
@@ -1197,7 +1197,7 @@ TEST_CASE("maidsafe_downloader_init_and_destroy","[safe_network_downloader]") {
 
     //::safe_file_downloader_schedule(handle,&args);
 
-    ::safe_file_downloader_cleanup(handle);
+    ::safe_file_downloader_cleanup(handle,nullptr,nullptr);
     std::this_thread::sleep_for( std::chrono::milliseconds(100) );
 }
 

@@ -144,11 +144,13 @@ namespace SafeLists {
             return SF::virtualMatchFunctorPtr(
                 SF::virtualMatch<
                     AD::ScheduleDownload,
+                    const std::string,
                     IntervalList,
                     ByteFunction,
                     std::weak_ptr< Messageable >
                 >(
                     [=](AD::ScheduleDownload,
+                        const std::string& url,
                         IntervalList& interval,
                         const ByteFunction& func,
                         const std::weak_ptr< Messageable >& wmsg)
@@ -158,11 +160,13 @@ namespace SafeLists {
                 ),
                 SF::virtualMatch<
                     AD::ScheduleDownload,
+                    const std::string,
                     Interval,
                     ByteFunction,
                     std::weak_ptr< Messageable >
                 >(
                     [=](AD::ScheduleDownload,
+                        const std::string& url,
                         const Interval& interval,
                         const ByteFunction& func,
                         const std::weak_ptr< Messageable >& wmsg)

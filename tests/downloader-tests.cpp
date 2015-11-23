@@ -1198,5 +1198,6 @@ TEST_CASE("maidsafe_downloader_init_and_destroy","[safe_network_downloader]") {
     //::safe_file_downloader_schedule(handle,&args);
 
     ::safe_file_downloader_cleanup(handle);
+    std::this_thread::sleep_for( std::chrono::milliseconds(100) );
 }
 

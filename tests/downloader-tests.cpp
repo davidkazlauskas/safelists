@@ -622,11 +622,13 @@ TEST_CASE("async_downloader_dummy","[async_downloader]") {
     IntList copy = toDownload->clone();
     auto downloadJob = SF::vpackPtr<
         AD::ScheduleDownload,
+        std::string,
         IntList,
         std::function< bool(const char*,int64_t,int64_t) >,
         std::weak_ptr< Messageable >
     >(
         nullptr,
+        "test",
         std::move(copy),
         [&](const char* buffer,int64_t start,int64_t end) {
             auto size = end - start;

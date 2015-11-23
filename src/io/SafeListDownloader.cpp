@@ -720,11 +720,13 @@ private:
                 auto rawJob = i.get();
                 auto job = SF::vpackPtr<
                     AD::ScheduleDownload,
+                    std::string,
                     IntervalList,
                     ByteFunction,
                     std::weak_ptr< Messageable >
                 >(
                     nullptr,
+                    pathCopy,
                     std::move(intervals),
                     [=](const char* buf,int64_t pre,int64_t post) {
                         typedef SafeLists::RandomFileWriter RFW;

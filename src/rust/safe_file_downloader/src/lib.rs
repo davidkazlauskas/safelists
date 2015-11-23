@@ -113,7 +113,10 @@ unsafe impl Send for DownloadTask {}
 
 enum DownloaderMsgs {
     Schedule { path: String,task: DownloadTask },
-    Stop,
+    Stop {
+        donefunc: extern fn(param: *mut libc::c_void),
+        donedata: *mut libc::c_void
+    },
 }
 
 struct DownloadTaskWRreader {

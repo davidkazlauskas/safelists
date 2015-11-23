@@ -105,7 +105,9 @@ namespace SafeLists {
             const ByteFunction& func,
             const std::weak_ptr< Messageable >& wmsg)
         {
-
+            std::unique_ptr< ScheduleDownloadCell > p(
+                new ScheduleDownloadCell(interval,func,wmsg)
+            );
         }
 
         void shutdown() {

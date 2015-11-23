@@ -228,6 +228,7 @@ struct SafeListDownloaderImpl : public Messageable {
     }
 private:
     DUMMY_STRUCT_NATIVE(FinishedDownload);
+    DUMMY_STRUCT_NATIVE(FileNotFound);
 
     typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
 
@@ -300,6 +301,16 @@ private:
 
                             locked->message(msg);
                             locked->_fileWriter->message(clearCache);
+                        }
+                    }
+                ),
+                SF::virtualMatch< AD::OutFileNotFound >(
+                    [&](AD::OutFileNotFound) {
+                        this->_hasEnded = true;
+                        auto locked = _session.lock();
+                        if (nullptr != locked) {
+                            auto msg = SF::vpackPtr< FileNotFound >(nullptr);
+                            locked->message(msg);
                         }
                     }
                 )

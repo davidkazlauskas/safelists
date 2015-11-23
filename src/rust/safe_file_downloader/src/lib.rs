@@ -12,6 +12,8 @@ use std::sync::{Arc,Mutex};
 
 const CHUNK_SIZE : u64 = 64 * 1024;
 
+const SAFE_DOWNLOADER_MSG_FILE_NOT_FOUND : i32 = 7;
+
 // chunk size for each download
 fn get_chunk_size() -> u64 {
     CHUNK_SIZE

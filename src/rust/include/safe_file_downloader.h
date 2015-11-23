@@ -23,6 +23,8 @@ extern "C" {
         const char* path;
     };
 
+#define SAFE_DOWNLOADER_MSG_FILE_NOT_FOUND 7
+
     void* safe_file_downloader_new();
     void safe_file_downloader_cleanup(void* handle,sfd_userdata_function on_done,void* on_done_data);
     void safe_file_downloader_schedule(void* handle,void* args /* safe_file_downloader_args */ );

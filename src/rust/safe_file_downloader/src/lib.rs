@@ -110,6 +110,7 @@ impl Drop for DownloadTask {
 }
 
 unsafe impl Send for DownloadTask {}
+unsafe impl Send for DownloaderMsgs {}
 
 enum DownloaderMsgs {
     Schedule { path: String,task: DownloadTask },
@@ -207,7 +208,7 @@ impl DownloaderActorLocal {
             DownloaderMsgs::Schedule { path: path, task: task } => {
                 self.add_task(path,task);
             },
-            DownloaderMsgs::Stop => {
+            DownloaderMsgs::Stop { donedata, donefunc } => {
                 return false;
             },
         }
@@ -427,7 +428,10 @@ pub extern fn safe_file_downloader_cleanup(
         let transmuted : *mut Arc<DownloaderActor> = std::mem::transmute(ptr);
         let boxed : Box< std::sync::Arc<DownloaderActor> > = Box::from_raw(transmuted);
         let actor = &**boxed;
-        actor.send.send(DownloaderMsgs::Stop);
+        actor.send.send(DownloaderMsgs::Stop {
+            donefunc: ondone,
+            donedata: userdata,
+        });
     }
 }
 

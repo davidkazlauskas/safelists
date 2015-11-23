@@ -161,6 +161,8 @@ struct DownloaderActorLocal {
     rkit: ReaderKit,
     tasks: Vec< DownloadTaskWRreader >,
     iter: usize,
+    endfunc: Option< extern fn(udata: *mut libc::c_void) >,
+    enddata: *mut libc::c_void,
 }
 
 impl DownloaderActor {
@@ -200,6 +202,8 @@ impl DownloaderActorLocal {
             rkit: kit,
             tasks: vec![],
             iter: 0,
+            endfunc: None,
+            enddata: std::ptr::null_mut(),
         }
     }
 

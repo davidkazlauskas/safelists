@@ -23,6 +23,8 @@ extern "C" {
         const char* path;
     };
 
+// messaged to function requested file is not found.
+// additional arg is null.
 #define SAFE_DOWNLOADER_MSG_FILE_NOT_FOUND 7
 
     void* safe_file_downloader_new();

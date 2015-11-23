@@ -142,10 +142,10 @@ namespace SafeLists {
 
                 switch (type) {
                     case SAFE_DOWNLOADER_MSG_DOWNLOAD_SUCCESS:
-
+                        cell.notify<AD::OutDownloadFinished>(nullptr);
                         break;
                     case SAFE_DOWNLOADER_MSG_FILE_NOT_FOUND:
-
+                        cell.notify<AD::OutFileNotFound>(nullptr);
                         break;
                 }
             }

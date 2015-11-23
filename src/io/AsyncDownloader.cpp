@@ -186,7 +186,8 @@ namespace SafeLists {
                         const ByteFunction& func,
                         const std::weak_ptr< Messageable >& wmsg)
                     {
-                        // do stuff
+                        assert( false &&
+                            "Not implemented yet for interval lists..." );
                     }
                 ),
                 SF::virtualMatch<

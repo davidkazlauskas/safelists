@@ -1181,6 +1181,18 @@ void SomeState_userdata_destructor(void* userdata) {
     delete cast;
 }
 
+struct Waiter {
+    Waiter() : fut(prom.get_future()) {}
+
+    std::promise< void > prom;
+    std::future< void > fut;
+};
+
+void waiter_func(void* data) {
+    Waiter& w = *reinterpret_cast< Waiter* >(data);
+    w.prom.set_value();
+}
+
 TEST_CASE("maidsafe_downloader_init_and_destroy","[safe_network_downloader]") {
     void* handle = ::safe_file_downloader_new();
 
@@ -1197,7 +1209,9 @@ TEST_CASE("maidsafe_downloader_init_and_destroy","[safe_network_downloader]") {
 
     //::safe_file_downloader_schedule(handle,&args);
 
-    ::safe_file_downloader_cleanup(handle,nullptr,nullptr);
-    std::this_thread::sleep_for( std::chrono::milliseconds(100) );
+    std::unique_ptr< Waiter > ptr( new Waiter() );
+
+    ::safe_file_downloader_cleanup(handle,&waiter_func,ptr.get());
+    ptr->fut.wait();
 }
 

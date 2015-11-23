@@ -90,12 +90,12 @@ namespace SafeLists {
         struct ScheduleDownloadCell {
             ScheduleDownloadCell(
                 const std::string& path,
-                const Interval& interval,
+                IntervalList&& interval,
                 const ByteFunction& func,
                 const std::weak_ptr< Messageable >& wmsg)
                 :
                     _path(path),
-                    _counter(interval),
+                    _counter(std::move(interval)),
                     _func(func),
                     _wmsg(wmsg)
             {}
@@ -159,12 +159,13 @@ namespace SafeLists {
 
         void scheduleDownload(
             const std::string& path,
-            const Interval& interval,
+            IntervalList&& interval,
             const ByteFunction& func,
             const std::weak_ptr< Messageable >& wmsg)
         {
             std::unique_ptr< ScheduleDownloadCell > p(
-                new ScheduleDownloadCell(path,interval,func,wmsg)
+                new ScheduleDownloadCell(
+                    path,std::move(interval),func,wmsg)
             );
 
             ::safe_file_downloader_args args;
@@ -208,8 +209,7 @@ namespace SafeLists {
                         const ByteFunction& func,
                         const std::weak_ptr< Messageable >& wmsg)
                     {
-                        assert( false &&
-                            "Not implemented yet for interval lists..." );
+                        scheduleDownload(url,std::move(interval),func,wmsg);
                     }
                 ),
                 SF::virtualMatch<
@@ -225,7 +225,8 @@ namespace SafeLists {
                         const ByteFunction& func,
                         const std::weak_ptr< Messageable >& wmsg)
                     {
-                        scheduleDownload(url,interval,func,wmsg);
+                        IntervalList list(interval);
+                        scheduleDownload(url,std::move(list),func,wmsg);
                     }
                 ),
                 SF::virtualMatch< AD::Shutdown >(

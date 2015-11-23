@@ -127,6 +127,12 @@ namespace SafeLists {
                 const void* optinfo)
             {
             }
+
+            static void destructor(void* userdata) {
+                ScheduleDownloadCell* cell =
+                    reinterpret_cast< ScheduleDownloadCell* >(userdata);
+                delete cell;
+            }
         };
 
         void scheduleDownload(
@@ -145,6 +151,8 @@ namespace SafeLists {
                 &ScheduleDownloadCell::bufferfunc;
             args.userdata_arbitrary_message_func =
                 &ScheduleDownloadCell::arbitraryMessageFunc;
+            args.userdata_destructor =
+                &ScheduleDownloadCell::destructor;
 
         }
 

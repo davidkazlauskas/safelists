@@ -46,10 +46,7 @@ namespace SafeLists {
         {}
 
         ~AsyncDownloaderSafeNet() {
-            if (nullptr != _safehandle) {
-                ::safe_file_downloader_cleanup(
-                    _safehandle,nullptr,nullptr);
-            }
+            shutdown();
         }
 
         // this is for sending message across threads
@@ -92,6 +89,11 @@ namespace SafeLists {
 
         void shutdown() {
             _shutdown = true;
+            if (nullptr != _safehandle) {
+                ::safe_file_downloader_cleanup(
+                    _safehandle,nullptr,nullptr);
+                _safehandle = nullptr;
+            }
         }
 
         Handler genHandler() {

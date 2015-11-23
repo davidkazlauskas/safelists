@@ -1184,17 +1184,19 @@ void SomeState_userdata_destructor(void* userdata) {
 TEST_CASE("maidsafe_downloader_init_and_destroy","[safe_network_downloader]") {
     void* handle = ::safe_file_downloader_new();
 
-    auto st = new SomeState();
-    st->moo = 777;
-    st->handle = handle;
+    //auto st = new SomeState();
+    //st->moo = 777;
+    //st->handle = handle;
 
-    ::safe_file_downloader_args args;
-    args.userdata = st;
-    args.userdata_buffer_func = &SomeState_userdata_buffer_func;
-    args.userdata_arbitrary_message_func = &SomeState_userdata_arbitrary_message_func;
-    args.userdata_destructor = &SomeState_userdata_destructor;
-    args.path = "Dazlow";
+    //::safe_file_downloader_args args;
+    //args.userdata = st;
+    //args.userdata_buffer_func = &SomeState_userdata_buffer_func;
+    //args.userdata_arbitrary_message_func = &SomeState_userdata_arbitrary_message_func;
+    //args.userdata_destructor = &SomeState_userdata_destructor;
+    //args.path = "www.bizzle1/noob.mp3";
 
-    ::safe_file_downloader_schedule(handle,&args);
+    //::safe_file_downloader_schedule(handle,&args);
+
+    ::safe_file_downloader_cleanup(handle);
 }
 

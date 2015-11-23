@@ -40,8 +40,9 @@ namespace SafeLists {
 
     struct AsyncDownloaderSafeNet : public Messageable {
         AsyncDownloaderSafeNet() :
-            _shutdown(false),
-            _safehandle(nullptr)
+            _handler(genHandler()),
+            _safehandle(nullptr),
+            _shutdown(false)
         {}
 
         ~AsyncDownloaderSafeNet() {
@@ -152,6 +153,7 @@ namespace SafeLists {
         MessageCache _cache;
         WeakMsgPtr _myself;
         WeakMsgPtr _notifyExit;
+        Handler _handler;
         void* _safehandle;
         bool _shutdown;
     };

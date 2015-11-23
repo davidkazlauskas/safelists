@@ -228,7 +228,6 @@ struct SafeListDownloaderImpl : public Messageable {
     }
 private:
     DUMMY_STRUCT_NATIVE(FinishedDownload);
-    DUMMY_STRUCT_NATIVE(FileNotFound);
 
     typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
 
@@ -237,11 +236,6 @@ private:
             SF::virtualMatch< FinishedDownload >(
                 [&](FinishedDownload) {
                     // mainly to invoke semaphore, do nothing
-                }
-            ),
-            SF::virtualMatch< FileNotFound, int >(
-                [&](FileNotFound,int id) {
-
                 }
             ),
             SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(
@@ -265,7 +259,11 @@ private:
     }
 
     struct ToDownloadList : public Messageable {
+
+        static const int ERROR_FILE_NOT_FOUND = 7;
+
         ToDownloadList(const std::shared_ptr< SafeListDownloaderImpl >& session) :
+            _error(0),
             _session(session), _handler(genHandler()),
             _list(SafeLists::Interval()),
             _hasStarted(false), _hasEnded(false),
@@ -311,10 +309,11 @@ private:
                 ),
                 SF::virtualMatch< AD::OutFileNotFound >(
                     [&](AD::OutFileNotFound) {
+                        this->_error = ERROR_FILE_NOT_FOUND;
                         this->_hasEnded = true;
                         auto locked = _session.lock();
                         if (nullptr != locked) {
-                            auto msg = SF::vpackPtr< FileNotFound, int >(nullptr,_id);
+                            auto msg = SF::vpackPtr< FinishedDownload >(nullptr);
                             locked->message(msg);
                         }
                     }
@@ -324,6 +323,7 @@ private:
 
         std::weak_ptr< SafeListDownloaderImpl > _session;
         int _id;
+        int _error;
         int64_t _size;
         std::string _link;
         std::string _dumbHash256;
@@ -524,11 +524,24 @@ private:
                     );
 
                     --_count;
-                    notifyObserver<
-                        SLD::OutSingleDone, int
-                    >(
-                        nullptr, dl->_id
-                    );
+                    if (0 == dl->_error) {
+                        notifyObserver<
+                            SLD::OutSingleDone, int
+                        >(
+                            nullptr, dl->_id
+                        );
+                    } else if (ToDownloadList::ERROR_FILE_NOT_FOUND
+                        == dl->_error)
+                    {
+                        notifyObserver<
+                            SLD::OutFileNotFound, int
+                        >(
+                            nullptr, dl->_id
+                        );
+                    } else {
+                        printf("ERR: |%d|",dl->_error);
+                        assert( false && "Cannot handle this type of error." );
+                    }
 
                     notifyObserver<
                         SLD::OutMirrorUsed, int,

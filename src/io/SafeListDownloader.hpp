@@ -32,6 +32,13 @@ struct SafeListDownloader {
     // >
     DUMMY_REG(OutSingleDone,"SLD_OutSingleDone");
 
+    // messaged when file is not found.
+    // Signature:
+    // <
+    //    OutFileNotFound, int (fileid)
+    // >
+    DUMMY_REG(OutFileNotFound,"SLD_OutFileNotFound");
+
     // messaged when progress moved
     // Signature:
     // < OutProgressUpdate, int (id), double (bytes done),

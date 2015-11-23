@@ -755,7 +755,7 @@ private:
                     std::weak_ptr< Messageable >
                 >(
                     nullptr,
-                    pathCopy,
+                    i->_link,
                     std::move(intervals),
                     [=](const char* buf,int64_t pre,int64_t post) {
                         typedef SafeLists::RandomFileWriter RFW;

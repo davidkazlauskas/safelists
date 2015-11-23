@@ -1950,6 +1950,14 @@ initAll = function()
                     DownloadsModel:incRevision()
                     currSess:removeDownload(delKey)
                 end,"SLD_OutSingleDone","int"),
+                VMatch(function(natpack,val)
+                    -- MAKE-PRETTY
+                    local valTree = val:values()
+                    local delKey = valTree._2
+                    print("File not found brah: |" .. delKey .. "|")
+                    DownloadsModel:incRevision()
+                    currSess:removeDownload(delKey)
+                end,"SLD_OutFileNotFound","int"),
                 VMatch(function()
                     print('Downloaded!')
                     currentSessions[downloadPath] = nil

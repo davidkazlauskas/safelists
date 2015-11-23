@@ -111,7 +111,7 @@ namespace SafeLists {
                 if (nullptr == tryLock) {
                     return false;
                 }
-                auto msg = SF::vpackPtr< Sig... >(
+                auto msg = SF::vpack< Sig... >(
                     std::forward<Args>(args)...);
                 tryLock->message(msg);
             }

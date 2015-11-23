@@ -98,6 +98,18 @@ namespace SafeLists {
             IntervalList _counter;
             ByteFunction _func;
             std::weak_ptr< Messageable > _wmsg;
+
+            static int32_t bufferfunc(
+                void* userdata,
+                int64_t start,
+                int64_t end,
+                const uint8_t* buf)
+            {
+                ScheduleDownloadCell& cell =
+                    *reinterpret_cast< ScheduleDownloadCell* >(userdata);
+
+                return 0;
+            }
         };
 
         void scheduleDownload(
@@ -108,6 +120,10 @@ namespace SafeLists {
             std::unique_ptr< ScheduleDownloadCell > p(
                 new ScheduleDownloadCell(interval,func,wmsg)
             );
+
+            ::safe_file_downloader_args args;
+            args.userdata = p.get();
+
         }
 
         void shutdown() {

@@ -89,12 +89,18 @@ namespace SafeLists {
 
         struct ScheduleDownloadCell {
             ScheduleDownloadCell(
+                const std::string& path,
                 const Interval& interval,
                 const ByteFunction& func,
                 const std::weak_ptr< Messageable >& wmsg)
-                : _counter(interval), _func(func), _wmsg(wmsg)
+                :
+                    _path(path),
+                    _counter(interval),
+                    _func(func),
+                    _wmsg(wmsg)
             {}
 
+            std::string _path;
             IntervalList _counter;
             ByteFunction _func;
             std::weak_ptr< Messageable > _wmsg;
@@ -116,13 +122,14 @@ namespace SafeLists {
             }
         };
 
-        void scheduleDownload(
+    void scheduleDownload(
+            const std::string& path,
             const Interval& interval,
             const ByteFunction& func,
             const std::weak_ptr< Messageable >& wmsg)
         {
             std::unique_ptr< ScheduleDownloadCell > p(
-                new ScheduleDownloadCell(interval,func,wmsg)
+                new ScheduleDownloadCell(path,interval,func,wmsg)
             );
 
             ::safe_file_downloader_args args;
@@ -171,7 +178,7 @@ namespace SafeLists {
                         const ByteFunction& func,
                         const std::weak_ptr< Messageable >& wmsg)
                     {
-                        scheduleDownload(interval,func,wmsg);
+                        scheduleDownload(url,interval,func,wmsg);
                     }
                 ),
                 SF::virtualMatch< AD::Shutdown >(

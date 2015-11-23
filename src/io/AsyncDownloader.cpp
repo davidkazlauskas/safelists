@@ -120,6 +120,13 @@ namespace SafeLists {
 
                 return res ? 0 : 1;
             }
+
+            static void arbitraryMessageFunc(
+                void* userdata,
+                int32_t type,
+                const void* optinfo)
+            {
+            }
         };
 
         void scheduleDownload(
@@ -134,7 +141,10 @@ namespace SafeLists {
 
             ::safe_file_downloader_args args;
             args.userdata = p.get();
-            args.userdata_buffer_func = &ScheduleDownloadCell::bufferfunc;
+            args.userdata_buffer_func =
+                &ScheduleDownloadCell::bufferfunc;
+            args.userdata_arbitrary_message_func =
+                &ScheduleDownloadCell::arbitraryMessageFunc;
 
         }
 

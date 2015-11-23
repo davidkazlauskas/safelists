@@ -108,7 +108,11 @@ namespace SafeLists {
                 ScheduleDownloadCell& cell =
                     *reinterpret_cast< ScheduleDownloadCell* >(userdata);
 
-                return 0;
+                const char* conv = reinterpret_cast< const char* >(buf);
+
+                bool res = cell._func(conv,start,end);
+
+                return res ? 0 : 1;
             }
         };
 

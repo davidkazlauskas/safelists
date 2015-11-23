@@ -418,7 +418,11 @@ pub extern fn safe_file_downloader_new() -> *mut libc::c_void {
 }
 
 #[no_mangle]
-pub extern fn safe_file_downloader_cleanup(ptr: *mut libc::c_void) {
+pub extern fn safe_file_downloader_cleanup(
+    ptr: *mut libc::c_void,
+    ondone: extern fn(param: *mut libc::c_void),
+    userdata: *mut libc::c_void)
+{
     unsafe {
         let transmuted : *mut Arc<DownloaderActor> = std::mem::transmute(ptr);
         let boxed : Box< std::sync::Arc<DownloaderActor> > = Box::from_raw(transmuted);

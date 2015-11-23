@@ -29,7 +29,7 @@ extern "C" {
 
 // messaged after successful download.
 // additional arg is null.
-#define SAFE_DOWNLODAER_MSG_DOWNLOAD_SUCCESS 8
+#define SAFE_DOWNLOADER_MSG_DOWNLOAD_SUCCESS 8
 
     // init safe file downloader and return handle.
     void* safe_file_downloader_new();

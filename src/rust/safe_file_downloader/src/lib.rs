@@ -13,7 +13,7 @@ use std::sync::{Arc,Mutex};
 const CHUNK_SIZE : u64 = 64 * 1024;
 
 const SAFE_DOWNLOADER_MSG_FILE_NOT_FOUND : i32 = 7;
-const SAFE_DOWNLODAER_MSG_DOWNLOAD_SUCCESS : i32 = 8;
+const SAFE_DOWNLOADER_MSG_DOWNLOAD_SUCCESS : i32 = 8;
 
 // chunk size for each download
 fn get_chunk_size() -> u64 {
@@ -213,13 +213,7 @@ impl DownloaderActorLocal {
     fn handle(&mut self,msg: DownloaderMsgs) -> bool {
         match msg {
             DownloaderMsgs::Schedule { path, task } => {
-                let res = self.add_task(path,task);
-                match res {
-                    Err(AddTaskError::FileNotFound(err)) => {
-
-                    },
-                    Ok(_) => {}
-                }
+                self.add_task(path,task);
             },
             DownloaderMsgs::Stop { donedata, donefunc } => {
                 self.endfunc = Some(donefunc);
@@ -235,6 +229,11 @@ impl DownloaderActorLocal {
     -> Result< bool, AddTaskError > {
         let file = get_file(&self.rkit,&path);
         if file.is_err() {
+            (task.userdata_arbitrary_message_func)(
+                task.userdata,
+                SAFE_DOWNLOADER_MSG_FILE_NOT_FOUND,
+                std::ptr::null()
+            );
             return Err( AddTaskError
                 ::FileNotFound("Could not find file.") );
         }
@@ -361,7 +360,7 @@ impl DownloaderActorLocal {
                 if next.is_done() {
                     (next.task.userdata_arbitrary_message_func)(
                         next.task.userdata,
-                        SAFE_DOWNLODAER_MSG_DOWNLOAD_SUCCESS,
+                        SAFE_DOWNLOADER_MSG_DOWNLOAD_SUCCESS,
                         std::ptr::null()
                     );
                 }

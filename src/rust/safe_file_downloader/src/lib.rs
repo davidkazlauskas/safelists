@@ -352,6 +352,13 @@ impl DownloaderActorLocal {
             {
                 let next = self.current_task_mut().unwrap();
                 next.advance(chunkend - chunkstart);
+                if next.is_done() {
+                    (next.task.userdata_arbitrary_message_func)(
+                        next.task.userdata,
+                        SAFE_DOWNLODAER_MSG_DOWNLOAD_SUCCESS,
+                        std::ptr::null()
+                    );
+                }
             }
             self.next_task();
         } else {

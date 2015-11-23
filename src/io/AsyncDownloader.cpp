@@ -130,24 +130,25 @@ namespace SafeLists {
                     [=](AD::Shutdown) {
                         this->shutdown();
                     }
-                ),
-                SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(
-                    [=](GSI::InRegisterItself,const StrongMsgPtr& ptr) {
-                        auto handler = std::make_shared< GenericShutdownGuard >();
-                        handler->setMaster(_myself);
-                        auto msg = SF::vpackPtr< GSI::OutRegisterItself, StrongMsgPtr >(
-                            nullptr, handler
-                        );
-                        assert( nullptr == _notifyExit.lock() );
-                        _notifyExit = handler;
-                        ptr->message(msg);
-                    }
-                ),
-                SF::virtualMatch< GenericShutdownGuard::ShutdownTarget >(
-                    [=](GenericShutdownGuard::ShutdownTarget) {
-                        this->shutdown();
-                    }
                 )
+                //,
+                //SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(
+                    //[=](GSI::InRegisterItself,const StrongMsgPtr& ptr) {
+                        //auto handler = std::make_shared< GenericShutdownGuard >();
+                        //handler->setMaster(_myself);
+                        //auto msg = SF::vpackPtr< GSI::OutRegisterItself, StrongMsgPtr >(
+                            //nullptr, handler
+                        //);
+                        //assert( nullptr == _notifyExit.lock() );
+                        //_notifyExit = handler;
+                        //ptr->message(msg);
+                    //}
+                //),
+                //SF::virtualMatch< GenericShutdownGuard::ShutdownTarget >(
+                    //[=](GenericShutdownGuard::ShutdownTarget) {
+                        //this->shutdown();
+                    //}
+                //)
             );
         }
 

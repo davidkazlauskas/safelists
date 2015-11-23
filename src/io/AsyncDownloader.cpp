@@ -87,6 +87,14 @@ namespace SafeLists {
             }
         }
 
+        void scheduleDownload(
+            const Interval& interval,
+            const ByteFunction& func,
+            const std::weak_ptr< Messageable >& wmsg)
+        {
+
+        }
+
         void shutdown() {
             _shutdown = true;
             if (nullptr != _safehandle) {
@@ -123,7 +131,7 @@ namespace SafeLists {
                         const ByteFunction& func,
                         const std::weak_ptr< Messageable >& wmsg)
                     {
-                        // do stuff
+                        scheduleDownload(interval,func,wmsg);
                     }
                 ),
                 SF::virtualMatch< AD::Shutdown >(

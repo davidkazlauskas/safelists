@@ -51,7 +51,7 @@ namespace SafeLists {
 
         // this is for sending message across threads
         void message(const std::shared_ptr< templatious::VirtualPack >& msg) {
-            _cache.enqueue(msg);
+            _handler->tryMatch(*msg);
         }
 
         // this is for sending stack allocated (faster)

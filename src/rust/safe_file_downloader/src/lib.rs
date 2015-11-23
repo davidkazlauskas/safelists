@@ -205,7 +205,7 @@ impl DownloaderActorLocal {
 
     fn handle(&mut self,msg: DownloaderMsgs) -> bool {
         match msg {
-            DownloaderMsgs::Schedule { path: path, task: task } => {
+            DownloaderMsgs::Schedule { path, task } => {
                 self.add_task(path,task);
             },
             DownloaderMsgs::Stop { donedata, donefunc } => {

@@ -127,6 +127,7 @@ namespace SafeLists {
 
             ::safe_file_downloader_args args;
             args.userdata = p.get();
+            args.userdata_buffer_func = &ScheduleDownloadCell::bufferfunc;
 
         }
 

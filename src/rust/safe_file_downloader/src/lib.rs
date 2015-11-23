@@ -213,7 +213,13 @@ impl DownloaderActorLocal {
     fn handle(&mut self,msg: DownloaderMsgs) -> bool {
         match msg {
             DownloaderMsgs::Schedule { path, task } => {
-                self.add_task(path,task);
+                let res = self.add_task(path,task);
+                match res {
+                    Err(AddTaskError::FileNotFound(err)) => {
+
+                    },
+                    Ok(_) => {}
+                }
             },
             DownloaderMsgs::Stop { donedata, donefunc } => {
                 self.endfunc = Some(donefunc);

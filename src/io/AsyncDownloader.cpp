@@ -153,7 +153,13 @@ namespace SafeLists {
                 &ScheduleDownloadCell::arbitraryMessageFunc;
             args.userdata_destructor =
                 &ScheduleDownloadCell::destructor;
+            args.path = p.get()->_path.c_str();
 
+            assert( nullptr != _safehandle && "No handle, cholo..." );
+
+            ::safe_file_downloader_schedule(_safehandle,&args);
+
+            p.release();
         }
 
         void shutdown() {

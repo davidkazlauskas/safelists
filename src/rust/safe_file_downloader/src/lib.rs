@@ -285,7 +285,7 @@ impl DownloaderActorLocal {
         let mut new_vec = Vec::new();
         ::std::mem::swap(&mut self.tasks,&mut new_vec);
         for i in new_vec {
-            if (!i.is_done()) {
+            if !i.is_done() {
                 self.tasks.push(i);
             }
         }

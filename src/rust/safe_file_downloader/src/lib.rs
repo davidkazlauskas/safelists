@@ -419,6 +419,8 @@ pub extern fn safe_file_downloader_cleanup(ptr: *mut libc::c_void) {
     unsafe {
         let transmuted : *mut Arc<DownloaderActor> = std::mem::transmute(ptr);
         let boxed : Box< std::sync::Arc<DownloaderActor> > = Box::from_raw(transmuted);
+        let actor = &**boxed;
+        actor.send.send(DownloaderMsgs::Stop);
     }
 }
 

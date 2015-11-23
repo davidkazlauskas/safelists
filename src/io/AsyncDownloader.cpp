@@ -88,6 +88,8 @@ namespace SafeLists {
         }
 
         struct ScheduleDownloadCell {
+            Interval _interval;
+            IntervalList _counter;
             ByteFunction _func;
             std::weak_ptr< Messageable >& _wmsg;
         };

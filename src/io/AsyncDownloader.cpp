@@ -122,7 +122,7 @@ namespace SafeLists {
             }
         };
 
-    void scheduleDownload(
+        void scheduleDownload(
             const std::string& path,
             const Interval& interval,
             const ByteFunction& func,

@@ -126,6 +126,17 @@ namespace SafeLists {
                 int32_t type,
                 const void* optinfo)
             {
+                ScheduleDownloadCell& cell =
+                    *reinterpret_cast< ScheduleDownloadCell* >(userdata);
+
+                switch (type) {
+                    case SAFE_DOWNLOADER_MSG_DOWNLOAD_SUCCESS:
+
+                        break;
+                    case SAFE_DOWNLOADER_MSG_FILE_NOT_FOUND:
+
+                        break;
+                }
             }
 
             static void destructor(void* userdata) {

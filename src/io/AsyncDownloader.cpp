@@ -105,6 +105,17 @@ namespace SafeLists {
             ByteFunction _func;
             std::weak_ptr< Messageable > _wmsg;
 
+            template <class... Sig,class... Args>
+            bool notify(Args&&... args) {
+                auto tryLock = this->_wmsg.lock();
+                if (nullptr == tryLock) {
+                    return false;
+                }
+                auto msg = SF::vpackPtr< Sig... >(
+                    std::forward<Args>(args)...);
+                tryLock->message(msg);
+            }
+
             static int32_t bufferfunc(
                 void* userdata,
                 int64_t start,

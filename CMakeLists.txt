@@ -76,6 +76,16 @@ if (UNIX)
     link_directories( /usr/local/lib )
 endif(UNIX)
 
+if(EXISTS "${CMAKE_PREFIX_PATH}/include/lua.h")
+    SET( PLUMBING_LUA_INCLUDE "<lua.h>"  )
+    if(EXISTS "${CMAKE_PREFIX_PATH}/lib/liblua.a"
+        OR EXISTS "${CMAKE_PREFIX_PATH}/lib/liblua.so")
+        SET( PLUMBING_LUA_LIBS lua )
+    else()
+        message(FATAL_ERROR "Found lua header but cannot find library... Cannot continue")
+    endif()
+endif()
+
 add_subdirectory( ${PLUMBING_DIR} )
 add_subdirectory( ${RAPID_JSON_DIR} )
 

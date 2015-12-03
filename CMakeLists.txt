@@ -76,8 +76,8 @@ if (UNIX)
     link_directories( /usr/local/lib )
 endif(UNIX)
 
-if(EXISTS "${CMAKE_PREFIX_PATH}/include/lua.h")
-    SET( PLUMBING_LUA_INCLUDE "<lua.h>"  )
+if(EXISTS "${CMAKE_PREFIX_PATH}/include/lua.hpp")
+    SET( CMAKE_CXX_FLAGS "-DPLUMBING_LUA_INCLUDE=\"<lua.hpp>\"" )
     if(EXISTS "${CMAKE_PREFIX_PATH}/lib/liblua.a"
         OR EXISTS "${CMAKE_PREFIX_PATH}/lib/liblua.so")
         SET( PLUMBING_LUA_LIBS lua )

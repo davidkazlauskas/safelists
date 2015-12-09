@@ -4,7 +4,26 @@ project( SafeLists CXX )
 find_package(PkgConfig REQUIRED)
 find_package(Boost COMPONENTS system filesystem REQUIRED)
 
-pkg_check_modules(GTKMM gtkmm-3.0)
+macro(ensure_pkg_version action package version var)
+    pkg_check_modules(${var} package)
+    if(${package}_EXISTS)
+        message(FATAL_ERROR "Package ${package} doesn't exist.")
+    endif()
+    if(NOT ${var}_VERSION ${action} ${version})
+        message(FATAL_ERROR "Version requirement for ${package} not satisfied."
+            " (Version expected: |${version}|,Actual: |${${var}_VERSION}|,"
+            " Comparison: |${action}|)")
+    endif()
+endmacro()
+
+SET( GTK3_VERSION_REQUIRED 3.14.4 )
+SET( GTKMM_VERSION_REQUIRED 3.14.0 )
+ensure_pkg_version(STREQUAL gtk+-3.0 ${GTK3_VERSION_REQUIRED} GTK3)
+ensure_pkg_version(STREQUAL gtkmm-3.0 ${GTKMM_VERSION_REQUIRED} GTKMM)
+
+if(NOT GTKMM_FOUND OR NOT GTK3_FOUND)
+    message(FATAL_ERROR "gtk 3 not found or lower version than ")
+endif()
 
 SET( PLUMBING_DIR submodules/LibLuaPlumbing/LuaPlumbing )
 SET( RAPID_JSON_DIR submodules/rapidjson )

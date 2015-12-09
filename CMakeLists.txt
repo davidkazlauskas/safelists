@@ -86,9 +86,9 @@ include_directories(
 )
 
 SET( RUST_LIB_DIR ${CMAKE_BINARY_DIR}/rustlib )
-SET( RUST_LINK_DIRS ${RUST_LIB_DIR}/debug ${RUST_LIB_DIR}/release )
+SET( RUST_LINK_DIR ${RUST_LIB_DIR} )
 
-link_directories(${GTKMM_LIBRARY_DIRS} ${RUST_LINK_DIRS})
+link_directories(${GTKMM_LIBRARY_DIRS} ${RUST_LINK_DIR})
 
 if (UNIX)
     # for newer version of sqlite built and installed
@@ -138,7 +138,7 @@ add_custom_target( build-safe-dl-build ALL
     COMMAND CARGO_TARGET_DIR=${CMAKE_BINARY_DIR}/rustlib ${CARGO_COMMAND}
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/rust/safe_file_downloader )
 add_custom_target( build-safe-dl ALL
-    COMMAND ${FLATGLOBCOPY} ${RUST_LIB_DIR} "safefiledownloader\\\\\\.\\(so\\|dll\\)" ${CMAKE_BINARY_DIR}/
+    COMMAND ${FLATGLOBCOPY} ${RUST_LIB_DIR} "safefiledownloader\\\\\\.\\(so\\|dll\\)" ${RUST_LINK_DIR}
     DEPENDS build-safe-dl-build
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/rust/safe_file_downloader )
 

@@ -18,8 +18,10 @@ endmacro()
 
 SET( GTK3_VERSION_REQUIRED 3.14.4 )
 SET( GTKMM_VERSION_REQUIRED 3.14.0 )
+SET( CURL_VERSION_REQUIRED 7.45.0 )
 ensure_pkg_version(STREQUAL gtk+-3.0 ${GTK3_VERSION_REQUIRED} GTK3)
 ensure_pkg_version(STREQUAL gtkmm-3.0 ${GTKMM_VERSION_REQUIRED} GTKMM)
+ensure_pkg_version(STREQUAL libcurl ${CURL_VERSION_REQUIRED} CURL)
 
 SET( PLUMBING_DIR submodules/LibLuaPlumbing/LuaPlumbing )
 SET( RAPID_JSON_DIR submodules/rapidjson )
@@ -149,7 +151,8 @@ set_property( TARGET scrypt PROPERTY IMPORTED_LOCATION ${LIBSCRYPT_BUILD_DIR}/li
 add_library( domain ${DOMAIN_SOURCES} )
 target_link_libraries( domain
     dl sqlite3 pthread crypto
-    curl sodium scrypt plumbing
+    sodium scrypt plumbing
+    ${CURL_LIBRARIES}
     ${Boost_FILESYSTEM_LIBRARY}
     ${Boost_SYSTEM_LIBRARY}
     safefiledownloader

@@ -91,6 +91,16 @@ add_subdirectory( ${RAPID_JSON_DIR} )
 
 SET( CMAKE_EXPORT_COMPILE_COMMANDS yes )
 
+# just guessing, should be more robust in the future
+SET( TARGET_ARCHITECTURE "x86_64" )
+SET( CARGO_COMMAND cargo build )
+if(CMAKE_CROSS_COMPILING)
+    if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
+        # support musl in future?
+        SET( CARGO_COMMAND cargo rustc --target=${TARGET_ARCHITECTURE}-unknown-linux-gnu -Clinker=${CMAKE_C_COMPILER} )
+    endif()
+endif()
+
 add_custom_target( copy-runtime-files ALL
     COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/src/uischemes/ ${CMAKE_BINARY_DIR}/uischemes/ )
 add_custom_target( copy-runtime-files-ex-data ALL
@@ -104,7 +114,7 @@ add_custom_target( copy-lua-scripts ALL
 add_custom_target( copy-root-data ALL
     COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/rootData/ ${CMAKE_BINARY_DIR} )
 add_custom_target( build-safe-dl ALL
-    COMMAND CARGO_TARGET_DIR=${CMAKE_BINARY_DIR}/rustlib cargo build
+    COMMAND CARGO_TARGET_DIR=${CMAKE_BINARY_DIR}/rustlib ${CARGO_COMMAND}
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/rust/safe_file_downloader )
 
 # <<<<<<< copied code for compilation

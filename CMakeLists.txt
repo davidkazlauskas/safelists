@@ -23,6 +23,9 @@ ensure_pkg_version(STREQUAL gtk+-3.0 ${GTK3_VERSION_REQUIRED} GTK3)
 ensure_pkg_version(STREQUAL gtkmm-3.0 ${GTKMM_VERSION_REQUIRED} GTKMM)
 ensure_pkg_version(STREQUAL libcurl ${CURL_VERSION_REQUIRED} CURL)
 
+SET( RSYNC /usr/bin/rsync )
+SET( FLATGLOBCOPY ${CMAKE_SOURCE_DIR}/buildutil/flatglobcopy )
+
 SET( PLUMBING_DIR submodules/LibLuaPlumbing/LuaPlumbing )
 SET( RAPID_JSON_DIR submodules/rapidjson )
 SET( RAPID_JSON_INCLUDE_DIR ${RAPID_JSON_DIR}/include )
@@ -82,7 +85,8 @@ include_directories(
     ${APPINCLUDE_DIRS}
 )
 
-SET( RUST_LINK_DIRS ${CMAKE_BINARY_DIR}/rustlib/debug ${CMAKE_BINARY_DIR}/rustlib/release )
+SET( RUST_LIB_DIR ${CMAKE_BINARY_DIR}/rustlib )
+SET( RUST_LINK_DIRS ${RUST_LIB_DIR}/debug ${RUST_LIB_DIR}/release )
 
 link_directories(${GTKMM_LIBRARY_DIRS} ${RUST_LINK_DIRS})
 
@@ -130,14 +134,18 @@ add_custom_target( copy-lua-scripts ALL
     COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/src/lua ${CMAKE_BINARY_DIR}/lua )
 add_custom_target( copy-root-data ALL
     COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/rootData/ ${CMAKE_BINARY_DIR} )
-add_custom_target( build-safe-dl ALL
+add_custom_target( build-safe-dl-build ALL
     COMMAND CARGO_TARGET_DIR=${CMAKE_BINARY_DIR}/rustlib ${CARGO_COMMAND}
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/rust/safe_file_downloader )
+add_custom_target( build-safe-dl ALL
+    COMMAND ${FLATGLOBCOPY} ${RUST_LIB_DIR} "safefiledownloader\\\\\\.\\(so\\|dll\\)" ${CMAKE_BINARY_DIR}/
+    DEPENDS build-safe-dl-build
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/rust/safe_file_downloader )
 
 # <<<<<<< copied code for compilation
 
 add_custom_target( copy-libscrypt-submodule ALL
-    COMMAND rsync -avz "${CMAKE_SOURCE_DIR}/submodules/libscrypt" "${CMAKE_BINARY_DIR}/submodules/" )
+    COMMAND ${RSYNC} -avz "${CMAKE_SOURCE_DIR}/submodules/libscrypt" "${CMAKE_BINARY_DIR}/submodules/" )
 add_custom_target( build-libscrypt-submodule ALL
     COMMAND make
     DEPENDS copy-libscrypt-submodule

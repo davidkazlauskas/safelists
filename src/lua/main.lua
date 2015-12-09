@@ -1,5 +1,5 @@
 
-require('lua/mobdebug').start()
+--require('lua/mobdebug').start()
 require('lua/safelist-constants')
 require('lua/genericwidget')
 
@@ -797,7 +797,7 @@ initAll = function()
         setWidgetsEnabled(
             ctx,mainWnd,
             false,
-            unpack(safelistDependantWigets)
+            table.unpack(safelistDependantWigets)
         )
     end
 
@@ -805,7 +805,7 @@ initAll = function()
         setWidgetsEnabled(
             ctx,mainWnd,
             true,
-            unpack(safelistDependantWigets)
+            table.unpack(safelistDependantWigets)
         )
     end
 

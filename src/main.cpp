@@ -1887,6 +1887,9 @@ static templatious::DynVPackFactory* vFactory() {
 }
 
 int main(int argc,char** argv) {
+    // don't trust default rendering,
+    // fails on linux, nothing can
+    // be as accurate as CPU drawn pixels.
     char arr[256];
     ::strcpy(arr,"GDK_RENDERING=image");
     ::putenv(arr);

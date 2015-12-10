@@ -1,5 +1,6 @@
 
 #include <iostream>
+#include <cstdlib>
 #include <gtkmm.h>
 #include <templatious/FullPack.hpp>
 #include <templatious/detail/DynamicPackCreator.hpp>
@@ -1886,6 +1887,10 @@ static templatious::DynVPackFactory* vFactory() {
 }
 
 int main(int argc,char** argv) {
+    char arr[256];
+    ::strcpy(arr,"GDK_RENDERING=image");
+    ::putenv(arr);
+
     SafeLists::setGlobalProgramArgs(argc,argv);
     auto app = Gtk::Application::create(argc,argv);
 

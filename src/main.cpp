@@ -1886,15 +1886,55 @@ static templatious::DynVPackFactory* vFactory() {
     return &fact;
 }
 
-int main(int argc,char** argv) {
+std::string xdgCustomDir() {
+    auto execPath = SafeLists::executablePath();
+    execPath += "/appdata/usr/share";
+    return execPath;
+}
+
+void prepEnv(
+    std::vector< std::unique_ptr<char[]> >& envVec,
+    int argc,char** argv)
+{
+    SafeLists::setGlobalProgramArgs(argc,argv);
+
+    auto catEnv =
+        [&](const char* str) {
+            int len = ::strlen(str);
+            auto buff = std::unique_ptr< char[] >( new char[len] );
+            ::strcpy( buff.get(), str );
+            SA::add( envVec, std::move(buff) );
+        };
+
+    char arr[1024];
+
+    arr[0] = '\0';
     // don't trust default rendering,
     // fails on linux, nothing can
     // be as accurate as CPU drawn pixels.
-    char arr[256];
-    ::strcpy(arr,"GDK_RENDERING=image");
-    ::putenv(arr);
+    ::strcat(arr,"GDK_RENDERING=image");
+    catEnv(arr);
 
-    SafeLists::setGlobalProgramArgs(argc,argv);
+    arr[0] = '\0';
+    ::strcat(arr,"XDG_DATA_DIRS=");
+    ::strcat(arr,xdgCustomDir().c_str());
+    std::string currDirs = ::getenv("XDG_DATA_DIRS");
+    if (!currDirs.empty()) {
+        ::strcat(arr,":");
+        ::strcat(arr,currDirs.c_str());
+    }
+
+    catEnv(arr);
+
+    TEMPLATIOUS_FOREACH(auto& i,envVec) {
+        ::putenv(i.get());
+    }
+}
+
+int main(int argc,char** argv) {
+    std::vector< std::unique_ptr<char[]> > envVars;
+    prepEnv(envVars,argc,argv);
+
     auto app = Gtk::Application::create(argc,argv);
 
     auto ctx = LuaContext::makeContext("lua/plumbing.lua");

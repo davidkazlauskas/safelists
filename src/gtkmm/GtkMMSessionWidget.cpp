@@ -12,7 +12,7 @@ TEMPLATIOUS_TRIPLET_STD;
 
 namespace {
     static const Glib::ustring& loadDownloaderSchemaStatic() {
-        static Glib::ustring result = SafeLists::readFile("uischemes/download_progress.glade");
+        static Glib::ustring result = SafeLists::readFile("appdata/uischemes/download_progress.glade");
         return result;
     }
 

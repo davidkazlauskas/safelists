@@ -123,8 +123,11 @@ if(CMAKE_CROSS_COMPILING)
     endif()
 endif()
 
+add_custom_target( create-runtime-files-dir
+    COMMAND ${MKDIR} -p "${CMAKE_BINARY_DIR}/appdata/uischemes" )
 add_custom_target( copy-runtime-files ALL
-    COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/src/uischemes/ ${CMAKE_BINARY_DIR}/uischemes/ )
+    COMMAND ${RSYNC} "${CMAKE_SOURCE_DIR}/src/uischemes/" "${CMAKE_BINARY_DIR}/appdata/uischemes/"
+    DEPENDS create-runtime-files-dir )
 add_custom_target( copy-runtime-files-ex-data ALL
     COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/exampleData/ ${CMAKE_BINARY_DIR}/exampleData/ )
 add_custom_target( copy-lua-plumbing ALL

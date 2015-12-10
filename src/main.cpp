@@ -1473,12 +1473,12 @@ private:
 };
 
 const Glib::ustring& mainUiSchema() {
-    static Glib::ustring res = SafeLists::readFile("uischemes/main.glade");
+    static Glib::ustring res = SafeLists::readFile("appdata/uischemes/main.glade");
     return res;
 }
 
 const Glib::ustring& licensingUiSchema() {
-    static Glib::ustring res = SafeLists::readFile("uischemes/licensing.glade");
+    static Glib::ustring res = SafeLists::readFile("appdata/uischemes/licensing.glade");
     return res;
 }
 

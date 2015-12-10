@@ -1,8 +1,0 @@
-#!/bin/bash
-
-# $1 - directory to glob from
-# $2 - grep pattern to glob files
-# $3 - directory to copy to
-
-find $1 -type f | grep -E "$2" | xargs -I{} rsync {} ${3%/}/
-

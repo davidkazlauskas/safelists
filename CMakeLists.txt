@@ -23,6 +23,7 @@ ensure_pkg_version(STREQUAL gtk+-3.0 ${GTK3_VERSION_REQUIRED} GTK3)
 ensure_pkg_version(STREQUAL gtkmm-3.0 ${GTKMM_VERSION_REQUIRED} GTKMM)
 ensure_pkg_version(STREQUAL libcurl ${CURL_VERSION_REQUIRED} CURL)
 
+SET( MKDIR /bin/mkdir )
 SET( RSYNC /usr/bin/rsync )
 SET( FLATGLOBCOPY ${CMAKE_SOURCE_DIR}/buildutil/flatglobcopy )
 
@@ -134,6 +135,11 @@ add_custom_target( copy-lua-scripts ALL
     COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/src/lua ${CMAKE_BINARY_DIR}/lua )
 add_custom_target( copy-root-data ALL
     COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/rootData/ ${CMAKE_BINARY_DIR} )
+add_custom_target( create-gtk-schemas-dir
+    COMMAND ${MKDIR} -p "${CMAKE_BINARY_DIR}/appdata/usr/share/glib-2.0/schemas" )
+add_custom_target( copy-gtk-schemas ALL
+    COMMAND ${RSYNC} -az "${CMAKE_PREFIX_PATH}/share/glib-2.0/schemas/" "${CMAKE_BINARY_DIR}/appdata/usr/share/glib-2.0/schemas/"
+    DEPENDS create-gtk-schemas-dir )
 add_custom_target( build-safe-dl-build ALL
     COMMAND CARGO_TARGET_DIR=${CMAKE_BINARY_DIR}/rustlib ${CARGO_COMMAND}
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/rust/safe_file_downloader )

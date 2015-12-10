@@ -1,10 +1,13 @@
 
 #include <cassert>
 #include <mutex>
+#include <boost/filesystem.hpp>
 
 #include "ProgramArgs.hpp"
 
 namespace {
+
+    namespace fs = boost::filesystem;
 
     typedef std::lock_guard< std::mutex > LGuard;
 
@@ -31,6 +34,13 @@ std::vector< std::string > getGlobalProgramArgs() {
     LGuard g(theArgMutex);
     std::vector< std::string > res = theArgArray;
     return res;
+}
+
+std::string executablePath() {
+    auto programArgs = SafeLists::getGlobalProgramArgs();
+    fs::path selfpath = programArgs[0];
+    selfpath = fs::absolute(selfpath.remove_filename());
+    return selfpath.string();
 }
 
 }

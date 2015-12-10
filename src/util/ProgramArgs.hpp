@@ -9,6 +9,7 @@ namespace SafeLists {
 
     void setGlobalProgramArgs(int argc,char** argv);
     std::vector< std::string > getGlobalProgramArgs();
+    std::string executablePath();
 
 }
 

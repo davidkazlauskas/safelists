@@ -858,13 +858,6 @@ int checkUserTimespanValidityFirstTier(
         fromNum,toNum,signatureStr,userid);
 }
 
-std::string executablePath() {
-    auto programArgs = SafeLists::getGlobalProgramArgs();
-    fs::path selfpath = programArgs[0];
-    selfpath = fs::absolute(selfpath.remove_filename());
-    return selfpath.string();
-}
-
 std::string localLicensePath(const std::string& pubKey) {
     // since key is base64 and
     // can contain slashes just get sha256...

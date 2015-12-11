@@ -117,7 +117,8 @@ SET( CMAKE_EXPORT_COMPILE_COMMANDS yes )
 SET( TARGET_ARCHITECTURE "x86_64" )
 SET( CARGO_COMMAND cargo build )
 if(CMAKE_CROSS_COMPILING)
-    if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
+    if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux"
+       OR "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
         # support musl in future?
         SET( CARGO_COMMAND cargo rustc --target=${TARGET_ARCHITECTURE}-unknown-linux-gnu -Clinker=${CMAKE_C_COMPILER} )
     endif()
@@ -167,7 +168,7 @@ set_property( TARGET scrypt PROPERTY IMPORTED_LOCATION ${LIBSCRYPT_BUILD_DIR}/li
 
 add_library( domain ${DOMAIN_SOURCES} )
 target_link_libraries( domain
-    dl sqlite3 pthread crypto
+    sqlite3 pthread crypto
     sodium scrypt plumbing
     ${CURL_LIBRARIES}
     ${Boost_FILESYSTEM_LIBRARY}

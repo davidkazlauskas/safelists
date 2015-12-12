@@ -1918,10 +1918,10 @@ void prepEnv(
     arr[0] = '\0';
     ::strcat(arr,"XDG_DATA_DIRS=");
     ::strcat(arr,xdgCustomDir().c_str());
-    std::string currDirs = ::getenv("XDG_DATA_DIRS");
-    if (!currDirs.empty()) {
+    auto currDirs = ::getenv("XDG_DATA_DIRS");
+    if (nullptr != currDirs) {
         ::strcat(arr,":");
-        ::strcat(arr,currDirs.c_str());
+        ::strcat(arr,currDirs);
     }
 
     catEnv(arr);

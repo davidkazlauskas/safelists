@@ -99,7 +99,7 @@ if (UNIX)
 endif(UNIX)
 
 if(EXISTS "${CMAKE_PREFIX_PATH}/include/lua.hpp")
-    SET( CMAKE_CXX_FLAGS "-DPLUMBING_LUA_INCLUDE=\"<lua.hpp>\"" )
+    SET( CMAKE_CXX_FLAGS "-DCURL_STATICLIB -DPLUMBING_LUA_INCLUDE=\"<lua.hpp>\"" )
     if(EXISTS "${CMAKE_PREFIX_PATH}/lib/liblua.a"
         OR EXISTS "${CMAKE_PREFIX_PATH}/lib/liblua.so")
         SET( PLUMBING_LUA_LIBS lua )

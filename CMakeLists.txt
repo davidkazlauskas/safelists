@@ -31,7 +31,7 @@ SET( PLUMBING_DIR submodules/LibLuaPlumbing/LuaPlumbing )
 SET( RAPID_JSON_DIR submodules/rapidjson )
 SET( RAPID_JSON_INCLUDE_DIR ${RAPID_JSON_DIR}/include )
 SET( SRC_DIR src )
-SET( LIBSCRYPT_BUILD_DIR ${CMAKE_BINARY_DIR}/submodules/libscrypt )
+SET( LIBSCRYPT_DIR ${CMAKE_SOURCE_DIR}/submodules/libscrypt )
 
 ADD_DEFINITIONS(
     -x c++
@@ -47,7 +47,7 @@ SET( LIBINCLUDE_DIRS
     ${PLUMBING_DIR}
     ${Boost_INCLUDE_DIRS}
     ${RAPID_JSON_INCLUDE_DIR}
-    ${LIBSCRYPT_BUILD_DIR} )
+    ${LIBSCRYPT_DIR} )
 
 SET( APPINCLUDE_DIRS
     ${SRC_DIR}

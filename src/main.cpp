@@ -1956,11 +1956,26 @@ void prepEnv(
     }
 }
 
+void gtkSpec() {
+    char arr[1024];
+    arr[0] = '\0';
+
+    std::string customDir = xdgCustomDir();
+    ::strcat(arr,customDir.c_str());
+    ::strcat(arr,"/icons/");
+    uniformSlashes(arr);
+
+    auto def = ::gtk_icon_theme_get_default();
+    ::gtk_icon_theme_prepend_search_path(def,arr);
+}
+
 int main(int argc,char** argv) {
     std::vector< std::unique_ptr<char[]> > envVars;
     prepEnv(envVars,argc,argv);
 
     auto app = Gtk::Application::create(argc,argv);
+
+    gtkSpec();
 
     auto ctx = LuaContext::makeContext("lua/plumbing.lua");
     ctx->setFactory(vFactory());

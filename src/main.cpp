@@ -1920,7 +1920,13 @@ void prepEnv(
     ::strcat(arr,xdgCustomDir().c_str());
     auto currDirs = ::getenv("XDG_DATA_DIRS");
     if (nullptr != currDirs) {
+#ifdef __linux__
         ::strcat(arr,":");
+#elif defined(__MINGW32__)
+        ::strcat(arr,";");
+#else
+        static_assert( false, "Platform not supported yet." );
+#endif
         ::strcat(arr,currDirs);
     }
 

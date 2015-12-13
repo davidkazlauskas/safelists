@@ -160,15 +160,12 @@ else()
         COMMAND ${RSYNC} "${SAFE_FILE_DOWNLOADER_PREBUILT}" "${RUST_LINK_DIR}/" )
 endif()
 
-# <<<<<<< copied code for compilation
-
-SET( LIBSCRYPT_DIR ${CMAKE_SOURCE_DIR}/submodules/libscrypt )
-include_directories( ${LIBSCRYPT_DIR} )
+if(NOT CMAKE_C_CREATE_STATIC_LIBRARY)
+    SET( CMAKE_C_CREATE_STATIC_LIBRARY "<CMAKE_AR> cr <TARGET> <LINK_FLAGS> <OBJECTS> <CMAKE_RANLIB> <TARGET> " )
+endif()
 file(GLOB SCRYPT_SOURCES ${LIBSCRYPT_DIR}/*.c )
 add_library( scrypt STATIC ${SCRYPT_SOURCES} )
-set_target_properties( scrypt PROPERTIES LINKER_LANGUAGE CXX )
-
-# >>>>>>> copied code for compilation
+set_target_properties( scrypt PROPERTIES LINKER_LANGUAGE C )
 
 add_library( domain ${DOMAIN_SOURCES} )
 target_link_libraries( domain

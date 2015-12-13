@@ -1,5 +1,4 @@
 #![feature(plugin)]
-#![plugin(regex_macros)]
 
 extern crate libc;
 extern crate safe_nfs;
@@ -9,6 +8,7 @@ extern crate regex;
 #[macro_use] extern crate quick_error;
 
 use std::sync::{Arc,Mutex};
+use regex::Regex;
 
 const CHUNK_SIZE : u64 = 64 * 1024;
 
@@ -586,8 +586,8 @@ fn get_file(
     -> Result< ::safe_nfs::file::File, GetReaderError >
 {
     let trimmed = path.trim();
-    let namergx = regex!(
-        r"^([a-zA-Z0-9_-]+).([a-zA-Z0-9_.-]+)/([a-zA-Z0-9_./]+)$");
+    let namergx = Regex::new(
+        r"^([a-zA-Z0-9_-]+).([a-zA-Z0-9_.-]+)/([a-zA-Z0-9_./]+)$").unwrap();
 
     for i in namergx.captures_iter(trimmed) {
         let service = i.at(1).unwrap().to_string();

@@ -1892,6 +1892,15 @@ std::string xdgCustomDir() {
     return execPath;
 }
 
+void uniformSlashes(char* path) {
+    int len = strlen(path);
+    TEMPLATIOUS_0_TO_N(i,len) {
+        if (path[i] == '\\') {
+            path[i] = '/';
+        }
+    }
+}
+
 void prepEnv(
     std::vector< std::unique_ptr<char[]> >& envVec,
     int argc,char** argv)
@@ -1915,9 +1924,11 @@ void prepEnv(
     ::strcat(arr,"GDK_RENDERING=image");
     catEnv(arr);
 
+    std::string customDir = xdgCustomDir();
+
     arr[0] = '\0';
     ::strcat(arr,"XDG_DATA_DIRS=");
-    ::strcat(arr,xdgCustomDir().c_str());
+    ::strcat(arr,customDir.c_str());
     auto currDirs = ::getenv("XDG_DATA_DIRS");
     if (nullptr != currDirs) {
 #ifdef __linux__
@@ -1930,6 +1941,14 @@ void prepEnv(
         ::strcat(arr,currDirs);
     }
 
+    uniformSlashes(arr);
+    catEnv(arr);
+
+    arr[0] = '\0';
+    ::strcat(arr,"GSETTINGS_SCHEMA_DIR=");
+    ::strcat(arr,customDir.c_str());
+    ::strcat(arr,"/glib-2.0/schemas/");
+    uniformSlashes(arr);
     catEnv(arr);
 
     TEMPLATIOUS_FOREACH(auto& i,envVec) {

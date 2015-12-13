@@ -87,7 +87,7 @@ include_directories(
 )
 
 SET( RUST_LIB_DIR ${CMAKE_BINARY_DIR}/rustlib )
-SET( RUST_LINK_DIR ${RUST_LIB_DIR} )
+SET( RUST_LINK_DIR ${CMAKE_BINARY_DIR} )
 
 link_directories(${GTKMM_LIBRARY_DIRS} ${RUST_LINK_DIR})
 
@@ -144,13 +144,21 @@ add_custom_target( create-gtk-schemas-dir
 add_custom_target( copy-gtk-schemas ALL
     COMMAND ${RSYNC} -az "${CMAKE_PREFIX_PATH}/share/glib-2.0/schemas/" "${CMAKE_BINARY_DIR}/appdata/usr/share/glib-2.0/schemas/"
     DEPENDS create-gtk-schemas-dir )
-add_custom_target( build-safe-dl-build ALL
-    COMMAND CARGO_TARGET_DIR=${CMAKE_BINARY_DIR}/rustlib ${CARGO_COMMAND}
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/rust/safe_file_downloader )
-add_custom_target( build-safe-dl ALL
-    COMMAND ${FLATGLOBCOPY} ${RUST_LIB_DIR} "safefiledownloader\\\\\\.\\(so\\|dll\\)" ${RUST_LINK_DIR}
-    DEPENDS build-safe-dl-build
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/rust/safe_file_downloader )
+add_custom_target( copy-gtk-icons ALL
+    COMMAND ${RSYNC} -az "${CMAKE_PREFIX_PATH}/share/icons" "${CMAKE_BINARY_DIR}/appdata/usr/share/"
+    DEPENDS create-gtk-schemas-dir )
+if (NOT SAFE_FILE_DOWNLOADER_PREBUILT)
+    add_custom_target( build-safe-dl-build ALL
+        COMMAND CARGO_TARGET_DIR=${CMAKE_BINARY_DIR}/rustlib ${CARGO_COMMAND}
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/rust/safe_file_downloader )
+    add_custom_target( build-safe-dl ALL
+        COMMAND ${FLATGLOBCOPY} ${RUST_LIB_DIR} "safefiledownloader\\\\\\.\\(so\\|dll\\)" ${RUST_LINK_DIR}
+        DEPENDS build-safe-dl-build
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/rust/safe_file_downloader )
+else()
+    add_custom_target( build-safe-dl ALL
+        COMMAND ${RSYNC} "${SAFE_FILE_DOWNLOADER_PREBUILT}" "${RUST_LINK_DIR}/" )
+endif()
 
 # <<<<<<< copied code for compilation
 

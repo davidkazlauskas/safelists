@@ -154,15 +154,11 @@ add_custom_target( build-safe-dl ALL
 
 # <<<<<<< copied code for compilation
 
-add_custom_target( copy-libscrypt-submodule ALL
-    COMMAND ${RSYNC} -avz "${CMAKE_SOURCE_DIR}/submodules/libscrypt" "${CMAKE_BINARY_DIR}/submodules/" )
-add_custom_target( build-libscrypt-submodule ALL
-    COMMAND make
-    DEPENDS copy-libscrypt-submodule
-    WORKING_DIRECTORY ${LIBSCRYPT_BUILD_DIR} )
-add_library( scrypt STATIC IMPORTED )
-add_dependencies( scrypt build-libscrypt-submodule )
-set_property( TARGET scrypt PROPERTY IMPORTED_LOCATION ${LIBSCRYPT_BUILD_DIR}/libscrypt.a )
+SET( LIBSCRYPT_DIR ${CMAKE_SOURCE_DIR}/submodules/libscrypt )
+include_directories( ${LIBSCRYPT_DIR} )
+file(GLOB SCRYPT_SOURCES ${LIBSCRYPT_DIR}/*.c )
+add_library( scrypt STATIC ${SCRYPT_SOURCES} )
+set_target_properties( scrypt PROPERTIES LINKER_LANGUAGE CXX )
 
 # >>>>>>> copied code for compilation
 

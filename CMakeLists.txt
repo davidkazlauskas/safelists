@@ -170,6 +170,10 @@ set_source_files_properties( ${SCRYPT_SOURCES} PROPERTIES COMPILE_FLAGS "-xc -st
 add_library( scrypt STATIC ${SCRYPT_SOURCES} )
 set_target_properties( scrypt PROPERTIES LINKER_LANGUAGE CXX )
 
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+    SET( LINUX_EXTRA_LIBS "dl" )
+endif()
+
 add_library( domain ${DOMAIN_SOURCES} )
 target_link_libraries( domain
     sqlite3 pthread crypto
@@ -178,6 +182,7 @@ target_link_libraries( domain
     ${Boost_FILESYSTEM_LIBRARY}
     ${Boost_SYSTEM_LIBRARY}
     safefiledownloader
+    ${LINUX_EXTRA_LIBS}
 )
 
 add_dependencies( domain build-safe-dl )

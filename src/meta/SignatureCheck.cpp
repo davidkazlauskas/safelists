@@ -3,7 +3,6 @@
 #include <templatious/FullPack.hpp>
 #include <rapidjson/document.h>
 #include <rapidjson/filereadstream.h>
-#include <openssl/pem.h>
 #include <util/ScopeGuard.hpp>
 
 #include "SignatureCheck.hpp"
@@ -12,36 +11,36 @@ TEMPLATIOUS_TRIPLET_STD;
 
 namespace {
 
-    bool hashSingleFile(
-        SHA256_CTX& hash,
-        const std::string& rootPath,
-        const std::string& relPath)
-    {
-        std::string rightPath = rootPath + relPath;
-        auto file = ::fopen(rightPath.c_str(),"rb");
-        if (nullptr == file) {
-            return false;
-        }
-        auto guard = SCOPE_GUARD_LC(
-            ::fclose(file);
-        );
+    //bool hashSingleFile(
+        //SHA256_CTX& hash,
+        //const std::string& rootPath,
+        //const std::string& relPath)
+    //{
+        //std::string rightPath = rootPath + relPath;
+        //auto file = ::fopen(rightPath.c_str(),"rb");
+        //if (nullptr == file) {
+            //return false;
+        //}
+        //auto guard = SCOPE_GUARD_LC(
+            //::fclose(file);
+        //);
 
-        char buf;
-        unsigned char* rein = reinterpret_cast<unsigned char*>(&buf);
+        //char buf;
+        //unsigned char* rein = reinterpret_cast<unsigned char*>(&buf);
 
-        ::SHA256_Update(&hash,relPath.c_str(),relPath.size());
+        //::SHA256_Update(&hash,relPath.c_str(),relPath.size());
 
-        int state;
-        do {
-            state = ::fgetc(file);
-            if (state != EOF) {
-                buf = static_cast<char>(state);
-                ::SHA256_Update(&hash,rein,1);
-            }
-        } while (state != EOF);
+        //int state;
+        //do {
+            //state = ::fgetc(file);
+            //if (state != EOF) {
+                //buf = static_cast<char>(state);
+                //::SHA256_Update(&hash,rein,1);
+            //}
+        //} while (state != EOF);
 
-        return true;
-    }
+        //return true;
+    //}
 
     void bytesToCStr(char* raw,char* string,int rawNum) {
         TEMPLATIOUS_0_TO_N(i,rawNum) {
@@ -99,21 +98,22 @@ std::string hashFileListSha256(
         const std::string& rootPath,
         const std::vector<std::string>& paths)
 {
-    SHA256_CTX ctx;
-    ::SHA256_Init(&ctx);
+    //SHA256_CTX ctx;
+    //::SHA256_Init(&ctx);
 
     TEMPLATIOUS_FOREACH(auto& i, paths) {
-        bool res = hashSingleFile(ctx,rootPath,i);
-        if (!res) {
-            return "";
-        }
+        //bool res = hashSingleFile(ctx,rootPath,i);
+        //if (!res) {
+            //return "";
+        //}
     }
 
     char bytes[1024];
     char bytesStr[2048];
 
-    ::SHA256_Final(reinterpret_cast<unsigned char*>(bytes),&ctx);
-    bytesToCStr(bytes,bytesStr,SHA256_DIGEST_LENGTH);
+    //::SHA256_Final(reinterpret_cast<unsigned char*>(bytes),&ctx);
+    //bytesToCStr(bytes,bytesStr,SHA256_DIGEST_LENGTH);
+    assert( false && "Not implemented yet." );
     return bytesStr;
 }
 
@@ -122,20 +122,21 @@ int hashFileListSha256(
     const std::vector<std::string>& paths,
     unsigned char (&arr)[32])
 {
-    SHA256_CTX ctx;
-    ::SHA256_Init(&ctx);
+    //SHA256_CTX ctx;
+    //::SHA256_Init(&ctx);
 
     TEMPLATIOUS_FOREACH(auto& i, paths) {
-        bool res = hashSingleFile(ctx,rootPath,i);
-        if (!res) {
-            return 1;
-        }
+        //bool res = hashSingleFile(ctx,rootPath,i);
+        //if (!res) {
+            //return 1;
+        //}
     }
 
     char bytes[1024];
     char bytesStr[2048];
 
-    ::SHA224_Final(arr,&ctx);
+    //::SHA224_Final(arr,&ctx);
+    assert( false && "Not implemented yet." );
     return 0;
 }
 
@@ -197,14 +198,14 @@ SignFileListError signFileList(
         fclose(file);
     );
 
-    auto key = ::PEM_read_RSAPrivateKey(file,nullptr,nullptr,nullptr);
-    if (nullptr == key) {
-        return SignFileListError::KeyReadFail;
-    }
+    //auto key = ::PEM_read_RSAPrivateKey(file,nullptr,nullptr,nullptr);
+    //if (nullptr == key) {
+        //return SignFileListError::KeyReadFail;
+    //}
 
-    auto rsaFreeGuard = SCOPE_GUARD_LC(
-        ::RSA_free(key);
-    );
+    //auto rsaFreeGuard = SCOPE_GUARD_LC(
+        //::RSA_free(key);
+    //);
 
     // close right away, we don't need
     // this no more.
@@ -218,12 +219,14 @@ SignFileListError signFileList(
 
     int outLen = 0;
     unsigned char sigret[1024 * 4];
-    outLen = ::RSA_private_encrypt(
-        sizeof(hashOfAll),
-        hashOfAll,
-        sigret,
-        key,
-        RSA_PKCS1_PADDING);
+    //outLen = ::RSA_private_encrypt(
+        //sizeof(hashOfAll),
+        //hashOfAll,
+        //sigret,
+        //key,
+        //RSA_PKCS1_PADDING);
+
+    assert( false && "Not implemented yet" );
 
     if (outLen < 0) {
         return SignFileListError::SigningFailed;
@@ -257,14 +260,14 @@ VerifyFileListError verifyFileList(
         fclose(file);
     );
 
-    auto key = ::PEM_read_RSA_PUBKEY(file,nullptr,nullptr,nullptr);
-    if (nullptr == key) {
-        return VerifyFileListError::KeyReadFail;
-    }
+    //auto key = ::PEM_read_RSA_PUBKEY(file,nullptr,nullptr,nullptr);
+    //if (nullptr == key) {
+        //return VerifyFileListError::KeyReadFail;
+    //}
 
-    auto rsaFreeGuard = SCOPE_GUARD_LC(
-        ::RSA_free(key);
-    );
+    //auto rsaFreeGuard = SCOPE_GUARD_LC(
+        //::RSA_free(key);
+    //);
 
     // close right away, we don't need
     // this no more.
@@ -275,16 +278,18 @@ VerifyFileListError verifyFileList(
     unsigned char originalHash[1024 * 2];
     unsigned char output[64];
     encodeHexString(sigLen,signature,originalHash);
-    int recSize = ::RSA_public_decrypt(
-        sigLen/2,
-        originalHash,
-        output,
-        key,
-        RSA_PKCS1_PADDING);
+    //int recSize = ::RSA_public_decrypt(
+        //sigLen/2,
+        //originalHash,
+        //output,
+        //key,
+        //RSA_PKCS1_PADDING);
 
-    if (32 != recSize) {
-        return VerifyFileListError::DigestRecoveryFail;
-    }
+    //if (32 != recSize) {
+        //return VerifyFileListError::DigestRecoveryFail;
+    //}
+
+    assert( false && "Not implemented yet" );
 
     unsigned char hashOfAll[32];
     int res = hashFileListSha256(rootPath,paths,hashOfAll);

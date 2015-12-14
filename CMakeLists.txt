@@ -108,6 +108,10 @@ if(EXISTS "${CMAKE_PREFIX_PATH}/include/lua.hpp")
     endif()
 endif()
 
+option( RAPID_JSON_BUILD_DOC OFF )
+option( RAPID_JSON_BUILD_EXAMPLES OFF )
+option( RAPID_JSON_BUILD_TESTS OFF )
+option( RAPID_JSON_BUILD_THIRDPARTY_GTEST OFF )
 add_subdirectory( ${PLUMBING_DIR} )
 add_subdirectory( ${RAPID_JSON_DIR} )
 

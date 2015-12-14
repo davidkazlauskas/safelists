@@ -118,13 +118,15 @@ add_subdirectory( ${RAPID_JSON_DIR} )
 SET( CMAKE_EXPORT_COMPILE_COMMANDS yes )
 
 # just guessing, should be more robust in the future
-SET( TARGET_ARCHITECTURE "x86_64" )
+SET( TARGET_ARCHITECTURE "i686" )
 SET( CARGO_COMMAND cargo build )
 if(CMAKE_CROSS_COMPILING)
     if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux"
        OR "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
         # support musl in future?
-        SET( CARGO_COMMAND cargo rustc --target=${TARGET_ARCHITECTURE}-unknown-linux-gnu -Clinker=${CMAKE_C_COMPILER} )
+        SET( CARGO_COMMAND PKG_CONFIG_ALLOW_CROSS=1 cargo rustc
+            --target=${TARGET_ARCHITECTURE}-unknown-linux-gnu
+            -Clinker=${CMAKE_C_COMPILER} )
     endif()
 endif()
 
@@ -176,7 +178,7 @@ endif()
 
 add_library( domain ${DOMAIN_SOURCES} )
 target_link_libraries( domain
-    sqlite3 pthread crypto
+    sqlite3 pthread
     sodium scrypt plumbing
     ${CURL_LIBRARIES}
     ${Boost_FILESYSTEM_LIBRARY}

@@ -52,7 +52,8 @@ TEST_CASE("sign_files","[meta]") {
 
     std::string rootPath = "./";
     std::string outSig;
-    auto res = SafeLists::signFileList("exampleData/rsa-keys/private-test.pem",rootPath,files,outSig);
+    auto res = SafeLists::signFileList(
+        "exampleData/rsa-keys/examplekeys.json",rootPath,files,outSig);
     REQUIRE( res == SafeLists::SignFileListError::Success );
     REQUIRE( outSig != "" );
 

@@ -103,8 +103,8 @@ std::string hashFileListSha256(
         const std::string& rootPath,
         const std::vector<std::string>& paths)
 {
-    //SHA256_CTX ctx;
-    //::SHA256_Init(&ctx);
+    ::crypto_hash_sha256_state ctx;
+    ::crypto_hash_sha256_init(&ctx);
 
     TEMPLATIOUS_FOREACH(auto& i, paths) {
         //bool res = hashSingleFile(ctx,rootPath,i);

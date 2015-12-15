@@ -4,7 +4,8 @@
 #include <rapidjson/document.h>
 #include <rapidjson/filereadstream.h>
 #include <util/ScopeGuard.hpp>
-#include <sodium/crypto_hash_sha256.h>
+#include <util/Base64.hpp>
+#include <sodium.h>
 
 #include "SignatureCheck.hpp"
 
@@ -189,7 +190,10 @@ GetFileListError getFileListWSignature(
     return GetFileListError::Success;
 }
 
-int readSodiumPrivateKey(const char* path) {
+int readSodiumPrivateKey(
+    const char* path,
+    char (&sodiumkey)[crypto_sign_SECRETKEYBYTES])
+{
     auto file = ::fopen(path,"r");
     if (nullptr == file) {
         return 1;
@@ -237,7 +241,7 @@ int readSodiumPrivateKey(const char* path) {
 
     std::vector<char> baseCpy(
         privatekeybase64.GetStringLength());
-    std::vector<char> cpyCpy(
+    std::vector<unsigned char> cpyCpy(
         SA::size(baseCpy));
 
     ::memcpy(
@@ -255,6 +259,11 @@ int readSodiumPrivateKey(const char* path) {
         return 7;
     }
 
+    if (outSize != sizeof(sodiumkey)) {
+        return 8;
+    }
+
+    ::memcpy(sodiumkey,cpyCpy.data(),sizeof(sodiumkey));
     return 0;
 }
 

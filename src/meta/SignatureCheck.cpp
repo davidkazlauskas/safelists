@@ -46,7 +46,7 @@ namespace {
         return true;
     }
 
-    void bytesToCStr(char* raw,char* string,int rawNum) {
+    void bytesToCStr(char* raw,char* string,size_t rawNum) {
         TEMPLATIOUS_0_TO_N(i,rawNum) {
             char* strPtr = string + i * 2;
             unsigned char toConv = raw[i];
@@ -119,7 +119,8 @@ std::string hashFileListSha256(
     ::crypto_hash_sha256_final(
         &ctx,
         reinterpret_cast<unsigned char*>(bytes));
-    //bytesToCStr(bytes,bytesStr,SHA256_DIGEST_LENGTH);
+    bytesToCStr(bytes,bytesStr,
+        crypto_hash_sha256_bytes());
     assert( false && "Not implemented yet." );
     return bytesStr;
 }

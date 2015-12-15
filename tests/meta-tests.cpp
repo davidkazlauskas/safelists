@@ -58,7 +58,7 @@ TEST_CASE("sign_files","[meta]") {
     REQUIRE( outSig != "" );
 
     auto resVer = SafeLists::verifyFileList(
-        "exampleData/rsa-keys/public-test.pem",outSig.c_str(),rootPath,files);
+        "exampleData/rsa-keys/examplekeys.json",outSig.c_str(),rootPath,files);
 
     REQUIRE( resVer == SafeLists::VerifyFileListError::Success );
 

@@ -53,7 +53,7 @@ namespace {
             unsigned char toConv = raw[i];
             sprintf(strPtr,"%02x",toConv);
         }
-        string[rawNum * 2 + 1] = '\0';
+        string[rawNum * 2] = '\0';
     }
 
     char singleByteNumeric(char original) {
@@ -282,28 +282,29 @@ SignFileListError signFileList(
         return SignFileListError::HashingFailed;
     }
 
-    int outLen = 0;
-    unsigned char sigret[1024 * 4];
-    //outLen = ::RSA_private_encrypt(
-        //sizeof(hashOfAll),
-        //hashOfAll,
-        //sigret,
-        //key,
-        //RSA_PKCS1_PADDING);
+    char bytesStr[128];
+    bytesToCStr(reinterpret_cast<char*>(hashOfAll),
+        bytesStr,sizeof(hashOfAll));
 
-    assert( false && "Not implemented yet" );
+    const int HASH_IN_STRING = sizeof(hashOfAll) * 2 + 1;
 
-    if (outLen < 0) {
+    unsigned long long outLen = 0;
+    unsigned char sigret[1024];
+    res = ::crypto_sign_detached(
+        sigret,&outLen,
+        reinterpret_cast<unsigned char*>(bytesStr),
+        HASH_IN_STRING,pkey);
+    if (0 != res) {
         return SignFileListError::SigningFailed;
     }
 
     assert( outLen < sizeof(sigret) );
 
     char sigRetString[sizeof(sigret) * 2 + 1];
-    for (int i = 0; i < outLen; ++i) {
-        auto ptr = sigRetString + i * 2;
-        sprintf(ptr,"%02x",sigret[i]);
-    }
+    bytesToCStr(
+        reinterpret_cast<char*>(sigret),
+        sigRetString,
+        sizeof(sigret));
 
     outSig = sigRetString;
     return SignFileListError::Success;

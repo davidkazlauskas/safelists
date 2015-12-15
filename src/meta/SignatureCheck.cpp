@@ -235,6 +235,14 @@ int readSodiumPrivateKey(const char* path) {
         return 6;
     }
 
+    std::vector<char> baseCpy(
+        privatekeybase64.GetStringLength());
+
+    ::memcpy(
+        baseCpy.data(),
+        privatekeybase64.GetString(),
+        SA::size(baseCpy));
+
     return 0;
 }
 

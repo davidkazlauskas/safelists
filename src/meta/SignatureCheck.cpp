@@ -192,7 +192,7 @@ GetFileListError getFileListWSignature(
 
 int readSodiumPrivateKey(
     const char* path,
-    char (&sodiumkey)[crypto_sign_SECRETKEYBYTES])
+    unsigned char (&sodiumkey)[crypto_sign_SECRETKEYBYTES])
 {
     auto file = ::fopen(path,"r");
     if (nullptr == file) {
@@ -273,27 +273,8 @@ SignFileListError signFileList(
     const std::vector< std::string >& paths,
     std::string& outSig)
 {
-    auto file = fopen(privateKeyPath,"r");
-    if (nullptr == file) {
-        return SignFileListError::CouldNotOpenKey;
-    }
-
-    auto closeGuard = SCOPE_GUARD_LC(
-        fclose(file);
-    );
-
-    //auto key = ::PEM_read_RSAPrivateKey(file,nullptr,nullptr,nullptr);
-    //if (nullptr == key) {
-        //return SignFileListError::KeyReadFail;
-    //}
-
-    //auto rsaFreeGuard = SCOPE_GUARD_LC(
-        //::RSA_free(key);
-    //);
-
-    // close right away, we don't need
-    // this no more.
-    closeGuard.fire();
+    unsigned char pkey[crypto_sign_SECRETKEYBYTES];
+    int readRes = readSodiumPrivateKey(privateKeyPath,pkey);
 
     unsigned char hashOfAll[32];
     int res = hashFileListSha256(rootPath,paths,hashOfAll);

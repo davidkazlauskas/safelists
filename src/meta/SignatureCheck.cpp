@@ -202,6 +202,35 @@ int readSodiumPrivateKey(const char* path) {
     // hopefully signature doesn't exceed this...
     char readBuffer[256*256];
     rj::FileReadStream stream(file,readBuffer,sizeof(readBuffer));
+    rj::Document d;
+    d.ParseStream(stream);
+
+    if (d.HasParseError()) {
+        return 2;
+    }
+
+    if (!d.IsObject()) {
+        return 3;
+    }
+
+    if (   !d.HasMember("keytype")
+        || !d.HasMember("privatekeybase64")
+        || !d.HasMember("publickeybase64"))
+    {
+        return 4;
+    }
+
+    auto& keytype = d["keytype"];
+    auto& privatekeybase64 = d["privatekeybase64"];
+    auto& publickeybase64 = d["publickeybase64"];
+
+    if (   !keytype.IsString()
+        || !privatekeybase64.IsString()
+        || !publickeybase64.IsString())
+    {
+        return 5;
+    }
+
     return 0;
 }
 

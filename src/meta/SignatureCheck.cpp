@@ -325,7 +325,7 @@ int readSodiumPrivateKey(
         privatekeybase64.GetString(),
         SA::size(baseCpy));
 
-    size_t outSize = 0;
+    size_t outSize = baseCpy.size();
 
     int res = ::base64decode(
         baseCpy.data(),SA::size(baseCpy),

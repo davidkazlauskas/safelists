@@ -231,6 +231,10 @@ int readSodiumPrivateKey(const char* path) {
         return 5;
     }
 
+    if (0 != strcmp(keytype.GetString(),"crypto_sign")) {
+        return 6;
+    }
+
     return 0;
 }
 

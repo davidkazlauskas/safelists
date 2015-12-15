@@ -209,6 +209,8 @@ int readSodiumPublicKey(
     rj::Document d;
     d.ParseStream(stream);
 
+    closeGuard.fire();
+
     if (d.HasParseError()) {
         return 2;
     }
@@ -292,14 +294,14 @@ int readSodiumPrivateKey(
     }
 
     if (   !d.HasMember("keytype")
-        || !d.HasMember("privatekeybase64")
+        || !d.HasMember("secretkeybase64")
         || !d.HasMember("publickeybase64"))
     {
         return 4;
     }
 
     auto& keytype = d["keytype"];
-    auto& privatekeybase64 = d["privatekeybase64"];
+    auto& privatekeybase64 = d["secretkeybase64"];
     auto& publickeybase64 = d["publickeybase64"];
 
     if (   !keytype.IsString()

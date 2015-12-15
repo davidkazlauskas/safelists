@@ -398,7 +398,7 @@ VerifyFileListError verifyFileList(
     }
 
     unsigned char hashOfAll[32];
-    int res = hashFileListSha256(rootPath,paths,hashOfAll);
+    res = hashFileListSha256(rootPath,paths,hashOfAll);
     if (0 != res) {
         return VerifyFileListError::HashingFailed;
     }
@@ -425,7 +425,7 @@ VerifyFileListError verifyFileList(
         reinterpret_cast<unsigned char*>(hashString),
         HASH_IN_STRING,pk);
 
-    return 0 == memcmp(hashOfAll,output,sizeof(hashOfAll)) ?
+    return 0 == ver ?
         VerifyFileListError::Success :
         VerifyFileListError::VerificationFailed;
 }

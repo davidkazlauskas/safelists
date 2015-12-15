@@ -63,8 +63,8 @@ TEST_CASE("sign_files","[meta]") {
     REQUIRE( resVer == SafeLists::VerifyFileListError::Success );
 
     const char* EXPECTED =
-      "rdqX9koea76o20SOsMdMhPpaLktftYANBgazIFQ4amvy"
-      "zTcQMOhciVuoEjhGEhqAfmi2QvTA66uGjEMAjXpMAw==";
+      "yxLc8D7BhL549/dAh+IzYyrEKkcV0iSvy3bYwG6bp7bP"
+      "tSUqvgeuS++SGQZQGCX42TvbwC1LmCXiJ+UI5XBvBw==";
 
     REQUIRE( outSig == EXPECTED );
 }

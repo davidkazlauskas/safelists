@@ -107,16 +107,18 @@ std::string hashFileListSha256(
     ::crypto_hash_sha256_init(&ctx);
 
     TEMPLATIOUS_FOREACH(auto& i, paths) {
-        //bool res = hashSingleFile(ctx,rootPath,i);
-        //if (!res) {
-            //return "";
-        //}
+        bool res = hashSingleFile(ctx,rootPath,i);
+        if (!res) {
+            return "";
+        }
     }
 
     char bytes[1024];
     char bytesStr[2048];
 
-    //::SHA256_Final(reinterpret_cast<unsigned char*>(bytes),&ctx);
+    ::crypto_hash_sha256_final(
+        &ctx,
+        reinterpret_cast<unsigned char*>(bytes));
     //bytesToCStr(bytes,bytesStr,SHA256_DIGEST_LENGTH);
     assert( false && "Not implemented yet." );
     return bytesStr;

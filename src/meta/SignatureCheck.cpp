@@ -133,17 +133,16 @@ int hashFileListSha256(
     ::crypto_hash_sha256_init(&ctx);
 
     TEMPLATIOUS_FOREACH(auto& i, paths) {
-        //bool res = hashSingleFile(ctx,rootPath,i);
-        //if (!res) {
-            //return 1;
-        //}
+        bool res = hashSingleFile(ctx,rootPath,i);
+        if (!res) {
+            return 1;
+        }
     }
 
     char bytes[1024];
     char bytesStr[2048];
 
-    //::SHA224_Final(arr,&ctx);
-    assert( false && "Not implemented yet." );
+    ::crypto_hash_sha256_final(&ctx,arr);
     return 0;
 }
 

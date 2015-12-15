@@ -121,7 +121,6 @@ std::string hashFileListSha256(
         reinterpret_cast<unsigned char*>(bytes));
     bytesToCStr(bytes,bytesStr,
         crypto_hash_sha256_bytes());
-    assert( false && "Not implemented yet." );
     return bytesStr;
 }
 

@@ -4,6 +4,7 @@
 #include <rapidjson/document.h>
 #include <rapidjson/filereadstream.h>
 #include <util/ScopeGuard.hpp>
+#include <sodium/crypto_hash_sha256.h>
 
 #include "SignatureCheck.hpp"
 
@@ -11,36 +12,39 @@ TEMPLATIOUS_TRIPLET_STD;
 
 namespace {
 
-    //bool hashSingleFile(
-        //SHA256_CTX& hash,
-        //const std::string& rootPath,
-        //const std::string& relPath)
-    //{
-        //std::string rightPath = rootPath + relPath;
-        //auto file = ::fopen(rightPath.c_str(),"rb");
-        //if (nullptr == file) {
-            //return false;
-        //}
-        //auto guard = SCOPE_GUARD_LC(
-            //::fclose(file);
-        //);
+    bool hashSingleFile(
+        ::crypto_hash_sha256_state& hash,
+        const std::string& rootPath,
+        const std::string& relPath)
+    {
+        std::string rightPath = rootPath + relPath;
+        auto file = ::fopen(rightPath.c_str(),"rb");
+        if (nullptr == file) {
+            return false;
+        }
+        auto guard = SCOPE_GUARD_LC(
+            ::fclose(file);
+        );
 
-        //char buf;
-        //unsigned char* rein = reinterpret_cast<unsigned char*>(&buf);
+        char buf;
+        unsigned char* rein = reinterpret_cast<unsigned char*>(&buf);
 
-        //::SHA256_Update(&hash,relPath.c_str(),relPath.size());
+        ::crypto_hash_sha256_update(
+            &hash,
+            reinterpret_cast<const unsigned char*>(relPath.c_str()),
+            relPath.size());
 
-        //int state;
-        //do {
-            //state = ::fgetc(file);
-            //if (state != EOF) {
-                //buf = static_cast<char>(state);
-                //::SHA256_Update(&hash,rein,1);
-            //}
-        //} while (state != EOF);
+        int state;
+        do {
+            state = ::fgetc(file);
+            if (state != EOF) {
+                buf = static_cast<char>(state);
+                ::crypto_hash_sha256_update(&hash,rein,1);
+            }
+        } while (state != EOF);
 
-        //return true;
-    //}
+        return true;
+    }
 
     void bytesToCStr(char* raw,char* string,int rawNum) {
         TEMPLATIOUS_0_TO_N(i,rawNum) {

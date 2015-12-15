@@ -363,7 +363,7 @@ SignFileListError signFileList(
     const int HASH_IN_STRING = sizeof(hashOfAll) * 2;
 
     unsigned long long outLen = 0;
-    unsigned char sigret[1024];
+    unsigned char sigret[crypto_sign_BYTES];
     res = ::crypto_sign_detached(
         sigret,&outLen,
         reinterpret_cast<unsigned char*>(bytesStr),
@@ -374,11 +374,12 @@ SignFileListError signFileList(
 
     assert( outLen < sizeof(sigret) );
 
-    char sigRetString[sizeof(sigret) * 2 + 1];
-    bytesToCStr(
-        reinterpret_cast<char*>(sigret),
-        sigRetString,
-        sizeof(sigret));
+    char sigRetString[sizeof(sigret) * 2];
+    int enc = ::base64encode(
+        sigret,sizeof(sigret),
+        sigRetString,sizeof(sigRetString));
+
+    assert( enc == 0 && "Aww, cmon..." );
 
     outSig = sigRetString;
     return SignFileListError::Success;

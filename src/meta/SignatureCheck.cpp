@@ -360,7 +360,7 @@ SignFileListError signFileList(
     bytesToCStr(reinterpret_cast<char*>(hashOfAll),
         bytesStr,sizeof(hashOfAll));
 
-    const int HASH_IN_STRING = sizeof(hashOfAll) * 2 + 1;
+    const int HASH_IN_STRING = sizeof(hashOfAll) * 2;
 
     unsigned long long outLen = 0;
     unsigned char sigret[1024];
@@ -397,28 +397,33 @@ VerifyFileListError verifyFileList(
         return VerifyFileListError::KeyReadFail;
     }
 
-    int sigLen = strlen(signature);
-    unsigned char originalHash[1024 * 2];
-    unsigned char output[64];
-    encodeHexString(sigLen,signature,originalHash);
-    //int recSize = ::RSA_public_decrypt(
-        //sigLen/2,
-        //originalHash,
-        //output,
-        //key,
-        //RSA_PKCS1_PADDING);
-
-    //if (32 != recSize) {
-        //return VerifyFileListError::DigestRecoveryFail;
-    //}
-
-    assert( false && "Not implemented yet" );
-
     unsigned char hashOfAll[32];
     int res = hashFileListSha256(rootPath,paths,hashOfAll);
     if (0 != res) {
         return VerifyFileListError::HashingFailed;
     }
+
+    char hashString[2 * sizeof(hashOfAll) + 1];
+    bytesToCStr(
+        reinterpret_cast<char*>(hashOfAll),
+        hashString,sizeof(hashOfAll));
+
+    unsigned char signatureNoHex[crypto_sign_BYTES];
+    size_t outLen = crypto_sign_BYTES;
+    int sigLen = strlen(signature);
+    std::vector< char > cpy(sigLen);
+    ::strcpy(cpy.data(),signature);
+
+    res = ::base64decode(cpy.data(),sigLen,signatureNoHex,&outLen);
+    if (0 != res || crypto_sign_BYTES != outLen) {
+        return VerifyFileListError::InvalidSignatureFail;
+    }
+
+    const int HASH_IN_STRING = sizeof(hashOfAll) * 2;
+    int ver = crypto_sign_verify_detached(
+        signatureNoHex,
+        reinterpret_cast<unsigned char*>(hashString),
+        HASH_IN_STRING,pk);
 
     return 0 == memcmp(hashOfAll,output,sizeof(hashOfAll)) ?
         VerifyFileListError::Success :

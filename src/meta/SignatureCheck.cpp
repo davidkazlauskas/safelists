@@ -190,6 +190,80 @@ GetFileListError getFileListWSignature(
     return GetFileListError::Success;
 }
 
+int readSodiumPublicKey(
+    const char* path,
+    unsigned char (&sodiumkey)[crypto_sign_PUBLICKEYBYTES])
+{
+    auto file = ::fopen(path,"r");
+    if (nullptr == file) {
+        return 1;
+    }
+
+    auto closeGuard = SCOPE_GUARD_LC(
+        ::fclose(file);
+    );
+
+    // hopefully signature doesn't exceed this...
+    char readBuffer[256*256];
+    rj::FileReadStream stream(file,readBuffer,sizeof(readBuffer));
+    rj::Document d;
+    d.ParseStream(stream);
+
+    if (d.HasParseError()) {
+        return 2;
+    }
+
+    if (!d.IsObject()) {
+        return 3;
+    }
+
+    if (   !d.HasMember("keytype")
+        || !d.HasMember("publickeybase64"))
+    {
+        return 4;
+    }
+
+    auto& keytype = d["keytype"];
+    auto& publickeybase64 = d["publickeybase64"];
+
+    if (   !keytype.IsString()
+        || !publickeybase64.IsString())
+    {
+        return 5;
+    }
+
+    if (0 != strcmp(keytype.GetString(),"crypto_sign")) {
+        return 6;
+    }
+
+    std::vector<char> baseCpy(
+        publickeybase64.GetStringLength());
+    std::vector<unsigned char> cpyCpy(
+        SA::size(baseCpy));
+
+    ::memcpy(
+        baseCpy.data(),
+        publickeybase64.GetString(),
+        SA::size(baseCpy));
+
+    size_t outSize = 0;
+
+    int res = ::base64decode(
+        baseCpy.data(),SA::size(baseCpy),
+        cpyCpy.data(),&outSize);
+
+    if (0 != res) {
+        return 7;
+    }
+
+    if (outSize != sizeof(sodiumkey)) {
+        return 8;
+    }
+
+    ::memcpy(sodiumkey,cpyCpy.data(),sizeof(sodiumkey));
+    return 0;
+}
+
 int readSodiumPrivateKey(
     const char* path,
     unsigned char (&sodiumkey)[crypto_sign_SECRETKEYBYTES])

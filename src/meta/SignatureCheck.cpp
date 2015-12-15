@@ -245,6 +245,16 @@ int readSodiumPrivateKey(const char* path) {
         privatekeybase64.GetString(),
         SA::size(baseCpy));
 
+    size_t outSize = 0;
+
+    int res = ::base64decode(
+        baseCpy.data(),SA::size(baseCpy),
+        cpyCpy.data(),&outSize);
+
+    if (0 != res) {
+        return 7;
+    }
+
     return 0;
 }
 

@@ -189,6 +189,22 @@ GetFileListError getFileListWSignature(
     return GetFileListError::Success;
 }
 
+int readSodiumPrivateKey(const char* path) {
+    auto file = ::fopen(path,"r");
+    if (nullptr == file) {
+        return 1;
+    }
+
+    auto closeGuard = SCOPE_GUARD_LC(
+        ::fclose(file);
+    );
+
+    // hopefully signature doesn't exceed this...
+    char readBuffer[256*256];
+    rj::FileReadStream stream(file,readBuffer,sizeof(readBuffer));
+    return 0;
+}
+
 SignFileListError signFileList(
     const char* privateKeyPath,
     const std::string& rootPath,

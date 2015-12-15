@@ -69,6 +69,7 @@ namespace {
         }
 
         assert( false && "Invalid input." );
+        return -1;
     }
 
     unsigned char decodeByte(const char* twoHex) {

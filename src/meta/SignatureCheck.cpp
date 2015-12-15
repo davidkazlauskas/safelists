@@ -391,28 +391,11 @@ VerifyFileListError verifyFileList(
     const std::vector< std::string >& paths
 )
 {
-    auto file = fopen(publicKeyPath,"r");
-    if (nullptr == file) {
-        return VerifyFileListError::CouldNotOpenKey;
+    unsigned char pk[crypto_sign_PUBLICKEYBYTES];
+    int res = readSodiumPublicKey(publicKeyPath,pk);
+    if (0 != res) {
+        return VerifyFileListError::KeyReadFail;
     }
-
-    auto closeGuard = SCOPE_GUARD_LC(
-        fclose(file);
-    );
-
-    //auto key = ::PEM_read_RSA_PUBKEY(file,nullptr,nullptr,nullptr);
-    //if (nullptr == key) {
-        //return VerifyFileListError::KeyReadFail;
-    //}
-
-    //auto rsaFreeGuard = SCOPE_GUARD_LC(
-        //::RSA_free(key);
-    //);
-
-    // close right away, we don't need
-    // this no more.
-    closeGuard.fire();
-
 
     int sigLen = strlen(signature);
     unsigned char originalHash[1024 * 2];

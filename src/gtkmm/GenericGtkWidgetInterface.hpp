@@ -95,7 +95,14 @@ struct GenericMenuBarTrait {
     // Uses lua stackless coroutines,
     // might need to port if feature is
     // absent.
+    // Signature:
+    // < SetModelStackless, StrongMsgPtr (model) >
     DUMMY_REG(SetModelStackless,"GWI_GMIT_SetModelStackless");
+
+    // Sent out when index is clicked.
+    // Signature:
+    // < OutIndexClicked, int >
+    DUMMY_REG(OutIndexClicked,"GWI_GMIT_OutIndexClicked");
 };
 
 }

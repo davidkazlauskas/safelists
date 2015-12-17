@@ -114,6 +114,14 @@ GenericWidgetNode.mt = {
                 VString(value)
             )
         end,
+        buttonSetText = function(self,value)
+            assert( type(value) == "string", "Text expected in set button text." )
+            self.luaCtx:message(
+                self.messageable,
+                VSig("GWI_GBT_SetButtonText"),
+                VString(value)
+            )
+        end,
         windowSetPosition = function(self,value)
             assert( type(value) == "string", "Position should be specified in enum string." )
             self.luaCtx:message(

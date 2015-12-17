@@ -147,6 +147,13 @@ GenericWidgetNode.mt = {
                 VSig("GWI_GWNT_SetWindowParent"),
                 VMsg(msg)
             )
+        end,
+        menuBarSetModelStackless = function(self,msg)
+            self.luaCtx:message(
+                self.messageable,
+                VSig("GWI_GMIT_SetModelStackless"),
+                VMsg(msg)
+            )
         end
     }
 }

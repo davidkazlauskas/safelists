@@ -148,6 +148,11 @@ ObjectRetainer = {
         retain = function(self,id,object)
             self.table[id] = object
         end,
+        retainNewId = function(self,object)
+            local id = self:newId()
+            self:retain(id,object)
+            return id
+        end,
         release = function(self,id)
             self.table[id] = nil
         end,

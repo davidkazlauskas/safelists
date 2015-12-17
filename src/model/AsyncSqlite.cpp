@@ -250,11 +250,15 @@ private:
             SF::virtualMatch< AS::OutSingleRow, const std::string, std::string, bool >(
                 [=](AS::OutSingleNum, const std::string& query,std::string& out,bool& succeeded) {
                     HolderSingleRow h(out);
-                    sqlite3_exec(this->_sqlite,query.c_str(),&sqliteFuncSingleRowOut,&h,nullptr);
+                    char *outErr = nullptr;
+                    sqlite3_exec(this->_sqlite,query.c_str(),&sqliteFuncSingleRowOut,&h,&outErr);
                     if (h._rev == 1) {
                         succeeded = true;
                     } else {
                         succeeded = false;
+                    }
+                    if (nullptr != outErr) {
+                        printf("AsyncSqlite (OutSingleRow) error: |%s|\n",outErr);
                     }
                 }
             ),

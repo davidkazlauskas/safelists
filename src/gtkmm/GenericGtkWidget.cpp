@@ -95,6 +95,17 @@ namespace SafeLists {
                             val = outNum;
                         }
                     ),
+                    SF::virtualMatch< GBT::SetButtonText, const std::string >(
+                        [=](ANY_CONV,const std::string& val) {
+                            auto locked = _weakRef.lock();
+                            assert( nullptr != locked && "Parent object dead." );
+
+                            Gtk::Button* cast = dynamic_cast< Gtk::Button* >(_myWidget);
+                            assert( nullptr != cast && "Cast to label failed." );
+
+                            cast->set_label(val.c_str());
+                        }
+                    ),
                     SF::virtualMatch< GNT::SetCurrentTab, const int >(
                         [=](ANY_CONV,int val) {
                             auto locked = _weakRef.lock();

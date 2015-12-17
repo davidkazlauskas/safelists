@@ -58,6 +58,11 @@ struct GenericButtonTrait {
     // Signature:
     // < OutClickEvent, int (identifier) >
     DUMMY_REG(OutClickEvent,"GWI_GBT_OutClickEvent");
+
+    // Set text for the button.
+    // Signature:
+    // < SetButtonText, const std::string (label) >
+    DUMMY_REG(SetButtonText,"GWI_GBT_SetButtonText");
 };
 
 struct GenericNotebookTrait {

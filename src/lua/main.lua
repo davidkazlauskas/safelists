@@ -817,7 +817,7 @@ initAll = function()
                 local status,nextNum,nextVal =
                     coroutine.resume(corout)
                 if (nextNum ~= nil and nextVal ~= nil) then
-                    natPack:setSlot(2,VInt(-2))
+                    natPack:setSlot(2,VInt(1))
                     natPack:setSlot(3,VString(nextVal))
                     natPack:setSlot(4,VString(nextVal))
                 else

@@ -12,7 +12,7 @@ typedef SafeLists::GenericGtkWidgetInterface GWI;
 namespace SafeLists {
 
     typedef GenericMenuBarTrait GMBT;
-    void setupMenuBarWithModel(Gtk::MenuBar& bar,const StrongMsgPtr& model);
+    void setupMenuBarWithModel(Gtk::MenuShell& bar,const StrongMsgPtr& model);
 
     struct GenericGtkWidgetNode : public GenericStMessageable {
         typedef GenericWidgetTrait GWT;
@@ -264,16 +264,14 @@ namespace SafeLists {
         );
     }
 
-    void clearMenuBar(Gtk::MenuBar& bar) {
+    void clearMenuBar(Gtk::MenuShell& bar) {
         auto children = bar.get_children();
         TEMPLATIOUS_FOREACH(auto& i,children) {
             bar.remove(*i);
         }
     }
 
-    void setupMenuBarWithModel(Gtk::MenuBar& bar,const StrongMsgPtr& model) {
-        clearMenuBar(bar);
-
+    void setupSingleMenu(Gtk::MenuShell& bar,const StrongMsgPtr& model) {
         auto queryNext = SF::vpack<
             GMBT::QueryNextNode,
             int, std::string, std::string
@@ -290,12 +288,23 @@ namespace SafeLists {
 
             auto managed = Gtk::manage(
                 new Gtk::MenuItem(queryNext.fGet<3>().c_str(),true));
-            intptr_t copy = queryNext.fGet<1>();
-            managed->set_data("index",reinterpret_cast<void*>(copy));
-            bar.append(*managed);
+
+            if (queryNext.fGet<1>() != -2) {
+                intptr_t copy = queryNext.fGet<1>();
+                managed->set_data("index",reinterpret_cast<void*>(copy));
+                bar.append(*managed);
+            } else {
+                setupSingleMenu(*managed->get_submenu(),model);
+            }
 
             model->message(queryNext);
         }
+    }
+
+    void setupMenuBarWithModel(Gtk::MenuShell& bar,const StrongMsgPtr& model) {
+        clearMenuBar(bar);
+
+        setupSingleMenu(bar,model);
 
         bar.show_all();
     }

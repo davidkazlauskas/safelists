@@ -103,8 +103,8 @@ struct GenericMenuBarTrait {
     // Signature:
     // < QueryNextNode,
     //   int (id, -2 if holder (has no options), -1 if empty (last)),
-    //   std::string (title),
-    //   std::string (shortname)
+    //   std::string (shortname),
+    //   std::string (title)
     // >
     DUMMY_REG(QueryNextNode,"GWI_GMIT_QueryNextNode");
 

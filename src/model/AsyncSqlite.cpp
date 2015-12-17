@@ -258,6 +258,7 @@ private:
                         succeeded = false;
                     }
                     if (nullptr != outErr) {
+                        printf("AsyncSqlite (OutSingleRow) query: |%s|\n",query.c_str());
                         printf("AsyncSqlite (OutSingleRow) error: |%s|\n",outErr);
                     }
                 }

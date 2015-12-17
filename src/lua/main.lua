@@ -799,25 +799,39 @@ initAll = function()
         local menuBar = mainWrapped:getWidget("mainWindowMenuBar")
 
         local data = {
-            "shizzle",
-            "mcnizzle"
+            ["shizzle"] = 1,
+            ["mcnizzle"] = 2,
+            ["dizzle"] = {
+                ["mizzle"] = 3,
+                ["hizzle"] = 4
+            }
         }
 
         local corout = coroutine.create(
             function()
-                for k,v in pairs(data) do
-                    coroutine.yield(k,v)
+                local recurse = nil
+                recurse = function(data)
+                    for k,v in pairs(data) do
+                        if (type(v) == "number") then
+                            coroutine.yield(k,v)
+                        elseif (type(v) == "table") then
+                            coroutine.yield(k,-2)
+                            recurse(v)
+                        end
+                    end
+                    coroutine.yield(nil,nil)
                 end
-                coroutine.yield(nil,nil)
+
+                recurse(data)
             end
         )
 
         local model = ctx:makeLuaMatchHandler(
             VMatch(function(natPack,val)
-                local status,nextNum,nextVal =
+                local status,nextVal,nextNum =
                     coroutine.resume(corout)
                 if (nextNum ~= nil and nextVal ~= nil) then
-                    natPack:setSlot(2,VInt(1))
+                    natPack:setSlot(2,VInt(nextNum))
                     natPack:setSlot(3,VString(nextVal))
                     natPack:setSlot(4,VString(nextVal))
                 else

@@ -1807,6 +1807,9 @@ initAll = function()
                     return
                 end
 
+                local inIdWhole = whole(inId)
+                local currentDirToMoveIdWhole = whole(currentDirToMoveId)
+
                 local asyncSqlite = currentAsyncSqlite
                 if (messageablesEqual(VMsgNil(),asyncSqlite)) then
                     return
@@ -1816,7 +1819,7 @@ initAll = function()
 
                 local condition =
                        " SELECT CASE"
-                    --.. " WHEN (" .. currentDirToMoveId .. " IN"
+                    --.. " WHEN (" .. currentDirToMoveIdWhole .. " IN"
                     --.. " ("
                     --.. "     WITH RECURSIVE"
                     --.. "     children(d_id) AS ("
@@ -1831,13 +1834,13 @@ initAll = function()
 
                     -- dir under parent already
                     .. " WHEN ((SELECT dir_parent FROM directories"
-                    .. "     WHERE dir_id=" .. currentDirToMoveId
-                    .. "     ) = " .. inId .. ") THEN 3"
+                    .. "     WHERE dir_id=" .. currentDirToMoveIdWhole
+                    .. "     ) = " .. inIdWhole .. ") THEN 3"
                     -- same name already under directory
                     .. " WHEN (" .. "(SELECT dir_name FROM"
-                    .. "     directories WHERE dir_id=" .. currentDirToMoveId .. ") IN"
+                    .. "     directories WHERE dir_id=" .. currentDirToMoveIdWhole .. ") IN"
                     .. "     ( SELECT dir_name FROM directories WHERE"
-                    .. "     dir_parent=" .. inId .. ")) THEN 2"
+                    .. "     dir_parent=" .. inIdWhole .. ")) THEN 2"
                     .. " ELSE 0"
                     .. " END;"
 
@@ -1852,7 +1855,7 @@ initAll = function()
                             ctx:messageAsync(asyncSqlite,
                                 VSig("ASQL_OutAffected"),
                                 VString("UPDATE directories SET dir_parent="
-                                    .. inId .. " WHERE dir_id=" .. currentDirToMoveId .. ";"),
+                                    .. inIdWhole .. " WHERE dir_id=" .. currentDirToMoveIdWhole .. ";"),
                                 VInt(-1))
                             currentDirToMoveId = -1
                             ctx:message(mainWnd,

@@ -808,15 +808,15 @@ initAll = function()
                 for k,v in pairs(data) do
                     coroutine.yield(k,v)
                 end
+                coroutine.yield(nil,nil)
             end
         )
 
         local model = ctx:makeLuaMatchHandler(
             VMatch(function(natPack,val)
-                print("BALLAH!")
                 local status,nextNum,nextVal =
                     coroutine.resume(corout)
-                if (status == true) then
+                if (nextNum ~= nil and nextVal ~= nil) then
                     natPack:setSlot(2,VInt(-2))
                     natPack:setSlot(3,VString(nextVal))
                     natPack:setSlot(4,VString(nextVal))

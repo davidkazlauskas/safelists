@@ -11,6 +11,7 @@ typedef SafeLists::GenericGtkWidgetInterface GWI;
 
 namespace SafeLists {
 
+    typedef GenericMenuBarTrait GMBT;
     void setupMenuBarWithModel(Gtk::MenuBar& bar,const StrongMsgPtr& model);
 
     struct GenericGtkWidgetNode : public GenericStMessageable {
@@ -20,7 +21,6 @@ namespace SafeLists {
         typedef GenericButtonTrait GBT;
         typedef GenericNotebookTrait GNT;
         typedef GenericWindowTrait GWNT;
-        typedef GenericMenuBarTrait GMBT;
 
         typedef GenericGtkWidgetNodePrivateWindow PR_GWNT;
 
@@ -273,6 +273,22 @@ namespace SafeLists {
 
     void setupMenuBarWithModel(Gtk::MenuBar& bar,const StrongMsgPtr& model) {
         clearMenuBar(bar);
+
+        auto queryNext = SF::vpack<
+            GMBT::QueryNextNode,
+            int, std::string, std::string
+        >(
+            nullptr, 0, "", ""
+        );
+
+        model->message(queryNext);
+        while (queryNext.fGet<1>() != -1) {
+            printf("Queried: |%d|%s|%s|\n",
+                queryNext.fGet<1>(),
+                queryNext.fGet<2>().c_str(),
+                queryNext.fGet<3>().c_str());
+            model->message(queryNext);
+        }
     }
 
 }

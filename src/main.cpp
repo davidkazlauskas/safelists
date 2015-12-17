@@ -14,6 +14,7 @@
 #include <gtkmm/GtkMMSessionWidget.hpp>
 #include <gtkmm/GtkMMFileString.hpp>
 #include <gtkmm/GenericGtkWidget.hpp>
+#include <gtkmm/GtkMMThemeManager.hpp>
 #include <io/SafeListDownloaderFactory.hpp>
 #include <io/RandomFileWriter.hpp>
 #include <io/AsyncDownloader.hpp>
@@ -1999,6 +2000,7 @@ int main(int argc,char** argv) {
     auto asyncSqliteFactory = SafeLists::AsyncSqliteFactory::createNew();
     auto mainModel = std::make_shared< MainModel >();
     auto dialogService = std::make_shared< GtkDialogService >();
+    auto themeManager = SafeLists::GtkMMThemeManager::makeNew(&mainWnd->getWindow());
     auto shutdownGuard = SafeLists::GracefulShutdownGuard::makeNew();
     shutdownGuard->add(randomFileWriter);
     shutdownGuard->add(downloader);
@@ -2014,6 +2016,7 @@ int main(int argc,char** argv) {
     ctx->addMessageableStrong("dlSessionFactory",dlFactory);
     ctx->addMessageableStrong("asyncSqliteFactory",asyncSqliteFactory);
     ctx->addMessageableStrong("dialogService",dialogService);
+    ctx->addMessageableStrong("themeManager",themeManager);
     ctx->doFile("lua/main.lua");
     app->run(mainWnd->getWindow(),argc,argv);
 }

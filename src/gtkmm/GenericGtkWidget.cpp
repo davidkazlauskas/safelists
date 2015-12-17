@@ -192,7 +192,7 @@ namespace SafeLists {
                             assert( nullptr != locked && "Parent object dead." );
 
                             Gtk::MenuBar* cast = dynamic_cast< Gtk::MenuBar* >(_myWidget);
-                            assert( nullptr != cast && "Cast to window failed." );
+                            assert( nullptr != cast && "Cast to MenuBar failed." );
                         }
                     )
                 )

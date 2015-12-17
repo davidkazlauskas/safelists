@@ -113,6 +113,14 @@ GenericWidgetNode.mt = {
                 VSig("GWI_GLT_SetValue"),
                 VString(value)
             )
+        end,
+        windowSetPos = function(self,value)
+            assert( type(value) == "string", "Position should be specified in enum string." )
+            self.luaCtx:message(
+                self.messageable,
+                VSig("GWI_GWNT_SetWindowPosition"),
+                VString(value)
+            )
         end
     }
 }

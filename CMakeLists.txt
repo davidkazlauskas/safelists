@@ -153,6 +153,9 @@ add_custom_target( copy-gtk-schemas ALL
 add_custom_target( copy-gtk-icons ALL
     COMMAND ${RSYNC} -az "${CMAKE_PREFIX_PATH}/share/icons" "${CMAKE_BINARY_DIR}/appdata/usr/share/"
     DEPENDS create-gtk-schemas-dir )
+add_custom_target( copy-gtk-themes ALL
+    COMMAND ${RSYNC} -az "${CMAKE_SOURCE_DIR}/src/themes" "${CMAKE_BINARY_DIR}/appdata/"
+    DEPENDS create-gtk-schemas-dir )
 if (NOT SAFE_FILE_DOWNLOADER_PREBUILT)
     add_custom_target( build-safe-dl-build ALL
         COMMAND CARGO_TARGET_DIR=${CMAKE_BINARY_DIR}/rustlib ${CARGO_COMMAND}

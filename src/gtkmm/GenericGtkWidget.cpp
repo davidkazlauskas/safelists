@@ -11,6 +11,8 @@ typedef SafeLists::GenericGtkWidgetInterface GWI;
 
 namespace SafeLists {
 
+    void setupMenuBarWithModel(Gtk::MenuBar& bar,const StrongMsgPtr& model);
+
     struct GenericGtkWidgetNode : public GenericStMessageable {
         typedef GenericWidgetTrait GWT;
         typedef GenericLabelTrait GLT;
@@ -193,6 +195,8 @@ namespace SafeLists {
 
                             Gtk::MenuBar* cast = dynamic_cast< Gtk::MenuBar* >(_myWidget);
                             assert( nullptr != cast && "Cast to MenuBar failed." );
+
+                            setupMenuBarWithModel(*cast,val);
                         }
                     )
                 )
@@ -258,6 +262,10 @@ namespace SafeLists {
                 )
             )
         );
+    }
+
+    void setupMenuBarWithModel(Gtk::MenuBar& bar,const StrongMsgPtr& model) {
+
     }
 
 }

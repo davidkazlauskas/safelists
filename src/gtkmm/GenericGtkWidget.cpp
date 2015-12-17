@@ -18,6 +18,7 @@ namespace SafeLists {
         typedef GenericButtonTrait GBT;
         typedef GenericNotebookTrait GNT;
         typedef GenericWindowTrait GWNT;
+        typedef GenericMenuBarTrait GMBT;
 
         typedef GenericGtkWidgetNodePrivateWindow PR_GWNT;
 
@@ -183,6 +184,15 @@ namespace SafeLists {
                             assert( nullptr != cast && "Cast to window failed." );
 
                             val = cast;
+                        }
+                    ),
+                    SF::virtualMatch< GMBT::SetModelStackless, StrongMsgPtr >(
+                        [=](ANY_CONV,const StrongMsgPtr& val) {
+                            auto locked = _weakRef.lock();
+                            assert( nullptr != locked && "Parent object dead." );
+
+                            Gtk::MenuBar* cast = dynamic_cast< Gtk::MenuBar* >(_myWidget);
+                            assert( nullptr != cast && "Cast to window failed." );
                         }
                     )
                 )

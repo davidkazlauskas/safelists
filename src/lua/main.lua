@@ -798,9 +798,31 @@ initAll = function()
         local mainWrapped = GenericWidget.putOn(mainWnd)
         local menuBar = mainWrapped:getWidget("mainWindowMenuBar")
 
+        local data = {
+            "shizzle",
+            "mcnizzle"
+        }
+
+        local corout = coroutine.create(
+            function()
+                for k,v in pairs(data) do
+                    coroutine.yield(k,v)
+                end
+            end
+        )
+
         local model = ctx:makeLuaMatchHandler(
             VMatch(function(natPack,val)
                 print("BALLAH!")
+                local status,nextNum,nextVal =
+                    coroutine.resume(corout)
+                if (status == true) then
+                    natPack:setSlot(2,VInt(-2))
+                    natPack:setSlot(3,VString(nextVal))
+                    natPack:setSlot(4,VString(nextVal))
+                else
+                    natPack:setSlot(2,VInt(-1))
+                end
             end,"GWI_GMIT_QueryNextNode","int","string","string")
         )
 

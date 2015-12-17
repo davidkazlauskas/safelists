@@ -264,8 +264,15 @@ namespace SafeLists {
         );
     }
 
-    void setupMenuBarWithModel(Gtk::MenuBar& bar,const StrongMsgPtr& model) {
+    void clearMenuBar(Gtk::MenuBar& bar) {
+        auto children = bar.get_children();
+        TEMPLATIOUS_FOREACH(auto& i,children) {
+            bar.remove(*i);
+        }
+    }
 
+    void setupMenuBarWithModel(Gtk::MenuBar& bar,const StrongMsgPtr& model) {
+        clearMenuBar(bar);
     }
 
 }

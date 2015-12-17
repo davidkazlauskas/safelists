@@ -913,6 +913,9 @@ initAll = function()
         local dialogService =
             ctx:namedMessageable("dialogService")
 
+        local mainWrapped = GenericWidget.putOn(mainWnd)
+        local mainAppWnd = mainWrapped:getWidget("mainAppWindow")
+
         local dialog =
             ctx:messageRetValues(
                 dialogService,
@@ -934,6 +937,7 @@ initAll = function()
         end)
         window:windowSetPosition("WIN_POS_CENTER")
         window:windowSetTitle(title)
+        window:windowSetParent(mainAppWnd:getMessageable())
         window:setVisible(true)
     end
 

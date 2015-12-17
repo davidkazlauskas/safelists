@@ -23,6 +23,13 @@ function roundFloatStr(number,decimals)
         number)
 end
 
+function whole(number)
+    assert( type(number) == "number", "Not number passed." )
+    local res = string.format("%.0f",number)
+    --print("In: |" .. number .. "|" .. res .. "|")
+    return res
+end
+
 -- merge tables, new table overrides old
 function mergeTables(tableOld,tableNew)
     local res = {}

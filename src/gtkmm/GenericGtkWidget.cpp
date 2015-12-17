@@ -17,6 +17,7 @@ namespace SafeLists {
         typedef GenericInputTrait GIT;
         typedef GenericButtonTrait GBT;
         typedef GenericNotebookTrait GNT;
+        typedef GenericWindowTrait GWNT;
 
         GenericGtkWidgetNode(
             const std::shared_ptr<GenericGtkWidgetSharedState>& sharedState,
@@ -103,6 +104,30 @@ namespace SafeLists {
                             assert( nullptr != cast && "Cast to label failed." );
 
                             cast->set_current_page(val);
+                        }
+                    ),
+                    SF::virtualMatch< GWNT::SetWindowPosition, const std::string >(
+                        [=](ANY_CONV,const std::string& val) {
+                            auto locked = _weakRef.lock();
+                            assert( nullptr != locked && "Parent object dead." );
+
+                            Gtk::Window* cast = dynamic_cast< Gtk::Window* >(_myWidget);
+                            assert( nullptr != cast && "Cast to window failed." );
+
+                            Gtk::WindowPosition pos = Gtk::WindowPosition::WIN_POS_NONE;
+                            if (val == "WIN_POS_CENTER") {
+                                pos = Gtk::WindowPosition::WIN_POS_CENTER;
+                            } else if (val == "WIN_POS_MOUSE") {
+                                pos = Gtk::WindowPosition::WIN_POS_MOUSE;
+                            } else if (val == "WIN_POS_CENTER_ALWAYS") {
+                                pos = Gtk::WindowPosition::WIN_POS_CENTER_ALWAYS;
+                            } else if (val == "WIN_POS_CENTER_ON_PARENT") {
+                                pos = Gtk::WindowPosition::WIN_POS_CENTER_ON_PARENT;
+                            } else if (val != "WIN_POS_NONE") {
+                                assert( false && "Unknown window position option." );
+                            }
+
+                            cast->set_position(pos);
                         }
                     )
                 )

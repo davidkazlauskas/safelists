@@ -67,6 +67,14 @@ struct GenericNotebookTrait {
     DUMMY_REG(SetCurrentTab,"GWI_GNT_SetCurrentTab");
 };
 
+struct GenericWindowTrait {
+    // Set window position according
+    // to gtkmm constants
+    // Signature:
+    // < SetWindowPosition, string (gtkmm enum val) >
+    DUMMY_REG(SetWindowPosition,"GWI_GWNT_SetWindowPosition");
+};
+
 }
 
 #endif /* end of include guard: GENERICGTKWIDGETINTERFACE_MDS06G4N */

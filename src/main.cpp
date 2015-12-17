@@ -1482,10 +1482,16 @@ const Glib::ustring& licensingUiSchema() {
     return res;
 }
 
+const Glib::ustring& dialogsSchema() {
+    static Glib::ustring res = SafeLists::readFile("appdata/uischemes/dialogs.glade");
+    return res;
+}
+
 struct GtkDialogService : public Messageable {
     GtkDialogService() : _handler(genHandler()) {
         _schemaMap["main"] = &mainUiSchema();
         _schemaMap["licensing"] = &licensingUiSchema();
+        _schemaMap["dialogs"] = &dialogsSchema();
     }
 
     // Open file chooser

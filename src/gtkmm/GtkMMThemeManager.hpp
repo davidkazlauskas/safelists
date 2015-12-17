@@ -2,6 +2,8 @@
 #ifndef GTKMMTHEMEMANAGER_S0SW9GS4
 #define GTKMMTHEMEMANAGER_S0SW9GS4
 
+#include <gtkmm.h>
+
 #include <LuaPlumbing/plumbing.hpp>
 #include <util/AutoReg.hpp>
 

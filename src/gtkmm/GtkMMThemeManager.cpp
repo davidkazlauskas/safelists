@@ -1,5 +1,4 @@
 
-#include <gtkmm.h>
 #include <util/GenericStMessageable.hpp>
 #include "GtkMMThemeManager.hpp"
 

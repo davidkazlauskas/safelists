@@ -90,6 +90,14 @@ struct GenericWindowTrait {
     DUMMY_REG(SetWindowParent,"GWI_GWNT_SetWindowParent");
 };
 
+struct GenericMenuBarTrait {
+    // Set model.
+    // Uses lua stackless coroutines,
+    // might need to port if feature is
+    // absent.
+    DUMMY_REG(SetModelStackless,"GWI_GMIT_SetModelStackless");
+};
+
 }
 
 #endif /* end of include guard: GENERICGTKWIDGETINTERFACE_MDS06G4N */

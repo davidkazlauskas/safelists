@@ -83,6 +83,11 @@ struct GenericWindowTrait {
     // Signature:
     // < SetWindowTitle, string (title) >
     DUMMY_REG(SetWindowTitle,"GWI_GWNT_SetWindowTitle");
+
+    // Set window parent
+    // Signature:
+    // < SetWindowTitle, StrongMsgPtr (parent) >
+    DUMMY_REG(SetWindowParent,"GWI_GWNT_SetWindowParent");
 };
 
 }

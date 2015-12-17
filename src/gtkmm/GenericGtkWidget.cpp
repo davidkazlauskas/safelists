@@ -11,6 +11,13 @@ typedef SafeLists::GenericGtkWidgetInterface GWI;
 
 namespace SafeLists {
 
+    struct GenericGtkWidgetNodePrivateWindow {
+        // Query Gtk::Window*
+        // Signature:
+        // < QueryWindow, Gtk::Window* (out) >
+        DUMMY_STRUCT_NATIVE(QueryWindow);
+    };
+
     struct GenericGtkWidgetNode : public GenericStMessageable {
         typedef GenericWidgetTrait GWT;
         typedef GenericLabelTrait GLT;
@@ -18,6 +25,8 @@ namespace SafeLists {
         typedef GenericButtonTrait GBT;
         typedef GenericNotebookTrait GNT;
         typedef GenericWindowTrait GWNT;
+
+        typedef GenericGtkWidgetNodePrivateWindow PR_GWNT;
 
         GenericGtkWidgetNode(
             const std::shared_ptr<GenericGtkWidgetSharedState>& sharedState,
@@ -150,6 +159,37 @@ namespace SafeLists {
                             assert( nullptr != cast && "Cast to window failed." );
 
                             cast->set_title(val.c_str());
+                        }
+                    ),
+                    SF::virtualMatch< GWNT::SetWindowParent, const StrongMsgPtr >(
+                        [=](ANY_CONV,const StrongMsgPtr& val) {
+                            auto locked = _weakRef.lock();
+                            assert( nullptr != locked && "Parent object dead." );
+
+                            Gtk::Window* cast = dynamic_cast< Gtk::Window* >(_myWidget);
+                            assert( nullptr != cast && "Cast to window failed." );
+
+                            auto query = SF::vpack< PR_GWNT::QueryWindow, Gtk::Window* >(
+                                nullptr, nullptr
+                            );
+                            val->message(query);
+                            assert( query.useCount() > 0 && "Query pack wasn't used." );
+
+                            auto ptr = query.fGet<1>();
+                            assert( nullptr != ptr && "Could not query window." );
+
+                            cast->set_parent(*ptr);
+                        }
+                    ),
+                    SF::virtualMatch< PR_GWNT::QueryWindow, Gtk::Window* >(
+                        [=](ANY_CONV,Gtk::Window*& val) {
+                            auto locked = _weakRef.lock();
+                            assert( nullptr != locked && "Parent object dead." );
+
+                            Gtk::Window* cast = dynamic_cast< Gtk::Window* >(_myWidget);
+                            assert( nullptr != cast && "Cast to window failed." );
+
+                            val = cast;
                         }
                     )
                 )

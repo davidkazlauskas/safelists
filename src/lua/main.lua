@@ -909,12 +909,9 @@ initAll = function()
         return res
     end
 
-    local messageBox = function(title,message)
+    local messageBoxWParent = function(title,message,parent)
         local dialogService =
             ctx:namedMessageable("dialogService")
-
-        local mainWrapped = GenericWidget.putOn(mainWnd)
-        local mainAppWnd = mainWrapped:getWidget("mainAppWindow")
 
         local dialog =
             ctx:messageRetValues(
@@ -937,19 +934,18 @@ initAll = function()
         end)
         window:windowSetPosition("WIN_POS_CENTER")
         window:windowSetTitle(title)
-        window:windowSetParent(mainAppWnd:getMessageable())
+        window:windowSetParent(parent)
         window:setVisible(true)
     end
 
-    local messageBoxWParent = function(title,message,parent)
+    local messageBox = function(title,message)
         local dialogService =
             ctx:namedMessageable("dialogService")
-        ctx:message(
-            dialogService,
-            VSig("GDS_AlertDialog"),
-            VMsg(parent),
-            VString(title),
-            VString(message))
+
+        local mainWrapped = GenericWidget.putOn(mainWnd)
+        local mainAppWnd = mainWrapped:getWidget("mainAppWindow")
+
+        messageBoxWParent(title,message,mainAppWnd:getMessageable())
     end
 
     local validateNewFileDialogFirst = function(result,dialog)

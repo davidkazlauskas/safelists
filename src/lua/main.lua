@@ -1107,6 +1107,7 @@ initAll = function()
     end
 
     local modifyFileDialog = function(fileId,funcSuccess)
+        local fileIdWhole = whole(fileId)
         local dialogService = ctx:namedMessageable("dialogService")
 
         -- Return results:
@@ -1228,7 +1229,7 @@ initAll = function()
             .. " sum(use_count),group_concat(url,',') FROM mirrors"
             .. " LEFT OUTER JOIN files"
             .. " ON files.file_id=mirrors.file_id"
-            .. " WHERE mirrors.file_id=" .. fileId
+            .. " WHERE mirrors.file_id=" .. fileIdWhole
             .. " GROUP BY files.file_id;"
 
         local asyncSqlite = currentAsyncSqlite
@@ -1313,6 +1314,7 @@ initAll = function()
     local addNewFileUnderCurrentDir = function(data,dialog)
 
         local currentDirId = getCurrentDirId()
+        local currentDirIdWhole = whole(currentDirId)
 
         local asyncSqlite = currentAsyncSqlite
         assert(not messageablesEqual(VMsgNil(),asyncSqlite),
@@ -1345,10 +1347,10 @@ initAll = function()
         local condition =
                " SELECT CASE"
             .. " WHEN (EXISTS (SELECT file_name FROM files"
-            .. "     WHERE dir_id=" .. currentDirId
+            .. "     WHERE dir_id=" .. currentDirIdWhole
             .. "     AND file_name='" .. data.name .. "')) THEN 1"
             .. " WHEN (EXISTS (SELECT file_name FROM files"
-            .. "     WHERE dir_id=" .. currentDirId
+            .. "     WHERE dir_id=" .. currentDirIdWhole
             .. "     AND (file_name || '.ilist' ='" .. data.name .. "'"
             .. "     OR file_name || '.ilist.tmp' ='" .. data.name .. "'))) THEN 2"
             .. " ELSE 0"
@@ -1365,7 +1367,7 @@ initAll = function()
             push("INSERT INTO files "
                 .. "(dir_id,file_name,file_size,file_hash_256) VALUES(")
 
-            push(currentDirId .. ",")
+            push(currentDirIdWhole .. ",")
             push("'" .. data.name .. "',")
             push(data.size .. ",")
             push("'" .. data.hash .. "'")
@@ -1375,7 +1377,7 @@ initAll = function()
             local currentFileIdSelect =
                 "SELECT file_id FROM files WHERE " ..
                 "file_name='" .. data.name .. "' AND dir_id="
-                .. currentDirId
+                .. currentDirIdWhole
 
             local mirrSplit = string.split(data.mirrors,"\n")
 
@@ -1464,6 +1466,8 @@ initAll = function()
         -- mirrors - the mirror string
         -- size - file size (no by default)
         -- hash - hash (no by default)
+        local fileIdWhole = whole(fileId)
+        local currentDirIdWhole = whole(currentDirId)
 
         local missing = function(...)
             local props = {...}
@@ -1530,7 +1534,7 @@ initAll = function()
                     isFirst = false
                 end
 
-                push(" WHERE file_id=" .. fileId .. ";")
+                push(" WHERE file_id=" .. fileIdWhole .. ";")
             end
 
             if (diffTable.mirrors ~= nil) then
@@ -1540,10 +1544,10 @@ initAll = function()
                     push("INSERT INTO mirrors (file_id,url,use_count) SELECT ")
                     push("" .. fileId .. ",'" .. v .. "',0")
                     push(" WHERE '" .. v .. "' NOT IN ")
-                    push(" (SELECT url FROM mirrors WHERE file_id=" .. fileId .. ");")
+                    push(" (SELECT url FROM mirrors WHERE file_id=" .. fileIdWhole .. ");")
                 end
 
-                push("DELETE FROM mirrors WHERE file_id=" .. fileId)
+                push("DELETE FROM mirrors WHERE file_id=" .. fileIdWhole)
                 for k,v in ipairs(mirrSplit) do
                     push(" AND NOT url='" .. v .. "' ")
                 end
@@ -1605,12 +1609,12 @@ initAll = function()
             local validationQuery =
                    " SELECT CASE"
                 .. " WHEN (EXISTS (SELECT file_name FROM files"
-                .. "     WHERE dir_id=" .. currentDirId
-                .. "     AND NOT file_id=" .. fileId
+                .. "     WHERE dir_id=" .. currentDirIdWhole
+                .. "     AND NOT file_id=" .. fileIdWhole
                 .. "     AND file_name='" .. currentName .. "')) THEN 1"
                 .. " WHEN (EXISTS (SELECT file_name FROM files"
-                .. "     WHERE dir_id=" .. currentDirId
-                .. "     AND NOT file_id=" .. fileId
+                .. "     WHERE dir_id=" .. currentDirIdWhole
+                .. "     AND NOT file_id=" .. fileIdWhole
                 .. "     AND (file_name || '.ilist' ='" .. currentName .. "'"
                 .. "     OR file_name || '.ilist.tmp' ='" .. currentName .. "'))) THEN 2"
                 .. " ELSE 0"
@@ -1692,6 +1696,7 @@ initAll = function()
             local inId = val:values()._2
 
             local currentDirId = inId
+            local currentDirIdWhole = whole(currentDirId)
 
             local loadCurrentRoutine = function()
                 local mainModel = ctx:namedMessageable("mainModel")
@@ -1708,27 +1713,28 @@ initAll = function()
                 shouldMoveFile = false
                 setStatus(ctx,mainWnd,"")
                 local toMove = fileToMove
+                local toMoveWhole = whole(toMove)
                 local asyncSqlite = currentAsyncSqlite
                 assert( not messageablesEqual(VMsgNil(),asyncSqlite),
                     "Huh cholo?" )
 
                 local fileToMoveSelect =
                     "(SELECT file_name FROM files WHERE file_id="
-                    .. toMove .. ")"
+                    .. toMoveWhole .. ")"
 
                 local condition =
                        " SELECT CASE"
                     .. " WHEN (EXISTS (SELECT file_name FROM files"
-                    .. "     WHERE dir_id=" .. currentDirId
+                    .. "     WHERE dir_id=" .. currentDirIdWhole
                     .. "     AND file_name=" .. fileToMoveSelect .. ")) THEN 1"
                     .. " WHEN (EXISTS (SELECT file_name FROM files"
-                    .. "     WHERE dir_id=" .. currentDirId
+                    .. "     WHERE dir_id=" .. currentDirIdWhole
                     .. "     AND (file_name || '.ilist' =" .. fileToMoveSelect .. ""
                     .. "     OR file_name || '.ilist.tmp' =" .. fileToMoveSelect .. "))) THEN 2"
                     .. " ELSE 0"
                     .. " END,"
                     .. " file_name,file_size,file_hash_256 FROM files WHERE file_id="
-                    .. toMove
+                    .. toMoveWhole
                     .. ";"
 
                 ctx:messageAsyncWCallback(
@@ -1762,8 +1768,8 @@ initAll = function()
                         elseif (case == 0) then
                             local updateQuery =
                                 "UPDATE files SET dir_id="
-                                .. currentDirId
-                                .. " WHERE file_id=" .. toMove
+                                .. currentDirIdWhole
+                                .. " WHERE file_id=" .. toMoveWhole
                                 .. ";"
 
                             ctx:messageAsync(
@@ -1971,6 +1977,7 @@ initAll = function()
                 VMatch(function(natpack,val)
                     local tbl = val:values()
                     local fileId = tbl._2
+                    local fileIdWhole = whole(fileId)
                     local theMirror = tbl._3
                     local current = currentAsyncSqlite
                     if (nil ~= current) then
@@ -1979,7 +1986,7 @@ initAll = function()
                             VSig("ASQL_Execute"),
                             VString(
                                 "UPDATE mirrors SET use_count=use_count+1"
-                                .. " WHERE file_id=" .. fileId .. ";"
+                                .. " WHERE file_id=" .. fileIdWhole .. ";"
                             )
                         )
                     end
@@ -1993,6 +2000,7 @@ initAll = function()
                     end
 
                     local id = values._2
+                    local idWhole = whole(id)
 
                     ctx:messageAsyncWCallback(asyncSqlite,
                         function (out)
@@ -2006,13 +2014,13 @@ initAll = function()
                                 asyncSqlite,
                                 VSig("ASQL_Execute"),
                                 VString("UPDATE files SET file_hash_256='"
-                                    .. hash .. "' WHERE file_id='" .. id .. "';")
+                                    .. hash .. "' WHERE file_id='" .. idWhole .. "';")
                             )
                             updateRevision()
                         end,
                         VSig("ASQL_OutSingleRow"),
                         VString("SELECT file_hash_256 FROM files WHERE file_id='"
-                            .. id .. "';"),
+                            .. idWhole .. "';"),
                         VString(""),
                         VBool(false))
                 end,"SLD_OutHashUpdate","int","string"),
@@ -2026,7 +2034,7 @@ initAll = function()
                         asyncSqlite,
                         VSig("ASQL_Execute"),
                         VString("UPDATE files SET file_size='"
-                            .. newSize .. "' WHERE file_id='" .. id .. "';")
+                            .. newSize .. "' WHERE file_id='" .. idWhole .. "';")
                     )
                     updateRevision()
                 end,"SLD_OutSizeUpdate","int","double"),

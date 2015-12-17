@@ -22,13 +22,6 @@
 
 TEMPLATIOUS_TRIPLET_STD;
 
-struct GenericGtkWindowInterface {
-    // query gtk window
-    // Signature:
-    // < GetGtkWindow, GtkWindow* (outres) >
-    DUMMY_STRUCT(GetGtkWindow);
-};
-
 struct MainWindowInterface {
     // emitted when new file creation
     // is requested.
@@ -809,8 +802,8 @@ private:
                     this->showPopupMenu(model);
                 }
             ),
-            SF::virtualMatch< GenericGtkWindowInterface::GetGtkWindow, Gtk::Window* >(
-                [=](GenericGtkWindowInterface::GetGtkWindow,Gtk::Window*& ptr) {
+            SF::virtualMatch< SafeLists::GenericGtkWidgetNodePrivateWindow::QueryWindow, Gtk::Window* >(
+                [=](ANY_CONV,Gtk::Window*& ptr) {
                     ptr = this->_wnd;
                 }
             )
@@ -1457,8 +1450,8 @@ private:
                     wgt->set_sensitive(val);
                 }
             ),
-            SF::virtualMatch< GenericGtkWindowInterface::GetGtkWindow, Gtk::Window* >(
-                [=](GenericGtkWindowInterface::GetGtkWindow,Gtk::Window*& ptr) {
+            SF::virtualMatch< SafeLists::GenericGtkWidgetNodePrivateWindow::QueryWindow, Gtk::Window* >(
+                [=](ANY_CONV,Gtk::Window*& ptr) {
                     ptr = static_cast<Gtk::Window*>(_main);
                 }
             )
@@ -1585,7 +1578,8 @@ struct GtkDialogService : public Messageable {
                 {
                     Gtk::FileChooserDialog dlg(title.c_str(),Gtk::FILE_CHOOSER_ACTION_OPEN);
                     auto queryTransient = SF::vpack<
-                        GenericGtkWindowInterface::GetGtkWindow,
+                        SafeLists::GenericGtkWidgetNodePrivateWindow
+                        ::QueryWindow,
                         Gtk::Window*
                     >(nullptr,nullptr);
                     window->message(queryTransient);
@@ -1621,7 +1615,8 @@ struct GtkDialogService : public Messageable {
                     Gtk::FileChooserDialog dlg(title.c_str(),
                         Gtk::FILE_CHOOSER_ACTION_SELECT_FOLDER);
                     auto queryTransient = SF::vpack<
-                        GenericGtkWindowInterface::GetGtkWindow,
+                        SafeLists::GenericGtkWidgetNodePrivateWindow
+                        ::QueryWindow,
                         Gtk::Window*
                     >(nullptr,nullptr);
                     window->message(queryTransient);
@@ -1652,7 +1647,8 @@ struct GtkDialogService : public Messageable {
                     Gtk::FileChooserDialog dlg(title.c_str(),
                         Gtk::FILE_CHOOSER_ACTION_SAVE);
                     auto queryTransient = SF::vpack<
-                        GenericGtkWindowInterface::GetGtkWindow,
+                        SafeLists::GenericGtkWidgetNodePrivateWindow
+                        ::QueryWindow,
                         Gtk::Window*
                     >(nullptr,nullptr);
                     window->message(queryTransient);
@@ -1680,7 +1676,8 @@ struct GtkDialogService : public Messageable {
                     const std::string& message)
                 {
                     auto queryTransient = SF::vpack<
-                        GenericGtkWindowInterface::GetGtkWindow,
+                        SafeLists::GenericGtkWidgetNodePrivateWindow
+                            ::QueryWindow,
                         Gtk::Window*
                     >(nullptr,nullptr);
                     parent->message(queryTransient);
@@ -1750,7 +1747,8 @@ struct GtkDialogService : public Messageable {
                    int& out)
                 {
                     auto queryTransient = SF::vpack<
-                        GenericGtkWindowInterface::GetGtkWindow,
+                        SafeLists::GenericGtkWidgetNodePrivateWindow
+                        ::QueryWindow,
                         Gtk::Window*
                     >(nullptr,nullptr);
                     parent->message(queryTransient);

@@ -2,6 +2,7 @@
 #define GENERICGTKWIDGET_EB02WCAA
 
 #include <util/GenericStMessageable.hpp>
+#include <util/AutoReg.hpp>
 #include <gtkmm.h>
 
 namespace SafeLists {
@@ -33,6 +34,13 @@ private:
     std::shared_ptr< GenericGtkWidgetSharedState > _sharedState;
     std::string _rootWidgetName;
     bool _onDrawHooked;
+};
+
+struct GenericGtkWidgetNodePrivateWindow {
+    // Query Gtk::Window*
+    // Signature:
+    // < QueryWindow, Gtk::Window* (out) >
+    DUMMY_STRUCT_NATIVE(QueryWindow);
 };
 
 }

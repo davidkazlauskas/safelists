@@ -11,13 +11,6 @@ typedef SafeLists::GenericGtkWidgetInterface GWI;
 
 namespace SafeLists {
 
-    struct GenericGtkWidgetNodePrivateWindow {
-        // Query Gtk::Window*
-        // Signature:
-        // < QueryWindow, Gtk::Window* (out) >
-        DUMMY_STRUCT_NATIVE(QueryWindow);
-    };
-
     struct GenericGtkWidgetNode : public GenericStMessageable {
         typedef GenericWidgetTrait GWT;
         typedef GenericLabelTrait GLT;

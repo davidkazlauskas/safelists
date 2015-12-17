@@ -933,6 +933,7 @@ initAll = function()
             window:setVisible(false)
         end)
         window:windowSetPosition("WIN_POS_CENTER")
+        window:windowSetTitle(title)
         window:setVisible(true)
     end
 

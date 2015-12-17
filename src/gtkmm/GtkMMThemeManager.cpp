@@ -35,8 +35,8 @@ namespace SafeLists {
         Gtk::Window* _wnd;
     };
 
-    StrongMsgPtr GtkMMThemeManager::makeNew() {
-        return nullptr;
+    StrongMsgPtr GtkMMThemeManager::makeNew(Gtk::Window* mainWnd) {
+        return std::make_shared< GtkMMThemeManagerImpl >(mainWnd);
     }
 
 }

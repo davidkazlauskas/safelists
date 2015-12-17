@@ -29,6 +29,8 @@ namespace SafeLists {
         // Signature:
         // < Out_LoadingDone >
         DUMMY_REG(Out_LoadingDone,"THM_RM_OutLoadingDone");
+
+        StrongMsgPtr makeNew(Gtk::Window* mainWindow);
     };
 
 }

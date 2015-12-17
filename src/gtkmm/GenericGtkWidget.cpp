@@ -283,10 +283,10 @@ namespace SafeLists {
 
         model->message(queryNext);
         while (queryNext.fGet<1>() != -1) {
-            printf("Queried: |%d|%s|%s|\n",
-                queryNext.fGet<1>(),
-                queryNext.fGet<2>().c_str(),
-                queryNext.fGet<3>().c_str());
+            //printf("Queried: |%d|%s|%s|\n",
+                //queryNext.fGet<1>(),
+                //queryNext.fGet<2>().c_str(),
+                //queryNext.fGet<3>().c_str());
 
             auto managed = Gtk::manage(
                 new Gtk::MenuItem(queryNext.fGet<3>().c_str(),true));

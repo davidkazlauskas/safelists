@@ -287,8 +287,17 @@ namespace SafeLists {
                 queryNext.fGet<1>(),
                 queryNext.fGet<2>().c_str(),
                 queryNext.fGet<3>().c_str());
+
+            auto managed = Gtk::manage(
+                new Gtk::MenuItem(queryNext.fGet<3>().c_str(),true));
+            intptr_t copy = queryNext.fGet<1>();
+            managed->set_data("index",reinterpret_cast<void*>(copy));
+            bar.append(*managed);
+
             model->message(queryNext);
         }
+
+        bar.show_all();
     }
 
 }

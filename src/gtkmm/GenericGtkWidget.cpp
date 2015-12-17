@@ -140,6 +140,17 @@ namespace SafeLists {
 
                             cast->set_position(pos);
                         }
+                    ),
+                    SF::virtualMatch< GWNT::SetWindowTitle, const std::string >(
+                        [=](ANY_CONV,const std::string& val) {
+                            auto locked = _weakRef.lock();
+                            assert( nullptr != locked && "Parent object dead." );
+
+                            Gtk::Window* cast = dynamic_cast< Gtk::Window* >(_myWidget);
+                            assert( nullptr != cast && "Cast to window failed." );
+
+                            cast->set_title(val.c_str());
+                        }
                     )
                 )
             );

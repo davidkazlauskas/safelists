@@ -78,6 +78,11 @@ struct GenericWindowTrait {
     // Signature:
     // < SetWindowPosition, string (gtkmm enum val) >
     DUMMY_REG(SetWindowPosition,"GWI_GWNT_SetWindowPosition");
+
+    // Set window title
+    // Signature:
+    // < SetWindowTitle, string (title) >
+    DUMMY_REG(SetWindowTitle,"GWI_GWNT_SetWindowTitle");
 };
 
 }

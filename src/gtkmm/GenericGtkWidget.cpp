@@ -292,10 +292,13 @@ namespace SafeLists {
             if (queryNext.fGet<1>() != -2) {
                 intptr_t copy = queryNext.fGet<1>();
                 managed->set_data("index",reinterpret_cast<void*>(copy));
-                bar.append(*managed);
             } else {
-                setupSingleMenu(*managed->get_submenu(),model);
+                auto managedMenu = Gtk::manage(
+                    new Gtk::Menu());
+                managed->set_submenu(*managedMenu);
+                setupSingleMenu(*managedMenu,model);
             }
+            bar.append(*managed);
 
             model->message(queryNext);
         }

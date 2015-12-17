@@ -1854,15 +1854,11 @@ initAll = function()
                                 --.. " of directory to move under."
                             --)
                         elseif (value == 2) then
-                            local dialogService =
-                                ctx:namedMessageable("dialogService")
-                            ctx:message(
-                                dialogService,
-                                VSig("GDS_AlertDialog"),
-                                VMsg(mainWnd),
-                                VString("Cannot move!"),
-                                VString("Parent directory already has"
-                                    .. " directory with such name."))
+                            messageBoxWParent(
+                                "Cannot move!",
+                                "Parent directory already"
+                                .. " has directory with such name.",
+                                mainWnd)
                         elseif (value == 3) then
                             messageBox(
                                 "Cannot move!",

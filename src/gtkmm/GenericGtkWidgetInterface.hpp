@@ -99,6 +99,15 @@ struct GenericMenuBarTrait {
     // < SetModelStackless, StrongMsgPtr (model) >
     DUMMY_REG(SetModelStackless,"GWI_GMIT_SetModelStackless");
 
+    // Query next node in a model.
+    // Signature:
+    // < QueryNextNode,
+    //   int (id, -1 if holder),
+    //   std::string (title),
+    //   std::string (shortname)
+    // >
+    DUMMY_REG(QueryNextNode,"GWI_GMIT_QueryNextNode");
+
     // Sent out when index is clicked.
     // Signature:
     // < OutIndexClicked, int >

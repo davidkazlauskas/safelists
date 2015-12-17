@@ -361,7 +361,7 @@ struct GtkMainWindow : public SafeLists::GenericGtkWidget {
     typedef MainWindowInterface MWI;
 
     GtkMainWindow(Glib::RefPtr<Gtk::Builder>& bld) :
-        SafeLists::GenericGtkWidget(bld,"window1"),
+        SafeLists::GenericGtkWidget(bld,"mainAppWindow"),
         _builder(bld),
         _left(nullptr),
         _right(nullptr),
@@ -369,7 +369,7 @@ struct GtkMainWindow : public SafeLists::GenericGtkWidget {
     {
         regHandler(genHandler());
 
-        registerAndGetWidget("window1",_wnd);
+        registerAndGetWidget("mainAppWindow",_wnd);
         registerAndGetWidget("fileList",_right);
         registerAndGetWidget("dirList",_left);
         registerAndGetWidget("statusBarLabel",_statusBar);

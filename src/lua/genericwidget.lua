@@ -57,6 +57,9 @@ GenericWidgetNode = {
 
 GenericWidgetNode.mt = {
     __index = {
+        getMessageable = function(self)
+            return self.messageable
+        end,
         -- hook button event. to notify
         -- object will now receive
         -- "GWI_GBT_OutClickEvent" with
@@ -139,7 +142,6 @@ GenericWidgetNode.mt = {
             )
         end,
         windowSetParent = function(self,msg)
-            assert( type(value) == "string", "Position should be specified in enum string." )
             self.luaCtx:message(
                 self.messageable,
                 VSig("GWI_GWNT_SetWindowParent"),

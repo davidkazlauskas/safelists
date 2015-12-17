@@ -102,7 +102,7 @@ struct GenericMenuBarTrait {
     // Query next node in a model.
     // Signature:
     // < QueryNextNode,
-    //   int (id, -1 if holder),
+    //   int (id, -2 if holder (has no options), -1 if empty (last)),
     //   std::string (title),
     //   std::string (shortname)
     // >

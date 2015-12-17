@@ -793,6 +793,22 @@ initAll = function()
         --VSig("MWI_InLoadCss"),
         --VString("uischemes/themes/Arc-Dark-Red/gtk.css")
     --)
+    -- menu bar model attempt
+    local menuBarModelStuff = function()
+        local mainWrapped = GenericWidget.putOn(mainWnd)
+        local menuBar = mainWrapped:getWidget("mainWindowMenuBar")
+
+        local model = ctx:makeLuaMatchHandler(
+            VMatch(function(natPack,val)
+                print("BALLAH!")
+            end,"GWI_GMIT_QueryNextNode","int","string","string")
+        )
+
+        local id = objRetainer:retainNewId(model)
+
+        menuBar:menuBarSetModelStackless(model)
+    end
+    menuBarModelStuff()
 
     local safelistDependantWigets = {
         "dirList",

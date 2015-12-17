@@ -2048,6 +2048,7 @@ initAll = function()
                     local val = out:values()
                     local asyncSqlite = currentAsyncSqlite
                     local id = val._2
+                    local idWhole = whole(id)
                     local newSize = val._3
                     -- size collision already checked with assert
                     ctx:messageAsync(

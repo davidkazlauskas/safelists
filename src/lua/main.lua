@@ -912,12 +912,28 @@ initAll = function()
     local messageBox = function(title,message)
         local dialogService =
             ctx:namedMessageable("dialogService")
-        ctx:message(
-            dialogService,
-            VSig("GDS_AlertDialog"),
-            VMsg(mainWnd),
-            VString(title),
-            VString(message))
+
+        local dialog =
+            ctx:messageRetValues(
+                dialogService,
+                VSig("GDS_MakeGenericWidget"),
+                VString("dialogs"),
+                VString("okDialogWindow"),
+                VMsg(nil)
+            )._4
+
+        local wrapped = GenericWidget.putOn(dialog)
+        local window = wrapped:getWidget("okDialogWindow")
+        local titleWgt = wrapped:getWidget("okDialogMessage")
+        local buttonWgt = wrapped:getWidget("okDialogButton")
+
+        titleWgt:labelSetText(message)
+        buttonWgt:buttonSetText("OK")
+        buttonWgt:hookButtonClick(function()
+            window:setVisible(false)
+        end)
+        window:windowSetPosition("WIN_POS_CENTER")
+        window:setVisible(true)
     end
 
     local messageBoxWParent = function(title,message,parent)

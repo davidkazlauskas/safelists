@@ -214,7 +214,7 @@ MenuModel.mt = {
                     for k,v in pairs(container) do
                         coroutine.yield(v)
                     end
-                    coroutine.yield({
+                    coroutine.yield({ -- signal end
                         shortname = "",
                         title = "",
                         num = -1

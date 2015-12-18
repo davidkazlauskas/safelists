@@ -1,5 +1,6 @@
 
 #include <util/GenericStMessageable.hpp>
+#include <util/ScopeGuard.hpp>
 #include "GtkMMThemeManager.hpp"
 
 TEMPLATIOUS_TRIPLET_STD;
@@ -98,6 +99,23 @@ namespace SafeLists {
                         assert( !path.is_empty() && "Some path must be supplied." );
                         if (path[0] == '@') {
                             // load themes by resource
+                            auto sub = path.substr(1);
+                            auto res = ::g_resources_lookup_data(
+                                sub.c_str(),G_RESOURCE_LOOKUP_FLAGS_NONE,nullptr);
+                            auto g = SCOPE_GUARD_LC(
+                                ::g_bytes_unref(res);
+                            );
+
+                            ::gsize sz = 0;
+                            auto data = ::g_bytes_get_data(res,&sz);
+
+                            const char* beg =
+                                reinterpret_cast<const char*>(data);
+                            const char* end = beg + sz;
+
+                            std::string str(beg,end);
+
+                            _provider->load_from_data(str);
                         } else {
                             _provider->load_from_path(path);
                         }

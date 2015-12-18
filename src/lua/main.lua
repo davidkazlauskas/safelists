@@ -787,59 +787,27 @@ initAll = function()
         --print("awk hooked")
     --end
 
-    -- THEME LOAD EXAMPLE
-    print("them ballah")
-    ctx:message(
-        mainWnd,
-        VSig("MWI_InLoadCss"),
-        VString("appdata/themes/vertex/gtk-dark.css")
-    )
-    print("them dollah")
+    local loadCss = function(path)
+        ctx:message(
+            mainWnd,
+            VSig("MWI_InLoadCss"),
+            VString(path)
+        )
+    end
 
     -- menu bar model attempt
     local menuBarModelStuff = function()
         local mainWrapped = GenericWidget.putOn(mainWnd)
         local menuBar = mainWrapped:getWidget("mainWindowMenuBar")
 
-        --local data = {
-            --["shizzle"] = 1,
-            --["mcnizzle"] = 2,
-            --["dizzle"] = {
-                --["mizzle"] = 3,
-                --["hizzle"] = 4
-            --}
-        --}
-
-        --local corout = coroutine.create(
-            --function()
-                --local recurse = nil
-                --recurse = function(data)
-                    --for k,v in pairs(data) do
-                        --if (type(v) == "number") then
-                            --coroutine.yield(k,v)
-                        --elseif (type(v) == "table") then
-                            --coroutine.yield(k,-2)
-                            --recurse(v)
-                        --end
-                    --end
-                    --coroutine.yield(nil,nil)
-                --end
-
-                --recurse(data)
-            --end
-        --)
         local luaModel = MenuModel.new()
-        local another = luaModel:appendSubComp("ballin","Jarl Ballin A")
-        local inner = another:appendSubComp("dazlow","Moo B")
-        inner:appendSubLeaf("lol wut?","huh C",function()
-            print("no games with jarl a")
+        local another = luaModel:appendSubComp("settings","Settings")
+        local themes = another:appendSubComp("settings-themes","Themes")
+        themes:appendSubLeaf("theme-vertex-light","Vertex (light)",function()
+            loadCss("appdata/themes/vertex/gtk.css")
         end)
-        another:appendSubLeaf("lol wut?","huh B",function()
-            print("no games with jarl b")
-        end)
-        local moar = luaModel:appendSubComp("ballin","HARL Ballin A")
-        moar:appendSubLeaf("hol hut?","huhzz? B",function()
-            print("no games with jarl c")
+        themes:appendSubLeaf("theme-vertex-dark","Vertex (dark)",function()
+            loadCss("appdata/themes/vertex/gtk-dark.css")
         end)
 
         local model = luaModel:makeMessageable(ctx)

@@ -842,36 +842,7 @@ initAll = function()
             print("no games with jarl c")
         end)
 
-        local corout = luaModel:enumerate()
-
-        local model = ctx:makeLuaMatchHandler(
-            VMatch(function(natPack,val)
-                local status,nextVal =
-                    coroutine.resume(corout)
-                print("Nval:",nextVal.num)
-                natPack:setSlot(2,VInt(nextVal.num))
-                natPack:setSlot(3,VString(nextVal.shortname))
-                natPack:setSlot(4,VString(nextVal.title))
-            end,"GWI_GMIT_QueryNextNode","int","string","string"),
-            VMatch(function(natPack,val)
-                local idx = val:values()._2
-                local outFunc = luaModel.callbacks[idx]
-                assert( nil ~= outFunc, "No menu function with such index" )
-                outFunc()
-            end,"GWI_GMIT_OutIndexClicked","int")
-            --VMatch(function(natPack,val)
-                --local status,nextVal,nextNum =
-                    --coroutine.resume(corout)
-                --if (nextNum ~= nil and nextVal ~= nil) then
-                    --natPack:setSlot(2,VInt(nextNum))
-                    --natPack:setSlot(3,VString(nextVal))
-                    --natPack:setSlot(4,VString(nextVal))
-                --else
-                    --natPack:setSlot(2,VInt(-1))
-                --end
-            --end,"GWI_GMIT_QueryNextNode","int","string","string")
-        )
-
+        local model = luaModel:makeMessageable(ctx)
         local id = objRetainer:retainNewId(model)
 
         menuBar:menuBarSetModelStackless(model)

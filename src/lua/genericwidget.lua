@@ -169,8 +169,9 @@ MenuModel = {
         return res
     end,
     MenuTree = {
-        newComp = function(shortname,title)
+        newComp = function(menModel,shortname,title)
             local res = {
+                model = menModel,
                 isLeaf = false,
                 shortname = shortname,
                 title = title,
@@ -180,8 +181,9 @@ MenuModel = {
             setmetatable(res,MenuModel.MenuTree.mt)
             return res
         end,
-        newLeaf = function(shortname,title,num)
+        newLeaf = function(menModel,shortname,title,num)
             local res = {
+                model = menModel,
                 isLeaf = true,
                 shortname = shortname,
                 title = title,
@@ -220,9 +222,12 @@ MenuModel.MenuTree.mt = {
             table.insert(self.data,newComp)
             return newComp -- for appending more
         end,
-        appendSubLeaf = function(self,shortname,title,num)
+        appendSubLeaf = function(self,shortname,title,func)
             assert( self.isLeaf == false,
                 "Can only append to composite submenus." )
+            local num = self.model.callbackCount
+            self.model.callbacks[num] = func
+            self.model.callbackCount = self.model.callbackCount + 1
             local newLeaf = MenuModel.MenuTree.newLeaf(
                 shortname,title,num)
             table.insert(self.data,newLeaf)

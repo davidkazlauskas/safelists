@@ -163,8 +163,9 @@ MenuModel = {
         local res = {
             callbackCount = 1,
             callbacks = {},
-            data = {}
+            data = nil
         }
+        res.data = MenuModel.MenuTree.newComp(res,"ROOT","ROOT")
         setmetatable(res,MenuModel.mt)
         return res
     end,
@@ -198,16 +199,9 @@ MenuModel = {
 
 MenuModel.mt = {
     __index = {
-        appendLeaf = function(
-            self,shortname,title,func)
-            local leaf = {
-                shortname = shortname,
-                title = title,
-                func = func
-            }
-            self.callbacks[self.callbackCount] = func
-            self.callbackCount = self.callbackCount + 1
-            table.insert(self.data,leaf)
+        appendSubComp = function(self,shortname,title)
+            return self.data:appendSubComp(
+                shortname,title)
         end
     }
 }

@@ -245,15 +245,15 @@ MenuModel.MenuTree.mt = {
                 self.model,shortname,title,num)
             table.insert(self.data,newLeaf)
         end,
-        dumpItems = function(self,table)
-            table.insert(table,{
+        dumpItems = function(self,tofill)
+            table.insert(tofill,{
                 shortname = self.shortname,
                 title = self.title,
                 num = self.num
             })
             if (not self.isLeaf) then
                 for k,v in pairs(self.data) do
-                    v:dumpItems(table)
+                    v:dumpItems(tofill)
                 end
             end
         end

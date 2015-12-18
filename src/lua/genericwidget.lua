@@ -215,6 +215,17 @@ MenuModel.MenuTree.mt = {
         appendSubComp = function(self,shortname,title)
             assert( self.isLeaf == false,
                 "Can only append to composite submenus." )
+            local newComp = MenuModel.MenuTree.newComp(
+                shortname,title)
+            table.insert(self.data,newComp)
+            return newComp -- for appending more
+        end,
+        appendSubLeaf = function(self,shortname,title,num)
+            assert( self.isLeaf == false,
+                "Can only append to composite submenus." )
+            local newLeaf = MenuModel.MenuTree.newLeaf(
+                shortname,title,num)
+            table.insert(self.data,newLeaf)
         end
     }
 }

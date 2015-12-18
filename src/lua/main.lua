@@ -2685,15 +2685,17 @@ initAll = function()
             local sessN = vtree:values()._2 + 1
             local sess = DownloadsModel:nthSession(sessN)
             local done = sess:doneDownloads()
+            local doneWhole = whole(done)
             local total = sess:totalDownloads()
+            local totalWhole = whole(total)
             if (total == 0) then
                 total = 1
             end
             local prog = done / total
             local progRounded = tonumber(
                 string.format("%.2f",prog * 100))
-            local theLabel = done .. " out of "
-                .. total .. " downloads done (" ..
+            local theLabel = doneWhole .. " out of "
+                .. totalWhole .. " downloads done (" ..
                 progRounded .. "%)"
             natPack:setSlot(3,VString(theLabel))
             natPack:setSlot(4,VDouble(prog))

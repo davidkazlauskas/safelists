@@ -176,7 +176,8 @@ MenuModel = {
                 isLeaf = false,
                 shortname = shortname,
                 title = title,
-                num = -2,
+                num = -2, -- by -2 we differentiate
+                -- on native side that menu is composite
                 data = {}
             }
             setmetatable(res,MenuModel.MenuTree.mt)

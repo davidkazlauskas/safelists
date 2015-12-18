@@ -161,13 +161,6 @@ struct MainWindowInterface {
     // >
     DUMMY_REG(InSetCurrentFileValues,"MWI_InSetCurrentFileValues");
 
-    // load css from file.
-    // Signature: <
-    //     InLoadCss,
-    //     std::string (path)
-    // >
-    DUMMY_REG(InLoadCss,"MWI_InLoadCss");
-
     // query current directory id
     // Signature: < QueryCurrentDirId, int (output) >
     DUMMY_REG(QueryCurrentDirId,"MWI_QueryCurrentDirId");
@@ -696,18 +689,6 @@ private:
                     } else {
                         assert( false && "Iter fail..." );
                     }
-                }
-            ),
-            SF::virtualMatch< MWI::InLoadCss, std::string >(
-                [=](ANY_CONV,const std::string& path) {
-                    auto css = Gtk::CssProvider::create();
-                    css->load_from_path(path);
-                    auto screen = Gdk::Screen::get_default();
-                    auto ctx = _wnd->get_style_context();
-                    ctx->add_provider_for_screen(
-                        screen,
-                        css,
-                        GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
                 }
             ),
             SF::virtualMatch< MWI::QueryCurrentFileId, int >(

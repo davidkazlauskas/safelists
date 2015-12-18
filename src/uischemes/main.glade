@@ -362,6 +362,9 @@
                       <object class="GtkLabel" id="safelistRevisionLabel">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="justify">center</property>
+                        <property name="wrap">True</property>
+                        <property name="max_width_chars">0</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>

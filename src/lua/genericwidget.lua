@@ -255,6 +255,11 @@ MenuModel.MenuTree.mt = {
                 for k,v in pairs(self.data) do
                     v:dumpItems(tofill)
                 end
+                table.insert(tofill,{
+                    shortname = "",
+                    title = "",
+                    num = -3
+                })
             end
         end
     }

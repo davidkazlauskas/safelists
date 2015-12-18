@@ -165,8 +165,8 @@ MenuModel = {
             callbacks = {},
             data = nil
         }
-        res.data = MenuModel.MenuTree.newComp(res,"ROOT","ROOT")
         setmetatable(res,MenuModel.mt)
+        res.data = MenuModel.MenuTree.newComp(res,"ROOT","ROOT")
         return res
     end,
     MenuTree = {
@@ -231,7 +231,7 @@ MenuModel.MenuTree.mt = {
             assert( self.isLeaf == false,
                 "Can only append to composite submenus." )
             local newComp = MenuModel.MenuTree.newComp(
-                shortname,title)
+                self.model,shortname,title)
             table.insert(self.data,newComp)
             return newComp -- for appending more
         end,
@@ -242,7 +242,7 @@ MenuModel.MenuTree.mt = {
             self.model.callbacks[num] = func
             self.model.callbackCount = self.model.callbackCount + 1
             local newLeaf = MenuModel.MenuTree.newLeaf(
-                shortname,title,num)
+                self.model,shortname,title,num)
             table.insert(self.data,newLeaf)
         end,
         dumpItems = function(self,table)

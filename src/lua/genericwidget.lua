@@ -202,6 +202,11 @@ MenuModel.mt = {
         appendSubComp = function(self,shortname,title)
             return self.data:appendSubComp(
                 shortname,title)
+        end,
+        enumerate = function(self)
+            local container = {}
+            self.data:dumpItems(container)
+            container[1] = nil -- remove root
         end
     }
 }

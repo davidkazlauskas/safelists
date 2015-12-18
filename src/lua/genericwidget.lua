@@ -176,7 +176,7 @@ MenuModel = {
                 isLeaf = false,
                 shortname = shortname,
                 title = title,
-                num = nil,
+                num = -2,
                 data = {}
             }
             setmetatable(res,MenuModel.MenuTree.mt)
@@ -207,6 +207,19 @@ MenuModel.mt = {
             local container = {}
             self.data:dumpItems(container)
             container[1] = nil -- remove root
+
+            return coroutine.create(
+                function()
+                    for k,v in pairs(container) do
+                        coroutine.yield(v)
+                    end
+                    coroutine.yield({
+                        shortname = "",
+                        title = "",
+                        num = -1
+                    })
+                end
+            )
         end
     }
 }

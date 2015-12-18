@@ -160,9 +160,16 @@ GenericWidgetNode.mt = {
 
 MenuModel = {
     new = function()
-        return {
+        local res = {
             callbacks = {},
             data = {}
         }
+        setmetatable(res,MenuModel.mt)
+        return res
     end
+}
+
+MenuModel.mt = {
+    __index = {
+    }
 }

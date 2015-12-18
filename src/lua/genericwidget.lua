@@ -171,5 +171,15 @@ MenuModel = {
 
 MenuModel.mt = {
     __index = {
+        appendLeaf = function(
+            self,shortname,title,func)
+            local leaf = {
+                shortname = shortname,
+                title = title,
+                func = func
+            }
+            table.insert(self.data,leaf)
+            return leaf
+        end
     }
 }

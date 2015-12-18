@@ -225,6 +225,18 @@ MenuModel.MenuTree.mt = {
             local newLeaf = MenuModel.MenuTree.newLeaf(
                 shortname,title,num)
             table.insert(self.data,newLeaf)
+        end,
+        dumpItems = function(self,table)
+            table.insert(table,{
+                shortname = self.shortname,
+                title = self.title,
+                num = self.num
+            })
+            if (not self.isLeaf) then
+                for k,v in pairs(self.data) do
+                    v:dumpItems(table)
+                end
+            end
         end
     }
 }

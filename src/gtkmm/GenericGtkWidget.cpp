@@ -271,6 +271,7 @@ namespace SafeLists {
         }
     }
 
+    // returns whether iteration should stop
     void setupSingleMenu(Gtk::MenuShell& bar,const StrongMsgPtr& model) {
         auto queryNext = SF::vpack<
             GMBT::QueryNextNode,
@@ -289,8 +290,12 @@ namespace SafeLists {
             auto managed = Gtk::manage(
                 new Gtk::MenuItem(queryNext.fGet<3>().c_str(),true));
 
-            if (queryNext.fGet<1>() != -2) {
-                intptr_t copy = queryNext.fGet<1>();
+            intptr_t copy = queryNext.fGet<1>();
+
+            // go back one level
+            if (copy == -3) {
+                return;
+            } else if (copy != -2) {
                 managed->set_data("index",reinterpret_cast<void*>(copy));
             } else {
                 auto managedMenu = Gtk::manage(

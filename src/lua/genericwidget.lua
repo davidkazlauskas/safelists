@@ -211,5 +211,10 @@ MenuModel.mt = {
 }
 
 MenuModel.MenuTree.mt = {
-
+    __index = {
+        appendSubComp = function(self,shortname,title)
+            assert( self.isLeaf == false,
+                "Can only append to composite submenus." )
+        end
+    }
 }

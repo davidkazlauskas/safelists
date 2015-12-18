@@ -158,3 +158,8 @@ GenericWidgetNode.mt = {
     }
 }
 
+MenuModel = {
+    new = function()
+
+    end
+}

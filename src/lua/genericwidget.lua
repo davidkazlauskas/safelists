@@ -160,6 +160,9 @@ GenericWidgetNode.mt = {
 
 MenuModel = {
     new = function()
-
+        return {
+            callbacks = {},
+            data = {}
+        }
     end
 }

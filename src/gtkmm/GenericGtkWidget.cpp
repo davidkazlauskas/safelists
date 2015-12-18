@@ -271,6 +271,16 @@ namespace SafeLists {
         }
     }
 
+    void onMenuClick(int i,WeakMsgPtr msgPtr) {
+        auto locked = msgPtr.lock();
+        if (nullptr != locked) {
+            auto msg = SF::vpack< GMBT::OutIndexClicked, int >(
+                nullptr, i
+            );
+            locked->message(msg);
+        }
+    }
+
     // returns whether iteration should stop
     void setupSingleMenu(Gtk::MenuShell& bar,const StrongMsgPtr& model) {
         auto queryNext = SF::vpack<
@@ -290,13 +300,20 @@ namespace SafeLists {
             auto managed = Gtk::manage(
                 new Gtk::MenuItem(queryNext.fGet<3>().c_str(),true));
 
-            intptr_t copy = queryNext.fGet<1>();
+            int copy = queryNext.fGet<1>();
 
             // go back one level
             if (copy == -3) {
                 return;
             } else if (copy != -2) {
-                managed->set_data("index",reinterpret_cast<void*>(copy));
+                WeakMsgPtr weak = model;
+                managed->signal_activate().connect(
+                    sigc::bind<1>(
+                        sigc::bind<0>(
+                            sigc::ptr_fun2(&onMenuClick)
+                        ,copy)
+                    ,weak)
+                );
             } else {
                 auto managedMenu = Gtk::manage(
                     new Gtk::Menu());

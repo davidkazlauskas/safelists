@@ -167,7 +167,31 @@ MenuModel = {
         }
         setmetatable(res,MenuModel.mt)
         return res
-    end
+    end,
+    MenuTree = {
+        newComp = function(shortname,title)
+            local res = {
+                isLeaf = false,
+                shortname = shortname,
+                title = title,
+                num = nil,
+                data = {}
+            }
+            setmetatable(res,MenuModel.MenuTree.mt)
+            return res
+        end,
+        newLeaf = function(shortname,title,num)
+            local res = {
+                isLeaf = true,
+                shortname = shortname,
+                title = title,
+                num = num,
+                data = nil
+            }
+            setmetatable(res,MenuModel.MenuTree.mt)
+            return res
+        end
+    }
 }
 
 MenuModel.mt = {
@@ -184,4 +208,8 @@ MenuModel.mt = {
             table.insert(self.data,leaf)
         end
     }
+}
+
+MenuModel.MenuTree.mt = {
+
 }

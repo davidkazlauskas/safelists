@@ -788,11 +788,26 @@ initAll = function()
     --end
 
     local loadCss = function(path)
+        local cssMng = ctx:namedMessageable("themeManager")
         ctx:message(
-            mainWnd,
-            VSig("MWI_InLoadCss"),
+            cssMng,
+            VSig("THM_LoadTheme"),
             VString(path)
         )
+    end
+
+    local themes = {
+        ["Adwaita (light)"] = "@/org/gtk/libgtk/theme/Adwaita.css",
+        ["Adwaita (dark)"] = "@/org/gtk/libgtk/theme/Adwaita-dark.css",
+        ["Raleigh"] = "@/org/gtk/libgtk/theme/Raleigh.css",
+        ["Vertex (light)"] = "appdata/themes/vertex/gtk.css",
+        ["Vertex (dark)"] = "appdata/themes/vertex/gtk-dark.css"
+    }
+
+    local loadTheme = function(name)
+        local path = themes[name]
+        assert( nil ~= path, "Theme doesn't exist." )
+        loadCss(path)
     end
 
     -- menu bar model attempt
@@ -803,17 +818,29 @@ initAll = function()
         local luaModel = MenuModel.new()
         local another = luaModel:appendSubComp("settings","Settings")
         local themes = another:appendSubComp("settings-themes","Themes")
+        themes:appendSubLeaf("theme-adwaita-light","Adwaita (light)",function()
+            loadTheme("Adwaita (light)")
+        end)
+        themes:appendSubLeaf("theme-adwaita-dark","Adwaita (dark)",function()
+            loadTheme("Adwaita (dark)")
+        end)
+        themes:appendSubLeaf("theme-raleigh","Raleigh",function()
+            loadTheme("Raleigh")
+        end)
         themes:appendSubLeaf("theme-vertex-light","Vertex (light)",function()
-            loadCss("appdata/themes/vertex/gtk.css")
+            loadTheme("Vertex (light)")
         end)
         themes:appendSubLeaf("theme-vertex-dark","Vertex (dark)",function()
-            loadCss("appdata/themes/vertex/gtk-dark.css")
+            loadTheme("Vertex (dark)")
         end)
 
         local model = luaModel:makeMessageable(ctx)
         local id = objRetainer:retainNewId(model)
 
         menuBar:menuBarSetModelStackless(model)
+
+        -- current default
+        loadTheme("Adwaita (light)")
     end
     menuBarModelStuff()
 

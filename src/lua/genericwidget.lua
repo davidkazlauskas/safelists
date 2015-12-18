@@ -221,6 +221,26 @@ MenuModel.mt = {
                     })
                 end
             )
+        end,
+        makeMessageable = function(self,ctx)
+            local corout = self:enumerate()
+            local handler = ctx:makeLuaMatchHandler(
+                VMatch(function(natPack,val)
+                    local status,nextVal =
+                        coroutine.resume(corout)
+                    print("Nval:",nextVal.num)
+                    natPack:setSlot(2,VInt(nextVal.num))
+                    natPack:setSlot(3,VString(nextVal.shortname))
+                    natPack:setSlot(4,VString(nextVal.title))
+                end,"GWI_GMIT_QueryNextNode","int","string","string"),
+                VMatch(function(natPack,val)
+                    local idx = val:values()._2
+                    local outFunc = self.callbacks[idx]
+                    assert( nil ~= outFunc, "No menu function with such index" )
+                    outFunc()
+                end,"GWI_GMIT_OutIndexClicked","int")
+            )
+            return handler
         end
     }
 }

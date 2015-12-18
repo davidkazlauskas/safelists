@@ -228,7 +228,6 @@ MenuModel.mt = {
                 VMatch(function(natPack,val)
                     local status,nextVal =
                         coroutine.resume(corout)
-                    print("Nval:",nextVal.num)
                     natPack:setSlot(2,VInt(nextVal.num))
                     natPack:setSlot(3,VString(nextVal.shortname))
                     natPack:setSlot(4,VString(nextVal.title))

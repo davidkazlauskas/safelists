@@ -161,6 +161,7 @@ GenericWidgetNode.mt = {
 MenuModel = {
     new = function()
         local res = {
+            callbackCount = 1,
             callbacks = {},
             data = {}
         }
@@ -178,8 +179,9 @@ MenuModel.mt = {
                 title = title,
                 func = func
             }
+            self.callbacks[self.callbackCount] = func
+            self.callbackCount = self.callbackCount + 1
             table.insert(self.data,leaf)
-            return leaf
         end
     }
 }

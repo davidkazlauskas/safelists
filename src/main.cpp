@@ -1,5 +1,6 @@
 
 #include <iostream>
+#include <cstdlib>
 #include <gtkmm.h>
 #include <templatious/FullPack.hpp>
 #include <templatious/detail/DynamicPackCreator.hpp>
@@ -8,21 +9,19 @@
 #include <util/AutoReg.hpp>
 #include <util/Semaphore.hpp>
 #include <util/GracefulShutdownGuard.hpp>
+#include <util/GenericStMessageable.hpp>
+#include <util/ProgramArgs.hpp>
 #include <gtkmm/GtkMMSessionWidget.hpp>
 #include <gtkmm/GtkMMFileString.hpp>
+#include <gtkmm/GenericGtkWidget.hpp>
+#include <gtkmm/GtkMMThemeManager.hpp>
 #include <io/SafeListDownloaderFactory.hpp>
 #include <io/RandomFileWriter.hpp>
 #include <io/AsyncDownloader.hpp>
 #include <model/AsyncSqliteFactory.hpp>
+#include <meta/Licensing.hpp>
 
 TEMPLATIOUS_TRIPLET_STD;
-
-struct GenericGtkWindowInterface {
-    // query gtk window
-    // Signature:
-    // < GetGtkWindow, GtkWindow* (outres) >
-    DUMMY_STRUCT(GetGtkWindow);
-};
 
 struct MainWindowInterface {
     // emitted when new file creation
@@ -50,6 +49,12 @@ struct MainWindowInterface {
     // emitted when open safelist button is clicked
     DUMMY_REG(OutOpenSafelistButtonClicked,"MWI_OutOpenSafelistButtonClicked");
 
+    // emitted when open safelist button is clicked
+    DUMMY_REG(OutCreateSafelistButtonClicked,"MWI_OutCreateSafelistButtonClicked");
+
+    // emitted when open safelist button is clicked
+    DUMMY_REG(OutResumeDownloadButtonClicked,"MWI_OutResumeDownloadButtonClicked");
+
     // emitted when show downloads button is clicked
     // Signature:
     // < OutShowDownloadsToggled, bool (state) >
@@ -59,6 +64,11 @@ struct MainWindowInterface {
     // Signature:
     // < OutShowDownloadsToggled >
     DUMMY_REG(OutRightClickFolderList,"MWI_OutRightClickFolderList");
+
+    // emitted when show downloads button is clicked
+    // Signature:
+    // < OutShowDownloadsToggled >
+    DUMMY_REG(OutRightClickFileList,"MWI_OutRightClickFileList");
 
     // emitted in draw routine after async messages processed,
     // yet still in overloaded draw method
@@ -80,6 +90,10 @@ struct MainWindowInterface {
     // set current status text
     // Signature: < InSetStatusText, std::string >
     DUMMY_REG(InSetStatusText,"MWI_InSetStatusText");
+
+    // set current status text
+    // Signature: < InSetDownloadText, std::string >
+    DUMMY_REG(InSetDownloadText,"MWI_InSetDownloadText");
 
     // display specified id in the tree
     // Signature: < InSelectDirIdInTree, int >
@@ -122,6 +136,31 @@ struct MainWindowInterface {
     // Signature: < InAddChildUnderCurrentDir, std::string (name), int (id) >
     DUMMY_REG(InAddChildUnderCurrentDir,"MWI_InAddChildUnderCurrentDir");
 
+    // Clear file list.
+    DUMMY_REG(InClearCurrentFiles,"MWI_InClearCurrentFiles");
+
+    // add new file under current directory
+    // Signature: <
+    //     InAddNewFileInCurrent,
+    //     int (fileid),
+    //     int (dirid),
+    //     std::string (filename),
+    //     double (filesize),
+    //     std::string (filehash)
+    // >
+    DUMMY_REG(InAddNewFileInCurrent,"MWI_InAddNewFileInCurrent");
+
+    // add new file under current directory
+    // Signature: <
+    //     InSetCurrentFileValues,
+    //     int (fileid),
+    //     int (dirid),
+    //     std::string (filename),
+    //     double (filesize),
+    //     std::string (filehash)
+    // >
+    DUMMY_REG(InSetCurrentFileValues,"MWI_InSetCurrentFileValues");
+
     // query current directory id
     // Signature: < QueryCurrentDirId, int (output) >
     DUMMY_REG(QueryCurrentDirId,"MWI_QueryCurrentDirId");
@@ -134,6 +173,9 @@ struct MainWindowInterface {
     // Signature: < QueryDownloadSessionWidget, StrongMsgPtr >
     DUMMY_REG(QueryDownloadSessionWidget,"MWI_QueryDownloadSessionWidget");
 
+    // query current selected file id
+    // Signature: < QueryCurrentFileId, int >
+    DUMMY_REG(QueryCurrentFileId,"MWI_QueryCurrentFileId");
 
     // popup model
     // Show popup menu.
@@ -272,7 +314,7 @@ private:
                               StrongMsgPtr,
                               StrongMsgPtr >
             ([=](
-                MMI::InLoadFileList,
+                MMI::InLoadFolderTree,
                 const StrongMsgPtr& asyncSqlite,
                 const StrongMsgPtr& toNotify) {
                 this->handleLoadFolderTree(asyncSqlite,toNotify);
@@ -301,32 +343,43 @@ private:
         sigc::mem_fun(*this,funcName)       \
     );
 
-struct GtkMainWindow : public Messageable {
+struct GtkMainWindow : public SafeLists::GenericGtkWidget {
 
     typedef MainWindowInterface MWI;
 
     GtkMainWindow(Glib::RefPtr<Gtk::Builder>& bld) :
+        SafeLists::GenericGtkWidget(bld,"mainAppWindow"),
         _builder(bld),
         _left(nullptr),
         _right(nullptr),
-        _messageHandler(genHandler()),
         _lastSelectedDirId(-1)
     {
-        registerAndGetWidget("window1",_wnd);
+        regHandler(genHandler());
+
+        registerAndGetWidget("mainAppWindow",_wnd);
         registerAndGetWidget("fileList",_right);
         registerAndGetWidget("dirList",_left);
         registerAndGetWidget("statusBarLabel",_statusBar);
+        registerAndGetWidget("downloadStatusLabel",_downloadLabel);
         registerAndGetWidget("safelistRevisionLabel",_safelistRevisionLbl);
         registerAndGetWidget("reavealerSessions",_revealerSessions);
+        registerAndGetWidget("resumeDownloadButton",_resumeDownloadButton);
+        registerAndGetWidget("resumeDownloadButton",_resumeDownloadButton);
         BIND_GTK_BUTTON("downloadButton",
             _dlSafelistBtn,
             &GtkMainWindow::downloadButtonClicked);
         BIND_GTK_BUTTON("openSafelistButton",
             _openSafelistBtn,
             &GtkMainWindow::openSafelistClicked);
+        BIND_GTK_BUTTON("resumeDownloadButton",
+            _resumeDownloadButton,
+            &GtkMainWindow::resumeDownloadClicked);
         BIND_GTK_BUTTON("showDownloadsButton",
             _showDownloadsBtn,
             &GtkMainWindow::showDownloadsButtonClicked);
+        BIND_GTK_BUTTON("createSafelistButton",
+            _createSafelistBtn,
+            &GtkMainWindow::createSafelistClicked);
 
         _sessionTab = SafeLists::GtkSessionTab::makeNew();
         _revealerSessions->add(*_sessionTab->getTabs());
@@ -336,7 +389,7 @@ struct GtkMainWindow : public Messageable {
         );
 
         _wnd->signal_delete_event().connect(
-                sigc::mem_fun(*this,&GtkMainWindow::onCloseEvent)
+            sigc::mem_fun(*this,&GtkMainWindow::onCloseEvent)
         );
 
         createDirModel();
@@ -388,7 +441,7 @@ struct GtkMainWindow : public Messageable {
     }
 
     void message(templatious::VirtualPack& msg) override {
-        _messageHandler->tryMatch(msg);
+        messageNonVirtual(msg);
     }
 
     void message(const std::shared_ptr< templatious::VirtualPack >& msg) override {
@@ -528,6 +581,11 @@ private:
                     this->_statusBar->set_text(text.c_str());
                 }
             ),
+            SF::virtualMatch< MWI::InSetDownloadText, const std::string >(
+                [=](MWI::InSetDownloadText,const std::string& text) {
+                    this->_downloadLabel->set_text(text.c_str());
+                }
+            ),
             SF::virtualMatch< MWI::InSetWidgetEnabled, const std::string, const bool >(
                 [=](MWI::InSetWidgetEnabled,const std::string& name,bool val) {
                     auto wgt = this->retrieveWidget(name.c_str());
@@ -579,12 +637,66 @@ private:
                     }
                 }
             ),
+            SF::virtualMatch< MWI::InClearCurrentFiles >(
+                [=](ANY_CONV) {
+                    _fileStore->clear();
+                }
+            ),
             SF::virtualMatch< MWI::QueryCurrentDirId, int >(
                 [=](MWI::QueryCurrentDirId,int& outId) {
                     auto selection = _dirSelection->get_selected();
                     if (nullptr != selection) {
                         auto row = *selection;
                         outId = row[_dirColumns.m_colId];
+                    } else {
+                        outId = -1;
+                    }
+                }
+            ),
+            SF::virtualMatch< MWI::InAddNewFileInCurrent,
+                const int, const int, const std::string,
+                const double, const std::string
+            >(
+                [=](MWI::InAddNewFileInCurrent,
+                    int fileId, int dirId, const std::string& filename,
+                    double fileSize, const std::string& hash
+                ) {
+                    auto newIter = _fileStore->append();
+                    auto newRow = *newIter;
+                    newRow[_fileColumns.m_fileId] = fileId;
+                    newRow[_fileColumns.m_dirId] = dirId;
+                    newRow[_fileColumns.m_fileName] = filename;
+                    newRow[_fileColumns.m_fileSize] = static_cast<int64_t>(fileSize);
+                    newRow[_fileColumns.m_fileHash] = hash;
+                }
+            ),
+            SF::virtualMatch< MWI::InSetCurrentFileValues,
+                const int, const int, const std::string,
+                const double, const std::string
+            >(
+                [=](MWI::InAddNewFileInCurrent,
+                    int fileId, int dirId, const std::string& filename,
+                    double fileSize, const std::string& hash
+                ) {
+                    auto selection = _fileSelection->get_selected();
+                    if (nullptr != selection) {
+                        auto theRow = *selection;
+                        theRow[_fileColumns.m_fileId] = fileId;
+                        theRow[_fileColumns.m_dirId] = dirId;
+                        theRow[_fileColumns.m_fileName] = filename;
+                        theRow[_fileColumns.m_fileSize] = static_cast<int64_t>(fileSize);
+                        theRow[_fileColumns.m_fileHash] = hash;
+                    } else {
+                        assert( false && "Iter fail..." );
+                    }
+                }
+            ),
+            SF::virtualMatch< MWI::QueryCurrentFileId, int >(
+                [=](MWI::QueryCurrentFileId,int& outId) {
+                    auto selection = _fileSelection->get_selected();
+                    if (nullptr != selection) {
+                        auto row = *selection;
+                        outId = row[_fileColumns.m_fileId];
                     } else {
                         outId = -1;
                     }
@@ -647,7 +759,7 @@ private:
             ),
             SF::virtualMatch< MWI::InAttachListener, StrongMsgPtr >(
                 [=](MWI::InAttachListener,const StrongMsgPtr& ptr) {
-                    this->_notifierCache.add(ptr);
+                    this->addToNotify(ptr);
                 }
             ),
             SF::virtualMatch<
@@ -672,8 +784,8 @@ private:
                     this->showPopupMenu(model);
                 }
             ),
-            SF::virtualMatch< GenericGtkWindowInterface::GetGtkWindow, Gtk::Window* >(
-                [=](GenericGtkWindowInterface::GetGtkWindow,Gtk::Window*& ptr) {
+            SF::virtualMatch< SafeLists::GenericGtkWidgetNodePrivateWindow::QueryWindow, Gtk::Window* >(
+                [=](ANY_CONV,Gtk::Window*& ptr) {
                     ptr = this->_wnd;
                 }
             )
@@ -914,11 +1026,11 @@ private:
         _callbackCache.process();
         _messageCache.process(
             [&](templatious::VirtualPack& pack) {
-                this->_messageHandler->tryMatch(pack);
+                this->messageNonVirtual(pack);
             }
         );
         auto msg = SF::vpack< MWI::OutDrawEnd >(nullptr);
-        _notifierCache.notify(msg);
+        notifyObservers(msg);
         _shutdownGuard->processMessages();
         return false;
     }
@@ -933,7 +1045,16 @@ private:
             auto msg = SF::vpack< MainWindowInterface::OutDirChangedSignal, int >(
                 nullptr, id
             );
-            _notifierCache.notify(msg);
+            notifyObservers(msg);
+        }
+    }
+
+    void fileToViewChanged() {
+        auto iter = _fileSelection->get_selected();
+        if (nullptr != iter) {
+            auto row = *iter;
+            int id = row[_fileColumns.m_fileId];
+            _lastSelectedFileId = id;
         }
     }
 
@@ -942,12 +1063,21 @@ private:
         auto msg = SF::vpack<Types...>(
             std::forward<Args>(args)...
         );
-        _notifierCache.notify(msg);
+        notifyObservers(msg);
     }
 
     bool leftListClicked(GdkEventButton* event) {
         if ( (event->type == GDK_BUTTON_PRESS) && (event->button) == 3 ) {
             notifySingleThreaded< MainWindowInterface::OutRightClickFolderList >(nullptr);
+            return true;
+        }
+
+        return false;
+    }
+
+    bool leftFileListClicked(GdkEventButton* event) {
+        if ( (event->type == GDK_BUTTON_PRESS) && (event->button) == 3 ) {
+            notifySingleThreaded< MainWindowInterface::OutRightClickFileList >(nullptr);
             return true;
         }
 
@@ -971,7 +1101,14 @@ private:
         _fileStore = Gtk::ListStore::create(_fileColumns);
         _right->append_column("Name", _fileColumns.m_fileName);
         _right->append_column("Size", _fileColumns.m_fileSize);
+        _right->signal_button_press_event().connect(
+            sigc::mem_fun(*this,&GtkMainWindow::leftFileListClicked),false);
         _right->set_model(_fileStore);
+
+        _fileSelection = _right->get_selection();
+        _fileSelection->set_mode(Gtk::SELECTION_SINGLE);
+        _fileSelection->signal_changed().connect(sigc::mem_fun(
+            *this,&GtkMainWindow::fileToViewChanged));
     }
 
     void downloadButtonClicked() {
@@ -983,6 +1120,18 @@ private:
     void openSafelistClicked() {
         notifySingleThreaded<
             MWI::OutOpenSafelistButtonClicked
+        >(nullptr);
+    }
+
+    void createSafelistClicked() {
+        notifySingleThreaded<
+            MWI::OutCreateSafelistButtonClicked
+        >(nullptr);
+    }
+
+    void resumeDownloadClicked() {
+        notifySingleThreaded<
+            MWI::OutResumeDownloadButtonClicked
         >(nullptr);
     }
 
@@ -999,24 +1148,26 @@ private:
         _selectionStack[1] = iter;
     }
 
+    // what a mess... what can I do,
+    // I WAS YOUNG!
     Glib::RefPtr< Gtk::Builder > _builder;
 
     Gtk::Window* _wnd;
     Gtk::TreeView* _left;
     Gtk::TreeView* _right;
     Gtk::Button* _openSafelistBtn;
+    Gtk::Button* _createSafelistBtn;
     Gtk::Button* _dlSafelistBtn;
+    Gtk::Button* _resumeDownloadButton;
     Gtk::ToggleButton* _showDownloadsBtn;
     Gtk::Label* _statusBar;
+    Gtk::Label* _downloadLabel;
     Gtk::Label* _safelistRevisionLbl;
     Gtk::Revealer* _revealerSessions;
     ModelColumns _mdl;
 
     std::map< std::string, Gtk::Widget* > _wgtMap;
 
-    VmfPtr _messageHandler;
-
-    NotifierCache _notifierCache;
     CallbackCache _callbackCache;
     MessageCache _messageCache;
 
@@ -1030,6 +1181,7 @@ private:
     // FILES
     FileTreeColumns _fileColumns;
     Glib::RefPtr<Gtk::ListStore> _fileStore;
+    Glib::RefPtr<Gtk::TreeSelection> _fileSelection;
 
     // Menu
     Gtk::Menu _popupMenu;
@@ -1037,6 +1189,7 @@ private:
 
     // STATE
     int _lastSelectedDirId;
+    int _lastSelectedFileId;
     // should contain two elements always
     std::vector<Gtk::TreeModel::iterator> _selectionStack;
     std::shared_ptr< SafeLists::GtkSessionTab > _sessionTab;
@@ -1045,8 +1198,276 @@ private:
     std::shared_ptr< SafeLists::GracefulShutdownGuard > _shutdownGuard;
 };
 
+struct GtkGenericDialogMessages {
+    // Show the dialog
+    // in lua: INDLG_InShowDialog
+    DUMMY_REG(InShowDialog,"INDLG_InShowDialog");
+
+    // Show the dialog
+    // in lua: INDLG_InHideDialog
+    DUMMY_REG(InHideDialog,"INDLG_InHideDialog");
+
+    // Set notifier to notify messages
+    // in lua: INDLG_InSetNotifier
+    // Signature: < InSetNotifier, StrongMsgPtr >
+    DUMMY_REG(InSetNotifier,"INDLG_InSetNotifier");
+
+    // Set label text
+    // in lua: INDLG_InSetLabel
+    // Signature: < InSetLabel, std::string (if only one label) >
+    // Signature: < InSetLabel,
+    //     std::string (label name from glade),
+    //     std::string (the value)
+    // >
+    DUMMY_REG(InSetLabel,"INDLG_InSetLabel");
+
+    // Set value text
+    // in lua: INDLG_InSetValue
+    // Signature: < InSetValue, std::string (if only one value) >
+    // Signature: < InSetValue,
+    //     std::string (value name from glade),
+    //     std::string (the value)
+    // >
+    DUMMY_REG(InSetValue,"INDLG_InSetValue");
+
+    // Hook onto button click and return signal integer
+    // Signature: <
+    //     InHookButtonClick, std::string (name),
+    //     int (out number)
+    // >
+    DUMMY_REG(InHookButtonClick,"INDLG_HookButtonClick");
+
+    // Receive focus
+    // Signature: < InAlwaysAbove >
+    DUMMY_REG(InAlwaysAbove,"INDLG_InAlwaysAbove");
+
+    // Set control enabled.
+    // Signature:
+    // < InSetControlEnabled, std::string (name), bool (value) >
+    DUMMY_REG(InSetControlEnabled,"INDLG_InSetControlEnabled");
+
+    // Emitted when ok button is clicked
+    DUMMY_REG(OutOkClicked,"INDLG_OutOkClicked");
+
+    // Emitted when cancel button is clicked
+    DUMMY_REG(OutCancelClicked,"INDLG_OutCancelClicked");
+
+    // Emitted when numbered event is emitted.
+    // Signature: < OutSignalEmitted, int (signal) >
+    DUMMY_REG(OutSignalEmitted,"INDLG_OutGenSignalEmitted");
+
+    // Emitted when dialog is exited
+    DUMMY_REG(OutDialogExited,"INDLG_OutDialogExited");
+
+    // Query input text
+    // in lua: INDLG_InQueryInput
+    // Signature: < QueryInput, std::string (out) >
+    DUMMY_REG(QueryInput,"INDLG_QueryInput");
+};
+
+struct GenericDialog : public Messageable {
+
+    GenericDialog() = delete;
+    GenericDialog(const GenericDialog&) = delete;
+    GenericDialog(GenericDialog&&) = delete;
+
+    typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
+
+    void message(templatious::VirtualPack& msg) override {
+        _handler->tryMatch(msg);
+    }
+
+    void message(const std::shared_ptr< templatious::VirtualPack >& msg) override {
+        assert( false && "Single threaded messaging only." );
+    }
+
+    GenericDialog(
+        const Glib::RefPtr< Gtk::Builder>& ref,
+        const char* mainName) :
+        _bldPtr(ref),
+        _handler(genHandler()),
+        _signalId(0)
+    {
+        _bldPtr->get_widget(mainName,_main);
+        _main->signal_delete_event().connect(
+            sigc::mem_fun(*this,&GenericDialog::exitEvent)
+        );
+    }
+
+private:
+    template <class... Args,class... Constr>
+    void notifySingleThreaded(Constr&&... args) {
+        auto locked = _toNotify.lock();
+        if (nullptr != locked) {
+            auto msg = SF::vpack< Args... >(
+                std::forward<Constr>(args)...);
+            locked->message(msg);
+        }
+    }
+
+    void intEvent(int i) {
+        notifySingleThreaded< Int::OutSignalEmitted, int >(
+            nullptr,i);
+    }
+
+    bool exitEvent(GdkEventAny* ev) {
+        notifySingleThreaded< Int::OutDialogExited >(nullptr);
+        return false;
+    }
+
+    typedef GtkGenericDialogMessages Int;
+
+    VmfPtr genHandler() {
+        return SF::virtualMatchFunctorPtr(
+            SF::virtualMatch< Int::InShowDialog >(
+                [=](Int::InShowDialog) {
+                    _main->show();
+                }
+            ),
+            SF::virtualMatch< Int::InHideDialog >(
+                [=](Int::InHideDialog) {
+                    _main->hide();
+                }
+            ),
+            SF::virtualMatch< Int::InSetNotifier, StrongMsgPtr >(
+                [=](Int::InSetNotifier,const StrongMsgPtr& ptr) {
+                    _toNotify = ptr;
+                }
+            ),
+            SF::virtualMatch< Int::InSetLabel, std::string, std::string >(
+                [=](Int::InSetLabel,
+                    const std::string& name,
+                    const std::string& value)
+                {
+                    Gtk::Label* lbl = nullptr;
+                    _bldPtr->get_widget(name.c_str(),lbl);
+                    assert( nullptr != lbl && "Huh?" );
+                    lbl->set_text(value.c_str());
+                }
+            ),
+            SF::virtualMatch< Int::InSetValue, const std::string, const std::string >(
+                [=](Int::InSetValue,
+                    const std::string& name,
+                    const std::string& value)
+                {
+                    Gtk::Widget* wgt = nullptr;
+                    _bldPtr->get_widget(name.c_str(),wgt);
+                    assert( nullptr != wgt && "Huh?" );
+                    Gtk::Entry* isEntry =
+                        dynamic_cast< Gtk::Entry* >(wgt);
+                    if (nullptr != isEntry) {
+                        isEntry->set_text(value.c_str());
+                        return;
+                    }
+
+                    Gtk::TextView* isTextView =
+                        dynamic_cast< Gtk::TextView* >(wgt);
+                    if (nullptr != isTextView) {
+                        isTextView->get_buffer()->set_text(
+                            value.c_str());
+                        return;
+                    }
+
+                    assert( false && "Dunno how to set text for this cholo." );
+                }
+            ),
+            SF::virtualMatch< Int::QueryInput, const std::string, std::string >(
+                [=](Int::QueryInput,
+                    const std::string& name,
+                    std::string& value)
+                {
+                    Gtk::Widget* wgt = nullptr;
+                    _bldPtr->get_widget(name.c_str(),wgt);
+                    assert( nullptr != wgt && "Huh?" );
+                    Gtk::Entry* isEntry =
+                        dynamic_cast< Gtk::Entry* >(wgt);
+                    if (nullptr != isEntry) {
+                        value = isEntry->get_text().c_str();
+                        isEntry->set_text(value.c_str());
+                        return;
+                    }
+
+                    Gtk::TextView* isTextView =
+                        dynamic_cast< Gtk::TextView* >(wgt);
+                    if (nullptr != isTextView) {
+                        auto buf = isTextView->get_buffer();
+                        value = buf->get_text(buf->begin(),buf->end()).c_str();
+                        return;
+                    }
+
+                    assert( false && "Dunno how to set text for this cholo." );
+                }
+            ),
+            SF::virtualMatch< Int::InHookButtonClick, const std::string, int >(
+                [=](Int::InHookButtonClick,const std::string& str,int& out) {
+                    Gtk::Button* button = nullptr;
+                    _bldPtr->get_widget(str.c_str(),button);
+                    assert( nullptr != button && "Cannot find button to hook into." );
+
+                    int theSignal = _signalId;
+                    ++_signalId;
+
+                    button->signal_clicked().connect(
+                        sigc::bind< int >(
+                            sigc::mem_fun(
+                                *this,&GenericDialog::intEvent
+                            ),theSignal)
+                    );
+
+                    out = theSignal;
+                }
+            ),
+            SF::virtualMatch< Int::InAlwaysAbove >(
+                [=](Int::InAlwaysAbove) {
+                    auto dlg = dynamic_cast< Gtk::Dialog* >(_main);
+                    assert( nullptr != dlg && "Not a dialog." );
+                    dlg->set_keep_above(true);
+                }
+            ),
+            SF::virtualMatch< Int::InSetControlEnabled, const std::string, bool >(
+                [=](Int::InSetControlEnabled,const std::string& name,bool val) {
+                    Gtk::Widget* wgt = nullptr;
+                    _bldPtr->get_widget(name.c_str(),wgt);
+                    assert( nullptr != wgt && "Cant pull widget." );
+                    wgt->set_sensitive(val);
+                }
+            ),
+            SF::virtualMatch< SafeLists::GenericGtkWidgetNodePrivateWindow::QueryWindow, Gtk::Window* >(
+                [=](ANY_CONV,Gtk::Window*& ptr) {
+                    ptr = static_cast<Gtk::Window*>(_main);
+                }
+            )
+        );
+    }
+
+    VmfPtr _handler;
+    Glib::RefPtr< Gtk::Builder > _bldPtr;
+    WeakMsgPtr _toNotify;
+    Gtk::Widget* _main;
+    int _signalId;
+};
+
+const Glib::ustring& mainUiSchema() {
+    static Glib::ustring res = SafeLists::readFile("appdata/uischemes/main.glade");
+    return res;
+}
+
+const Glib::ustring& licensingUiSchema() {
+    static Glib::ustring res = SafeLists::readFile("appdata/uischemes/licensing.glade");
+    return res;
+}
+
+const Glib::ustring& dialogsSchema() {
+    static Glib::ustring res = SafeLists::readFile("appdata/uischemes/dialogs.glade");
+    return res;
+}
+
 struct GtkDialogService : public Messageable {
-    GtkDialogService() : _handler(genHandler()) {}
+    GtkDialogService() : _handler(genHandler()) {
+        _schemaMap["main"] = &mainUiSchema();
+        _schemaMap["licensing"] = &licensingUiSchema();
+        _schemaMap["dialogs"] = &dialogsSchema();
+    }
 
     // Open file chooser
     // Signature:
@@ -1069,10 +1490,50 @@ struct GtkDialogService : public Messageable {
     // >
     DUMMY_REG(DirChooserDialog,"GDS_DirChooserDialog");
 
+    // Open file saver dialog
+    // Signature:
+    // <
+    //  FileSaverDialog,
+    //  StrongMsgPtr (parent window),
+    //  std::string (title),
+    //  std::string (output path)
+    // >
+    DUMMY_REG(FileSaverDialog,"GDS_FileSaverDialog");
+
     // Show alert
     // Signature:
     // < AlertDialog, std::String (title), std::string (message) >
     DUMMY_REG(AlertDialog,"GDS_AlertDialog");
+
+    // Show dialog with Ok Cancel options
+    // Signature:
+    // < OkCancelDialog,
+    //  StrongMsgPtr (parent),
+    //  std::string (title),
+    //  std::string (message)
+    //  int (outres) >
+    // outres -> 0: ok, 1: cancel, -1: none
+    DUMMY_REG(OkCancelDialog,"GDS_OkCancelDialog");
+
+    // DEPRECATED
+    // make generic dialog which is hookable
+    // and setable with buttons, etc.
+    // Signature:
+    // < MakeGenericDialog,
+    //     std::string (resource),
+    //     std::string (widget name),
+    //     StrongMsgPtr (output)
+    // >
+    DUMMY_REG(MakeGenericDialog,"GDS_MakeGenericDialog");
+
+    // make generic widget.
+    // Signature:
+    // < MakeGenericWidget,
+    //     std::string (resource),
+    //     std::string (widget name),
+    //     StrongMsgPtr (output)
+    // >
+    DUMMY_REG(MakeGenericWidget,"GDS_MakeGenericWidget");
 
     void message(templatious::VirtualPack& msg) override {
         _handler->tryMatch(msg);
@@ -1099,7 +1560,8 @@ struct GtkDialogService : public Messageable {
                 {
                     Gtk::FileChooserDialog dlg(title.c_str(),Gtk::FILE_CHOOSER_ACTION_OPEN);
                     auto queryTransient = SF::vpack<
-                        GenericGtkWindowInterface::GetGtkWindow,
+                        SafeLists::GenericGtkWidgetNodePrivateWindow
+                        ::QueryWindow,
                         Gtk::Window*
                     >(nullptr,nullptr);
                     window->message(queryTransient);
@@ -1135,11 +1597,45 @@ struct GtkDialogService : public Messageable {
                     Gtk::FileChooserDialog dlg(title.c_str(),
                         Gtk::FILE_CHOOSER_ACTION_SELECT_FOLDER);
                     auto queryTransient = SF::vpack<
-                        GenericGtkWindowInterface::GetGtkWindow,
+                        SafeLists::GenericGtkWidgetNodePrivateWindow
+                        ::QueryWindow,
                         Gtk::Window*
                     >(nullptr,nullptr);
                     window->message(queryTransient);
                     assert( queryTransient.useCount() > 0 && "No transient cholo..." );
+                    dlg.set_transient_for(*queryTransient.fGet<1>());
+                    dlg.add_button("_Cancel",Gtk::RESPONSE_CANCEL);
+                    dlg.add_button("Ok",Gtk::RESPONSE_OK);
+
+                    int result = dlg.run();
+                    if (Gtk::RESPONSE_OK == result) {
+                        out = dlg.get_filename();
+                        return;
+                    }
+
+                    out = "";
+                }
+            ),
+            SF::virtualMatch<
+                FileSaverDialog,
+                StrongMsgPtr,
+                std::string,
+                std::string
+            >([](FileSaverDialog,
+                 const StrongMsgPtr& window,
+                 const std::string& title,
+                 std::string& out)
+                {
+                    Gtk::FileChooserDialog dlg(title.c_str(),
+                        Gtk::FILE_CHOOSER_ACTION_SAVE);
+                    auto queryTransient = SF::vpack<
+                        SafeLists::GenericGtkWidgetNodePrivateWindow
+                        ::QueryWindow,
+                        Gtk::Window*
+                    >(nullptr,nullptr);
+                    window->message(queryTransient);
+                    assert( queryTransient.useCount() > 0
+                            && "No transient cholo..." );
                     dlg.set_transient_for(*queryTransient.fGet<1>());
                     dlg.add_button("_Cancel",Gtk::RESPONSE_CANCEL);
                     dlg.add_button("Ok",Gtk::RESPONSE_OK);
@@ -1162,7 +1658,8 @@ struct GtkDialogService : public Messageable {
                     const std::string& message)
                 {
                     auto queryTransient = SF::vpack<
-                        GenericGtkWindowInterface::GetGtkWindow,
+                        SafeLists::GenericGtkWidgetNodePrivateWindow
+                            ::QueryWindow,
                         Gtk::Window*
                     >(nullptr,nullptr);
                     parent->message(queryTransient);
@@ -1172,52 +1669,97 @@ struct GtkDialogService : public Messageable {
                     dlg.set_message(message.c_str());
                     dlg.run();
                 }
+            ),
+            SF::virtualMatch<
+                MakeGenericDialog,
+                const std::string,
+                const std::string,
+                StrongMsgPtr
+            >(
+                [=](MakeGenericDialog,
+                    const std::string& resource,
+                    const std::string& widgetName,
+                    StrongMsgPtr& outPtr)
+                {
+                    auto iter = _schemaMap.find(resource);
+                    assert( iter != _schemaMap.end() && "No resource." );
+                    auto& string = *iter->second;
+                    auto bld = Gtk::Builder::create_from_string(
+                        string,widgetName.c_str());
+
+                    auto dialog = std::make_shared< GenericDialog >(
+                        bld,widgetName.c_str());
+                    outPtr = dialog;
+                }
+            ),
+            SF::virtualMatch<
+                MakeGenericWidget,
+                const std::string,
+                const std::string,
+                StrongMsgPtr
+            >(
+                [=](MakeGenericDialog,
+                    const std::string& resource,
+                    const std::string& widgetName,
+                    StrongMsgPtr& outPtr)
+                {
+                    auto iter = _schemaMap.find(resource);
+                    assert( iter != _schemaMap.end() && "No resource." );
+                    auto& string = *iter->second;
+                    auto bld = Gtk::Builder::create_from_string(
+                        string,widgetName.c_str());
+
+                    auto dialog = std::make_shared<
+                        SafeLists::GenericGtkWidget >(
+                            bld,widgetName.c_str());
+                    outPtr = dialog;
+                }
+            ),
+            SF::virtualMatch<
+                OkCancelDialog,
+                StrongMsgPtr,
+                const std::string,
+                const std::string,
+                int
+            >(
+                [](OkCancelDialog,
+                   const StrongMsgPtr& parent,
+                   const std::string& title,
+                   const std::string& message,
+                   int& out)
+                {
+                    auto queryTransient = SF::vpack<
+                        SafeLists::GenericGtkWidgetNodePrivateWindow
+                        ::QueryWindow,
+                        Gtk::Window*
+                    >(nullptr,nullptr);
+                    parent->message(queryTransient);
+                    auto gtkParent = queryTransient.fGet<1>();
+                    Gtk::MessageDialog dlg(
+                        title.c_str(),gtkParent);
+                    dlg.set_secondary_text(message.c_str());
+                    dlg.add_button("_Cancel",1);
+                    dlg.set_default_response(-1);
+                    int outRes = dlg.run();
+                    if (outRes == Gtk::RESPONSE_OK) {
+                        outRes = 0;
+                    }
+                    out = outRes;
+                }
             )
         );
     }
 
 private:
     SafeLists::VmfPtr _handler;
+    std::map< std::string, const Glib::ustring* > _schemaMap;
 };
 
 struct GtkInputDialog : public Messageable {
 
-    struct Interface {
-        // Show the dialog
-        // in lua: INDLG_InShowDialog
-        DUMMY_REG(InShowDialog,"INDLG_InShowDialog");
-
-        // Set notifier to notify messages
-        // in lua: INDLG_InSetNotifier
-        // Signature: < InSetNotifier, StrongMsgPtr >
-        DUMMY_REG(InSetNotifier,"INDLG_InSetNotifier");
-
-        // Set label text
-        // in lua: INDLG_InSetLabel
-        // Signature: < InSetLabel, std::string >
-        DUMMY_REG(InSetLabel,"INDLG_InSetLabel");
-
-        // Set value text
-        // in lua: INDLG_InSetValue
-        // Signature: < InSetValue, std::string >
-        DUMMY_REG(InSetValue,"INDLG_InSetValue");
-
-        // Emitted when ok button is clicked
-        DUMMY_REG(OutOkClicked,"INDLG_OutOkClicked");
-
-        // Emitted when cancel button is clicked
-        DUMMY_REG(OutCancelClicked,"INDLG_OutCancelClicked");
-
-        // Query input text
-        // in lua: INDLG_InQueryInput
-        // Signature: < QueryInput, std::string (out) >
-        DUMMY_REG(QueryInput,"INDLG_QueryInput")
-    };
-
     GtkInputDialog(Glib::RefPtr<Gtk::Builder>& bld) : _handler(genHandler()) {
         Gtk::Dialog* dlg = nullptr;
-        bld->get_widget("dialog2",dlg);
-        _dlg.reset(dlg);
+        bld->get_widget("dialog2",_dlg);
 
         bld->get_widget("dialogText",_label);
         bld->get_widget("dialogInput",_entry);
@@ -1250,7 +1792,7 @@ private:
             return;
         }
 
-        auto msg = SF::vpack< Interface::OutOkClicked >(nullptr);
+        auto msg = SF::vpack< GtkGenericDialogMessages::OutOkClicked >(nullptr);
         locked->message(msg);
     }
 
@@ -1260,16 +1802,17 @@ private:
             return;
         }
 
-        auto msg = SF::vpack< Interface::OutCancelClicked >(nullptr);
+        auto msg = SF::vpack< GtkGenericDialogMessages::OutCancelClicked >(nullptr);
         locked->message(msg);
     }
 
     VmfPtr genHandler() {
-        typedef Interface INT;
+        typedef GtkGenericDialogMessages INT;
         return SF::virtualMatchFunctorPtr(
             SF::virtualMatch< INT::InShowDialog, bool >(
                 [=](INT::InShowDialog,bool show) {
                     if (show) {
+                        _dlg->set_modal(true);
                         _dlg->show();
                     } else {
                         _dlg->hide();
@@ -1299,7 +1842,7 @@ private:
         );
     }
 
-    std::unique_ptr< Gtk::Dialog > _dlg;
+    Gtk::Dialog* _dlg;
     Gtk::Label* _label;
     Gtk::Entry* _entry;
     Gtk::Button* _okButton;
@@ -1329,19 +1872,103 @@ static templatious::DynVPackFactory* vFactory() {
     return &fact;
 }
 
-const Glib::ustring& mainUiSchema() {
-    static Glib::ustring res = SafeLists::readFile("uischemes/main.glade");
-    return res;
+std::string xdgCustomDir() {
+    auto execPath = SafeLists::executablePath();
+    execPath += "/appdata/usr/share";
+    return execPath;
+}
+
+void uniformSlashes(char* path) {
+    int len = strlen(path);
+    TEMPLATIOUS_0_TO_N(i,len) {
+        if (path[i] == '\\') {
+            path[i] = '/';
+        }
+    }
+}
+
+void prepEnv(
+    std::vector< std::unique_ptr<char[]> >& envVec,
+    int argc,char** argv)
+{
+    SafeLists::setGlobalProgramArgs(argc,argv);
+
+    auto catEnv =
+        [&](const char* str) {
+            int len = ::strlen(str);
+            auto buff = std::unique_ptr< char[] >( new char[len] );
+            ::strcpy( buff.get(), str );
+            SA::add( envVec, std::move(buff) );
+        };
+
+    char arr[1024];
+
+    arr[0] = '\0';
+    // don't trust default rendering,
+    // fails on linux, nothing can
+    // be as accurate as CPU drawn pixels.
+    ::strcat(arr,"GDK_RENDERING=image");
+    catEnv(arr);
+
+    std::string customDir = xdgCustomDir();
+
+    arr[0] = '\0';
+    ::strcat(arr,"XDG_DATA_DIRS=");
+    ::strcat(arr,customDir.c_str());
+    auto currDirs = ::getenv("XDG_DATA_DIRS");
+    if (nullptr != currDirs) {
+#ifdef __linux__
+        ::strcat(arr,":");
+#elif defined(__MINGW32__)
+        ::strcat(arr,";");
+#else
+        static_assert( false, "Platform not supported yet." );
+#endif
+        ::strcat(arr,currDirs);
+    }
+
+    uniformSlashes(arr);
+    catEnv(arr);
+
+    arr[0] = '\0';
+    ::strcat(arr,"GSETTINGS_SCHEMA_DIR=");
+    ::strcat(arr,customDir.c_str());
+    ::strcat(arr,"/glib-2.0/schemas/");
+    uniformSlashes(arr);
+    catEnv(arr);
+
+    TEMPLATIOUS_FOREACH(auto& i,envVec) {
+        ::putenv(i.get());
+    }
+}
+
+void gtkSpec() {
+    char arr[1024];
+    arr[0] = '\0';
+
+    std::string customDir = xdgCustomDir();
+    ::strcat(arr,customDir.c_str());
+    ::strcat(arr,"/icons/");
+    uniformSlashes(arr);
+
+    auto def = ::gtk_icon_theme_get_default();
+    ::gtk_icon_theme_prepend_search_path(def,arr);
 }
 
 int main(int argc,char** argv) {
+    std::vector< std::unique_ptr<char[]> > envVars;
+    prepEnv(envVars,argc,argv);
+
     auto app = Gtk::Application::create(argc,argv);
+
+    gtkSpec();
 
     auto ctx = LuaContext::makeContext("lua/plumbing.lua");
     ctx->setFactory(vFactory());
 
     auto downloader = SafeLists::AsyncDownloader::createNew("imitation");
     auto randomFileWriter = SafeLists::RandomFileWriter::make();
+    auto licenseService = SafeLists::LicenseDaemon::getDaemon();
 
     auto dlFactory = SafeLists::
         SafeListDownloaderFactory::createNew(downloader,randomFileWriter);
@@ -1354,18 +1981,23 @@ int main(int argc,char** argv) {
     auto asyncSqliteFactory = SafeLists::AsyncSqliteFactory::createNew();
     auto mainModel = std::make_shared< MainModel >();
     auto dialogService = std::make_shared< GtkDialogService >();
+    auto themeManager = SafeLists::GtkMMThemeManager::makeNew(&mainWnd->getWindow());
     auto shutdownGuard = SafeLists::GracefulShutdownGuard::makeNew();
     shutdownGuard->add(randomFileWriter);
     shutdownGuard->add(downloader);
+    shutdownGuard->add(licenseService);
 
     mainWnd->setShutdownGuard(shutdownGuard);
     ctx->addMessageableWeak("mainWindow",mainWnd);
     ctx->addMessageableWeak("singleInputDialog",singleInputDialog);
     ctx->addMessageableWeak("mainModel",mainModel);
     ctx->addMessageableWeak("shutdownGuard",shutdownGuard);
+    ctx->addMessageableWeak("randomFileWriter",randomFileWriter);
+    ctx->addMessageableWeak("licenseService",licenseService);
     ctx->addMessageableStrong("dlSessionFactory",dlFactory);
     ctx->addMessageableStrong("asyncSqliteFactory",asyncSqliteFactory);
     ctx->addMessageableStrong("dialogService",dialogService);
+    ctx->addMessageableStrong("themeManager",themeManager);
     ctx->doFile("lua/main.lua");
     app->run(mainWnd->getWindow(),argc,argv);
 }

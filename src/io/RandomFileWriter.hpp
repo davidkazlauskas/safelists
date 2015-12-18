@@ -26,6 +26,14 @@ struct RandomFileWriter {
     // < ClearCache, std::string (path) >
     DUMMY_REG(ClearCache,"RFW_ClearCache");
 
+    // Check if file exists.
+    // Signature:
+    // < DoesFileExist, std::string (path), bool (result) >
+    DUMMY_REG(DoesFileExist,"RFW_DoesFileExist");
+
+    // Delete file.
+    DUMMY_REG(DeleteFile,"RFW_DeleteFile");
+
     // Dummy pack. Useful
     // for waiting on writes
     // sent previously before

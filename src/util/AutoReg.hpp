@@ -38,6 +38,13 @@
 
 namespace SafeLists {
 
+struct AnyConv {
+    template <class T>
+    AnyConv(T&& t) {}
+};
+
+#define ANY_CONV ::SafeLists::AnyConv
+
 typedef std::unique_ptr< templatious::VirtualMatchFunctor > VmfPtr;
 
 template <class T>

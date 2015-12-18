@@ -3,4 +3,19 @@
 	url = https://github.com/davidkazlauskas/templatious.git
 [submodule "submodules/LibLuaPlumbing/LuaPlumbing"]
 	path = submodules/LibLuaPlumbing/LuaPlumbing
-	url = /home/deividas/Desktop/Dropbox/MyPrj/Templatious/LuaPlumbing/
+	url = https://github.com/davidkazlauskas/LuaPlumbing.git
+[submodule "submodules/aff51055698873166c93d83ce09578d2ec613e64"]
+	path = submodules/aff51055698873166c93d83ce09578d2ec613e64
+	url = https://github.com/weidai11/cryptopp.git
+[submodule "submodules/rapidjson"]
+	path = submodules/rapidjson
+	url = https://github.com/miloyip/rapidjson.git
+[submodule "submodules/libscrypt"]
+	path = submodules/libscrypt
+	url = https://github.com/technion/libscrypt.git
+[submodule "submodules/lua"]
+	path = submodules/lua
+	url = https://github.com/LuaDist/lua.git
+[submodule "src/rust/safe_ffi"]
+	path = src/rust/safe_ffi
+	url = https://github.com/maidsafe/safe_ffi.git

@@ -5,6 +5,8 @@
 
 #include <util/DumbHash.hpp>
 #include <util/ScopeGuard.hpp>
+#include <util/GenericStMessageable.hpp>
+#include <util/Base64.hpp>
 
 TEMPLATIOUS_TRIPLET_STD;
 
@@ -179,4 +181,124 @@ TEST_CASE("scope_guard_dismiss","[util]") {
     }
 
     REQUIRE( !called );
+}
+
+TEST_CASE("scope_guard_fire","[util]") {
+    int count = 0;
+    {
+        auto g = SCOPE_GUARD_LC(
+            ++count;
+        );
+
+        REQUIRE( count == 0 );
+
+        g.fire();
+
+        REQUIRE( count == 1 );
+    }
+    REQUIRE( count == 1 );
+}
+
+struct MessA : public SafeLists::GenericStMessageable {
+    MessA() {
+        regHandler(
+            SF::virtualMatchFunctorPtr(
+                SF::virtualMatch< int >(
+                    [](int& i) {
+                        i = 7;
+                    }
+                ),
+                SF::virtualMatch< short >(
+                    [](short& i) {
+                        i = 77;
+                    }
+                )
+            )
+        );
+    }
+};
+
+struct MessB : public MessA {
+    MessB() {
+        _inheritanceLevel =
+            regHandler(
+                SF::virtualMatchFunctorPtr(
+                    SF::virtualMatch< int >(
+                        [](int& i) {
+                            i = 777;
+                        }
+                    )
+                )
+            );
+    }
+
+    int _inheritanceLevel;
+    void messageToParent(templatious::VirtualPack& msg) {
+        passMessageUp(_inheritanceLevel,msg);
+    }
+};
+
+TEST_CASE("generic_messageable_inheritance","[util]") {
+    MessA a;
+    MessB b;
+
+    auto intMsg = SF::vpack< int >(0);
+    auto shortMsg = SF::vpack< short >(0);
+
+    a.message(intMsg);
+    a.message(shortMsg);
+
+    REQUIRE( intMsg.fGet<0>() == 7 );
+    REQUIRE( shortMsg.fGet<0>() == 77 );
+
+    intMsg.fGet<0>() = 0;
+    shortMsg.fGet<0>() = 0;
+
+    b.message(intMsg);
+    b.message(shortMsg);
+
+    REQUIRE( intMsg.fGet<0>() == 777 );
+    REQUIRE( shortMsg.fGet<0>() == 77 );
+}
+
+TEST_CASE("generic_messageable_passtoparent","[util]") {
+    MessB b;
+
+    auto intMsg = SF::vpack< int >(0);
+
+    b.messageToParent(intMsg);
+
+    REQUIRE( intMsg.fGet<0>() == 7 );
+}
+
+TEST_CASE("base64","[util]") {
+    const char theString[] = {0,1,2,3,4,5,6};
+
+    char outBase64[64];
+
+    ::base64encode(
+        theString,
+        sizeof(theString),
+        outBase64,
+        sizeof(outBase64));
+
+    const char* EXPECTED = "AAECAwQFBg==";
+
+    int isEqual = ::strcmp(outBase64,EXPECTED);
+
+    REQUIRE( 0 == isEqual );
+
+    unsigned char backToOriginal[64];
+    size_t outLen = sizeof(backToOriginal);
+
+    ::base64decode(
+        outBase64,
+        strlen(EXPECTED),
+        backToOriginal,
+        &outLen);
+
+    int isMemEqual = ::memcmp(
+        theString,backToOriginal,sizeof(theString));
+
+    REQUIRE( 0 == isMemEqual );
 }

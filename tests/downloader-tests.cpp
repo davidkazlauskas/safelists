@@ -12,6 +12,7 @@
 #include <io/SafeListDownloaderFactory.hpp>
 #include <model/AsyncSqlite.hpp>
 #include <util/ScopeGuard.hpp>
+#include <safe_file_downloader.h>
 
 #include <sqlite3.h>
 
@@ -621,11 +622,13 @@ TEST_CASE("async_downloader_dummy","[async_downloader]") {
     IntList copy = toDownload->clone();
     auto downloadJob = SF::vpackPtr<
         AD::ScheduleDownload,
+        std::string,
         IntList,
         std::function< bool(const char*,int64_t,int64_t) >,
         std::weak_ptr< Messageable >
     >(
         nullptr,
+        "test",
         std::move(copy),
         [&](const char* buffer,int64_t start,int64_t end) {
             auto size = end - start;
@@ -1023,4 +1026,195 @@ TEST_CASE("safelist_partial_download_fragments","[safelist_downloader]") {
     REQUIRE( result );
     result &= !fs::exists("downloadtest1/fldA/fileG");
     REQUIRE( result );
+
+    auto checkLeftovers =
+        [](std::string path) {
+            bool ex = fs::exists(path + ".ilist");
+            if (ex) return ex;
+            ex = fs::exists(path + ".ilist.tmp");
+            return ex;
+        };
+
+    // no trash
+    result &= !checkLeftovers("downloadtest1/fileA");
+    REQUIRE( result );
+    result &= !checkLeftovers("downloadtest1/fileB");
+    REQUIRE( result );
+    result &= !checkLeftovers("downloadtest1/fileC");
+    REQUIRE( result );
+    result &= !checkLeftovers("downloadtest1/fileD");
+    REQUIRE( result );
+    result &= !checkLeftovers("downloadtest1/fileE");
+    REQUIRE( result );
+    result &= !checkLeftovers("downloadtest1/fldA/fileF");
+    REQUIRE( result );
+    result &= !checkLeftovers("downloadtest1/fldA/fileG");
+    REQUIRE( result );
 }
+
+int ensureContCallback3(void* data,int count,char** values,char** header) {
+    EnsureContTrack& track = *reinterpret_cast<EnsureContTrack*>(data);
+
+    track._value &= count == 3;
+    if (!track._value) return 1;
+
+    ++track._row;
+
+    bool eitherName =
+        0 == strcmp(values[1],"test")
+        || 0 == strcmp(values[1],"test2");
+
+    int id = std::atoi(values[0]);
+    track._value &= id >= 1 && id <= 7;
+    track._value &= eitherName;
+    track._value &= 0 == strcmp(values[2],"0");
+
+    return track._value ? 0 : 1;
+}
+
+bool ensureContentsOfExample3Session(const char* path) {
+    sqlite3* sess = nullptr;
+    sqlite3_open(path,&sess);
+    if (nullptr == sess) {
+        return false;
+    }
+
+    auto guard = SCOPE_GUARD_LC(
+        sqlite3_close(sess);
+    );
+
+    EnsureContTrack t;
+    t._row = 0;
+    t._value = true;
+
+    char* errMsg = nullptr;
+
+    int res = sqlite3_exec(
+        sess,
+        "SELECT * FROM mirrors;",
+        &ensureContCallback3,
+        &t,
+        &errMsg
+    );
+
+    if (res != SQLITE_OK || errMsg != nullptr) {
+        return false;
+    }
+
+    t._value &= t._row == 7;
+
+    return t._value;
+}
+
+TEST_CASE("safelist_create_session_dup_mirrors","[safelist_downloader]") {
+    const char* dlPath = "downloadtest1";
+    std::string dlPathAbs = dlPath;
+    dlPathAbs += "/safelist_session";
+    namespace fs = boost::filesystem;
+    fs::remove_all(dlPath);
+    fs::create_directory(dlPath);
+
+    using namespace SafeLists;
+
+    auto asyncSqlite = AsyncSqlite::createNew(
+        "exampleData/example3.safelist");
+
+    std::unique_ptr< std::promise<void> > prPtr(
+        new std::promise<void>
+    );
+    auto future = prPtr->get_future();
+    auto rawPrPtr = prPtr.get();
+    typedef SafeLists::SafeListDownloaderFactory SLDF;
+    auto handler = std::make_shared< MessageableMatchFunctorWAsync >(
+        SF::virtualMatchFunctorPtr(
+            SF::virtualMatch< SLDF::OutCreateSessionDone >(
+                [=](SLDF::OutCreateSessionDone) {
+                    rawPrPtr->set_value();
+                }
+            )
+        )
+    );
+    auto sldf = SLDF::createNew(testDownloader(),
+        SafeLists::RandomFileWriter::make());
+    auto msg = SF::vpack<
+        SLDF::CreateSession,
+        StrongMsgPtr,
+        StrongMsgPtr,
+        std::string
+    >(
+        nullptr,
+        asyncSqlite,
+        handler,
+        dlPathAbs
+    );
+    sldf->message(msg);
+    future.wait();
+
+    bool res = ensureContentsOfExample3Session(dlPathAbs.c_str());
+    REQUIRE( res );
+}
+
+struct SomeState {
+    int moo;
+    void* handle;
+};
+
+int32_t SomeState_userdata_buffer_func(
+    void* userdata,int64_t start,int64_t end,const uint8_t* buf)
+{
+    SomeState* cast = reinterpret_cast<SomeState*>(userdata);
+    printf("Downloading... Userdata: %d\n",cast->moo);
+    printf("Downloading... Range: %ld %ld\n",start,end);
+    return 0;
+}
+
+void SomeState_userdata_arbitrary_message_func(
+    void* userdata,int32_t msgtype,const void* buf)
+{
+    SomeState* cast = reinterpret_cast<SomeState*>(userdata);
+    printf("Downloading... Userdata: %d\n",cast->moo);
+    printf("Downloading... Msgtype: %d\n",msgtype);
+}
+
+void SomeState_userdata_destructor(void* userdata) {
+    SomeState* cast = reinterpret_cast<SomeState*>(userdata);
+    ::safe_file_downloader_cleanup(cast->handle,nullptr,nullptr);
+    printf("Dropped the sucka! Userdata: %d\n",cast->moo);
+    delete cast;
+}
+
+struct Waiter {
+    Waiter() : fut(prom.get_future()) {}
+
+    std::promise< void > prom;
+    std::future< void > fut;
+};
+
+// will be called from another thread
+void waiter_func(void* data) {
+    Waiter& w = *reinterpret_cast< Waiter* >(data);
+    w.prom.set_value();
+}
+
+TEST_CASE("maidsafe_downloader_init_and_destroy","[safe_network_downloader]") {
+    void* handle = ::safe_file_downloader_new();
+
+    //auto st = new SomeState();
+    //st->moo = 777;
+    //st->handle = handle;
+
+    //::safe_file_downloader_args args;
+    //args.userdata = st;
+    //args.userdata_buffer_func = &SomeState_userdata_buffer_func;
+    //args.userdata_arbitrary_message_func = &SomeState_userdata_arbitrary_message_func;
+    //args.userdata_destructor = &SomeState_userdata_destructor;
+    //args.path = "www.bizzle1/noob.mp3";
+
+    //::safe_file_downloader_schedule(handle,&args);
+
+    std::unique_ptr< Waiter > ptr( new Waiter() );
+
+    ::safe_file_downloader_cleanup(handle,&waiter_func,ptr.get());
+    ptr->fut.wait();
+}
+

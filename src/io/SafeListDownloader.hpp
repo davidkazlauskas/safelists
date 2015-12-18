@@ -32,9 +32,17 @@ struct SafeListDownloader {
     // >
     DUMMY_REG(OutSingleDone,"SLD_OutSingleDone");
 
+    // messaged when file is not found.
+    // Signature:
+    // <
+    //    OutFileNotFound, int (fileid)
+    // >
+    DUMMY_REG(OutFileNotFound,"SLD_OutFileNotFound");
+
     // messaged when progress moved
     // Signature:
-    // < OutProgressUpdate, int (id), double (bytes done), double (bytes total) >
+    // < OutProgressUpdate, int (id), double (bytes done),
+    // double (bytes total), double (new bytes) >
     DUMMY_REG(OutProgressUpdate,"SLD_OutProgressUpdate");
 
     // messaged when hash is updated
@@ -47,10 +55,16 @@ struct SafeListDownloader {
     // < OutSizeUpdate, int (id), double (size) >
     DUMMY_REG(OutSizeUpdate,"SLD_OutSizeUpdate");
 
+    // messaged when download has finished successfully
+    // with a mirror.
+    // Signature:
+    // < OutMirrorUsed, int (id), std::string (mirror) >
+    DUMMY_REG(OutMirrorUsed,"SLD_OutMirrorUsed");
+
     // messaged when total downloads of session are known
     // Signature:
     // < OutTotalDownloads, int (count) >
-    DUMMY_REG(OutTotalDownloads,"SLDF_OutTotalDownloads");
+    DUMMY_REG(OutTotalDownloads,"SLD_OutTotalDownloads");
 
     static StrongMsgPtr startNew(
         const char* path,

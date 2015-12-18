@@ -40,6 +40,13 @@ namespace SafeLists {
 namespace {
     namespace fs = boost::filesystem;
 
+    void cleanPathLeftovers(const std::string& path) {
+        std::string listPath = path + ".ilist";
+        std::string tmpPath = path + ".ilist.tmp";
+        fs::remove(listPath);
+        fs::remove(tmpPath);
+    }
+
     SafeLists::IntervalList listForPath(
         const std::string& path,
         int64_t size,
@@ -252,7 +259,11 @@ private:
     }
 
     struct ToDownloadList : public Messageable {
+
+        static const int ERROR_FILE_NOT_FOUND = 7;
+
         ToDownloadList(const std::shared_ptr< SafeListDownloaderImpl >& session) :
+            _error(0),
             _session(session), _handler(genHandler()),
             _list(SafeLists::Interval()),
             _hasStarted(false), _hasEnded(false),
@@ -295,12 +306,24 @@ private:
                             locked->_fileWriter->message(clearCache);
                         }
                     }
+                ),
+                SF::virtualMatch< AD::OutFileNotFound >(
+                    [&](AD::OutFileNotFound) {
+                        this->_error = ERROR_FILE_NOT_FOUND;
+                        this->_hasEnded = true;
+                        auto locked = _session.lock();
+                        if (nullptr != locked) {
+                            auto msg = SF::vpackPtr< FinishedDownload >(nullptr);
+                            locked->message(msg);
+                        }
+                    }
                 )
             );
         }
 
         std::weak_ptr< SafeListDownloaderImpl > _session;
         int _id;
+        int _error;
         int64_t _size;
         std::string _link;
         std::string _dumbHash256;
@@ -439,14 +462,15 @@ private:
         TEMPLATIOUS_FOREACH(auto& i,_jobs) {
             int64_t done = i->_progressDone;
             int64_t reported = i->_progressReported;
-            if (done > reported) {
+            int64_t diff = done - reported;
+            if (diff > 0) {
                 int64_t size = i->_size;
                 int id = i->_id;
                 i->_progressReported = done;
                 notifyObserver<
                     SafeListDownloader::OutProgressUpdate,
-                    int, double, double
-                >(nullptr,id,done,size);
+                    int, double, double, double
+                >(nullptr,id,done,size,diff);
             }
         }
     }
@@ -495,11 +519,35 @@ private:
                         dl = nullptr;
                     );
 
+                    auto leftOverGuard = SCOPE_GUARD_LC(
+                        cleanPathLeftovers(dl->_absPath);
+                    );
+
                     --_count;
+                    if (0 == dl->_error) {
+                        notifyObserver<
+                            SLD::OutSingleDone, int
+                        >(
+                            nullptr, dl->_id
+                        );
+                    } else if (ToDownloadList::ERROR_FILE_NOT_FOUND
+                        == dl->_error)
+                    {
+                        notifyObserver<
+                            SLD::OutFileNotFound, int
+                        >(
+                            nullptr, dl->_id
+                        );
+                    } else {
+                        printf("ERR: |%d|",dl->_error);
+                        assert( false && "Cannot handle this type of error." );
+                    }
+
                     notifyObserver<
-                        SLD::OutSingleDone, int
+                        SLD::OutMirrorUsed, int,
+                        std::string
                     >(
-                        nullptr, dl->_id
+                        nullptr, dl->_id, dl->_link
                     );
 
                     char buf[128];
@@ -701,11 +749,13 @@ private:
                 auto rawJob = i.get();
                 auto job = SF::vpackPtr<
                     AD::ScheduleDownload,
+                    std::string,
                     IntervalList,
                     ByteFunction,
                     std::weak_ptr< Messageable >
                 >(
                     nullptr,
+                    i->_link,
                     std::move(intervals),
                     [=](const char* buf,int64_t pre,int64_t post) {
                         typedef SafeLists::RandomFileWriter RFW;

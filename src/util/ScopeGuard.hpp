@@ -15,6 +15,13 @@ struct ScopeGuard {
         _use = false;
     }
 
+    void fire() {
+        assert( _use == true &&
+            "Can only fire undismissed scope guard." );
+        _use = false;
+        _f();
+    }
+
     ~ScopeGuard() {
         if (_use) {
             _f();

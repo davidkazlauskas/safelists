@@ -1,0 +1,17 @@
+[package]
+name = "safe_file_downloader"
+version = "0.1.0"
+authors = ["David <david@templatious.org>"]
+
+[dependencies]
+libc = "0.2.2"
+safe_core = { version="0.3.0", features=["use-mock-routing"] }
+safe_nfs = "0.3.0"
+safe_dns = "0.3.1"
+sodiumoxide = "0.0.9"
+regex = "0.1.8"
+quick-error = "0.1.4"
+
+[lib]
+name = "safefiledownloader"
+crate-type = [ "dylib" ]

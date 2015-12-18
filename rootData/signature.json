@@ -1,0 +1,8 @@
+{
+    "signature": "",
+    "files": [
+        "exampleData/full-schema.sql",
+        "exampleData/trigger-drop.sql",
+        "safelists"
+    ]
+}

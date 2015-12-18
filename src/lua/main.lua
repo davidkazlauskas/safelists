@@ -788,56 +788,88 @@ initAll = function()
     --end
 
     -- THEME LOAD EXAMPLE
-    --ctx:message(
-        --mainWnd,
-        --VSig("MWI_InLoadCss"),
-        --VString("uischemes/themes/Arc-Dark-Red/gtk.css")
-    --)
+    print("them ballah")
+    ctx:message(
+        mainWnd,
+        VSig("MWI_InLoadCss"),
+        VString("appdata/themes/vertex/gtk-dark.css")
+    )
+    print("them dollah")
+
     -- menu bar model attempt
     local menuBarModelStuff = function()
         local mainWrapped = GenericWidget.putOn(mainWnd)
         local menuBar = mainWrapped:getWidget("mainWindowMenuBar")
 
-        local data = {
-            ["shizzle"] = 1,
-            ["mcnizzle"] = 2,
-            ["dizzle"] = {
-                ["mizzle"] = 3,
-                ["hizzle"] = 4
-            }
-        }
+        --local data = {
+            --["shizzle"] = 1,
+            --["mcnizzle"] = 2,
+            --["dizzle"] = {
+                --["mizzle"] = 3,
+                --["hizzle"] = 4
+            --}
+        --}
 
-        local corout = coroutine.create(
-            function()
-                local recurse = nil
-                recurse = function(data)
-                    for k,v in pairs(data) do
-                        if (type(v) == "number") then
-                            coroutine.yield(k,v)
-                        elseif (type(v) == "table") then
-                            coroutine.yield(k,-2)
-                            recurse(v)
-                        end
-                    end
-                    coroutine.yield(nil,nil)
-                end
+        --local corout = coroutine.create(
+            --function()
+                --local recurse = nil
+                --recurse = function(data)
+                    --for k,v in pairs(data) do
+                        --if (type(v) == "number") then
+                            --coroutine.yield(k,v)
+                        --elseif (type(v) == "table") then
+                            --coroutine.yield(k,-2)
+                            --recurse(v)
+                        --end
+                    --end
+                    --coroutine.yield(nil,nil)
+                --end
 
-                recurse(data)
-            end
-        )
+                --recurse(data)
+            --end
+        --)
+        local luaModel = MenuModel.new()
+        local another = luaModel:appendSubComp("ballin","Jarl Ballin A")
+        local inner = another:appendSubComp("dazlow","Moo B")
+        inner:appendSubLeaf("lol wut?","huh C",function()
+            print("no games with jarl a")
+        end)
+        another:appendSubLeaf("lol wut?","huh B",function()
+            print("no games with jarl b")
+        end)
+        local moar = luaModel:appendSubComp("ballin","HARL Ballin A")
+        moar:appendSubLeaf("hol hut?","huhzz? B",function()
+            print("no games with jarl c")
+        end)
+
+        local corout = luaModel:enumerate()
 
         local model = ctx:makeLuaMatchHandler(
             VMatch(function(natPack,val)
-                local status,nextVal,nextNum =
+                local status,nextVal =
                     coroutine.resume(corout)
-                if (nextNum ~= nil and nextVal ~= nil) then
-                    natPack:setSlot(2,VInt(nextNum))
-                    natPack:setSlot(3,VString(nextVal))
-                    natPack:setSlot(4,VString(nextVal))
-                else
-                    natPack:setSlot(2,VInt(-1))
-                end
-            end,"GWI_GMIT_QueryNextNode","int","string","string")
+                print("Nval:",nextVal.num)
+                natPack:setSlot(2,VInt(nextVal.num))
+                natPack:setSlot(3,VString(nextVal.shortname))
+                natPack:setSlot(4,VString(nextVal.title))
+            end,"GWI_GMIT_QueryNextNode","int","string","string"),
+            VMatch(function(natPack,val)
+                local idx = val:values()._2
+                local outFunc = luaModel.callbacks[idx]
+                assert( nil ~= outFunc, "No menu function with such index" )
+                outFunc()
+            end,"GWI_GMIT_OutIndexClicked","int")
+            --VMatch(function(natPack,val)
+                --local status,nextVal,nextNum =
+                    --coroutine.resume(corout)
+                --if (nextNum ~= nil and nextVal ~= nil) then
+                    --natPack:setSlot(2,VInt(nextNum))
+                    --natPack:setSlot(3,VString(nextVal))
+                    --natPack:setSlot(4,VString(nextVal))
+                --else
+                    --natPack:setSlot(2,VInt(-1))
+                --end
+            --end,"GWI_GMIT_QueryNextNode","int","string","string")
         )
 
         local id = objRetainer:retainNewId(model)

@@ -67,9 +67,10 @@ namespace SafeLists {
           "-GtkNotebook-initial-gap: 0;\n"
         "}\n";
 
-    const char* RALEIGH_PATH = "org/gtk/libgtk/theme/Raleigh.css";
-    const char* ADWAITA_PATH = "org/gtk/libgtk/theme/Adwaita.css";
-    const char* ADWAITA_DARK_PATH = "org/gtk/libgtk/theme/Adwaita.css";
+    const char* POST_FIXES =
+        ".window-frame {\n"
+        "box-shadow: none;\n"
+        "}\n";
 
     struct GtkMMThemeManagerImpl : public GenericStMessageable {
         GtkMMThemeManagerImpl(Gtk::Window* wnd) :
@@ -77,7 +78,9 @@ namespace SafeLists {
         {
             regHandler(genHandler());
             _resetter = Gtk::CssProvider::create();
+            _postfix = Gtk::CssProvider::create();
             _resetter->load_from_data(THEME_RESETTER);
+            _postfix->load_from_data(POST_FIXES);
             _provider = Gtk::CssProvider::create();
             auto ctx = _wnd->get_style_context();
             auto screen = Gdk::Screen::get_default();
@@ -89,6 +92,12 @@ namespace SafeLists {
                 screen,
                 _provider,
                 GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+            // gnome makes black borders instead of
+            // shadows, therefore, disable box shadow.
+            ctx->add_provider_for_screen(
+                screen,
+                _postfix,
+                GTK_STYLE_PROVIDER_PRIORITY_USER);
         }
 
         VmfPtr genHandler() {
@@ -127,6 +136,7 @@ namespace SafeLists {
         Gtk::Window* _wnd;
         Glib::RefPtr< Gtk::CssProvider > _resetter;
         Glib::RefPtr< Gtk::CssProvider > _provider;
+        Glib::RefPtr< Gtk::CssProvider > _postfix;
     };
 
     StrongMsgPtr GtkMMThemeManager::makeNew(Gtk::Window* mainWnd) {

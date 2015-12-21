@@ -225,4 +225,5 @@ target_link_libraries( gtkspec domain ${GTKMM_LIBRARIES} )
 
 add_executable( safelists src/main.cpp )
 target_link_libraries( safelists gtkspec )
+set_target_properties( safelists PROPERTIES LINK_FLAGS "-Wl,-rpath -Wl,$ORIGIN" )
 

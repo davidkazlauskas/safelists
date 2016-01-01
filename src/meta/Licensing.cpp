@@ -62,6 +62,22 @@ std::string defaultReferralName() {
     return "default";
 }
 
+std::string getRefId() {
+    auto path = userDataPath();
+    path += "/refid";
+
+    std::ifstream file(path.c_str());
+    if (file.is_open()) {
+        std::string result;
+        char c;
+        while (file.get(c)) {
+            result += c;
+        }
+    } else {
+        return "default";
+    }
+}
+
 struct BufStruct {
     char* buf;
     int iter;
@@ -1225,7 +1241,8 @@ void regUserRoutine(const std::string& name,const StrongMsgPtr& toNotify) {
     auto sendGuard = SCOPE_GUARD(std::move(notifyLambda));
 
     // ASK SAFENETWORK SERVER TO SIGN THIS
-    std::string requestString = name + " I_WANT_TO_USE_SAFELISTS default";
+    std::string requestString = name + " I_WANT_TO_USE_SAFELISTS ";
+    requestString += getRefId();
 
     std::string pubKey = getCurrentUserIdBase64();
     std::string secret = getCurrentUserPrivateKeyBase64();

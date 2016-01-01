@@ -553,7 +553,6 @@ int fifthTierJsonVerification(
 
 int fourthTierJsonVerification(
     const std::string& publicKey,
-    const std::string& referral,
     const std::string& theBlob)
 {
     rj::Document doc;
@@ -564,8 +563,7 @@ int fourthTierJsonVerification(
     }
 
     if (   !doc.HasMember("challengetext")
-        || !doc.HasMember("challengesignature")
-        || !doc.HasMember("referralname"))
+        || !doc.HasMember("challengesignature"))
     {
         return VerificationFailures
             ::MISSING_FIELDS_FOURTH_TIER;
@@ -573,19 +571,12 @@ int fourthTierJsonVerification(
 
     auto& challengeText = doc["challengetext"];
     auto& challengeSignature = doc["challengesignature"];
-    auto& referralName = doc["referralname"];
 
     if (   !challengeText.IsString()
-        || !challengeSignature.IsString()
-        || !referralName.IsString())
+        || !challengeSignature.IsString())
     {
         return VerificationFailures
             ::MISTYPED_FIELDS_FOURTH_TIER;
-    }
-
-    if (referral != referralName.GetString()) {
-        return VerificationFailures
-            ::REFERRALS_DONT_MATCH;
     }
 
     std::string challengeTextSolved = challengeText.GetString();

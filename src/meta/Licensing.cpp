@@ -91,7 +91,7 @@ int curlReadFunc(char* buffer,size_t size,size_t nitems,void* userdata) {
 
 // TODO: query the pseudonymous server
 // behind safe network tunnel.
-int querySignature(const std::string& user,const char* thePath,char* out,int& buflen) {
+int genericQuery(const std::string& user,const char* thePath,char* out,int& buflen) {
     CURL* handle = ::curl_easy_init();
     auto clean = SCOPE_GUARD_LC(
         ::curl_easy_cleanup(handle);
@@ -922,7 +922,7 @@ int serverGetLicense(const std::string& pubKey,std::string& out) {
     std::vector<char> buf(1024 * 16);
 
     int bufLen = SA::size(buf);
-    int res = querySignature(
+    int res = genericQuery(
         pubKey,"/getuser/",buf.data(),bufLen);
 
     if (res != 0) {
@@ -957,7 +957,7 @@ int serverGetTimespan(const std::string& pubKey,std::string& out) {
     std::vector<char> buf(1024 * 16);
 
     int bufLen = SA::size(buf);
-    int res = querySignature(
+    int res = genericQuery(
         pubKey,"/getrelevantsubscription/",buf.data(),bufLen);
 
     if (res != 0) {

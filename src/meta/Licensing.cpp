@@ -1278,7 +1278,7 @@ void regUserRoutine(const std::string& name,const StrongMsgPtr& toNotify) {
     }
 }
 
-int parseAndCheckSubscriptionTier2(const std::string& dataJson,double& out) {
+int parseAndCheckSubscriptionRateTier2(const std::string& dataJson,double& out) {
     // err codes start from 7
     rj::Document doc;
     doc.Parse(dataJson.c_str());
@@ -1326,7 +1326,7 @@ int parseAndCheckSubscriptionTier2(const std::string& dataJson,double& out) {
     return 11;
 }
 
-int parseAndCheckSubscription(const std::string& json,double& out) {
+int parseAndCheckSubscriptionRate(const std::string& json,double& out) {
     std::string dataS,signatureS;
     { // deallocate rj::Document before going next frame
         rj::Document doc;
@@ -1363,7 +1363,7 @@ int parseAndCheckSubscription(const std::string& json,double& out) {
         return 6;
     }
 
-    return parseAndCheckSubscriptionTier2(dataS,out);
+    return parseAndCheckSubscriptionRateTier2(dataS,out);
 }
 
 int localDaysPerSafecoinRate(std::string& out) {
@@ -1545,6 +1545,11 @@ private:
             SF::virtualMatch< LD::GetLocalSafecoinRate, std::string, int >(
                 [=](ANY_CONV,std::string& out,int& err) {
                     err = localDaysPerSafecoinRate(out);
+                }
+            ),
+            SF::virtualMatch< LD::SafecoinRateValidity, const std::string, double, int >(
+                [=](ANY_CONV,const std::string& json,double& outRate,int& err) {
+                    err = parseAndCheckSubscriptionRate(json,outRate);
                 }
             ),
             SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(

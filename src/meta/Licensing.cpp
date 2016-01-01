@@ -894,6 +894,12 @@ std::string localTimespanPath(const std::string& pubKey) {
     return absFilePath;
 }
 
+std::string localRatePath() {
+    std::string absFilePath = licenseCachePathWSlash();
+    absFilePath += "safecoindayrate.json";
+    return absFilePath;
+}
+
 int localGetLicense(const std::string& pubKey,std::string& out) {
     std::string absFilePath = localLicensePath(pubKey);
     std::ifstream file(absFilePath.c_str());
@@ -1371,6 +1377,11 @@ int localDaysPerSafecoinRate(double& out) {
     file.close();
 
     return parseAndCheckSubscription(contents,out);
+}
+
+int localStoreSafecoinRate(const std::string& value) {
+    std::string path = localRatePath();
+    return 0;
 }
 
 struct LicenseDaemonDummyImpl : public Messageable {

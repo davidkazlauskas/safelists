@@ -1276,6 +1276,10 @@ int parseAndCheckSubscription(const std::string& json) {
         return 2;
     }
 
+    if (!doc.IsObject()) {
+        return 3;
+    }
+
     return 0;
 }
 

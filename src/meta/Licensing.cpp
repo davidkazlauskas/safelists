@@ -1280,6 +1280,12 @@ int parseAndCheckSubscription(const std::string& json,double& out) {
         return 3;
     }
 
+    if (   !doc.HasMember("data")
+        || !doc.HasMember("signature"))
+    {
+        return 4;
+    }
+
     return 0;
 }
 

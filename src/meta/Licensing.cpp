@@ -617,31 +617,21 @@ int thirdTierChallengeVerification(
             ::INVALID_CHALLENGE_JSON_SECOND_TIER;
     }
 
-    if (   !doc.HasMember("challengeanswer")
-        || !doc.HasMember("answersignature"))
+    if (!doc.HasMember("challengeanswer"))
     {
         return VerificationFailures
             ::MISSING_FIELDS_THIRD_TIER;
     }
 
     auto& challengeAnswer = doc["challengeanswer"];
-    auto& answerSignature = doc["answersignature"];
 
-    if (   !challengeAnswer.IsString()
-        || !answerSignature.IsString())
+    if (   !challengeAnswer.IsString())
     {
         return VerificationFailures
             ::MISTYPED_FIELDS_THIRD_TIER;
     }
 
     std::string answer = challengeAnswer.GetString();
-    std::string signature = answerSignature.GetString();
-
-    bool isGood = verifySignature(signature,publicKey,answer);
-    if (!isGood) {
-        return VerificationFailures
-            ::FORGED_SIGNATURE_THIRD_TIER;
-    }
 
     return fourthTierJsonVerification(
         publicKey,referral,answer);

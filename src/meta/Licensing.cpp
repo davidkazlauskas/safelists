@@ -1298,6 +1298,10 @@ int parseAndCheckSubscriptionTier2(const std::string& dataJson,double& out) {
         return 10;
     }
 
+    double priceD = price.GetDouble();
+    double starttimeD = starttime.GetDouble();
+    double endtimeD = endtime.GetDouble();
+
     return 0;
 }
 

@@ -64,6 +64,24 @@ struct LicenseDaemon {
     // >
     DUMMY_REG(StoreLocalLicense,"LD_StoreLocalIcense");
 
+    // Query safecoin rate from server
+    // Signature:
+    // <
+    //   GetServerSafecoinRate,
+    //   std::string (content),
+    //   int (error code, 0 success)
+    // >
+    DUMMY_REG(GetServerSafecoinRate,"LD_GetServerSafecoinRate");
+
+    // Get safecoin rate if stored locally
+    // Signature:
+    // <
+    //   GetLocalSafecoinRate,
+    //   std::string (content),
+    //   int (error code, 0 success)
+    // >
+    DUMMY_REG(GetLocalSafecoinRate,"LD_GetLocalSafecoinRate");
+
     // Delete local license
     // Signature:
     // <
@@ -100,6 +118,15 @@ struct LicenseDaemon {
     //   int (out result, 0 success)
     // >
     DUMMY_REG(TimeSpanValidity,"LD_TimeSpanValidity");
+
+    // Check if safecoin rate is valid.
+    // Signature:
+    // <
+    //   SafecoinRateValidity,
+    //   std::string (json),
+    //   int (out result, 0 success)
+    // >
+    DUMMY_REG(SafecoinRateValidity,"LD_SafecoinRateValidity");
 
     // Register user.
     // Signature:

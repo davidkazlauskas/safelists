@@ -1269,6 +1269,13 @@ void regUserRoutine(const std::string& name,const StrongMsgPtr& toNotify) {
 
 int parseAndCheckSubscription(const std::string& json) {
     // err codes start from 2
+    rj::Document doc;
+    doc.Parse(json.c_str());
+
+    if (doc.HasParseError()) {
+        return 2;
+    }
+
     return 0;
 }
 

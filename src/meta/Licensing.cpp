@@ -31,7 +31,11 @@ namespace SafeLists {
 
 std::string getCurrentUserIdBase64() {
     // dummy implementation, matches play backend test
+#ifdef SAFELISTS_KEY_FOR_SIGN
+    return SAFELISTS_KEY_FOR_SIGN;
+#else
     return "4j5iMF/54gJW/c4bPAdN28+4YcIeSQj3QGvOv2xIZjU=";
+#endif
 }
 
 std::string getCurrentUserPrivateKeyBase64() {

@@ -1263,6 +1263,23 @@ void regUserRoutine(const std::string& name,const StrongMsgPtr& toNotify) {
     }
 }
 
+int getLocalDaysPerSafecoinRate(double& out) {
+    auto cache = licenseCachePathWSlash();
+    cache += "safecoinrate.json";
+    std::ifstream file(cache.c_str());
+    if (!file.is_open()) {
+        return 1;
+    }
+
+    std::string contents;
+    char single;
+    while (file.get(single)) {
+        contents += single;
+    }
+
+    return 0;
+}
+
 struct LicenseDaemonDummyImpl : public Messageable {
     LicenseDaemonDummyImpl(const LicenseDaemonDummyImpl&) = delete;
     LicenseDaemonDummyImpl(LicenseDaemonDummyImpl&&) = delete;

@@ -1202,7 +1202,7 @@ int challengeJsonBack(
     if (0 == res) {
         printf("OUTREGRES:|%s|\n",out.c_str());
         auto toSend = SF::vpackPtr<
-            LicenseDaemon::RU_OutFinished, std::string
+            LicenseDaemon::RU_OutServerResponse, std::string
         >(nullptr, std::move(out));
         toNotify->message(toSend);
         return 0;

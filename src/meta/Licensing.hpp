@@ -161,6 +161,14 @@ struct LicenseDaemon {
     // >
     DUMMY_REG(RU_OutFinished,"LD_RU_OutFinished");
 
+    // Register user finished.
+    // Signature:
+    // <
+    //   RU_OutServerResponse,
+    //   std::string (response)
+    // >
+    DUMMY_REG(RU_OutServerResponse,"LD_RU_OutServerResponse");
+
     // singleton
     static StrongMsgPtr getDaemon();
 };

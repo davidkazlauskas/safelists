@@ -507,7 +507,14 @@ initAll = function()
                         VMatch(function(natpack,values)
                             objRetainer:release(nextId)
                             setupFromScratch()
-                        end,"LD_RU_OutFinished","int")
+                        end,"LD_RU_OutFinished","int"),
+                        VMatch(function(natpack,values)
+                            local theRes = values:values()._2
+                            if (theRes == "NO_SUCH_REFERRAL") then
+                                print("Referral doesn't exist. "
+                                    .. " Is you installation corrupted?")
+                            end
+                        end,"LD_RU_OutServerResponse","string")
                     )
 
                     objRetainer:retain(nextId,handler)

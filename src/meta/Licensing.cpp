@@ -1267,6 +1267,10 @@ void regUserRoutine(const std::string& name,const StrongMsgPtr& toNotify) {
     }
 }
 
+int parseAndCheckSubscriptionTier2(const std::string& dataJson,double& out) {
+    return 0;
+}
+
 int parseAndCheckSubscription(const std::string& json,double& out) {
     // err codes start from 2
     rj::Document doc;
@@ -1302,7 +1306,7 @@ int parseAndCheckSubscription(const std::string& json,double& out) {
         return 6;
     }
 
-    return 0;
+    return parseAndCheckSubscriptionTier2(dataS,out);
 }
 
 int getLocalDaysPerSafecoinRate(double& out) {

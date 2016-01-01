@@ -1552,6 +1552,11 @@ private:
                     err = parseAndCheckSubscriptionRate(json,outRate);
                 }
             ),
+            SF::virtualMatch< LD::StoreLocalSafecoinRate, const std::string, int >(
+                [=](ANY_CONV,const std::string& json,int& err) {
+                    err = localStoreSafecoinRate(json);
+                }
+            ),
             SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(
                 [=](ANY_CONV,StrongMsgPtr& ptr) {
                     auto handler = std::make_shared< GenericShutdownGuard >();

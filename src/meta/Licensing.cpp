@@ -1294,6 +1294,9 @@ int parseAndCheckSubscription(const std::string& json,double& out) {
         return 5;
     }
 
+    std::string dataS = data.GetString();
+    std::string signatureS = signature.GetString();
+
     return 0;
 }
 

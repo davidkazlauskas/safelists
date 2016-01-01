@@ -91,7 +91,7 @@ int curlReadFunc(char* buffer,size_t size,size_t nitems,void* userdata) {
 
 // TODO: query the pseudonymous server
 // behind safe network tunnel.
-int genericQuery(const std::string& user,const char* thePath,char* out,int& buflen) {
+int genericQuery(const char* thePath,char* out,int& buflen) {
     CURL* handle = ::curl_easy_init();
     auto clean = SCOPE_GUARD_LC(
         ::curl_easy_cleanup(handle);
@@ -105,7 +105,6 @@ int genericQuery(const std::string& user,const char* thePath,char* out,int& bufl
 
     std::string url = getServerUrl();
     url += thePath;
-    url += user;
 
     ::curl_easy_setopt(handle,::CURLOPT_URL,url.c_str());
     ::curl_easy_setopt(handle,::CURLOPT_WRITEFUNCTION,&curlReadFunc);
@@ -921,9 +920,12 @@ int serverGetLicense(const std::string& pubKey,std::string& out) {
     // should fit
     std::vector<char> buf(1024 * 16);
 
+    std::string fullPath = "/getuser/";
+    fullPath += pubKey;
+
     int bufLen = SA::size(buf);
     int res = genericQuery(
-        pubKey,"/getuser/",buf.data(),bufLen);
+        fullPath.c_str(),buf.data(),bufLen);
 
     if (res != 0) {
         return 1;
@@ -956,9 +958,12 @@ int serverGetTimespan(const std::string& pubKey,std::string& out) {
     // should fit
     std::vector<char> buf(1024 * 16);
 
+    std::string fullPath = "/getrelevantsubscription/";
+    fullPath += pubKey;
+
     int bufLen = SA::size(buf);
     int res = genericQuery(
-        pubKey,"/getrelevantsubscription/",buf.data(),bufLen);
+        fullPath.c_str(),buf.data(),bufLen);
 
     if (res != 0) {
         return 1;

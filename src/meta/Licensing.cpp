@@ -1272,34 +1272,36 @@ int parseAndCheckSubscriptionTier2(const std::string& dataJson,double& out) {
 }
 
 int parseAndCheckSubscription(const std::string& json,double& out) {
-    // err codes start from 2
-    rj::Document doc;
-    doc.Parse(json.c_str());
+    std::string dataS,signatureS;
+    { // deallocate rj::Document before going next frame
+        rj::Document doc;
+        doc.Parse(json.c_str());
 
-    if (doc.HasParseError()) {
-        return 2;
+        if (doc.HasParseError()) {
+            return 2;
+        }
+
+        if (!doc.IsObject()) {
+            return 3;
+        }
+
+        if (   !doc.HasMember("data")
+            || !doc.HasMember("signature"))
+        {
+            return 4;
+        }
+
+        auto& data = doc["data"];
+        auto& signature = doc["signature"];
+        if (   !data.IsString()
+            || !signature.IsString())
+        {
+            return 5;
+        }
+
+        dataS = data.GetString();
+        signatureS = signature.GetString();
     }
-
-    if (!doc.IsObject()) {
-        return 3;
-    }
-
-    if (   !doc.HasMember("data")
-        || !doc.HasMember("signature"))
-    {
-        return 4;
-    }
-
-    auto& data = doc["data"];
-    auto& signature = doc["signature"];
-    if (   !data.IsString()
-        || !signature.IsString())
-    {
-        return 5;
-    }
-
-    std::string dataS = data.GetString();
-    std::string signatureS = signature.GetString();
     std::string pubKey = getServerSignKey();
 
     if (!verifySignature(signatureS,pubKey,dataS)) {

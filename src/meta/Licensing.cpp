@@ -1537,6 +1537,11 @@ private:
                     regUserRoutine(name,toNotify);
                 }
             ),
+            SF::virtualMatch< LD::GetServerSafecoinRate, std::string, int >(
+                [=](ANY_CONV,std::string& out,int& err) {
+                    err = serverGetSafecoinRate(out);
+                }
+            ),
             SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(
                 [=](ANY_CONV,StrongMsgPtr& ptr) {
                     auto handler = std::make_shared< GenericShutdownGuard >();

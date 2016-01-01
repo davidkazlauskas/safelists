@@ -12,6 +12,7 @@
 #include <rapidjson/writer.h>
 #include <rapidjson/pointer.h>
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include <util/Semaphore.hpp>
 #include <util/GenericShutdownGuard.hpp>
@@ -63,7 +64,7 @@ std::string defaultReferralName() {
 }
 
 std::string getRefId() {
-    auto path = userDataPath();
+    auto path = appDataPath();
     path += "/refid";
 
     std::ifstream file(path.c_str());
@@ -73,6 +74,10 @@ std::string getRefId() {
         while (file.get(c)) {
             result += c;
         }
+        file.close();
+        std::replace(result.begin(),result.end(),'@',' ');
+        boost::trim(result);
+        return result;
     } else {
         return "default";
     }

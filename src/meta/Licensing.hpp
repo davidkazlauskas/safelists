@@ -82,6 +82,15 @@ struct LicenseDaemon {
     // >
     DUMMY_REG(GetLocalSafecoinRate,"LD_GetLocalSafecoinRate");
 
+    // Store safecoin rate locally
+    // Signature:
+    // <
+    //   StoreLocalSafecoinRate,
+    //   std::string (content),
+    //   int (error code, 0 success)
+    // >
+    DUMMY_REG(StoreLocalSafecoinRate,"LD_StoreLocalSafecoinRate");
+
     // Delete local license
     // Signature:
     // <

@@ -530,7 +530,8 @@ int fifthTierJsonVerification(
     }
 
     std::string expectedRequest = publicKey;
-    expectedRequest += " I_WANT_TO_USE_SAFELISTS";
+    expectedRequest += " I_WANT_TO_USE_SAFELISTS ";
+    expectedRequest += referral;
 
     if (expectedRequest != publicKeyRequest.GetString()) {
         return VerificationFailures
@@ -675,7 +676,7 @@ int secondTierJsonValidation(
         return VerificationFailures::FORGED_SIGNATURE_SECOND_TIER;
     }
 
-    return thirdTierChallengeVerification(
+    return fourthTierJsonVerification(
         publicKey,referral,challengeAnswerStr);
 }
 
@@ -1226,7 +1227,7 @@ void regUserRoutine(const std::string& name,const StrongMsgPtr& toNotify) {
     auto sendGuard = SCOPE_GUARD(std::move(notifyLambda));
 
     // ASK SAFENETWORK SERVER TO SIGN THIS
-    std::string requestString = name + " I_WANT_TO_USE_SAFELISTS";
+    std::string requestString = name + " I_WANT_TO_USE_SAFELISTS default";
 
     std::string pubKey = getCurrentUserIdBase64();
     std::string secret = getCurrentUserPrivateKeyBase64();

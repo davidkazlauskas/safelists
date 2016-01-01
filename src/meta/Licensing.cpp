@@ -1406,6 +1406,23 @@ int localStoreSafecoinRate(const std::string& value) {
     return 0;
 }
 
+int serverGetSafecoinRate(std::string& out) {
+    // should fit
+    std::vector<char> buf(1024 * 16);
+
+    int bufLen = SA::size(buf);
+    int res = genericQuery(
+        "/currentprice",buf.data(),bufLen);
+
+    if (res != 0) {
+        return 1;
+    }
+
+    assert( bufLen > 0 && bufLen < SA::size(buf) );
+    out.assign(buf.data(),buf.data() + bufLen);
+    return 0;
+}
+
 struct LicenseDaemonDummyImpl : public Messageable {
     LicenseDaemonDummyImpl(const LicenseDaemonDummyImpl&) = delete;
     LicenseDaemonDummyImpl(LicenseDaemonDummyImpl&&) = delete;

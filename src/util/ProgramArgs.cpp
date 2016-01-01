@@ -43,5 +43,17 @@ std::string executablePath() {
     return selfpath.string();
 }
 
+std::string appDataPath() {
+    auto execPath = executablePath();
+    execPath += "/appdata";
+    return execPath;
+}
+
+std::string userDataPath() {
+    auto execPath = executablePath();
+    execPath += "/userdata";
+    return execPath;
+}
+
 }
 

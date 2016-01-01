@@ -51,6 +51,10 @@ std::string getServerSignKey() {
 
 std::string getServerUrl() {
     // for testing
+    auto currUrl = getenv("SAFELISTS_BACKEND_URL");
+    if (nullptr != currUrl) {
+        return currUrl;
+    }
     return "http://127.0.0.1:9000";
 }
 

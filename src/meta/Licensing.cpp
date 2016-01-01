@@ -1267,7 +1267,7 @@ void regUserRoutine(const std::string& name,const StrongMsgPtr& toNotify) {
     }
 }
 
-int parseAndCheckSubscription(const std::string& json) {
+int parseAndCheckSubscription(const std::string& json,double& out) {
     // err codes start from 2
     rj::Document doc;
     doc.Parse(json.c_str());
@@ -1298,7 +1298,7 @@ int getLocalDaysPerSafecoinRate(double& out) {
     }
     file.close();
 
-    return parseAndCheckSubscription(contents);
+    return parseAndCheckSubscription(contents,out);
 }
 
 struct LicenseDaemonDummyImpl : public Messageable {

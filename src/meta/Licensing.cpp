@@ -1296,6 +1296,11 @@ int parseAndCheckSubscription(const std::string& json,double& out) {
 
     std::string dataS = data.GetString();
     std::string signatureS = signature.GetString();
+    std::string pubKey = getServerSignKey();
+
+    if (!verifySignature(signatureS,pubKey,dataS)) {
+        return 6;
+    }
 
     return 0;
 }

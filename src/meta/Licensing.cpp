@@ -1049,6 +1049,10 @@ bool verifyChallengeJson(
         return false;
     }
 
+    if (!doc.IsObject()) {
+        return false;
+    }
+
     if (   !doc.HasMember("signedchallenge")
         || !doc.HasMember("challengesignature"))
     {

@@ -868,13 +868,18 @@ int checkUserTimespanValidityFirstTier(
         fromNum,toNum,signatureStr,userid);
 }
 
+std::string licenseCachePathWSlash() {
+    auto udata = userDataPath();
+    udata += "/licensecache/";
+    return udata;
+}
+
 std::string localLicensePath(const std::string& pubKey) {
     // since key is base64 and
     // can contain slashes just get sha256...
     std::string pubKeyHash = "license-" + sha256(pubKey);
     pubKeyHash += ".json";
-    std::string absFilePath = executablePath();
-    absFilePath += "/userdata/licensecache/";
+    std::string absFilePath = licenseCachePathWSlash();
     absFilePath += pubKeyHash;
     return absFilePath;
 }
@@ -884,8 +889,7 @@ std::string localTimespanPath(const std::string& pubKey) {
     // can contain slashes just get sha256...
     std::string pubKeyHash = "subscription-" + sha256(pubKey);
     pubKeyHash += ".json";
-    std::string absFilePath = executablePath();
-    absFilePath += "/userdata/licensecache/";
+    std::string absFilePath = licenseCachePathWSlash();
     absFilePath += pubKeyHash;
     return absFilePath;
 }

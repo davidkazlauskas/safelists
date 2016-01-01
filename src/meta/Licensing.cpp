@@ -1268,6 +1268,18 @@ void regUserRoutine(const std::string& name,const StrongMsgPtr& toNotify) {
 }
 
 int parseAndCheckSubscriptionTier2(const std::string& dataJson,double& out) {
+    // err codes start from 7
+    rj::Document doc;
+    doc.Parse(dataJson.c_str());
+
+    if (doc.HasParseError()) {
+        return 7;
+    }
+
+    if (!doc.IsObject()) {
+        return 8;
+    }
+
     return 0;
 }
 

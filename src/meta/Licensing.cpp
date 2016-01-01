@@ -469,6 +469,7 @@ int hashStrength(const std::string& hash) {
 
 int fifthTierJsonVerification(
     const std::string& publicKey,
+    const std::string& referral,
     const std::string& challengeAnswer)
 {
     rj::Document doc;
@@ -600,7 +601,7 @@ int fourthTierJsonVerification(
     }
 
     return fifthTierJsonVerification(
-        publicKey,challengeTextSolved);
+        publicKey,referral,challengeTextSolved);
 }
 
 int thirdTierChallengeVerification(

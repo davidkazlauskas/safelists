@@ -1287,6 +1287,17 @@ int parseAndCheckSubscriptionTier2(const std::string& dataJson,double& out) {
         return 9;
     }
 
+    auto& price = doc["price"];
+    auto& starttime = doc["starttime"];
+    auto& endtime = doc["endtime"];
+
+    if (   !price.IsNumber()
+        || !starttime.IsNumber()
+        || !endtime.IsNumber())
+    {
+        return 10;
+    }
+
     return 0;
 }
 

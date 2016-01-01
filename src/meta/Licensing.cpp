@@ -1263,6 +1263,11 @@ void regUserRoutine(const std::string& name,const StrongMsgPtr& toNotify) {
     }
 }
 
+int parseAndCheckSubscription(const std::string& json) {
+    // err codes start from 2
+    return 0;
+}
+
 int getLocalDaysPerSafecoinRate(double& out) {
     auto cache = licenseCachePathWSlash();
     cache += "safecoinrate.json";
@@ -1276,8 +1281,9 @@ int getLocalDaysPerSafecoinRate(double& out) {
     while (file.get(single)) {
         contents += single;
     }
+    file.close();
 
-    return 0;
+    return parseAndCheckSubscription(contents);
 }
 
 struct LicenseDaemonDummyImpl : public Messageable {

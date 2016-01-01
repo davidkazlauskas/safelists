@@ -1381,6 +1381,23 @@ int localDaysPerSafecoinRate(double& out) {
 
 int localStoreSafecoinRate(const std::string& value) {
     std::string path = localRatePath();
+
+    fs::path boostPath(path.c_str());
+    auto parent = boostPath.parent_path();
+    fs::create_directories(parent);
+
+    auto file = ::fopen(path.c_str(),"w");
+    if (nullptr == file) {
+        // could not open file
+        return 1;
+    }
+
+    auto closeGuard = SCOPE_GUARD_LC(
+        ::fclose(file);
+    );
+
+    ::fwrite(value.c_str(),1,value.size(),file);
+
     return 0;
 }
 

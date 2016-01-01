@@ -1406,7 +1406,7 @@ int localStoreSafecoinRate(const std::string& value) {
     return 0;
 }
 
-int serverGetSafecoinRate(std::string& out) {
+int serverGetSafecoinRate(std::string& outFull,double& outRate) {
     // should fit
     std::vector<char> buf(1024 * 16);
 
@@ -1419,8 +1419,8 @@ int serverGetSafecoinRate(std::string& out) {
     }
 
     assert( bufLen > 0 && bufLen < SA::size(buf) );
-    out.assign(buf.data(),buf.data() + bufLen);
-    return 0;
+    outFull.assign(buf.data(),buf.data() + bufLen);
+    return parseAndCheckSubscription(outFull,outRate);
 }
 
 struct LicenseDaemonDummyImpl : public Messageable {

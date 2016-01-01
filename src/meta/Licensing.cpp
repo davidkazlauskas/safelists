@@ -316,6 +316,8 @@ int serverSign(
     std::string& out
 )
 {
+    // dummy implementation,
+    // should go to safe launcher to do its work.
     auto defaultPubKey = getCurrentUserIdBase64();
     auto privKey = getCurrentUserPrivateKeyBase64();
 

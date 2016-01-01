@@ -1302,6 +1302,11 @@ int parseAndCheckSubscriptionTier2(const std::string& dataJson,double& out) {
     double starttimeD = starttime.GetDouble();
     double endtimeD = endtime.GetDouble();
 
+    // this is like the first time
+    // I don't think chrono sucked
+    int64_t currTime = std::chrono::seconds(
+        std::time(nullptr)).count();
+
     return 0;
 }
 

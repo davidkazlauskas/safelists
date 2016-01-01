@@ -1280,6 +1280,13 @@ int parseAndCheckSubscriptionTier2(const std::string& dataJson,double& out) {
         return 8;
     }
 
+    if (   !doc.HasMember("price")
+        || !doc.HasMember("starttime")
+        || !doc.HasMember("endtime"))
+    {
+        return 9;
+    }
+
     return 0;
 }
 

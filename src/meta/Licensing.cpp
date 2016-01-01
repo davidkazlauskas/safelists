@@ -1366,7 +1366,7 @@ int parseAndCheckSubscription(const std::string& json,double& out) {
     return parseAndCheckSubscriptionTier2(dataS,out);
 }
 
-int localDaysPerSafecoinRate(double& out) {
+int localDaysPerSafecoinRate(std::string& out) {
     auto cache = licenseCachePathWSlash();
     cache += "safecoinrate.json";
     std::ifstream file(cache.c_str());
@@ -1374,14 +1374,14 @@ int localDaysPerSafecoinRate(double& out) {
         return 1;
     }
 
-    std::string contents;
+    out.clear();
     char single;
     while (file.get(single)) {
-        contents += single;
+        out += single;
     }
     file.close();
 
-    return parseAndCheckSubscription(contents,out);
+    return 0;
 }
 
 int localStoreSafecoinRate(const std::string& value) {
@@ -1540,6 +1540,11 @@ private:
             SF::virtualMatch< LD::GetServerSafecoinRate, std::string, int >(
                 [=](ANY_CONV,std::string& out,int& err) {
                     err = serverGetSafecoinRate(out);
+                }
+            ),
+            SF::virtualMatch< LD::GetLocalSafecoinRate, std::string, int >(
+                [=](ANY_CONV,std::string& out,int& err) {
+                    err = localDaysPerSafecoinRate(out);
                 }
             ),
             SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(

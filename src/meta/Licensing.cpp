@@ -1307,7 +1307,12 @@ int parseAndCheckSubscriptionTier2(const std::string& dataJson,double& out) {
     int64_t currTime = std::chrono::seconds(
         std::time(nullptr)).count();
 
-    return 0;
+    if (currTime >= starttimeD && currTime < endtimeD) {
+        out = priceD;
+        return 0;
+    }
+
+    return 11;
 }
 
 int parseAndCheckSubscription(const std::string& json,double& out) {

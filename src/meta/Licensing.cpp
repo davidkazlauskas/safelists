@@ -1355,7 +1355,7 @@ int parseAndCheckSubscription(const std::string& json,double& out) {
     return parseAndCheckSubscriptionTier2(dataS,out);
 }
 
-int getLocalDaysPerSafecoinRate(double& out) {
+int localDaysPerSafecoinRate(double& out) {
     auto cache = licenseCachePathWSlash();
     cache += "safecoinrate.json";
     std::ifstream file(cache.c_str());

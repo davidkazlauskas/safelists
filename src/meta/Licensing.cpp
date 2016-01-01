@@ -553,6 +553,7 @@ int fifthTierJsonVerification(
 
 int fourthTierJsonVerification(
     const std::string& publicKey,
+    const std::string& referral,
     const std::string& theBlob)
 {
     rj::Document doc;

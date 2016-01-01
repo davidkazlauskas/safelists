@@ -1286,6 +1286,14 @@ int parseAndCheckSubscription(const std::string& json,double& out) {
         return 4;
     }
 
+    auto& data = doc["data"];
+    auto& signature = doc["signature"];
+    if (   !data.IsString()
+        || !signature.IsString())
+    {
+        return 5;
+    }
+
     return 0;
 }
 

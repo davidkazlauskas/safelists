@@ -253,13 +253,16 @@ Click "Register" to register (should take less than 10 seconds), or use offline 
                 <property name="can_focus">False</property>
                 <property name="margin_left">10</property>
                 <property name="margin_right">10</property>
+                <property name="xpad">7</property>
+                <property name="ypad">7</property>
                 <property name="label" translatable="yes">Subscription has ended. To extend it specify the amount of safecoins to pay and hit subscribe (of press offline button to go offline)</property>
                 <property name="justify">center</property>
                 <property name="wrap">True</property>
+                <property name="max_width_chars">60</property>
                 <property name="lines">4</property>
               </object>
               <packing>
-                <property name="expand">False</property>
+                <property name="expand">True</property>
                 <property name="fill">True</property>
                 <property name="position">0</property>
               </packing>

@@ -133,7 +133,8 @@ struct LicenseDaemon {
     // <
     //   SafecoinRateValidity,
     //   std::string (json),
-    //   int (out result, 0 success)
+    //   int (out result, 0 success),
+    //   double (out rate)
     // >
     DUMMY_REG(SafecoinRateValidity,"LD_SafecoinRateValidity");
 

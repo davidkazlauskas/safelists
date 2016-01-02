@@ -52,7 +52,18 @@ GenericWidget.mt = {
 }
 
 GenericWidgetNode = {
-    -- no statics yet
+    intOffHandler = function(node)
+        return node.luaCtx:makeLuaMatchHandler(
+            VMatch(function(natpack,val)
+                local theId = val:values()._2
+                node.parent.hookedEvents[theId].routine()
+            end,"GWI_GBT_OutClickEvent","int"),
+            VMatch(function(natpack,val)
+                local theId = val:values()._2
+                node.parent.hookedEvents[theId].routine()
+            end,"GWI_GWT_OutValueChanged","int")
+        )
+    end
 }
 
 GenericWidgetNode.mt = {
@@ -73,13 +84,33 @@ GenericWidgetNode.mt = {
 
             local theHandler = self.parent.hookedEventTypes["singleclick"]
             if (theHandler == nil) then
-                theHandler =
-                    self.luaCtx:makeLuaMatchHandler(
-                        VMatch(function(natpack,val)
-                            local theId = val:values()._2
-                            self.parent.hookedEvents[theId].routine()
-                        end,"GWI_GBT_OutClickEvent","int")
-                    )
+                theHandler = GenericWidgetNode.intOffHandler(self)
+
+                self.luaCtx:message(
+                    self.parent.messageable,
+                    VSig("GWI_SetNotifier"),
+                    theHandler
+                )
+                self.parent.hookedEventTypes["singleclick"] = theHandler
+            end
+
+            self.parent.hookedEvents[theId] = {
+                routine = theFunction,
+                handler = theHandler
+            }
+
+            return theId
+        end,
+        hookTextChanged = function(self,theFunction)
+            local theId = self.luaCtx:messageRetValues(
+                self.messageable,
+                VSig("GWI_GIT_HookTextChangedEvent"),
+                VInt(-1)
+            )._2
+
+            local theHandler = self.parent.hookedEventTypes["singleclick"]
+            if (theHandler == nil) then
+                theHandler = GenericWidgetNode.intOffHandler(self)
 
                 self.luaCtx:message(
                     self.parent.messageable,

@@ -464,6 +464,7 @@ initAll = function()
         local lookupSafecoinRate = function()
             safecoinRateWidget:labelSetText("Loading...")
             licenseConclusionWidget:labelSetText("")
+            subscriptionWidget:widgetSetActive(false)
 
             local tryParseRate = function(content)
                 ctx:messageAsyncWCallback(
@@ -541,10 +542,12 @@ initAll = function()
                             "Subscribe for " .. roundFloatStr(days,2)
                                 .. " days for " .. amount .. " safecoins."
                         )
+                        subscriptionWidget:widgetSetActive(true)
                     else
                         licenseConclusionWidget:labelSetText(
                             "Invalid input."
                         )
+                        subscriptionWidget:widgetSetActive(false)
                     end
                 end
             end

@@ -398,6 +398,7 @@ Click "Register" to register (should take less than 10 seconds), or use offline 
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
+                <property name="padding">10</property>
                 <property name="position">2</property>
               </packing>
             </child>

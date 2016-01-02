@@ -460,6 +460,7 @@ initAll = function()
             local loadingText = genericDialog:getWidget("mainLabel")
             local offlineButtonReg = genericDialog:getWidget("buttonGoOffline2")
             local registerButton = genericDialog:getWidget("buttonRegister")
+            local offlineButtonSub = genericDialog:getWidget("buttonGoOffline3")
 
             closeDialog =
                 function()
@@ -534,6 +535,7 @@ initAll = function()
             tryAgainButton:hookButtonClick(setupFromScratch)
             offlineButtonReg:hookButtonClick(closeDialog)
             registerButton:hookButtonClick(registerUser)
+            offlineButtonSub:hookButtonClick(closeDialog)
             dlgWindow:setVisible(true)
         end
         setupDialog()

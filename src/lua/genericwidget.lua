@@ -159,6 +159,13 @@ GenericWidgetNode.mt = {
                 VString(value)
             )
         end,
+        entryQueryValue = function(self)
+            return self.luaCtx:messageRetValues(
+                self.messageable,
+                VSig("GWI_GIT_QueryValue"),
+                VString("")
+            )._2
+        end,
         windowSetPosition = function(self,value)
             assert( type(value) == "string", "Position should be specified in enum string." )
             self.luaCtx:message(

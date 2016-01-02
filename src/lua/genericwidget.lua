@@ -70,27 +70,30 @@ GenericWidgetNode.mt = {
                 VSig("GWI_GBT_HookClickEvent"),
                 VInt(-1)
             )._2
-            local theHandler =
-                self.luaCtx:makeLuaMatchHandler(
-                    VMatch(function(natpack,val)
-                        local theId = val:values()._2
-                        self.parent.hookedEvents[theId].routine()
-                    end,"GWI_GBT_OutClickEvent","int")
+
+            local theHandler = self.parent.hookedEventTypes["singleclick"]
+            if (theHandler == nil) then
+                theHandler =
+                    self.luaCtx:makeLuaMatchHandler(
+                        VMatch(function(natpack,val)
+                            local theId = val:values()._2
+                            self.parent.hookedEvents[theId].routine()
+                        end,"GWI_GBT_OutClickEvent","int")
+                    )
+
+                self.luaCtx:message(
+                    self.parent.messageable,
+                    VSig("GWI_SetNotifier"),
+                    theHandler
                 )
+                self.parent.hookedEventTypes["singleclick"] = theHandler
+            end
 
             self.parent.hookedEvents[theId] = {
                 routine = theFunction,
                 handler = theHandler
             }
 
-            if (self.parent.hookedEventTypes["singleclick"] == nil) then
-                self.luaCtx:message(
-                    self.parent.messageable,
-                    VSig("GWI_SetNotifier"),
-                    theHandler
-                )
-                self.parent.hookedEventTypes["singleclick"] = true
-            end
             return theId
         end,
         notebookSwitchTab = function(self,index)

@@ -459,6 +459,7 @@ initAll = function()
         local safecoinRateWidget = nil
         local safecoinEntryWidget = nil
         local licenseConclusionWidget = nil
+        local subscriptionWidget = nil
 
         local lookupSafecoinRate = function()
             safecoinRateWidget:labelSetText("Loading...")
@@ -561,11 +562,13 @@ initAll = function()
             local subsAmountEntry = genericDialog:getWidget("subscriptionAmountEntry")
             local licenseConclusion = genericDialog:getWidget("licenseConclusionLabel")
             local safecoinRateWgt = genericDialog:getWidget("safecoinRateLabel")
+            local subsButton = genericDialog:getWidget("buttonSubscribe")
 
             -- export to outer scope
             safecoinRateWidget = safecoinRateWgt
             licenseConclusionWidget = licenseConclusion
             safecoinEntryWidget = subsAmountEntry
+            subscriptionWidget = subsButton
 
             closeDialog =
                 function()

@@ -536,12 +536,12 @@ initAll = function()
                     local amount = tonumber(safecoinEntryWidget:entryQueryValue())
                     if (amount ~= nil) then
                         local days = amount / safecoinRate.value
-                        licenseConclusionWidget.labelSetText(
+                        licenseConclusionWidget:labelSetText(
                             "Subscribe for " .. roundFloatStr(days,2)
                                 .. " days for " .. amount .. " safecoins."
                         )
                     else
-                        licenseConclusionWidget.labelSetText(
+                        licenseConclusionWidget:labelSetText(
                             "Invalid input."
                         )
                     end

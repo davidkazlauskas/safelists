@@ -469,18 +469,18 @@ initAll = function()
                     license,
                     function(val)
                         local vals = val:values()
-                        if (0 == vals._3) then
-                            safecoinRate.value = vals._4
+                        if (0 == vals._4) then
+                            safecoinRate.value = vals._3
                             safecoinRateWidget:labelSetText(
                                 "Current price for day is "
-                                .. safecoinRate.value .. "safecoins."
+                                .. safecoinRate.value .. " safecoins."
                             )
                         end
                     end,
                     VSig("LD_SafecoinRateValidity"),
                     VString(content),
-                    VInt(-1),
-                    VDouble(-1)
+                    VDouble(-1),
+                    VInt(-1)
                 )
             end
 
@@ -500,6 +500,12 @@ initAll = function()
                                 local vals = val:values()
                                 if (vals._3 == 0) then
                                     tryParseRate(vals._2)
+                                    ctx:messageAsync(
+                                        license,
+                                        VSig("LD_StoreLocalSafecoinRate"),
+                                        VString(vals._2),
+                                        VInt(-1)
+                                    )
                                 else
                                     safecoinRate.err =
                                         "Could not retrieve rates from server."

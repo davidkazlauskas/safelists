@@ -78,6 +78,28 @@ namespace SafeLists {
                             cast->set_text(val.c_str());
                         }
                     ),
+                    SF::virtualMatch< GIT::HookTextChangedEvent, int >(
+                        [=](ANY_CONV,int& val) {
+                            auto locked = _weakRef.lock();
+                            assert( nullptr != locked && "Parent object dead." );
+
+                            Gtk::Entry* cast = dynamic_cast< Gtk::Entry* >(_myWidget);
+                            assert( nullptr != cast && "Cast to label failed." );
+
+                            int outNum = locked->_hookId;
+                            ++locked->_hookId;
+
+                            cast->signal_changed().connect(
+                                sigc::bind< int >(
+                                    sigc::mem_fun(*this,
+                                        &GenericGtkWidgetNode::editableChanged),
+                                    outNum
+                                )
+                            );
+
+                            val = outNum;
+                        }
+                    ),
                     SF::virtualMatch< GBT::HookClickEvent, int >(
                         [=](ANY_CONV,int& val) {
                             auto locked = _weakRef.lock();
@@ -216,6 +238,12 @@ namespace SafeLists {
 
         void clicked(int num) {
             notifySingleThreaded< GBT::OutClickEvent, int >(
+                nullptr, num
+            );
+        }
+
+        void editableChanged(int num) {
+            notifySingleThreaded< GIT::OutValueChanged, int >(
                 nullptr, num
             );
         }

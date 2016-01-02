@@ -195,6 +195,16 @@ GenericWidgetNode.mt = {
                 VSig("GWI_GMIT_SetModelStackless"),
                 VMsg(msg)
             )
+        end,
+        widgetSetActive = function(self,value)
+            assert( type(value) == "boolean",
+                "Boolean expected in set active.")
+
+            self.luaCtx:message(
+                self.messageable,
+                VSig("GWI_GWT_SetActive"),
+                VBool(value)
+            )
         end
     }
 }

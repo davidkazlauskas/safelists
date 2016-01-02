@@ -161,7 +161,7 @@
               <object class="GtkLabel" id="subscriptionEndedLabel">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Subscription has ended. To extend it specify the amount of safecoins to pay and hit subscribe.</property>
+                <property name="label" translatable="yes">Subscription has ended. To extend it specify the amount of safecoins to pay and hit subscribe (of press offline button to go offline)</property>
                 <property name="justify">center</property>
                 <property name="wrap">True</property>
                 <property name="lines">4</property>

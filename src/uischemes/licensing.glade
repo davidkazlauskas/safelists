@@ -246,7 +246,10 @@ Click "Register" to register (should take less than 10 seconds), or use offline 
           <object class="GtkBox" id="box7">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="margin_left">10</property>
+            <property name="margin_right">10</property>
             <property name="orientation">vertical</property>
+            <property name="spacing">6</property>
             <child>
               <object class="GtkLabel" id="subscriptionEndedLabel">
                 <property name="visible">True</property>

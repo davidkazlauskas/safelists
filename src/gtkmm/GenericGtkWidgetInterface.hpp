@@ -47,6 +47,11 @@ struct GenericInputTrait {
     // < SetValue, std::string (in value) >
     DUMMY_REG(SetValue,"GWI_GIT_SetValue");
 
+    // Hook text change event.
+    // Signature:
+    // < HookTextChangedEvent, int (out identifier) >
+    DUMMY_REG(HookTextChangedEvent,"GWI_GIT_HookTextChangedEvent");
+
     // Messaged out when input value changed
     // Text not returned, because you can query
     // it anyway.

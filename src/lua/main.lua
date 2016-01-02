@@ -448,8 +448,92 @@ initAll = function()
               localIdFail,offlineMode,localStoreLic,
               verificationSuccess,localVerificationFail,
               getServerTimespan,localSpanFail,
-              tryVerifyUserRecord,tryVerifyTimespan
+              tryVerifyUserRecord,tryVerifyTimespan,
+              subsTextChanged
               = nil
+
+        local safecoinRate = {
+            value = -1
+        }
+
+        local safecoinRateWidget = nil
+        local safecoinEntryWidget = nil
+        local licenseConclusionWidget = nil
+
+        local lookupSafecoinRate = function()
+            local tryParseRate = function(content)
+                ctx:messageAsyncWCallback(
+                    license,
+                    function(val)
+                        local vals = val:values()
+                        if (0 == vals._3) then
+                            safecoinRate.value = vals._4
+                            safecoinRateWidget:labelSetText(
+                                "Current price for day is "
+                                .. safecoinRate.value .. "safecoins."
+                            )
+                        end
+                    end,
+                    VSig("LD_SafecoinRateValidity"),
+                    VString(content),
+                    VInt(-1),
+                    VDouble(-1)
+                )
+            end
+
+            ctx:messageAsyncWCallback(
+                license,
+                function(val)
+                    local vals = val:values()
+                    local outErr = vals._3
+                    local outCont = vals._2
+                    if (0 == outErr) then
+                        tryParseRate(outCont)
+                    else
+                        -- lookup in server
+                        ctx:messageAsyncWCallback(
+                            license,
+                            function(val)
+                                local vals = val:values()
+                                if (vals._3 == 0) then
+                                    tryParseRate(vals._2)
+                                else
+                                    safecoinRate.err =
+                                        "Could not retrieve rates from server."
+
+                                    safecoinRateWidget:labelSetText(safecoinRate.err)
+                                    licenseConclusionWidget:labelSetText("")
+                                end
+                            end,
+                            VSig("LD_GetServerSafecoinRate"),
+                            VString(""),
+                            VInt(-1)
+                        )
+                    end
+                end,
+                VSig("LD_GetLocalSafecoinRate"),
+                VString(""),
+                VInt(-1)
+            )
+        end
+
+        subsTextChanged =
+            function()
+                if (safecoinRate.err == nil) then
+                    local amount = tonumber(safecoinEntryWidget:entryQueryValue())
+                    if (amount ~= nil) then
+                        local days = amount / safecoinRate.value
+                        licenseConclusionWidget.labelSetText(
+                            "Subscribe for " .. roundFloatStr(days,2)
+                                .. " days for " .. amount .. " safecoins."
+                        )
+                    else
+                        licenseConclusionWidget.labelSetText(
+                            "Invalid input."
+                        )
+                    end
+                end
+            end
 
         local setupDialog = function()
             local genericDialog = GenericWidget.putOn(dialog)
@@ -461,6 +545,14 @@ initAll = function()
             local offlineButtonReg = genericDialog:getWidget("buttonGoOffline2")
             local registerButton = genericDialog:getWidget("buttonRegister")
             local offlineButtonSub = genericDialog:getWidget("buttonGoOffline3")
+            local subsAmountEntry = genericDialog:getWidget("subscriptionAmountEntry")
+            local licenseConclusion = genericDialog:getWidget("licenseConclusionLabel")
+            local safecoinRateWgt = genericDialog:getWidget("safecoinRateLabel")
+
+            -- export to outer scope
+            safecoinRateWidget = safecoinRateWgt
+            licenseConclusionWidget = licenseConclusion
+            safecoinEntryWidget = subsAmountEntry
 
             closeDialog =
                 function()
@@ -536,6 +628,7 @@ initAll = function()
             offlineButtonReg:hookButtonClick(closeDialog)
             registerButton:hookButtonClick(registerUser)
             offlineButtonSub:hookButtonClick(closeDialog)
+            subsAmountEntry:hookTextChanged(subsTextChanged)
             dlgWindow:setVisible(true)
         end
         setupDialog()

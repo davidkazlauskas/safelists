@@ -434,6 +434,7 @@ initAll = function()
         local LOADER_TAB = 0
         local OFFLINE_MODE_TAB = 1
         local REGISTRATION_TAB = 2
+        local SUBSCRIPTION_TAB = 3
 
         local setupFromScratch = nil
         local registerUser = nil

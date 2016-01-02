@@ -471,10 +471,14 @@ initAll = function()
                         local vals = val:values()
                         if (0 == vals._4) then
                             safecoinRate.value = vals._3
+                            safecoinRate.err = nil
                             safecoinRateWidget:labelSetText(
                                 "Current price for day is "
                                 .. safecoinRate.value .. " safecoins."
                             )
+                        else
+                            safecoinRate.err = "Could not verify rate."
+                            safecoinRateWidget:labelSetText(safecoinRate.err)
                         end
                     end,
                     VSig("LD_SafecoinRateValidity"),

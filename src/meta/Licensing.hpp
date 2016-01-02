@@ -62,7 +62,7 @@ struct LicenseDaemon {
     //   std::string (license content),
     //   int (error code, 0 success)
     // >
-    DUMMY_REG(StoreLocalLicense,"LD_StoreLocalIcense");
+    DUMMY_REG(StoreLocalLicense,"LD_StoreLocalLicense");
 
     // Query safecoin rate from server
     // Signature:

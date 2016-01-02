@@ -661,7 +661,7 @@ initAll = function()
         end
 
         licenseExpired = function(theId)
-            print("Ouch...")
+            switchLoaderTab(SUBSCRIPTION_TAB)
         end
 
         fishyStuffGoingOn = function()
@@ -806,7 +806,7 @@ initAll = function()
                         "Didnt save user info locally, errcode: "
                         .. vals._4 )
                 end,
-                VSig("LD_StoreLocalIcense"),
+                VSig("LD_StoreLocalLicense"),
                 VString(pubKey),
                 VString(content),
                 VInt(-1)
@@ -863,10 +863,11 @@ initAll = function()
                         tryVerifyTimespan(
                             theId,vals._3,
                             function()
+                                localStoreLic(vals._3)
                                 licenseOk(theId)
                             end,
                             function()
-                                userInvalid(theId)
+                                licenseExpired(theId)
                             end
                         )
                     else

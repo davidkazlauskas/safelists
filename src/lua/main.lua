@@ -461,6 +461,9 @@ initAll = function()
         local licenseConclusionWidget = nil
 
         local lookupSafecoinRate = function()
+            safecoinRateWidget:labelSetText("Loading...")
+            licenseConclusionWidget:labelSetText("")
+
             local tryParseRate = function(content)
                 ctx:messageAsyncWCallback(
                     license,
@@ -661,6 +664,7 @@ initAll = function()
         end
 
         licenseExpired = function(theId)
+            lookupSafecoinRate()
             switchLoaderTab(SUBSCRIPTION_TAB)
         end
 

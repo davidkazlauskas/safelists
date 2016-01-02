@@ -319,7 +319,7 @@ Click "Register" to register (should take less than 10 seconds), or use offline 
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkLabel" id="label2">
+                      <object class="GtkLabel" id="safecoinRateLabel">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Safecoin rate label</property>
@@ -338,7 +338,7 @@ Click "Register" to register (should take less than 10 seconds), or use offline 
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="label3">
+                  <object class="GtkLabel" id="licenseConclusionLabel">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">Out result</property>

@@ -50,6 +50,13 @@ std::string getServerSignKey() {
 #endif
 }
 
+const char* certAuthKeys() {
+    // comodo
+    //return "sha256//grX4Ta9HpZx6tSHkmCrvpApTQGo67CYDnvprLg5yRME=";
+    // safelists.io
+    return "sha256//vVywlOU49+8G7GgkMQ3xE+q1gRLk3KLh8PreFopdfSs=";
+}
+
 std::string getServerUrl() {
     // for testing
     auto currUrl = getenv("SAFELISTS_BACKEND_URL");
@@ -128,6 +135,9 @@ int genericQuery(const char* thePath,char* out,int& buflen) {
     url += thePath;
 
     ::curl_easy_setopt(handle,::CURLOPT_URL,url.c_str());
+    //::curl_easy_setopt(handle,::CURLOPT_PINNEDPUBLICKEY,certAuthKeys());
+    // workaround for now, will secure later
+    ::curl_easy_setopt(handle,::CURLOPT_SSL_VERIFYPEER,0);
     ::curl_easy_setopt(handle,::CURLOPT_WRITEFUNCTION,&curlReadFunc);
     ::curl_easy_setopt(handle,::CURLOPT_WRITEDATA,&s);
 
@@ -1071,6 +1081,8 @@ int curlPostData(const std::string& data,const std::string& url,std::string& res
     );
 
     ::curl_easy_setopt(handle,CURLOPT_HTTPHEADER,chunk);
+    //::curl_easy_setopt(handle,::CURLOPT_PINNEDPUBLICKEY,certAuthKeys());
+    ::curl_easy_setopt(handle,CURLOPT_SSL_VERIFYPEER,0);
     ::curl_easy_setopt(handle,CURLOPT_URL,url.c_str());
     ::curl_easy_setopt(handle,CURLOPT_POSTFIELDS,data.c_str());
     ::curl_easy_setopt(handle,CURLOPT_WRITEFUNCTION,&curlPostCallback);

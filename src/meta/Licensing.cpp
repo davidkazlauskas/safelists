@@ -1233,6 +1233,8 @@ int solveChallenge(
         return challengeJsonBack(
             userPubKey,challengeAnswer,
             challengeSignature,toNotify);
+    } else {
+        printf("Aww, snap! Could not verify challenge json...\n");
     }
     return -2;
 }

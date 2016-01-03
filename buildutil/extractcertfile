@@ -2,9 +2,9 @@
 
 # copied from http://curl.haxx.se/libcurl/c/CURLOPT_PINNEDPUBLICKEY.html
 # $1 - serv nam
-# $2 - file
+# $2 - crt file
 
-$( cp $2 $1.pem )
+$( openssl x509 -in $2 -out $1 -outform PEM )
 
 # extract public key in pem format from certificate
 $( openssl x509 -in $1.pem -pubkey -noout > $1.pubkey.pem )

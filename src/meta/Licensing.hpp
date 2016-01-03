@@ -64,6 +64,17 @@ struct LicenseDaemon {
     // >
     DUMMY_REG(StoreLocalLicense,"LD_StoreLocalLicense");
 
+    // Store local timespan into file for
+    // faster retrieval in the future.
+    // Signature:
+    // <
+    //   StoreLocalTimespan,
+    //   std::string (pubkey base64),
+    //   std::string (timespan content),
+    //   int (error code, 0 success)
+    // >
+    DUMMY_REG(StoreLocalTimespan,"LD_StoreLocalTimespan");
+
     // Query safecoin rate from server
     // Signature:
     // <

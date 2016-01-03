@@ -449,7 +449,7 @@ initAll = function()
               verificationSuccess,localVerificationFail,
               getServerTimespan,localSpanFail,
               tryVerifyUserRecord,tryVerifyTimespan,
-              subsTextChanged
+              subsTextChanged,localStoreSubs
               = nil
 
         local safecoinRate = {
@@ -833,6 +833,23 @@ initAll = function()
             )
         end
 
+        localStoreSubs = function(pubKey,content)
+            ctx:messageAsyncWCallback(
+                license,
+                function(val)
+                    local vals = val:values()
+                    local didSucceed = vals._4 == 0
+                    assert( didSucceed,
+                        "Didnt save timespan locally, errcode: "
+                        .. vals._4 )
+                end,
+                VSig("LD_StoreLocalTimespan"),
+                VString(pubKey),
+                VString(content),
+                VInt(-1)
+            )
+        end
+
         verificationSuccess = function(theId)
             print("Verification success")
             -- further check if license
@@ -883,7 +900,7 @@ initAll = function()
                         tryVerifyTimespan(
                             theId,vals._3,
                             function()
-                                localStoreLic(theId,vals._3)
+                                localStoreSubs(theId,vals._3)
                                 licenseOk(theId)
                             end,
                             function()

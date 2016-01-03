@@ -883,7 +883,7 @@ initAll = function()
                         tryVerifyTimespan(
                             theId,vals._3,
                             function()
-                                localStoreLic(vals._3)
+                                localStoreLic(theId,vals._3)
                                 licenseOk(theId)
                             end,
                             function()

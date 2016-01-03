@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# copied from http://curl.haxx.se/libcurl/c/CURLOPT_PINNEDPUBLICKEY.html
+# $1 - serv nam
+# $2 - specific socket
+
+$( openssl s_client -servername $1 -connect $2 < /dev/null | sed -n "/-----BEGIN/,/-----END/p" > $1.pem )
+
+# extract public key in pem format from certificate
+$( openssl x509 -in $1.pem -pubkey -noout > $1.pubkey.pem )
+
+# convert public key from pem to der
+$( openssl asn1parse -noout -inform pem -in $1.pubkey.pem -out $1.pubkey.der )
+
+# sha256 hash and base64 encode der to string for use
+RES=$( openssl dgst -sha256 -binary $1.pubkey.der | openssl base64 )
+
+echo "sha256//$RES"
+

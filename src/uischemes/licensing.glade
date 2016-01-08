@@ -461,7 +461,9 @@ Click "Register" to register (should take less than 10 seconds), or use offline 
                       <object class="GtkLabel" id="label4">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">label</property>
+                        <property name="label" translatable="yes">keyword</property>
+                        <property name="justify">right</property>
+                        <property name="width_chars">0</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -496,7 +498,7 @@ Click "Register" to register (should take less than 10 seconds), or use offline 
                       <object class="GtkLabel" id="label3">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">label</property>
+                        <property name="label" translatable="yes">pin</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -508,6 +510,7 @@ Click "Register" to register (should take less than 10 seconds), or use offline 
                       <object class="GtkEntry" id="entry2">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
+                        <property name="input_purpose">password</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -531,7 +534,7 @@ Click "Register" to register (should take less than 10 seconds), or use offline 
                       <object class="GtkLabel" id="label2">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">label</property>
+                        <property name="label" translatable="yes">password</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -543,6 +546,7 @@ Click "Register" to register (should take less than 10 seconds), or use offline 
                       <object class="GtkEntry" id="entry1">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
+                        <property name="input_purpose">password</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>

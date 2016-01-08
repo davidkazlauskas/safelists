@@ -861,7 +861,7 @@ initAll = function()
         offlineMode = function()
             -- show dialog if user
             -- wants to go to offline mode
-            print("GOUN OFFLINE YO")
+            closeDialog()
         end
 
         localStoreLic = function(pubKey,content)

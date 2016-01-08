@@ -32,10 +32,15 @@ namespace SafeLists {
 
 struct SessionBoxer {
 
-    SessionBoxer() = delete;
+    SessionBoxer() {
+        ::randombytes_buf(nonce,sizeof(nonce));
+        ::randombytes_buf(key,sizeof(key));
+    }
+
     SessionBoxer(const SessionBoxer&) = delete;
     SessionBoxer(SessionBoxer&&) = delete;
 
+private:
     // we should use this only once
     // to query safe network keys...
     unsigned char nonce[crypto_secretbox_NONCEBYTES];

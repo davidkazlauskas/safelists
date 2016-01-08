@@ -521,7 +521,33 @@ pub extern fn extract_maid_info(
     -> libc::int32_t
 {
     println!("Hadouken!");
-    0
+
+    let (keywordC,pinC,passwordC) = unsafe {
+        let keywordC = std::ffi::CStr::from_ptr(keyword).to_str();
+        let pinC = std::ffi::CStr::from_ptr(pin).to_str();
+        let passwordC = std::ffi::CStr::from_ptr(password).to_str();
+        (keywordC,pinC,passwordC)
+    };
+
+    if keywordC.is_err() {
+        return 1;
+    }
+    let keywordS = keywordC.unwrap().to_string();
+
+    if pinC.is_err() {
+        return 1;
+    }
+    let pinS = pinC.unwrap().to_string();
+
+    if passwordC.is_err() {
+        return 1;
+    }
+    let passwordS = passwordC.unwrap().to_string();
+
+    let client = ::safe_core::client
+        ::Client::log_in(keywordS,pinS,passwordS);
+
+    return 0;
 }
 
 quick_error! {

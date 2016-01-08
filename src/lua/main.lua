@@ -639,8 +639,8 @@ initAll = function()
                                 setLoginClickedEvent(
                                     function()
                                         local kw = trimString(keywordField:entryQueryValue())
-                                        local pin = trimString(pinField:entryQueryValue())
-                                        local passwd = trimString(passwordField:entryQueryValue())
+                                        local pin = pinField:entryQueryValue()
+                                        local passwd = passwordField:entryQueryValue()
 
                                         if ("" == kw) then
                                             unsafeStatus:labelSetText("Keyword cannot be empty.")

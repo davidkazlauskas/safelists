@@ -10,7 +10,7 @@ struct LicenseDaemon {
 
     // get current user id
     // Signature:
-    // < GetCurrentUserId, std::string (out) >
+    // < GetCurrentUserId, std::string (out), int (out err) >
     DUMMY_REG(GetCurrentUserId,"LD_GetCurrentUserId");
 
     // Get local record.

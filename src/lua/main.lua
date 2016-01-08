@@ -595,13 +595,22 @@ initAll = function()
                     ctx:messageAsyncWCallback(
                         license,
                         function(val)
-                            local theId = val:values()._2
-                            print("Queried: |" .. theId .. "|")
-                            currUserId = theId
-                            afterId(theId)
+                            local tbl = val:values()
+                            local theId = tbl._2
+                            local err = tbl._3
+                            if (0 == err) then
+                                print("Queried: |" .. theId .. "|")
+                                currUserId = theId
+                                afterId(theId)
+                            else
+                                -- offer to query from
+                                -- credentials
+                                print('fail')
+                            end
                         end,
                         VSig("LD_GetCurrentUserId"),
-                        VString("empty")
+                        VString("empty"),
+                        VInt(-1)
                     )
                 end
 

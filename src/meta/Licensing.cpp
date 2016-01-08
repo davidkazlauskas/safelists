@@ -1529,10 +1529,11 @@ private:
     VmfPtr genHandler() {
         typedef LicenseDaemon LD;
         return SF::virtualMatchFunctorPtr(
-            SF::virtualMatch< LD::GetCurrentUserId, std::string >(
-                [=](ANY_CONV,std::string& pubKey) {
+            SF::virtualMatch< LD::GetCurrentUserId, std::string, int >(
+                [=](ANY_CONV,std::string& pubKey,int& outRes) {
                     // TODO: query from safe app launcher.
-                    pubKey = getCurrentUserIdBase64();
+                    //pubKey = getCurrentUserIdBase64();
+                    outRes = 1;
                 }
             ),
             SF::virtualMatch< LD::GetLocalRecord, const std::string, std::string, int >(

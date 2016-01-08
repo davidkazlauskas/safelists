@@ -57,6 +57,14 @@ struct SessionBoxer {
         return expLen;
     }
 
+    size_t decrypt(unsigned char* ciphertext,size_t cipherlen,unsigned char* message,size_t msglen) {
+        size_t expLen = cipherlen - crypto_secretbox_MACBYTES;
+        assert( msglen >= expLen && "Wrong." );
+        auto ret = ::crypto_secretbox_open(message,ciphertext,cipherlen,nonce,key);
+        assert( 0 == ret && "Wrong." );
+        return expLen;
+    }
+
 private:
     static void freeBoxer(SessionBoxer* boxer) {
         boxer->~SessionBoxer();

@@ -37,6 +37,11 @@ struct SessionBoxer {
         ::randombytes_buf(key,sizeof(key));
     }
 
+    ~SessionBoxer() {
+        ::sodium_memzero(nonce,sizeof(nonce));
+        ::sodium_memzero(key,sizeof(key));
+    }
+
     SessionBoxer(const SessionBoxer&) = delete;
     SessionBoxer(SessionBoxer&&) = delete;
 

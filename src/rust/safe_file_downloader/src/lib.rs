@@ -547,6 +547,15 @@ pub extern fn extract_maid_info(
     let client = ::safe_core::client
         ::Client::log_in(keywordS,pinS,passwordS);
 
+    if !client.is_ok() {
+        // login fail
+        return 1;
+    } else {
+        let client = client.unwrap();
+        let signPub = client.get_public_signing_key();
+        let signSec = client.get_secret_signing_key();
+    }
+
     return 0;
 }
 

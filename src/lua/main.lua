@@ -552,26 +552,35 @@ initAll = function()
                 end
             end
 
+        local keywordField,pinField,passwordField = nil
+
         local setupDialog = function()
             local genericDialog = GenericWidget.putOn(dialog)
-            local dlgWindow = genericDialog:getWidget("spinnerWindow")
-            local offlineButton = genericDialog:getWidget("buttonGoOffline")
-            local tryAgainButton = genericDialog:getWidget("buttonTryAgain")
-            local theNotebook = genericDialog:getWidget("dialogPages")
-            local loadingText = genericDialog:getWidget("mainLabel")
-            local offlineButtonReg = genericDialog:getWidget("buttonGoOffline2")
-            local registerButton = genericDialog:getWidget("buttonRegister")
-            local offlineButtonSub = genericDialog:getWidget("buttonGoOffline3")
-            local subsAmountEntry = genericDialog:getWidget("subscriptionAmountEntry")
-            local licenseConclusion = genericDialog:getWidget("licenseConclusionLabel")
-            local safecoinRateWgt = genericDialog:getWidget("safecoinRateLabel")
-            local subsButton = genericDialog:getWidget("buttonSubscribe")
+            local gwgt = function(name) return genericDialog:getWidget(name) end
+            local dlgWindow = gwgt("spinnerWindow")
+            local offlineButton = gwgt("buttonGoOffline")
+            local tryAgainButton = gwgt("buttonTryAgain")
+            local theNotebook = gwgt("dialogPages")
+            local loadingText = gwgt("mainLabel")
+            local offlineButtonReg = gwgt("buttonGoOffline2")
+            local registerButton = gwgt("buttonRegister")
+            local offlineButtonSub = gwgt("buttonGoOffline3")
+            local subsAmountEntry = gwgt("subscriptionAmountEntry")
+            local licenseConclusion = gwgt("licenseConclusionLabel")
+            local safecoinRateWgt = gwgt("safecoinRateLabel")
+            local subsButton = gwgt("buttonSubscribe")
+            local keywordFieldWgt = gwgt("unsafeKeywordEntry")
+            local pinFieldWgt = gwgt("unsafePinEntry")
+            local passwordFieldWgt = gwgt("unsafePasswordField")
 
             -- export to outer scope
             safecoinRateWidget = safecoinRateWgt
             licenseConclusionWidget = licenseConclusion
             safecoinEntryWidget = subsAmountEntry
             subscriptionWidget = subsButton
+            keywordField = keywordFieldWgt
+            pinField = pinFieldWgt
+            passwordField = passwordFieldWgt
 
             closeDialog =
                 function()

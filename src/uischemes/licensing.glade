@@ -459,6 +459,8 @@ Click "Register" to register (should take less than 10 seconds), or use offline 
                     <property name="width_request">100</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
+                    <property name="visibility">False</property>
+                    <property name="invisible_char">●</property>
                     <property name="xalign">0.5</property>
                     <property name="placeholder_text" translatable="yes">keyword</property>
                   </object>
@@ -472,6 +474,8 @@ Click "Register" to register (should take less than 10 seconds), or use offline 
                   <object class="GtkEntry" id="unsafePinEntry">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
+                    <property name="visibility">False</property>
+                    <property name="invisible_char">●</property>
                     <property name="xalign">0.5</property>
                     <property name="placeholder_text" translatable="yes">pin</property>
                     <property name="input_purpose">password</property>
@@ -486,6 +490,8 @@ Click "Register" to register (should take less than 10 seconds), or use offline 
                   <object class="GtkEntry" id="unsafePasswordEntry">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
+                    <property name="visibility">False</property>
+                    <property name="invisible_char">●</property>
                     <property name="xalign">0.5</property>
                     <property name="placeholder_text" translatable="yes">password</property>
                     <property name="input_purpose">password</property>
@@ -520,7 +526,7 @@ Click "Register" to register (should take less than 10 seconds), or use offline 
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="buttonGoOffline1">
+                  <object class="GtkButton" id="buttonGoOfflineUnsafe">
                     <property name="label" translatable="yes">Offline</property>
                     <property name="width_request">77</property>
                     <property name="visible">True</property>
@@ -534,7 +540,7 @@ Click "Register" to register (should take less than 10 seconds), or use offline 
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="buttonSubscribe1">
+                  <object class="GtkButton" id="buttonLoginUnsafe">
                     <property name="label" translatable="yes">Subscribe</property>
                     <property name="width_request">77</property>
                     <property name="visible">True</property>

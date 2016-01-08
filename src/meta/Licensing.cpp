@@ -150,6 +150,14 @@ int getSafeNetworkInfoBlob(
     return res;
 }
 
+int getNetworkIdFromInfoBlob(
+    const SessionBoxer& boxer,
+    const std::string& blob,
+    std::string& out)
+{
+    return 0;
+}
+
 std::string getCurrentUserIdBase64() {
     // dummy implementation, matches play backend test
     return "4j5iMF/54gJW/c4bPAdN28+4YcIeSQj3QGvOv2xIZjU=";
@@ -1679,6 +1687,21 @@ private:
                         password,
                         outBlob
                     );
+                }
+            ),
+            SF::virtualMatch<
+                LD::GetPubIdFromInfoBlob,
+                const std::string,
+                std::string,
+                int
+            >(
+                [=](ANY_CONV,
+                    const std::string& blob,
+                    std::string& outId,
+                    int& res)
+                {
+                    res = getNetworkIdFromInfoBlob(
+                        *this->_boxer,blob,outId);
                 }
             ),
             SF::virtualMatch< LD::GetLocalRecord, const std::string, std::string, int >(

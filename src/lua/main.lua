@@ -435,6 +435,7 @@ initAll = function()
         local OFFLINE_MODE_TAB = 1
         local REGISTRATION_TAB = 2
         local SUBSCRIPTION_TAB = 3
+        local UNSAFE_LOGIN_TAB = 4
 
         local setupFromScratch = nil
         local registerUser = nil
@@ -554,6 +555,15 @@ initAll = function()
 
         local keywordField,pinField,passwordField = nil
 
+        local loginClickedEvents = {}
+        local setLoginClickedEvent = function(func)
+            loginClickedEvents['login'] = func
+        end
+
+        local setOfflineUnsafeEvent = function(func)
+            loginClickedEvents['offline'] = func
+        end
+
         local setupDialog = function()
             local genericDialog = GenericWidget.putOn(dialog)
             local gwgt = function(name) return genericDialog:getWidget(name) end
@@ -663,6 +673,24 @@ initAll = function()
                         VMsg(handler)
                     )
                 end
+
+            buttonLoginUnsafe:hookButtonClick(
+                function()
+                    local func = loginClickedEvents['login']
+                    if (nil ~= func) then
+                        func()
+                    end
+                end
+            )
+
+            buttonOfflineUnsafe:hookButtonClick(
+                function()
+                    local func = loginClickedEvents['offline']
+                    if (nil ~= func) then
+                        func()
+                    end
+                end
+            )
 
             offlineButton:hookButtonClick(closeDialog)
             tryAgainButton:hookButtonClick(setupFromScratch)

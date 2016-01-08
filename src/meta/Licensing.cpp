@@ -155,6 +155,25 @@ int getNetworkIdFromInfoBlob(
     const std::string& blob,
     std::string& out)
 {
+    if (blob.size() > 512) {
+        return 1;
+    }
+
+    unsigned char outbin[1024];
+    char cpy[1024];
+    ::strcpy(cpy,blob.c_str());
+    size_t len = sizeof(outbin);
+
+    int lenbin = ::base64decode(cpy,out.size(),outbin,&len);
+    if (lenbin < 0) {
+        return 2;
+    }
+
+    unsigned char msgout[1024];
+
+    size_t msgLen = boxer.decrypt(
+        outbin,lenbin,msgout,sizeof(msgout));
+
     return 0;
 }
 

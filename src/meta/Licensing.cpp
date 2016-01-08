@@ -40,12 +40,13 @@ struct SessionBoxer {
     SessionBoxer(const SessionBoxer&) = delete;
     SessionBoxer(SessionBoxer&&) = delete;
 
-    static std::unique_ptr< SessionBoxer, void(*)(SessionBoxer*) >
-        alloc()
+    typedef std::unique_ptr< SessionBoxer, void(*)(SessionBoxer*) > BoxerPtr;
+
+    static BoxerPtr alloc()
     {
         void* mem = ::sodium_malloc(sizeof(SessionBoxer));
         auto thePtr = new (mem) SessionBoxer();
-        return std::unique_ptr< SessionBoxer, void(*)(SessionBoxer*) >(
+        return BoxerPtr(
             thePtr, &SessionBoxer::freeBoxer
         );
     }
@@ -1541,7 +1542,8 @@ struct LicenseDaemonDummyImpl : public Messageable {
 
     static std::shared_ptr< LicenseDaemonDummyImpl > makeNew() {
         // perfect spot
-        ::sodium_init();
+        auto res = ::sodium_init();
+        assert( 0 == res && "Sodium init failed." );
 
         std::shared_ptr< LicenseDaemonDummyImpl > result(
             new LicenseDaemonDummyImpl()
@@ -1576,7 +1578,8 @@ private:
     }
 
     LicenseDaemonDummyImpl() :
-        _handler(genHandler()), _keepGoing(true) {}
+        _handler(genHandler()), _keepGoing(true),
+        _boxer(SessionBoxer::alloc()) {}
 
     VmfPtr genHandler() {
         typedef LicenseDaemon LD;
@@ -1689,6 +1692,7 @@ private:
     bool _keepGoing;
     WeakMsgPtr _myself;
     WeakMsgPtr _notifyExit;
+    SessionBoxer::BoxerPtr _boxer;
 };
 
 StrongMsgPtr LicenseDaemon::getDaemon() {

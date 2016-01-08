@@ -5,6 +5,7 @@ extern crate safe_nfs;
 extern crate safe_dns;
 extern crate safe_core;
 extern crate regex;
+extern crate rustc_serialize;
 #[macro_use] extern crate quick_error;
 
 use std::sync::{Arc,Mutex};
@@ -554,6 +555,44 @@ pub extern fn extract_maid_info(
         let client = client.unwrap();
         let signPub = client.get_public_signing_key();
         let signSec = client.get_secret_signing_key();
+
+        if !signPub.is_ok() || !signSec.is_ok() {
+            return 2;
+        } else {
+            use rustc_serialize::base64::{
+                ToBase64,Config,CharacterSet,Newline};
+            use std::ffi::CString;
+
+            let signPub = signPub.unwrap();
+            let signSec = signSec.unwrap();
+
+            let pub_b64 = signPub.as_ref().to_base64(
+                Config {
+                    char_set: CharacterSet::Standard,
+                    newline: Newline::LF,
+                    pad: true,
+                    line_length: None
+                }
+            );
+
+            let sec_b64 = signPub.as_ref().to_base64(
+                Config {
+                    char_set: CharacterSet::Standard,
+                    newline: Newline::LF,
+                    pad: true,
+                    line_length: None
+                }
+            );
+
+            unsafe {
+                ::libc::strcpy(
+                    pubmaid_b64_public,
+                    pub_b64.as_ptr() as *const i8);
+                ::libc::strcpy(
+                    pubmaid_b64_secret,
+                    sec_b64.as_ptr() as *const i8);
+            }
+        }
     }
 
     return 0;

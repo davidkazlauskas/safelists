@@ -52,14 +52,14 @@ struct SessionBoxer {
         );
     }
 
-    size_t encrypt(unsigned char* message,size_t msglen,unsigned char* output,size_t outlen) const {
+    size_t encrypt(const unsigned char* message,size_t msglen,unsigned char* output,size_t outlen) const {
         size_t expLen = msglen + crypto_secretbox_MACBYTES;
         assert( outlen >= expLen && "Wrong." );
         ::crypto_secretbox_easy(output,message,msglen,nonce,key);
         return expLen;
     }
 
-    size_t decrypt(unsigned char* ciphertext,size_t cipherlen,unsigned char* message,size_t msglen) const {
+    size_t decrypt(const unsigned char* ciphertext,size_t cipherlen,unsigned char* message,size_t msglen) const {
         size_t expLen = cipherlen - crypto_secretbox_MACBYTES;
         assert( msglen >= expLen && "Wrong." );
         auto ret = ::crypto_secretbox_open(message,ciphertext,cipherlen,nonce,key);
@@ -131,6 +131,21 @@ int getSafeNetworkInfoBlob(
         rj::Pointer("/pubid").Set(doc,pubKey);
         rj::Pointer("/secretkey").Set(doc,privKey);
     }
+
+    unsigned char bufenc[1024]; // should be nuff
+
+    auto outLen = boxer.encrypt(reinterpret_cast<
+        const unsigned char*>(jsonToEncrypt.c_str()),
+        jsonToEncrypt.size(),bufenc,sizeof(bufenc));
+
+    for (int i = 0; i < jsonToEncrypt.length(); ++i) {
+        jsonToEncrypt[i] = '\0';
+    }
+
+    char bufb64[1024]; // should be nuff
+    ::base64encode(bufenc,outLen,bufb64,sizeof(bufb64));
+
+    out = bufb64;
 
     return res;
 }

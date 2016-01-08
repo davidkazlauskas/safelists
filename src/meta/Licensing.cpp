@@ -83,6 +83,16 @@ private:
     unsigned char key[crypto_secretbox_KEYBYTES];
 };
 
+int getSafeNetworkInfoBlob(
+    const SessionBoxer& boxer,
+    const std::string& keyword,
+    const std::string& pin,
+    const std::string& password,
+    std::string& out)
+{
+    return 0;
+}
+
 std::string getCurrentUserIdBase64() {
     // dummy implementation, matches play backend test
     return "4j5iMF/54gJW/c4bPAdN28+4YcIeSQj3QGvOv2xIZjU=";
@@ -1589,6 +1599,29 @@ private:
                     // TODO: query from safe app launcher.
                     pubKey = getCurrentUserIdBase64();
                     outRes = 1;
+                }
+            ),
+            SF::virtualMatch<
+                LD::GetPrivateUserInfoBlob,
+                const std::string,
+                const std::string,
+                const std::string,
+                std::string,
+                int
+            >(
+                [=](ANY_CONV,
+                    const std::string& keyword,
+                    const std::string& pin,
+                    const std::string& password,
+                    std::string& outBlob,int& outRes)
+                {
+                    outRes = getSafeNetworkInfoBlob(
+                        *this->_boxer,
+                        keyword,
+                        pin,
+                        password,
+                        outBlob
+                    );
                 }
             ),
             SF::virtualMatch< LD::GetLocalRecord, const std::string, std::string, int >(

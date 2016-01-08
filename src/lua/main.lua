@@ -553,7 +553,8 @@ initAll = function()
                 end
             end
 
-        local keywordField,pinField,passwordField = nil
+        local keywordField,pinField,
+            passwordField,unsafeStatus = nil
 
         local loginClickedEvents = {}
         local setLoginClickedEvent = function(func)
@@ -581,9 +582,10 @@ initAll = function()
             local subsButton = gwgt("buttonSubscribe")
             local keywordFieldWgt = gwgt("unsafeKeywordEntry")
             local pinFieldWgt = gwgt("unsafePinEntry")
-            local passwordFieldWgt = gwgt("unsafePasswordField")
+            local passwordFieldWgt = gwgt("unsafePasswordEntry")
             local buttonOfflineUnsafe = gwgt("buttonGoOfflineUnsafe")
             local buttonLoginUnsafe = gwgt("buttonLoginUnsafe")
+            local statusLabelUnsafe = gwgt("statusLabelUnsafe")
 
             -- export to outer scope
             safecoinRateWidget = safecoinRateWgt
@@ -593,6 +595,7 @@ initAll = function()
             keywordField = keywordFieldWgt
             pinField = pinFieldWgt
             passwordField = passwordFieldWgt
+            unsafeStatus = statusLabelUnsafe
 
             closeDialog =
                 function()
@@ -626,7 +629,48 @@ initAll = function()
                             else
                                 -- offer to query from
                                 -- credentials
-                                print('fail')
+                                switchLoaderTab(UNSAFE_LOGIN_TAB)
+
+                                setOfflineUnsafeEvent(
+                                    function()
+                                        offlineMode()
+                                    end
+                                )
+                                setLoginClickedEvent(
+                                    function()
+                                        local kw = trimString(keywordField:entryQueryValue())
+                                        local pin = trimString(pinField:entryQueryValue())
+                                        local passwd = trimString(passwordField:entryQueryValue())
+
+                                        if ("" == kw) then
+                                            unsafeStatus:labelSetText("Keyword cannot be empty.")
+                                            return
+                                        end
+
+                                        if ("" == pin) then
+                                            unsafeStatus:labelSetText("Pin cannot be empty.")
+                                            return
+                                        end
+
+                                        if ("" == passwd) then
+                                            unsafeStatus:labelSetText("Password cannot be empty.")
+                                            return
+                                        end
+
+                                        ctx:messageAsyncWCallback(
+                                            license,
+                                            function(val)
+                                                print("baptu")
+                                            end,
+                                            VSig("LD_GetPrivateUserInfoBlob"),
+                                            VString(kw),
+                                            VString(pin),
+                                            VString(passwd),
+                                            VString("empty"),
+                                            VInt(-1)
+                                        )
+                                    end
+                                )
                             end
                         end,
                         VSig("LD_GetCurrentUserId"),

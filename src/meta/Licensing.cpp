@@ -30,6 +30,14 @@ namespace fs = boost::filesystem;
 
 namespace SafeLists {
 
+struct SessionBoxer {
+
+    // we should use this only once
+    // to query safe network keys...
+    unsigned char nonce[crypto_secretbox_NONCEBYTES];
+    unsigned char key[crypto_secretbox_KEYBYTES];
+};
+
 std::string getCurrentUserIdBase64() {
     // dummy implementation, matches play backend test
     return "4j5iMF/54gJW/c4bPAdN28+4YcIeSQj3QGvOv2xIZjU=";

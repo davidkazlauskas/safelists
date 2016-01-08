@@ -27,6 +27,17 @@ struct LicenseDaemon {
     // >
     DUMMY_REG(GetPrivateUserInfoBlob,"LD_GetPrivateUserInfoBlob");
 
+    // get pub id from user info blob
+    // containing encrypt user public/private keys
+    // Signature:
+    // <
+    //   GetPubIdFromInfoBlob,
+    //   const std::string (in blob),
+    //   std::string (out),
+    //   int (err)
+    // >
+    DUMMY_REG(GetPubIdFromInfoBlob,"LD_GetPubIdFromInfoBlob");
+
     // Get local record.
     // Signature:
     // <

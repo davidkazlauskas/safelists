@@ -585,12 +585,17 @@ pub extern fn extract_maid_info(
             );
 
             unsafe {
-                ::libc::strcpy(
-                    pubmaid_b64_public,
-                    pub_b64.as_ptr() as *const i8);
-                ::libc::strcpy(
-                    pubmaid_b64_secret,
-                    sec_b64.as_ptr() as *const i8);
+                let pub_len = pub_b64.as_bytes().len();
+                std::ptr::copy_nonoverlapping(
+                    pub_b64.as_ptr(),
+                    pubmaid_b64_public as *mut u8,pub_len);
+                *pubmaid_b64_public.offset(pub_len as isize) = 0;
+
+                let sec_len = pub_b64.as_bytes().len();
+                std::ptr::copy_nonoverlapping(
+                    sec_b64.as_ptr(),
+                    pubmaid_b64_secret as *mut u8,sec_len);
+                *pubmaid_b64_secret.offset(sec_len as isize) = 0;
             }
         }
     }

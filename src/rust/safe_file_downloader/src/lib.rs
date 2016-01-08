@@ -511,6 +511,19 @@ pub extern fn safe_file_downloader_schedule(
     }
 }
 
+#[no_mangle]
+pub extern fn extract_maid_info(
+    keyword: *const libc::c_schar,
+    pin: *const libc::c_schar,
+    password: *const libc::c_schar,
+    pubmaid_b64_public: *mut libc::c_schar,
+    pubmaid_b64_secret: *mut libc::c_schar)
+    -> libc::int32_t
+{
+    println!("Hadouken!");
+    0
+}
+
 quick_error! {
     #[derive(Debug)]
     pub enum GetReaderError {

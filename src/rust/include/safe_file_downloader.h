@@ -44,6 +44,15 @@ extern "C" {
     // is called.
     void safe_file_downloader_schedule(void* handle,void* args /* safe_file_downloader_args */ );
 
+    // extract public/private keys from users login.
+    // unsafe to use, added only as a workaround
+    // before safe launcher.
+    int extract_maid_info(
+        const char* keyword,
+        const char* pin,
+        const char* pass,
+        char* outPubmaidB64,
+        char* outSecretMaidB64);
 #ifdef __cplusplus
 }
 #endif

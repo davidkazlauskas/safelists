@@ -593,8 +593,6 @@ initAll = function()
             keywordField = keywordFieldWgt
             pinField = pinFieldWgt
             passwordField = passwordFieldWgt
-            offlineUnsafe = buttonOfflineUnsafe
-            loginUnsafe = buttonLoginUnsafe
 
             closeDialog =
                 function()

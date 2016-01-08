@@ -32,11 +32,6 @@ namespace SafeLists {
 
 struct SessionBoxer {
 
-    SessionBoxer() {
-        ::randombytes_buf(nonce,sizeof(nonce));
-        ::randombytes_buf(key,sizeof(key));
-    }
-
     ~SessionBoxer() {
         ::sodium_memzero(nonce,sizeof(nonce));
         ::sodium_memzero(key,sizeof(key));
@@ -45,7 +40,27 @@ struct SessionBoxer {
     SessionBoxer(const SessionBoxer&) = delete;
     SessionBoxer(SessionBoxer&&) = delete;
 
+    static std::unique_ptr< SessionBoxer, void(*)(SessionBoxer*) >
+        alloc()
+    {
+        void* mem = ::sodium_malloc(sizeof(SessionBoxer));
+        auto thePtr = new (mem) SessionBoxer();
+        return std::unique_ptr< SessionBoxer, void(*)(SessionBoxer*) >(
+            thePtr, &SessionBoxer::freeBoxer
+        );
+    }
+
 private:
+    static void freeBoxer(SessionBoxer* boxer) {
+        boxer->~SessionBoxer();
+        ::sodium_free(boxer);
+    }
+
+    SessionBoxer() {
+        ::randombytes_buf(nonce,sizeof(nonce));
+        ::randombytes_buf(key,sizeof(key));
+    }
+
     // we should use this only once
     // to query safe network keys...
     unsigned char nonce[crypto_secretbox_NONCEBYTES];

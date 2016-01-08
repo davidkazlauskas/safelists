@@ -13,6 +13,20 @@ struct LicenseDaemon {
     // < GetCurrentUserId, std::string (out), int (out err) >
     DUMMY_REG(GetCurrentUserId,"LD_GetCurrentUserId");
 
+    // get private user blob
+    // containing encrypted user public/private
+    // keys.
+    // Signature:
+    // <
+    //   GetPrivateUserInfoBlob,
+    //   const std::string (keyword),
+    //   const std::string (pin),
+    //   const std::string (password),
+    //   std::string (out result)
+    //   int (err code)
+    // >
+    DUMMY_REG(GetPrivateUserInfoBlob,"LD_GetPrivateUserInfoBlob");
+
     // Get local record.
     // Signature:
     // <

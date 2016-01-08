@@ -101,6 +101,37 @@ int getSafeNetworkInfoBlob(
         pubKey,
         privKey
     );
+
+    std::string jsonToEncrypt;
+
+    if (0 == res) {
+        int lenPub = strlen(pubKey);
+        int lenPriv = strlen(privKey);
+
+        // create json
+        rj::Document doc;
+        rj::Pointer("/pubid").Set(doc,pubKey);
+        rj::Pointer("/secretkey").Set(doc,privKey);
+
+        rj::StringBuffer buf;
+        rj::Writer< rj::StringBuffer > writer(buf);
+        doc.Accept(writer);
+
+        jsonToEncrypt.reserve(buf.GetSize());
+        jsonToEncrypt = buf.GetString();
+
+        // gore of the century
+        auto bufSize = buf.GetSize();
+        ::memset(const_cast<char*>(buf.GetString()),'\0',bufSize);
+        ::memset(pubKey,'-',lenPub);
+        ::memset(privKey,'-',lenPriv);
+
+        // we assume, since lengths didn't change,
+        // memory will be overwritten in document.
+        rj::Pointer("/pubid").Set(doc,pubKey);
+        rj::Pointer("/secretkey").Set(doc,privKey);
+    }
+
     return res;
 }
 

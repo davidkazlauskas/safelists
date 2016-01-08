@@ -32,6 +32,10 @@ namespace SafeLists {
 
 struct SessionBoxer {
 
+    SessionBoxer() = delete;
+    SessionBoxer(const SessionBoxer&) = delete;
+    SessionBoxer(SessionBoxer&&) = delete;
+
     // we should use this only once
     // to query safe network keys...
     unsigned char nonce[crypto_secretbox_NONCEBYTES];

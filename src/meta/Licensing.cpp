@@ -19,6 +19,7 @@
 #include <util/ScopeGuard.hpp>
 #include <util/Base64.hpp>
 #include <util/ProgramArgs.hpp>
+#include <safe_file_downloader.h>
 
 #include "Licensing.hpp"
 
@@ -90,7 +91,17 @@ int getSafeNetworkInfoBlob(
     const std::string& password,
     std::string& out)
 {
-    return 0;
+    const int BUF_SIZE = 256;
+    char pubKey[BUF_SIZE];
+    char privKey[BUF_SIZE];
+    int res = ::extract_maid_info(
+        keyword.c_str(),
+        pin.c_str(),
+        password.c_str(),
+        pubKey,
+        privKey
+    );
+    return res;
 }
 
 std::string getCurrentUserIdBase64() {

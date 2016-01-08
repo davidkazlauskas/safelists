@@ -1587,7 +1587,7 @@ private:
             SF::virtualMatch< LD::GetCurrentUserId, std::string, int >(
                 [=](ANY_CONV,std::string& pubKey,int& outRes) {
                     // TODO: query from safe app launcher.
-                    //pubKey = getCurrentUserIdBase64();
+                    pubKey = getCurrentUserIdBase64();
                     outRes = 1;
                 }
             ),

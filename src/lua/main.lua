@@ -572,6 +572,8 @@ initAll = function()
             local keywordFieldWgt = gwgt("unsafeKeywordEntry")
             local pinFieldWgt = gwgt("unsafePinEntry")
             local passwordFieldWgt = gwgt("unsafePasswordField")
+            local buttonOfflineUnsafe = gwgt("buttonGoOfflineUnsafe")
+            local buttonLoginUnsafe = gwgt("buttonLoginUnsafe")
 
             -- export to outer scope
             safecoinRateWidget = safecoinRateWgt
@@ -581,6 +583,8 @@ initAll = function()
             keywordField = keywordFieldWgt
             pinField = pinFieldWgt
             passwordField = passwordFieldWgt
+            offlineUnsafe = buttonOfflineUnsafe
+            loginUnsafe = buttonLoginUnsafe
 
             closeDialog =
                 function()

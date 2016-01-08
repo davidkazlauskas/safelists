@@ -90,8 +90,8 @@ function string:split(delimiter)
   return result
 end
 
-function trimString(string)
-  return string:match "^%s*(.-)%s*$"
+function trimString(arg)
+  return string.match(arg,"^%s*(.-)%s*$")
 end
 
 function string:ends(tail)
@@ -446,7 +446,7 @@ initAll = function()
               fishyStuffGoingOn = nil
 
         local afterId,afterIdSuccess,localIdSucc,
-              localIdFail,offlineMode,localStoreLic,
+              localIdFail,localStoreLic,
               verificationSuccess,localVerificationFail,
               getServerTimespan,localSpanFail,
               tryVerifyUserRecord,tryVerifyTimespan,

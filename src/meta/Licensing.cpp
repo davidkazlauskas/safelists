@@ -344,6 +344,14 @@ int signUsageRequestWithBlob(
 
     g3.fire();
 
+    int encres = ::base64encode(sig,sizeof(sig),cpy,sizeof(cpy));
+    if (0 != encres) {
+        return 12;
+    }
+
+    outSignature = cpy;
+    outSignedString = message;
+
     return 0;
 }
 

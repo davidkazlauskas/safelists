@@ -178,6 +178,31 @@ int getNetworkIdFromInfoBlob(
 
     size_t msgLen = boxer.decrypt(
         outbin,len,msgout,sizeof(msgout));
+    msgout[msgLen] = '\0';
+
+    rj::Document doc;
+    doc.Parse(reinterpret_cast<const char*>(msgout));
+
+    ::memset(msgout,'\0',sizeof(msgout));
+
+    if (doc.HasParseError()) {
+        return 4;
+    }
+
+    if (!doc.IsObject()) {
+        return 5;
+    }
+
+    if (!doc.HasMember("pubid")) {
+        return 6;
+    }
+
+    auto& pubid = doc["pubid"];
+    if (!pubid.IsString()) {
+        return 7;
+    }
+
+    out = pubid.GetString();
 
     return 0;
 }

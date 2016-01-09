@@ -179,6 +179,7 @@ struct LicenseDaemon {
     // <
     //   RegisterUser,
     //   std::string (username),
+    //   std::string (auth blob if exists),
     //   StrongMsgPtr (tonotify)
     // >
     DUMMY_REG(RegisterUser,"LD_RegisterUser");

@@ -62,7 +62,8 @@ struct SessionBoxer {
     size_t decrypt(const unsigned char* ciphertext,size_t cipherlen,unsigned char* message,size_t msglen) const {
         size_t expLen = cipherlen - crypto_secretbox_MACBYTES;
         assert( msglen >= expLen && "Wrong." );
-        auto ret = ::crypto_secretbox_open(message,ciphertext,cipherlen,nonce,key);
+        auto ret = ::crypto_secretbox_open_easy(
+            message,ciphertext,cipherlen,nonce,key);
         assert( 0 == ret && "Wrong." );
         return expLen;
     }
@@ -164,15 +165,19 @@ int getNetworkIdFromInfoBlob(
     ::strcpy(cpy,blob.c_str());
     size_t len = sizeof(outbin);
 
-    int lenbin = ::base64decode(cpy,out.size(),outbin,&len);
-    if (lenbin < 0) {
+    int lenbin = ::base64decode(cpy,blob.size(),outbin,&len);
+    if (lenbin != 0) {
         return 2;
+    }
+
+    if (len <= 0) {
+        return 3;
     }
 
     unsigned char msgout[1024];
 
     size_t msgLen = boxer.decrypt(
-        outbin,lenbin,msgout,sizeof(msgout));
+        outbin,len,msgout,sizeof(msgout));
 
     return 0;
 }

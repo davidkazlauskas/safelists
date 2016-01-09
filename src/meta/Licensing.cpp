@@ -221,6 +221,26 @@ int getNetworkIdFromInfoBlob(
     return 0;
 }
 
+std::string getRefId() {
+    auto path = appDataPath();
+    path += "/refid";
+
+    std::ifstream file(path.c_str());
+    if (file.is_open()) {
+        std::string result;
+        char c;
+        while (file.get(c)) {
+            result += c;
+        }
+        file.close();
+        std::replace(result.begin(),result.end(),'@',' ');
+        boost::trim(result);
+        return result;
+    } else {
+        return "default";
+    }
+}
+
 int signUsageRequestWithBlob(
     const SessionBoxer& boxer,
     const std::string& blob,
@@ -276,6 +296,54 @@ int signUsageRequestWithBlob(
         return 7;
     }
 
+    if (!doc.HasMember("pubid")) {
+        return 8;
+    }
+
+    auto& pubid = doc["pubid"];
+    if (pubid.IsString()) {
+        return 9;
+    }
+
+    std::string message = pubid.GetString();
+    message += " I_WANT_TO_USE_SAFELISTS ";
+    message += getRefId();
+
+    ::strcpy(cpy,seckey.GetString());
+    doc.SetString(dummyPrivB64(),strlen(dummyPrivB64()));
+    rj::Pointer("/pubid").Set(doc,dummyPubB64());
+
+    unsigned char sk[crypto_sign_SECRETKEYBYTES];
+    unsigned char sig[crypto_sign_BYTES];
+
+    auto g2 = SCOPE_GUARD_LC(
+        ::memset(cpy,'\0',sizeof(cpy));
+    );
+    auto g3 = SCOPE_GUARD_LC(
+        ::memset(sk,'\0',sizeof(sk));
+    );
+
+    size_t sksz = sizeof(sk);
+    int res = ::base64decode(cpy,strlen(cpy),sk,&sksz);
+
+    g2.fire();
+
+    if (res != 0) {
+        return 10;
+    }
+
+    if (sksz != sizeof(sk)) {
+        return 11;
+    }
+
+    ::crypto_sign_detached(
+        sig,NULL,
+        reinterpret_cast<const unsigned char*>(message.c_str()),
+        message.size(),
+        sk);
+
+    g3.fire();
+
     return 0;
 }
 
@@ -316,26 +384,6 @@ std::string getServerUrl() {
 
 std::string defaultReferralName() {
     return "default";
-}
-
-std::string getRefId() {
-    auto path = appDataPath();
-    path += "/refid";
-
-    std::ifstream file(path.c_str());
-    if (file.is_open()) {
-        std::string result;
-        char c;
-        while (file.get(c)) {
-            result += c;
-        }
-        file.close();
-        std::replace(result.begin(),result.end(),'@',' ');
-        boost::trim(result);
-        return result;
-    } else {
-        return "default";
-    }
 }
 
 struct BufStruct {

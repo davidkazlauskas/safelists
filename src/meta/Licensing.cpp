@@ -151,6 +151,15 @@ int getSafeNetworkInfoBlob(
     return res;
 }
 
+const char* dummyPubB64() {
+    return "4j5iMF/54gJW/c4bPAdN28+4YcIeSQj3QGvOv2xIZjU=";
+}
+
+const char* dummyPrivB64() {
+    return "y3hQUBVr/dBlrV/3MhgudnDC1t7tur2AondP/"
+        "XJwZSXiPmIwX/niAlb9zhs8B03bz7hhwh5JCPdAa86/bEhmNQ==";
+}
+
 int getNetworkIdFromInfoBlob(
     const SessionBoxer& boxer,
     const std::string& blob,
@@ -203,19 +212,20 @@ int getNetworkIdFromInfoBlob(
     }
 
     out = pubid.GetString();
+    pubid.SetString(dummyPubB64(),strlen(dummyPubB64()));
+    rj::Pointer("/secretkey").Set(doc,dummyPrivB64());
 
     return 0;
 }
 
 std::string getCurrentUserIdBase64() {
     // dummy implementation, matches play backend test
-    return "4j5iMF/54gJW/c4bPAdN28+4YcIeSQj3QGvOv2xIZjU=";
+    return dummyPubB64();
 }
 
 std::string getCurrentUserPrivateKeyBase64() {
     // dummy implementation, matches play backend test
-    return "y3hQUBVr/dBlrV/3MhgudnDC1t7tur2AondP/"
-        "XJwZSXiPmIwX/niAlb9zhs8B03bz7hhwh5JCPdAa86/bEhmNQ==";
+    return dummyPrivB64();
 }
 
 std::string getServerSignKey() {

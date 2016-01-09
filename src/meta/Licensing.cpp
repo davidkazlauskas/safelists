@@ -1519,17 +1519,11 @@ int challengeJsonBack(
 
         toSend = buf.GetString();
     }
-    std::string answerSig;
-    int sign = serverSign(userPubKey,toSend,answerSig);
-    if (0 != sign) {
-        return -3;
-    }
 
     std::string withSig;
     {
         rj::Document doc;
         rj::Pointer("/challengeanswer").Set(doc,toSend.c_str());
-        rj::Pointer("/answersignature").Set(doc,answerSig.c_str());
 
         rj::StringBuffer buf;
         rj::Writer< rj::StringBuffer > writer(buf);
@@ -1549,6 +1543,7 @@ int challengeJsonBack(
         toNotify->message(toSend);
         return 0;
     } else {
+        printf("Failed curl res: |%d|\n",res);
         assert( false && "Nope milky..." );
         return -4;
     }

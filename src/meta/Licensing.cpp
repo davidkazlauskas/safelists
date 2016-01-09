@@ -1581,7 +1581,12 @@ int solveChallenge(
     return -2;
 }
 
-void regUserRoutine(const std::string& name,const StrongMsgPtr& toNotify) {
+void regUserRoutine(
+    const SessionBoxer& boxer,
+    const std::string& name,
+    const std::string& authblob,
+    const StrongMsgPtr& toNotify)
+{
     int outResult = -1;
     auto notifyLambda =
         [&]() {
@@ -1594,21 +1599,20 @@ void regUserRoutine(const std::string& name,const StrongMsgPtr& toNotify) {
     auto sendGuard = SCOPE_GUARD(std::move(notifyLambda));
 
     // ASK SAFENETWORK SERVER TO SIGN THIS
-    std::string requestString = name + " I_WANT_TO_USE_SAFELISTS ";
-    requestString += getRefId();
+    std::string requestString,requestSignature;
 
-    std::string pubKey = getCurrentUserIdBase64();
-    std::string secret = getCurrentUserPrivateKeyBase64();
-
-    assert( name == pubKey && "Epic fail, this aint test enviroment slick." );
-
-    std::string outSig;
-    bool didSucceed = SafeLists::sodiumSign(requestString,secret,outSig);
-    assert( didSucceed && "Yo signature trippin' brah." );
+    if (authblob != "") {
+        int signRes = signUsageRequestWithBlob(
+            boxer,authblob,requestString,requestSignature);
+        assert( 0 == signRes && "Epic fail bro." );
+    } else {
+        assert( false &&
+                "Not implemented signature from launcher yet." );
+    }
 
     rj::Document doc;
     rj::Pointer("/request").Set(doc,requestString.c_str());
-    rj::Pointer("/signature").Set(doc,outSig.c_str());
+    rj::Pointer("/signature").Set(doc,requestSignature.c_str());
 
     rj::StringBuffer buf;
     rj::Writer<rj::StringBuffer> writer(buf);
@@ -1930,9 +1934,12 @@ private:
                     outRes = checkUserTimespanValidityFirstTier(json,user);
                 }
             ),
-            SF::virtualMatch< LD::RegisterUser, const std::string, const StrongMsgPtr >(
-                [=](ANY_CONV,const std::string& name,const StrongMsgPtr& toNotify) {
-                    regUserRoutine(name,toNotify);
+            SF::virtualMatch< LD::RegisterUser, const std::string, const std::string, const StrongMsgPtr >(
+                [=](ANY_CONV,const std::string& name,
+                    const std::string& authblob,
+                    const StrongMsgPtr& toNotify)
+                {
+                    regUserRoutine(*this->_boxer,name,authblob,toNotify);
                 }
             ),
             SF::virtualMatch< LD::GetServerSafecoinRate, std::string, int >(

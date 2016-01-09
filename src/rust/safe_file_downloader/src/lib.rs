@@ -5,6 +5,7 @@ extern crate safe_nfs;
 extern crate safe_dns;
 extern crate safe_core;
 extern crate regex;
+extern crate core;
 extern crate rustc_serialize;
 #[macro_use] extern crate quick_error;
 
@@ -562,6 +563,7 @@ pub extern fn extract_maid_info(
             use rustc_serialize::base64::{
                 ToBase64,Config,CharacterSet,Newline};
             use std::ffi::CString;
+            use core::ops::{Index,RangeFull};
 
             let signPub = signPub.unwrap();
             let signSec = signSec.unwrap();
@@ -575,7 +577,7 @@ pub extern fn extract_maid_info(
                 }
             );
 
-            let sec_b64 = signPub.as_ref().to_base64(
+            let sec_b64 = signSec.index(RangeFull).to_base64(
                 Config {
                     char_set: CharacterSet::Standard,
                     newline: Newline::LF,
@@ -591,7 +593,7 @@ pub extern fn extract_maid_info(
                     pubmaid_b64_public as *mut u8,pub_len);
                 *pubmaid_b64_public.offset(pub_len as isize) = 0;
 
-                let sec_len = pub_b64.as_bytes().len();
+                let sec_len = sec_b64.as_bytes().len();
                 std::ptr::copy_nonoverlapping(
                     sec_b64.as_ptr(),
                     pubmaid_b64_secret as *mut u8,sec_len);

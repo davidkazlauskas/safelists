@@ -565,6 +565,10 @@ initAll = function()
             loginClickedEvents['offline'] = func
         end
 
+        local userblob = {
+            authblob = ""
+        }
+
         local setupDialog = function()
             local genericDialog = GenericWidget.putOn(dialog)
             local gwgt = function(name) return genericDialog:getWidget(name) end
@@ -616,67 +620,91 @@ initAll = function()
             setupFromScratch =
                 function()
                     switchLoaderTab(LOADER_TAB)
-                    ctx:messageAsyncWCallback(
-                        license,
-                        function(val)
-                            local tbl = val:values()
-                            local theId = tbl._2
-                            local err = tbl._3
-                            if (0 == err) then
-                                print("Queried: |" .. theId .. "|")
-                                currUserId = theId
-                                afterId(theId)
-                            else
-                                -- offer to query from
-                                -- credentials
-                                switchLoaderTab(UNSAFE_LOGIN_TAB)
+                    if (currUserId ~= nil and currUserId ~= "") then
+                        afterId(currUserId)
+                    else
+                        ctx:messageAsyncWCallback(
+                            license,
+                            function(val)
+                                local tbl = val:values()
+                                local theId = tbl._2
+                                local err = tbl._3
+                                if (0 == err) then
+                                    print("Queried: |" .. theId .. "|")
+                                    currUserId = theId
+                                    afterId(theId)
+                                else
+                                    -- offer to query from
+                                    -- credentials
+                                    switchLoaderTab(UNSAFE_LOGIN_TAB)
 
-                                setOfflineUnsafeEvent(
-                                    function()
-                                        offlineMode()
-                                    end
-                                )
-                                setLoginClickedEvent(
-                                    function()
-                                        local kw = trimString(keywordField:entryQueryValue())
-                                        local pin = pinField:entryQueryValue()
-                                        local passwd = passwordField:entryQueryValue()
-
-                                        if ("" == kw) then
-                                            unsafeStatus:labelSetText("Keyword cannot be empty.")
-                                            return
+                                    setOfflineUnsafeEvent(
+                                        function()
+                                            offlineMode()
                                         end
+                                    )
+                                    setLoginClickedEvent(
+                                        function()
+                                            local kw = trimString(keywordField:entryQueryValue())
+                                            local pin = pinField:entryQueryValue()
+                                            local passwd = passwordField:entryQueryValue()
 
-                                        if ("" == pin) then
-                                            unsafeStatus:labelSetText("Pin cannot be empty.")
-                                            return
+                                            if ("" == kw) then
+                                                unsafeStatus:labelSetText("Keyword cannot be empty.")
+                                                return
+                                            end
+
+                                            if ("" == pin) then
+                                                unsafeStatus:labelSetText("Pin cannot be empty.")
+                                                return
+                                            end
+
+                                            if ("" == passwd) then
+                                                unsafeStatus:labelSetText("Password cannot be empty.")
+                                                return
+                                            end
+
+                                            ctx:messageAsyncWCallback(
+                                                license,
+                                                function(val)
+                                                    local tbl = val:values()
+                                                    local gargle = tbl._5
+                                                    userblob.authblob = gargle
+                                                    ctx:messageAsyncWCallback(
+                                                        license,
+                                                        function(val)
+                                                            local tbl = val:values()
+                                                            assert( tbl._4 == 0, "Blob id extraction failed?" )
+                                                            if (tbl._4 == 0) then
+                                                                currUserId = tbl._3
+                                                                afterId(tbl._3)
+                                                            end
+                                                        end,
+                                                        VSig("LD_GetPubIdFromInfoBlob"),
+                                                        VString(gargle),
+                                                        VString("test"),
+                                                        VInt(-1)
+                                                    )
+                                                end,
+                                                VSig("LD_GetPrivateUserInfoBlob"),
+                                                --VString(kw),
+                                                --VString(pin),
+                                                --VString(passwd),
+                                                VString("test"),
+                                                VString("1234"),
+                                                VString("test"),
+                                                VString("empty"),
+                                                VInt(-1)
+                                            )
                                         end
-
-                                        if ("" == passwd) then
-                                            unsafeStatus:labelSetText("Password cannot be empty.")
-                                            return
-                                        end
-
-                                        ctx:messageAsyncWCallback(
-                                            license,
-                                            function(val)
-                                                print("baptu")
-                                            end,
-                                            VSig("LD_GetPrivateUserInfoBlob"),
-                                            VString(kw),
-                                            VString(pin),
-                                            VString(passwd),
-                                            VString("empty"),
-                                            VInt(-1)
-                                        )
-                                    end
-                                )
-                            end
-                        end,
-                        VSig("LD_GetCurrentUserId"),
-                        VString("empty"),
-                        VInt(-1)
-                    )
+                                    )
+                                end
+                            end,
+                            VSig("LD_GetCurrentUserId"),
+                            VString("empty"),
+                            VInt(-1)
+                        )
+                    end
                 end
 
             registerUser =
@@ -712,6 +740,7 @@ initAll = function()
                         license,
                         VSig("LD_RegisterUser"),
                         VString(currUserId),
+                        VString(userblob.authblob),
                         VMsg(handler)
                     )
                 end

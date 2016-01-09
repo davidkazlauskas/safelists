@@ -184,6 +184,9 @@ int getNetworkIdFromInfoBlob(
     }
 
     unsigned char msgout[1024];
+    auto g = SCOPE_GUARD_LC(
+        ::memset(msgout,'\0',sizeof(msgout));
+    );
 
     size_t msgLen = boxer.decrypt(
         outbin,len,msgout,sizeof(msgout));
@@ -192,7 +195,7 @@ int getNetworkIdFromInfoBlob(
     rj::Document doc;
     doc.Parse(reinterpret_cast<const char*>(msgout));
 
-    ::memset(msgout,'\0',sizeof(msgout));
+    g.fire();
 
     if (doc.HasParseError()) {
         return 4;
@@ -214,6 +217,64 @@ int getNetworkIdFromInfoBlob(
     out = pubid.GetString();
     pubid.SetString(dummyPubB64(),strlen(dummyPubB64()));
     rj::Pointer("/secretkey").Set(doc,dummyPrivB64());
+
+    return 0;
+}
+
+int signUsageRequestWithBlob(
+    const SessionBoxer& boxer,
+    const std::string& blob,
+    std::string& outSignedString,
+    std::string& outSignature)
+{
+    if (blob.size() > 512) {
+        return 1;
+    }
+
+    unsigned char outbin[1024];
+    char cpy[1024];
+    ::strcpy(cpy,blob.c_str());
+    size_t len = sizeof(outbin);
+
+    int lenbin = ::base64decode(cpy,blob.size(),outbin,&len);
+    if (lenbin != 0) {
+        return 2;
+    }
+
+    if (len <= 0) {
+        return 3;
+    }
+
+    unsigned char msgout[1024];
+    auto g = SCOPE_GUARD_LC(
+        ::memset(msgout,'\0',sizeof(msgout));
+    );
+
+    size_t msgLen = boxer.decrypt(
+        outbin,len,msgout,sizeof(msgout));
+    msgout[msgLen] = '\0';
+
+    rj::Document doc;
+    doc.Parse(reinterpret_cast<const char*>(msgout));
+
+    g.fire();
+
+    if (doc.HasParseError()) {
+        return 4;
+    }
+
+    if (!doc.IsObject()) {
+        return 5;
+    }
+
+    if (!doc.HasMember("secretkey")) {
+        return 6;
+    }
+
+    auto& seckey = doc["secretkey"];
+    if (!seckey.IsString()) {
+        return 7;
+    }
 
     return 0;
 }

@@ -301,7 +301,7 @@ int signUsageRequestWithBlob(
     }
 
     auto& pubid = doc["pubid"];
-    if (pubid.IsString()) {
+    if (!pubid.IsString()) {
         return 9;
     }
 

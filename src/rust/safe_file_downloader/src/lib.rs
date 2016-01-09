@@ -522,8 +522,6 @@ pub extern fn extract_maid_info(
     pubmaid_b64_secret: *mut libc::c_schar)
     -> libc::int32_t
 {
-    println!("Hadouken!");
-
     let (keywordC,pinC,passwordC) = unsafe {
         let keywordC = std::ffi::CStr::from_ptr(keyword).to_str();
         let pinC = std::ffi::CStr::from_ptr(pin).to_str();

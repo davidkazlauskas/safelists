@@ -687,12 +687,12 @@ initAll = function()
                                                     )
                                                 end,
                                                 VSig("LD_GetPrivateUserInfoBlob"),
-                                                --VString(kw),
-                                                --VString(pin),
-                                                --VString(passwd),
-                                                VString("test"),
-                                                VString("1234"),
-                                                VString("test"),
+                                                VString(kw),
+                                                VString(pin),
+                                                VString(passwd),
+                                                --VString("test"),
+                                                --VString("1234"),
+                                                --VString("test"),
                                                 VString("empty"),
                                                 VInt(-1)
                                             )

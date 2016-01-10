@@ -20,6 +20,7 @@
 #include <io/AsyncDownloader.hpp>
 #include <model/AsyncSqliteFactory.hpp>
 #include <meta/Licensing.hpp>
+#include <meta/GlobalConsts.hpp>
 
 TEMPLATIOUS_TRIPLET_STD;
 
@@ -1969,6 +1970,7 @@ int main(int argc,char** argv) {
     auto downloader = SafeLists::AsyncDownloader::createNew("imitation");
     auto randomFileWriter = SafeLists::RandomFileWriter::make();
     auto licenseService = SafeLists::LicenseDaemon::getDaemon();
+    auto globalConsts = SafeLists::GlobalConsts::getConsts();
 
     auto dlFactory = SafeLists::
         SafeListDownloaderFactory::createNew(downloader,randomFileWriter);
@@ -1994,6 +1996,7 @@ int main(int argc,char** argv) {
     ctx->addMessageableWeak("shutdownGuard",shutdownGuard);
     ctx->addMessageableWeak("randomFileWriter",randomFileWriter);
     ctx->addMessageableWeak("licenseService",licenseService);
+    ctx->addMessageableWeak("globalConsts",globalConsts);
     ctx->addMessageableStrong("dlSessionFactory",dlFactory);
     ctx->addMessageableStrong("asyncSqliteFactory",asyncSqliteFactory);
     ctx->addMessageableStrong("dialogService",dialogService);

@@ -33,6 +33,8 @@ namespace {
             ::fclose(file);
         );
 
+        ::fwrite(data.c_str(),sizeof(char),data.size(),file);
+
         return 0;
     }
 }

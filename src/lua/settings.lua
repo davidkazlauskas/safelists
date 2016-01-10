@@ -1,6 +1,10 @@
 
 JSON = require('lua/JSON')
 
+function JSON:onDecodeError(message,text,location,etc)
+    -- http://replygif.net/i/828.gif
+end
+
 PersistentSettings = {
     -- saveFunction - (to call with json when saving)
     -- loadFunction - (called once in creation with function

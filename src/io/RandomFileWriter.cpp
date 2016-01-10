@@ -47,6 +47,21 @@ namespace {
             ::fclose(file);
         );
 
+        char buffer[256 * 4];
+
+        data = "";
+
+        int readres;
+        do {
+            readres = ::fread(
+                buffer,sizeof(char),sizeof(buffer),file);
+            data.append(buffer,readres);
+        } while (readres == sizeof(buffer));
+
+        if (0 == ::feof(file)) {
+            return 2;
+        }
+
         return 0;
     }
 }

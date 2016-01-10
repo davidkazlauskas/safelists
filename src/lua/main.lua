@@ -437,7 +437,19 @@ initAll = function()
             )
         end,
         function(functionForLoading)
-
+            ctx:messageAsyncWCallback(
+                writer,
+                function(out)
+                    local tbl = out:values()
+                    if (tbl._4 == 0) then
+                        functionForLoading(tbl._3)
+                    end
+                end,
+                VSig("RFW_ReadStringFromFile"),
+                VString(settingsFileLocation),
+                VString(""),
+                VInt(-1)
+            )
         end
     )
 

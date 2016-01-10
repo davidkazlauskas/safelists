@@ -2032,6 +2032,10 @@ initAll = function()
     table.insert(FrameEndFunctions,updateSessionWidget)
     table.insert(FrameEndFunctions,updateDownloadSpeed)
 
+    table.insert(FrameEndFunctions,function()
+        persistentSettings:persist()
+    end)
+
     noSafelistState()
 
     ctx:attachContextTo(mainWnd)

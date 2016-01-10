@@ -2,12 +2,17 @@
 JSON = require('lua/JSON')
 
 PersistentSettings = {
-    new = function(ioOps,filename)
+    new = function(ioOps,filename,interval)
+        local updInt = interval
+        if (nil == updInt) then
+            updInt = 7
+        end
         local output = {
             revision = 0,
             saveRevision = 0,
             io = ioOps,
             settingsfile = filename,
+            updateinterval = updInt,
             settings = {}
         }
         setmetatable(output,PersistentSettings.mt)
@@ -24,5 +29,6 @@ PersistentSettings.mt = {
     end,
     getValue = function(self,key)
         return self.settings[key]
-    end
+    end,
+
 }

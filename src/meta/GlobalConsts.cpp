@@ -46,7 +46,8 @@ namespace SafeLists {
     };
 
     StrongMsgPtr GlobalConsts::getConsts() {
-        return nullptr;
+        static auto instance = std::make_shared< GlobalConstsImpl >();
+        return instance;
     }
 
 }

@@ -51,7 +51,7 @@ namespace {
 
         data = "";
 
-        int readres;
+        size_t readres;
         do {
             readres = ::fread(
                 buffer,sizeof(char),sizeof(buffer),file);

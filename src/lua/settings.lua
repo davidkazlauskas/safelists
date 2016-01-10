@@ -2,7 +2,9 @@
 JSON = require('lua/JSON')
 
 PersistentSettings = {
-    new = function(ioOps,filename,interval)
+    -- saveFunction - (to call with json when saving)
+    -- loadFunction - (called once in creation)
+    new = function(saveFunction,loadFunction,interval)
         local updInt = interval
         if (nil == updInt) then
             updInt = 7
@@ -10,9 +12,9 @@ PersistentSettings = {
         local output = {
             revision = 0,
             saveRevision = 0,
-            io = ioOps,
-            settingsfile = filename,
+            saveFunction = saveFunction,
             updateinterval = updInt,
+            lastSave = 0,
             settings = {}
         }
         setmetatable(output,PersistentSettings.mt)
@@ -40,6 +42,12 @@ PersistentSettings.mt = {
         if (self.revision == self.saveRevision) then
             -- nothing to do
             return
+        end
+
+        local currTime = os.time()
+        if (currTime - self.lastSave > self.updateinterval) then
+            local toSave = JSON:encode_pretty(self.settings)
+            self.saveFunction(toSave)
         end
     end
 }

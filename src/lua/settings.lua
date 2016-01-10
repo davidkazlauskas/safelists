@@ -3,7 +3,8 @@ JSON = require('lua/JSON')
 
 PersistentSettings = {
     -- saveFunction - (to call with json when saving)
-    -- loadFunction - (called once in creation)
+    -- loadFunction - (called once in creation with function
+    -- to update the object with json)
     new = function(saveFunction,loadFunction,interval)
         local updInt = interval
         if (nil == updInt) then
@@ -18,6 +19,14 @@ PersistentSettings = {
             settings = {}
         }
         setmetatable(output,PersistentSettings.mt)
+        loadFunction(function(outString)
+            if (type(outString) == "string") then
+                local decoded = JSON:decode(outString)
+                if (decoded ~= nil and type(decoded) == "table") then
+                    output.settings = decoded
+                end
+            end
+        end)
         return output
     end
 }

@@ -3,6 +3,7 @@
 
 #include <util/Semaphore.hpp>
 #include <util/GenericShutdownGuard.hpp>
+#include <util/ScopeGuard.hpp>
 
 #include "RandomFileWriter.hpp"
 #include "RandomFileWriterImpl.hpp"
@@ -11,8 +12,27 @@ TEMPLATIOUS_TRIPLET_STD;
 
 typedef SafeLists::GracefulShutdownInterface GSI;
 
+
 namespace {
-    int writeDataToFileWDir(const std::string& path,const std::string& data) {
+
+    namespace fs = boost::filesystem;
+
+    int writeDataToFileWDir(const std::string& pathStr,const std::string& data) {
+        fs::path path(pathStr.c_str());
+        auto parentDir = path.parent_path();
+        if (!fs::exists(parentDir)) {
+            fs::create_directories(parentDir);
+        }
+
+        auto file = ::fopen(pathStr.c_str(),"w");
+        if (nullptr == file) {
+            return 1;
+        }
+
+        auto g = SCOPE_GUARD_LC(
+            ::fclose(file);
+        );
+
         return 0;
     }
 }

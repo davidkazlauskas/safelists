@@ -2530,7 +2530,6 @@ initAll = function()
 
             noSafelistState()
 
-            local writer = ctx:namedMessageable("randomFileWriter")
             ctx:messageAsyncWCallback(
                 writer,
                 function(out)
@@ -2544,7 +2543,7 @@ initAll = function()
                         local values = ctx:messageRetValues(
                             dialogService,
                             VSig("GDS_OkCancelDialog"),
-                            mainWnd,
+                            VMsg(mainWnd),
                             VString("Safelist exists"),
                             VString("Safelist already exists."
                             .. " Overwrite it? (data will be lost)"),

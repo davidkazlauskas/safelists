@@ -13,6 +13,7 @@ namespace {
         } else if (path == "settingspath") {
             auto udata = SafeLists::userDataPath();
             udata += "/settings.json";
+            out = udata;
         } else {
             return 1;
         }

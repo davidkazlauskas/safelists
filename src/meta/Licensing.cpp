@@ -1174,9 +1174,13 @@ int checkUserTimespanValidityFirstTier(
         return TimespanErrors::TE_INVALID_TIMESPAN;
     }
 
+    // allow 5 minute deviation for license calculation
+    // if our license is about to start and clocks
+    // are not properly synchronized with server
+    const int SEC_ADJUST = 1 * 60 * 5;
     auto currtime = std::time(nullptr);
     // license expiry date
-    if (!(fromNum <= currtime && toNum >= currtime)) {
+    if (!(fromNum <= currtime + SEC_ADJUST && toNum >= currtime)) {
         return TimespanErrors::TE_LICENSE_EXPIRED;
     }
 

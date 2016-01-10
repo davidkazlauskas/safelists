@@ -60,6 +60,7 @@ PersistentSettings.mt = {
         local currTime = os.time()
         if (currTime - self.lastSave > self.updateinterval) then
             local toSave = JSON:encode_pretty(self.settings)
+            self.lastSave = currTime
             self.saveFunction(toSave)
         end
     end

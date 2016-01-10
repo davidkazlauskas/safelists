@@ -1,6 +1,10 @@
 
 #include "GlobalConsts.hpp"
 
-StrongMsgPtr GlobalConsts::getConsts() {
-    return nullptr;
+namespace SafeLists {
+
+    StrongMsgPtr GlobalConsts::getConsts() {
+        return nullptr;
+    }
+
 }

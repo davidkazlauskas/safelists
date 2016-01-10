@@ -4,10 +4,14 @@
 #include <LuaPlumbing/messageable.hpp>
 #include <util/AutoReg.hpp>
 
-struct GlobalConsts {
+namespace SafeLists {
 
-    // singleton
-    static StrongMsgPtr getConsts();
-};
+    struct GlobalConsts {
+
+        // singleton
+        static StrongMsgPtr getConsts();
+    };
+
+}
 
 #endif /* end of include guard: GLOBALCONSTS_1I5CHXX9 */

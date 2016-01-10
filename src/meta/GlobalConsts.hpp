@@ -8,6 +8,16 @@ namespace SafeLists {
 
     struct GlobalConsts {
 
+        // Lookup string in global settings.
+        // Signature:
+        // <
+        //   LookupString,
+        //   const std::string (key),
+        //   std::string (out value),
+        //   int (errcode)
+        // >
+        DUMMY_REG(LookupString,"GLC_LookupString");
+
         // singleton
         static StrongMsgPtr getConsts();
     };

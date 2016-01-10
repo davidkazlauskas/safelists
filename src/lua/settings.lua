@@ -21,5 +21,8 @@ PersistentSettings.mt = {
             self.revision = self.revision + 1
             self.settings[key] = val
         end
+    end,
+    getValue = function(self,key)
+        return self.settings[key]
     end
 }

@@ -415,6 +415,31 @@ initAll = function()
     local ctx = luaContext()
     local mainWnd = ctx:namedMessageable("mainWindow")
     local genMainWnd = GenericWidget.putOn(mainWnd)
+    local globConsts = ctx:namedMessageable("globalConsts")
+    local writer = ctx:namedMessageable("randomFileWriter")
+
+    local settingsFileLocation = ctx:messageRetValues(
+        globConsts,
+        VSig("GLC_LookupString"),
+        VString("settingspath"),
+        VString(""),
+        VInt(-1)
+    )._3
+
+    local persistentSettings = PersistentSettings.new(
+        function(saveData)
+            ctx:messageAsync(
+                writer,
+                VSig("RFW_WriteStringToFileWDir"),
+                VString(settingsFileLocation),
+                VString(saveData),
+                VInt(-1)
+            )
+        end,
+        function(functionForLoading)
+
+        end
+    )
 
     local licTest = function()
         local dialogService = ctx:namedMessageable("dialogService")

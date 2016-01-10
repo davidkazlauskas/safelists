@@ -702,6 +702,12 @@ initAll = function()
                                                 return
                                             end
 
+                                            keywordField:widgetSetActive(false)
+                                            pinField:widgetSetActive(false)
+                                            passwordField:widgetSetActive(false)
+                                            buttonOfflineUnsafe:widgetSetActive(false)
+                                            buttonLoginUnsafe:widgetSetActive(false)
+
                                             ctx:messageAsyncWCallback(
                                                 license,
                                                 function(val)

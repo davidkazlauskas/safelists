@@ -11,6 +11,12 @@ TEMPLATIOUS_TRIPLET_STD;
 
 typedef SafeLists::GracefulShutdownInterface GSI;
 
+namespace {
+    int writeDataToFileWDir(const std::string& path,const std::string& data) {
+        return 0;
+    }
+}
+
 namespace SafeLists {
 
 struct RandomFileWriterImpl : public Messageable {
@@ -87,6 +93,16 @@ private:
             SF::virtualMatch< RFW::DeleteFile, const std::string >(
                 [](RFW::DeleteFile,const std::string& path) {
                     boost::filesystem::remove(path.c_str());
+                }
+            ),
+            SF::virtualMatch<
+                RFW::WriteStringToFileWDir,
+                const std::string,
+                const std::string,
+                int
+            >(
+                [](ANY_CONV,const std::string& path,const std::string& data,int& outerr) {
+                    outerr = writeDataToFileWDir(path,data);
                 }
             ),
             SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(

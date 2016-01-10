@@ -16,6 +16,10 @@ namespace SafeLists {
         //   std::string (out value),
         //   int (errcode)
         // >
+        //
+        // Settings:
+        // "userdatapath" -> path to userdata folder
+        // "settingspath" -> path to settings.json file
         DUMMY_REG(LookupString,"GLC_LookupString");
 
         // singleton

@@ -10,6 +10,9 @@ namespace {
     int lookupGlobal(const std::string& path,std::string& out) {
         if (path == "userdatapath") {
             out = SafeLists::userDataPath();
+        } else if (path == "settingspath") {
+            auto udata = SafeLists::userDataPath();
+            udata += "/settings.json";
         } else {
             return 1;
         }

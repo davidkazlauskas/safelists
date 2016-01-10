@@ -40,6 +40,27 @@ struct RandomFileWriter {
     // this pack.
     DUMMY_REG(WaitWrites,"RFW_WaitWrites");
 
+    // Write string to file, creating parent
+    // directories in progress.
+    // Signature:
+    // <
+    //   WriteStringToFileWDir,
+    //   const std::string (path),
+    //   const std::string (data),
+    //   int (out err code)
+    // >
+    DUMMY_REG(WriteStringToFileWDir,"RFW_WriteStringToFileWDir");
+
+    // Read string from file.
+    // Signature:
+    // <
+    //   ReadStringFromFile,
+    //   const std::string (path),
+    //   std::string (out),
+    //   int (out err code)
+    // >
+    DUMMY_REG(ReadStringFromFile,"RFW_ReadStringFromFile");
+
     // singleton
     static StrongMsgPtr make();
 };

@@ -17,6 +17,9 @@ PersistentSettings = {
 
 PersistentSettings.mt = {
     setValue = function(self,key,val)
-
+        if (self.settings[key] ~= val) then
+            self.revision = self.revision + 1
+            self.settings[key] = val
+        end
     end
 }

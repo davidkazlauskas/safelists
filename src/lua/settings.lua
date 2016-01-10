@@ -2,10 +2,12 @@
 JSON = require('lua/JSON')
 
 PersistentSettings = {
-    new = function(reader,filename)
+    new = function(ioOps,filename)
         local output = {
             revision = 0,
             saveRevision = 0,
+            io = ioOps,
+            settingsfile = filename,
             settings = {}
         }
         setmetatable(output,PersistentSettings.mt)

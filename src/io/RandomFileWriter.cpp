@@ -37,6 +37,18 @@ namespace {
 
         return 0;
     }
+
+    int readFileDataToString(const std::string& pathStr,std::string& data) {
+        auto file = ::fopen(pathStr.c_str(),"r");
+        if (nullptr == file) {
+            return 1;
+        }
+        auto g = SCOPE_GUARD_LC(
+            ::fclose(file);
+        );
+
+        return 0;
+    }
 }
 
 namespace SafeLists {
@@ -125,6 +137,16 @@ private:
             >(
                 [](ANY_CONV,const std::string& path,const std::string& data,int& outerr) {
                     outerr = writeDataToFileWDir(path,data);
+                }
+            ),
+            SF::virtualMatch<
+                RFW::ReadStringFromFile,
+                const std::string,
+                std::string,
+                int
+            >(
+                [](ANY_CONV,const std::string& path,std::string& data,int& outerr) {
+                    outerr = readFileDataToString(path,data);
                 }
             ),
             SF::virtualMatch< GSI::InRegisterItself, StrongMsgPtr >(

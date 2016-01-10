@@ -30,5 +30,13 @@ PersistentSettings.mt = {
     getValue = function(self,key)
         return self.settings[key]
     end,
+    -- persist settings,
+    -- called on gui loop.
+    -- task of this function is to defer
+    -- save until settings stayed unmodified
+    -- for a while and then save.
+    -- if settings don't change then don't save.
+    persist = function(self)
 
+    end
 }

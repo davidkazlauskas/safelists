@@ -1994,7 +1994,6 @@ int main(int argc,char** argv) {
     ctx->addMessageableWeak("shutdownGuard",shutdownGuard);
     ctx->addMessageableWeak("randomFileWriter",randomFileWriter);
     ctx->addMessageableWeak("licenseService",licenseService);
-    ctx->addMessageableWeak("ioutil",randomFileWriter);
     ctx->addMessageableStrong("dlSessionFactory",dlFactory);
     ctx->addMessageableStrong("asyncSqliteFactory",asyncSqliteFactory);
     ctx->addMessageableStrong("dialogService",dialogService);

@@ -1,0 +1,3 @@
+
+JSON = require('lua/JSON')
+

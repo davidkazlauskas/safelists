@@ -2,7 +2,7 @@
 --require('lua/mobdebug').start()
 require('lua/safelist-constants')
 require('lua/genericwidget')
-JSON = require('lua/JSON')
+require('lua/settings')
 
 setStatus = function(context,widget,text)
     context:message(widget,VSig("MWI_InSetStatusText"),VString(text))

@@ -434,7 +434,9 @@ Click "Register" to register (should take less than 10 seconds), or use offline 
                 <property name="margin_right">10</property>
                 <property name="xpad">7</property>
                 <property name="ypad">7</property>
-                <property name="label" translatable="yes">Cannot connect to safe launcher. Would you like to login to the safe network directly to retrieve user private keys? Will block if credentials are incorrect. (WARNING: this is unsafe and you should only do this if you know what you're doing)</property>
+                <property name="label" translatable="yes">Cannot connect to safe launcher. Would you like to login to the safe network directly to retrieve user private keys? Will block if credentials are incorrect. (WARNING: this is unsafe and you should only do this if you know what you're doing)
+
+Alternatively press offline mode button (allows downloading only)</property>
                 <property name="justify">center</property>
                 <property name="wrap">True</property>
                 <property name="max_width_chars">60</property>

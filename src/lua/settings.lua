@@ -8,6 +8,8 @@ PersistentSettings = {
             saveRevision = 0,
             settings = {}
         }
+        setmetatable(output,PersistentSettings.mt)
+        return output
     end
 }
 

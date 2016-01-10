@@ -1,5 +1,6 @@
 
 #include <util/GenericStMessageable.hpp>
+#include <util/ProgramArgs.hpp>
 #include "GlobalConsts.hpp"
 
 TEMPLATIOUS_TRIPLET_STD;
@@ -7,6 +8,12 @@ TEMPLATIOUS_TRIPLET_STD;
 namespace {
 
     int lookupGlobal(const std::string& path,std::string& out) {
+        if (path == "userdatapath") {
+            out = SafeLists::userDataPath();
+        } else {
+            return 1;
+        }
+
         return 0;
     }
 

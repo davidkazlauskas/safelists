@@ -23,11 +23,14 @@ PersistentSettings = {
             settings = {}
         }
         setmetatable(output,PersistentSettings.mt)
+        --print("About to load settings...")
         loadFunction(function(outString)
+            --print("Load function entered: |" .. outString .. "|")
             if (type(outString) == "string") then
                 local decoded = JSON:decode(outString)
                 if (decoded ~= nil and type(decoded) == "table") then
                     output.settings = decoded
+                    --print("load success")
                 end
             end
         end)
@@ -39,6 +42,7 @@ PersistentSettings.mt = {
     __index = {
         setValue = function(self,key,val)
             if (self.settings[key] ~= val) then
+                --print("changing settings")
                 self.revision = self.revision + 1
                 self.settings[key] = val
             end
@@ -59,9 +63,12 @@ PersistentSettings.mt = {
             end
 
             local currTime = os.time()
-            if (currTime - self.lastSave > self.updateinterval) then
+            if (currTime - self.lastSave > self.updateinterval)
+            then
                 local toSave = JSON:encode_pretty(self.settings)
                 self.lastSave = currTime
+                self.saveRevision = self.revision
+                --print("Persisting settings...")
                 self.saveFunction(toSave)
             end
         end

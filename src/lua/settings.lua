@@ -37,6 +37,9 @@ PersistentSettings.mt = {
     -- for a while and then save.
     -- if settings don't change then don't save.
     persist = function(self)
-
+        if (self.revision == self.saveRevision) then
+            -- nothing to do
+            return
+        end
     end
 }

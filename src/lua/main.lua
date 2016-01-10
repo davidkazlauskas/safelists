@@ -1108,6 +1108,7 @@ initAll = function()
         local path = themes[name]
         assert( nil ~= path, "Theme doesn't exist." )
         loadCss(path)
+        persistentSettings:setValue("safelists.theme",name)
     end
 
     -- menu bar model attempt
@@ -1141,8 +1142,20 @@ initAll = function()
 
         menuBar:menuBarSetModelStackless(model)
 
-        -- current default
-        loadTheme("Adwaita (light)")
+        -- we need to stage this next because
+        -- json settings are not already queried
+        local setupCurrent = function()
+            -- current default
+            local currTheme = persistentSettings:getValue("safelists.theme")
+            local defaultTheme = "Adwaita (light)"
+            if (nil == currTheme) then
+                loadTheme(defaultTheme)
+            else
+                loadTheme(currTheme)
+            end
+        end
+
+        table.insert(OneOffFunctions,setupCurrent)
     end
     menuBarModelStuff()
 

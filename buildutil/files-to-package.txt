@@ -22,4 +22,7 @@ normal|exampleData/example1.safelist|appdata/examples/example1.safelist
 normal|exampleData/example2.safelist|appdata/examples/example2.safelist
 # gnome schemas
 directory|appdata/usr/share/glib-2.0/schemas|-
+# default icons
+normal|appdata/usr/share/icons/Adwaita/index.theme|-
+directory|appdata/usr/share/icons/Adwaita/16x16|-
 

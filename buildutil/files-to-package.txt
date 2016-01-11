@@ -6,3 +6,5 @@
 #
 # executables
 normal|safelists|-
+normal|libsafefiledownloader.so|-
+directory|lua|-

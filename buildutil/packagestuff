@@ -15,6 +15,7 @@ if [ -z "$OUTPUT_ZIP_NAME" ]; then
     OUTPUT_ZIP_NAME="package.zip"
 fi
 OUTPUT_ZIP_PATH="$OUTPUT_DIR/$OUTPUT_ZIP_NAME"
+SIGNATURE_JSON_OUT_PATH=""
 
 rm -rf "$OUTPUT_DIR"
 mkdir -p "$RAW_DIR"
@@ -86,7 +87,7 @@ function genericcopy {
 
 INPUT_FILE_STR=$( cat "$INPUT_FILE" )
 
-echo "$INPUT_FILE_STR" | while read -r line || [[ -n "$line" ]]; do
+while read -r line || [[ -n "$line" ]]; do
     # skip comments
     if [[ $line != \#* ]];
     then
@@ -103,9 +104,34 @@ echo "$INPUT_FILE_STR" | while read -r line || [[ -n "$line" ]]; do
             directory)
                 genericcopy $( getsplit 2 "$line" ) $( getsplit 3 "$line" ) -rv
             ;;
+            signature)
+                export SIGNATURE_JSON_OUT_PATH=$RAW_DIR/$( getsplit 2 "$line" )
+            ;;
         esac
     fi
-done
+done <<< "$INPUT_FILE_STR"
+
+echo "SIG|$SIGNATURE_JSON_OUT_PATH|"
+if [ -n "$SIGNATURE_JSON_OUT_PATH" ]; then
+    # everything after first cycle should be signed
+    pushd "$RAW_DIR"
+    SIGNATURE_FILES=$( find . -type f | sed -E "s/\.\///" | sed -E "s/^(.*)$/\"\1\"/" )
+    popd
+
+    OUTPUT_JSON="{\"signature\":\"\",\"files\":["
+    FILE_COUNT=0
+    while read -r line || [[ -n "$line" ]]; do
+        if [ "$FILE_COUNT" -ne "0" ];
+        then
+            OUTPUT_JSON="$OUTPUT_JSON,"
+        fi
+        OUTPUT_JSON="$OUTPUT_JSON$line"
+        (( ++FILE_COUNT ))
+    done <<< "$SIGNATURE_FILES"
+    OUTPUT_JSON="$OUTPUT_JSON]}"
+
+    echo "$OUTPUT_JSON" | python -m json.tool > $SIGNATURE_JSON_OUT_PATH
+fi
 
 # first zipping cycle
 pushd "$OUTPUT_DIR"
@@ -114,7 +140,7 @@ zip -r -9 "$OUTPUT_ZIP_PATH" "./$RAW_DIR_NAME"
 popd
 
 # second proc cycle
-echo "$INPUT_FILE_STR" | while read -r line || [[ -n "$line" ]]; do
+while read -r line || [[ -n "$line" ]]; do
     # skip comments
     if [[ $line != \#* ]];
     then
@@ -129,4 +155,4 @@ echo "$INPUT_FILE_STR" | while read -r line || [[ -n "$line" ]]; do
             ;;
         esac
     fi
-done
+done <<< "$INPUT_FILE_STR"

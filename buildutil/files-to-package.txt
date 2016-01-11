@@ -2,6 +2,8 @@
 # <file mode> <file path in input dir> <file path in output (- if same)>
 # file modes:
 #   normal - add file and compress to the max
+#   strip - as normal but strips symbols
+#   directory - copy entire directory
 #   store - store file rather than compress
 #
 # executables
@@ -21,6 +23,8 @@ normal|appdata/uischemes/licensing.glade|-
 normal|appdata/uischemes/main.glade|-
 # appdata themes
 directory|appdata/themes/|-
+# refid
+store|appdata/refid|-
 # examples
 normal|exampleData/example1.safelist|appdata/examples/example1.safelist
 normal|exampleData/example2.safelist|appdata/examples/example2.safelist

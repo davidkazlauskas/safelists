@@ -27,7 +27,7 @@ while read -r line || [[ -n "$line" ]]; do
                 echo "normal copy!"
                 FROM=$( getsplit 2 "$line" )
                 TO=$( getsplit 3 "$line" )
-                if [ "-" eq "$TO" ];
+                if [ "-" -eq "$TO" ];
                 then
                     cp -v "$BASE_INPUT_DIR/$FROM" "$RAW_DIR/$FROM"
                 else

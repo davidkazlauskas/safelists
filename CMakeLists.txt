@@ -41,7 +41,7 @@ ADD_DEFINITIONS(
     -std=c++11
     -g
     -DSAFELISTS_TESTING
-    #-O3
+    -O3
 )
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release" OR USE_PROD_KEYS)
@@ -90,8 +90,11 @@ SET( DOMAIN_SOURCES
     src/model/AsyncSqliteFactory.cpp
     src/meta/Licensing.cpp
     src/meta/GlobalConsts.cpp
-    src/meta/SignatureCheck.cpp
     )
+
+SET( SIGN_SOURCES
+    src/meta/SignatureCheck.cpp
+    src/util/Base64.cpp )
 
 include_directories(
     ${LIBINCLUDE_DIRS}
@@ -168,6 +171,9 @@ add_custom_target( copy-gtk-icons ALL
 add_custom_target( copy-gtk-themes ALL
     COMMAND ${RSYNC} -az "${CMAKE_SOURCE_DIR}/src/themes" "${CMAKE_BINARY_DIR}/appdata/"
     DEPENDS create-gtk-schemas-dir )
+add_custom_target( copy-app-data ALL
+    COMMAND ${RSYNC} -az "${CMAKE_SOURCE_DIR}/appData/" "${CMAKE_BINARY_DIR}/appdata/"
+    DEPENDS create-gtk-schemas-dir )
 if (NOT SAFE_FILE_DOWNLOADER_PREBUILT)
     add_custom_target( build-safe-dl-build ALL
         COMMAND CARGO_TARGET_DIR=${CMAKE_BINARY_DIR}/rustlib ${CARGO_COMMAND}
@@ -196,9 +202,16 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     SET( LINUX_EXTRA_LIBS "dl" )
 endif()
 
+add_library( metasign ${SIGN_SOURCES} )
+target_link_libraries( metasign
+    sodium
+    ${Boost_FILESYSTEM_LIBRARY}
+    ${Boost_SYSTEM_LIBRARY}
+    )
+
 add_library( domain ${DOMAIN_SOURCES} )
 target_link_libraries( domain
-    sqlite3 pthread
+    metasign sqlite3 pthread
     sodium scrypt plumbing
     ${CURL_LIBRARIES}
     ${Boost_FILESYSTEM_LIBRARY}
@@ -234,7 +247,7 @@ add_executable( dumbhash256 ${DUMB_HASH_SOURCES} )
 target_link_libraries( dumbhash256 domain )
 
 add_executable( signjson ${SIGN_JSON_SOURCES} )
-target_link_libraries( signjson domain )
+target_link_libraries( signjson metasign )
 
 add_library( gtkspec ${GTK_SOURCES} )
 target_link_libraries( gtkspec domain ${GTKMM_LIBRARIES} )

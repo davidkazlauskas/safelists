@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# $1 - zip to sign
+# $2 - private key to use
+# $3 - signjson executable file
+# $4 - dir to cd to
+# $5 - signature.json
+# $6 - tmp work dir
+# $7 - resulting zip output
+
+TO_SIGN="$1"
+PRIVATE_KEY="$2"
+SIGN_JSON="$3"
+SIGN_WORK_DIR="$4"
+JSON_TO_SIGN="$5"
+WORK_DIR="$6"
+OUTPUT_ZIP="$7"
+
+RANDOM_DIR=$( date | md5sum | cut -f1 -d\  )
+rm -rf "$WORK_DIR"
+mkdir -p "$WORK_DIR"
+
+unzip "$TO_SIGN" -d "$WORK_DIR/$RANDOM_DIR"
+pushd "$WORK_DIR/$RANDOM_DIR/$SIGN_WORK_DIR"
+$SIGN_JSON "$PRIVATE_KEY" "$JSON_TO_SIGN"

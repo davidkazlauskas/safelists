@@ -17,6 +17,23 @@ function getsplit {
     echo "$RES"
 }
 
+function genericcopy {
+    FROM="$1"
+    TO="$2"
+    CPFLAGS="$3"
+
+    INPATH="$BASE_INPUT_DIR/$FROM"
+    OUTPATH="$RAW_DIR/$TO"
+    if [ "-" = "$TO" ];
+    then
+        OUTPATH="$RAW_DIR/$FROM"
+    fi
+
+    TO_CREATE=$( dirname "$OUTPATH" )
+    mkdir -p "$TO_CREATE"
+    cp $CPFLAGS "$INPATH" "$OUTPATH"
+}
+
 while read -r line || [[ -n "$line" ]]; do
     # skip comments
     if [[ $line != \#* ]];
@@ -24,32 +41,10 @@ while read -r line || [[ -n "$line" ]]; do
         FIRST_RULE=$( getsplit 1 "$line" )
         case $FIRST_RULE in
             normal)
-                FROM=$( getsplit 2 "$line" )
-                TO=$( getsplit 3 "$line" )
-                INPATH="$BASE_INPUT_DIR/$FROM"
-                OUTPATH="$RAW_DIR/$TO"
-                if [ "-" = "$TO" ];
-                then
-                    OUTPATH="$RAW_DIR/$FROM"
-                fi
-
-                TO_CREATE=$( dirname "$OUTPATH" )
-                mkdir -p "$TO_CREATE"
-                cp -v "$INPATH" "$OUTPATH"
+                genericcopy $( getsplit 2 "$line" ) $( getsplit 3 "$line" ) -v
             ;;
             directory)
-                FROM=$( getsplit 2 "$line" )
-                TO=$( getsplit 3 "$line" )
-                INPATH="$BASE_INPUT_DIR/$FROM"
-                OUTPATH="$RAW_DIR/$TO"
-                if [ "-" = "$TO" ];
-                then
-                    OUTPATH="$RAW_DIR/$FROM"
-                fi
-
-                TO_CREATE=$( dirname "$OUTPATH" )
-                mkdir -p "$TO_CREATE"
-                cp -rv "$INPATH" "$OUTPATH"
+                genericcopy $( getsplit 2 "$line" ) $( getsplit 3 "$line" ) -rv
             ;;
         esac
     fi

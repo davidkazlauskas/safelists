@@ -7,4 +7,9 @@
 # executables
 normal|safelists|-
 normal|libsafefiledownloader.so|-
+# lua
 directory|lua|-
+# appdata
+directory|appdata|-
+# examples
+normal|exampleData/example1.safelist|appdata/examples/example1.safelist

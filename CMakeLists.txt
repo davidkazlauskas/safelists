@@ -181,6 +181,11 @@ else()
         COMMAND ${RSYNC} "${SAFE_FILE_DOWNLOADER_PREBUILT}" "${RUST_LINK_DIR}/" )
 endif()
 
+add_custom_target( package-zip
+    COMMAND ${CMAKE_SOURCE_DIR}/buildutil/packagestuff
+        ${CMAKE_SOURCE_DIR}/buildutil/files-to-package.txt
+        ${CMAKE_BINARY_DIR} ${CMAKE_BINARY_DIR}/package )
+
 file(GLOB SCRYPT_SOURCES ${LIBSCRYPT_DIR}/*.c )
 set_source_files_properties( ${SCRYPT_SOURCES} PROPERTIES LANGUAGE CXX )
 set_source_files_properties( ${SCRYPT_SOURCES} PROPERTIES COMPILE_FLAGS "-xc -std=c99" )

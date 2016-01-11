@@ -8,7 +8,7 @@
 INPUT_FILE="$1"
 BASE_INPUT_DIR="$2"
 OUTPUT_DIR="$3"
-RAW_DIR="$OUTPUT_DIR/raw"
+RAW_DIR="$OUTPUT_DIR/safelists"
 OUTPUT_ZIP_NAME="$4"
 if [ -z "$OUTPUT_ZIP_NAME" ]; then
     OUTPUT_ZIP_NAME="package.zip"
@@ -64,4 +64,6 @@ echo "$INPUT_FILE_STR" | while read -r line || [[ -n "$line" ]]; do
 done
 
 # first zipping cycle
-
+pushd "$OUTPUT_DIR"
+rm -f "$OUTPUT_ZIP_PATH"
+zip -r -9 "$OUTPUT_ZIP_PATH" "./safelists"

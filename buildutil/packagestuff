@@ -4,9 +4,15 @@
 # $2 - base input directory (no trailing slash)
 # $3 - output packaging directory
 
+mkdir -p "$3"
+
 INPUT_FILE="$1"
 BASE_INPUT_DIR="$2"
 OUTPUT_DIR="$3"
-while read -r line [[ -n "$line" ]]; do
-    echo "$line"
+while read -r line || [[ -n "$line" ]]; do
+    # skip comments
+    if [[ $line != \#* ]];
+    then
+        echo "$line"
+    fi
 done < "$INPUT_FILE"

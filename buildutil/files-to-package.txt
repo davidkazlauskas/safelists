@@ -1,0 +1,8 @@
+# syntax:
+# <file path in input dir> <file path in output (- if same)> <file mode>
+# file modes:
+#   normal - add file and compress to the max
+#   store - store file rather than compress
+#
+# executables
+safelists - normal

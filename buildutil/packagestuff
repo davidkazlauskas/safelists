@@ -9,6 +9,7 @@ BASE_INPUT_DIR="$2"
 OUTPUT_DIR="$3"
 
 mkdir -p "$OUTPUT_DIR"
+mkdir -p "$OUTPUT_DIR/raw"
 
 while read -r line || [[ -n "$line" ]]; do
     # skip comments

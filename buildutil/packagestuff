@@ -8,7 +8,8 @@
 INPUT_FILE="$1"
 BASE_INPUT_DIR="$2"
 OUTPUT_DIR="$3"
-RAW_DIR="$OUTPUT_DIR/safelists"
+RAW_DIR_NAME="safelists"
+RAW_DIR="$OUTPUT_DIR/$RAW_DIR_NAME"
 OUTPUT_ZIP_NAME="$4"
 if [ -z "$OUTPUT_ZIP_NAME" ]; then
     OUTPUT_ZIP_NAME="package.zip"
@@ -17,6 +18,49 @@ OUTPUT_ZIP_PATH="$OUTPUT_DIR/$OUTPUT_ZIP_NAME"
 
 rm -rf "$OUTPUT_DIR"
 mkdir -p "$RAW_DIR"
+
+# copy paste from
+# stackoverflow.com/questions/2564634/convert-absolute-path-into-relative-path-given-a-current-directory-using-bash
+function relfromabs {
+    # both $1 and $2 are absolute paths beginning with /
+    # returns relative path to $2/$target from $1/$source
+    source=$1
+    target=$2
+
+    common_part=$source # for now
+    result="" # for now
+
+    while [[ "${target#$common_part}" == "${target}" ]]; do
+        # no match, means that candidate common part is not correct
+        # go up one level (reduce common part)
+        common_part="$(dirname $common_part)"
+        # and record that we went back, with correct / handling
+        if [[ -z $result ]]; then
+            result=".."
+        else
+            result="../$result"
+        fi
+    done
+
+    if [[ $common_part == "/" ]]; then
+        # special case for root (no common path)
+        result="$result/"
+    fi
+
+    # since we now have identified the common part,
+    # compute the non-common part
+    forward_part="${target#$common_part}"
+
+    # and now stick all parts together
+    if [[ -n $result ]] && [[ -n $forward_part ]]; then
+        result="$result$forward_part"
+    elif [[ -n $forward_part ]]; then
+        # extra slash removal
+        result="${forward_part:1}"
+    fi
+
+    echo $result
+}
 
 function getsplit {
     RES=$( echo "$2" | cut -f$1 -d\| )
@@ -66,4 +110,23 @@ done
 # first zipping cycle
 pushd "$OUTPUT_DIR"
 rm -f "$OUTPUT_ZIP_PATH"
-zip -r -9 "$OUTPUT_ZIP_PATH" "./safelists"
+zip -r -9 "$OUTPUT_ZIP_PATH" "./$RAW_DIR_NAME"
+popd
+
+# second proc cycle
+echo "$INPUT_FILE_STR" | while read -r line || [[ -n "$line" ]]; do
+    # skip comments
+    if [[ $line != \#* ]];
+    then
+        FIRST_RULE=$( getsplit 1 "$line" )
+        case $FIRST_RULE in
+            store)
+                genericcopy $( getsplit 2 "$line" ) $( getsplit 3 "$line" ) -v
+                pushd "$OUTPUT_DIR"
+                TO_ADD=$( relfromabs "$OUTPUT_DIR" "$OUTPATH" )
+                zip -0 "$OUTPUT_ZIP_PATH" "./$TO_ADD"
+                popd
+            ;;
+        esac
+    fi
+done

@@ -9,7 +9,7 @@ BASE_INPUT_DIR="$2"
 OUTPUT_DIR="$3"
 RAW_DIR="$OUTPUT_DIR/raw"
 
-mkdir -p "$OUTPUT_DIR"
+rm -rf "$OUTPUT_DIR"
 mkdir -p "$RAW_DIR"
 
 function getsplit {
@@ -26,22 +26,30 @@ while read -r line || [[ -n "$line" ]]; do
             normal)
                 FROM=$( getsplit 2 "$line" )
                 TO=$( getsplit 3 "$line" )
+                INPATH="$BASE_INPUT_DIR/$FROM"
+                OUTPATH="$RAW_DIR/$TO"
                 if [ "-" = "$TO" ];
                 then
-                    cp -v "$BASE_INPUT_DIR/$FROM" "$RAW_DIR/$FROM"
-                else
-                    cp -v "$BASE_INPUT_DIR/$FROM" "$RAW_DIR/$TO"
+                    OUTPATH="$RAW_DIR/$FROM"
                 fi
+
+                TO_CREATE=$( dirname "$OUTPATH" )
+                mkdir -p "$TO_CREATE"
+                cp -v "$INPATH" "$OUTPATH"
             ;;
             directory)
                 FROM=$( getsplit 2 "$line" )
                 TO=$( getsplit 3 "$line" )
+                INPATH="$BASE_INPUT_DIR/$FROM"
+                OUTPATH="$RAW_DIR/$TO"
                 if [ "-" = "$TO" ];
                 then
-                    cp -rv "$BASE_INPUT_DIR/$FROM" "$RAW_DIR/$FROM"
-                else
-                    cp -rv "$BASE_INPUT_DIR/$FROM" "$RAW_DIR/$TO"
+                    OUTPATH="$RAW_DIR/$FROM"
                 fi
+
+                TO_CREATE=$( dirname "$OUTPATH" )
+                mkdir -p "$TO_CREATE"
+                cp -rv "$INPATH" "$OUTPATH"
             ;;
         esac
     fi

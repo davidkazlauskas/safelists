@@ -9,7 +9,11 @@ normal|safelists|-
 normal|libsafefiledownloader.so|-
 # lua
 directory|lua|-
-# appdata
-directory|appdata|-
+# appdata uischemes
+normal|appdata/uischemes/|-
+normal|appdata/uischemes/dialogs.glade|-
+normal|appdata/uischemes/download_progress.glade|-
+normal|appdata/uischemes/licensing.glade|-
+normal|appdata/uischemes/main.glade|-
 # examples
 normal|exampleData/example1.safelist|appdata/examples/example1.safelist

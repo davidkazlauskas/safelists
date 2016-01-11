@@ -3,11 +3,17 @@
 # $1 - file list to package
 # $2 - base input directory (no trailing slash)
 # $3 - output packaging directory
+# $4 - output zip name (optional)
 
 INPUT_FILE="$1"
 BASE_INPUT_DIR="$2"
 OUTPUT_DIR="$3"
 RAW_DIR="$OUTPUT_DIR/raw"
+OUTPUT_ZIP_NAME="$4"
+if [ -z "$OUTPUT_ZIP_NAME" ]; then
+    OUTPUT_ZIP_NAME="package.zip"
+fi
+OUTPUT_ZIP_PATH="$OUTPUT_DIR/$OUTPUT_ZIP_NAME"
 
 rm -rf "$OUTPUT_DIR"
 mkdir -p "$RAW_DIR"
@@ -56,3 +62,6 @@ echo "$INPUT_FILE_STR" | while read -r line || [[ -n "$line" ]]; do
         esac
     fi
 done
+
+# first zipping cycle
+

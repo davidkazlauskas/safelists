@@ -5,6 +5,7 @@
 #   strip - as normal but strips symbols
 #   directory - copy entire directory
 #   store - store file rather than compress
+#   signature - signature file path
 #
 # executables
 # linux
@@ -23,7 +24,7 @@ normal|appdata/uischemes/licensing.glade|-
 normal|appdata/uischemes/main.glade|-
 # appdata themes
 directory|appdata/themes/|-
-# refid
+# refid, store to overwrite on server according to referral
 store|appdata/refid|-
 # examples
 normal|exampleData/example1.safelist|appdata/examples/example1.safelist
@@ -33,4 +34,5 @@ directory|appdata/usr/share/glib-2.0/schemas|-
 # default icons
 normal|appdata/usr/share/icons/Adwaita/index.theme|-
 directory|appdata/usr/share/icons/Adwaita/16x16|-
-
+# signature generation path
+signature|signature.json

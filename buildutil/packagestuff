@@ -24,7 +24,6 @@ while read -r line || [[ -n "$line" ]]; do
         FIRST_RULE=$( getsplit 1 "$line" )
         case $FIRST_RULE in
             normal)
-                echo "normal copy!"
                 FROM=$( getsplit 2 "$line" )
                 TO=$( getsplit 3 "$line" )
                 if [ "-" = "$TO" ];
@@ -32,6 +31,16 @@ while read -r line || [[ -n "$line" ]]; do
                     cp -v "$BASE_INPUT_DIR/$FROM" "$RAW_DIR/$FROM"
                 else
                     cp -v "$BASE_INPUT_DIR/$FROM" "$RAW_DIR/$TO"
+                fi
+            ;;
+            directory)
+                FROM=$( getsplit 2 "$line" )
+                TO=$( getsplit 3 "$line" )
+                if [ "-" = "$TO" ];
+                then
+                    cp -rv "$BASE_INPUT_DIR/$FROM" "$RAW_DIR/$FROM"
+                else
+                    cp -rv "$BASE_INPUT_DIR/$FROM" "$RAW_DIR/$TO"
                 fi
             ;;
         esac

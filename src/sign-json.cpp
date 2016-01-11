@@ -2,7 +2,7 @@
 #include <templatious/FullPack.hpp>
 #include <boost/filesystem.hpp>
 #include <rapidjson/document.h>
-#include <rapidjson/writer.h>
+#include <rapidjson/prettywriter.h>
 #include <rapidjson/filewritestream.h>
 #include <meta/SignatureCheck.hpp>
 #include <util/ScopeGuard.hpp>
@@ -92,7 +92,7 @@ int main(int argc,char* argv[]) {
     );
 
     rj::FileWriteStream os(toWrite,writeBuf,sizeof(writeBuf));
-    rj::Writer< rj::FileWriteStream > w(os);
+    rj::PrettyWriter< rj::FileWriteStream > w(os);
     out.Accept(w);
 
     close.fire();

@@ -79,7 +79,6 @@ SET( DOMAIN_SOURCES
     src/util/Misc.cpp
     src/util/GracefulShutdownGuard.cpp
     src/util/GenericStMessageable.cpp
-    src/util/Base64.cpp
     src/util/ProgramArgs.cpp
     src/io/RandomFileWriterImpl.cpp
     src/io/Interval.cpp

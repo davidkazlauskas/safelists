@@ -5,8 +5,12 @@
 #   store - store file rather than compress
 #
 # executables
+# linux
 strip|safelists|-
 strip|libsafefiledownloader.so|-
+# windows
+strip|safelists.exe|-
+strip|safefiledownloader.dll|-
 # lua
 directory|lua|-
 # appdata uischemes

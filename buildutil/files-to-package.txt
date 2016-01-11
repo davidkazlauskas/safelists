@@ -5,8 +5,8 @@
 #   store - store file rather than compress
 #
 # executables
-normal|safelists|-
-normal|libsafefiledownloader.so|-
+strip|safelists|-
+strip|libsafefiledownloader.so|-
 # lua
 directory|lua|-
 # appdata uischemes
@@ -15,6 +15,11 @@ normal|appdata/uischemes/dialogs.glade|-
 normal|appdata/uischemes/download_progress.glade|-
 normal|appdata/uischemes/licensing.glade|-
 normal|appdata/uischemes/main.glade|-
+# appdata themes
+directory|appdata/themes/|-
 # examples
 normal|exampleData/example1.safelist|appdata/examples/example1.safelist
 normal|exampleData/example2.safelist|appdata/examples/example2.safelist
+# gnome schemas
+directory|appdata/usr/share/glib-2.0/schemas|-
+

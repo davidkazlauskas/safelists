@@ -387,21 +387,15 @@ SignFileListError signFileList(
     return SignFileListError::Success;
 }
 
-VerifyFileListError verifyFileList(
-    const char* publicKeyPath,
+VerifyFileListError verifyFileListPubKey(
+    unsigned char (&pk)[crypto_sign_PUBLICKEYBYTES],
     const char* signature,
     const std::string& rootPath,
     const std::vector< std::string >& paths
 )
 {
-    unsigned char pk[crypto_sign_PUBLICKEYBYTES];
-    int res = readSodiumPublicKey(publicKeyPath,pk);
-    if (0 != res) {
-        return VerifyFileListError::KeyReadFail;
-    }
-
     unsigned char hashOfAll[32];
-    res = hashFileListSha256(rootPath,paths,hashOfAll);
+    int res = hashFileListSha256(rootPath,paths,hashOfAll);
     if (0 != res) {
         return VerifyFileListError::HashingFailed;
     }
@@ -431,6 +425,22 @@ VerifyFileListError verifyFileList(
     return 0 == ver ?
         VerifyFileListError::Success :
         VerifyFileListError::VerificationFailed;
+}
+
+VerifyFileListError verifyFileList(
+    const char* publicKeyPath,
+    const char* signature,
+    const std::string& rootPath,
+    const std::vector< std::string >& paths
+)
+{
+    unsigned char pk[crypto_sign_PUBLICKEYBYTES];
+    int res = readSodiumPublicKey(publicKeyPath,pk);
+    if (0 != res) {
+        return VerifyFileListError::KeyReadFail;
+    }
+
+    return verifyFileListPubKey(pk,signature,rootPath,paths);
 }
 
 }

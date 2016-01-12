@@ -407,7 +407,12 @@ VerifyFileListError verifyFileListPubKey(
 
     unsigned char signatureNoHex[crypto_sign_BYTES];
     size_t outLen = crypto_sign_BYTES;
+
     int sigLen = strlen(signature);
+    if (sigLen == 0) {
+        return VerifyFileListError::EmptySignature;
+    }
+
     std::vector< char > cpy(sigLen);
     ::strcpy(cpy.data(),signature);
 

@@ -4,6 +4,9 @@ project( SafeLists CXX )
 find_package(PkgConfig REQUIRED)
 find_package(Boost COMPONENTS system filesystem REQUIRED)
 
+# MXE dependencies:
+# make sqlite gtkmm3 lua sodium curl adwaita-icon-theme boost
+
 macro(ensure_pkg_version action package version var)
     pkg_check_modules(${var} ${package})
     if(NOT ${var}_FOUND)

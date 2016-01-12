@@ -1965,8 +1965,8 @@ void startupDialog(const char* message) {
 
 void checkSignature() {
     std::string srvKey = SafeLists::getServerSignKey();
-    std::string rootPath = SafeLists::executablePath();
-    std::string sigPath = rootPath + "/signature.json";
+    std::string rootPath = SafeLists::executablePath() + "/";
+    std::string sigPath = rootPath + "signature.json";
 
     std::vector< std::string > outPaths;
     std::string signature;

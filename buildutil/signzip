@@ -59,7 +59,8 @@ function relfromabs {
     echo $result
 }
 
-RANDOM_DIR="$WORK_DIR/$( date | md5sum | cut -f1 -d\  )"
+#RANDOM_DIR="$WORK_DIR/$( date | md5sum | cut -f1 -d\  )"
+RANDOM_DIR="$WORK_DIR"
 rm -rf "$WORK_DIR"
 mkdir -p "$WORK_DIR"
 

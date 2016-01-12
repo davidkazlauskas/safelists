@@ -1964,15 +1964,15 @@ void startupDialog(const char* message) {
 
 void checkSignature() {
     std::string srvKey = SafeLists::getServerSignKey();
-    std::string sigPath = SafeLists::executablePath();
-    sigPath += "/signature.json";
+    std::string rootPath = SafeLists::executablePath()
+    std::string sigPath = rootPath + "/signature.json";
 
-    std::vector< std::string > out;
+    std::vector< std::string > outPaths;
     std::string signature;
     auto err =
         SafeLists::getFileListWSignature(
             sigPath.c_str(),
-            out,
+            outPaths,
             signature);
 
     const char* ERR_STRING =
@@ -1984,6 +1984,16 @@ void checkSignature() {
     if (SafeLists::GetFileListError::Success != err) {
         startupDialog(ERR_STRING);
         return;
+    }
+
+    auto verRes =
+        SafeLists::verifyFileListB64(
+            srvKey.c_str(),
+            signature.c_str(),
+            rootPath,outPaths);
+
+    if (SafeLists::VerifyFileListError::Success != verRes) {
+        startupDialog(ERR_STRING);
     }
 }
 

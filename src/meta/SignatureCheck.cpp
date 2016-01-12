@@ -427,6 +427,31 @@ VerifyFileListError verifyFileListPubKey(
         VerifyFileListError::VerificationFailed;
 }
 
+VerifyFileListError verifyFileListB64(
+    const char* publicKeyBase64,
+    const char* signature,
+    const std::string& rootPath,
+    const std::vector< std::string >& paths
+)
+{
+    unsigned char pk[crypto_sign_PUBLICKEYBYTES];
+    char cpy[256];
+    assert( strlen(publicKeyBase64) < sizeof(cpy) && "Wreng!" );
+    ::strcpy(cpy,publicKeyBase64);
+
+    size_t outSz = sizeof(pk);
+    int res = ::base64decode(cpy,strlen(cpy),pk,&outSz);
+    if (0 != res) {
+        return VerifyFileListError::KeyReadFail;
+    }
+
+    if (outSz != sizeof(pk)) {
+        return VerifyFileListError::KeyReadFail;
+    }
+
+    return verifyFileListPubKey(pk,signature,rootPath,paths);
+}
+
 VerifyFileListError verifyFileList(
     const char* publicKeyPath,
     const char* signature,

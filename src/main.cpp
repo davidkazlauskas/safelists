@@ -1956,6 +1956,11 @@ void gtkSpec() {
     ::gtk_icon_theme_prepend_search_path(def,arr);
 }
 
+void checkSignature() {
+    Gtk::MessageDialog dlg("This is Fernando Martinez");
+    dlg.run();
+}
+
 int main(int argc,char** argv) {
     std::vector< std::unique_ptr<char[]> > envVars;
     prepEnv(envVars,argc,argv);
@@ -1963,6 +1968,8 @@ int main(int argc,char** argv) {
     auto app = Gtk::Application::create(argc,argv);
 
     gtkSpec();
+
+    checkSignature();
 
     auto ctx = LuaContext::makeContext("lua/plumbing.lua");
     ctx->setFactory(vFactory());

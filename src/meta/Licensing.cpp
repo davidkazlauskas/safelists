@@ -387,7 +387,7 @@ std::string getServerUrl() {
     if (nullptr != currUrl) {
         return currUrl;
     }
-    return "http://127.0.0.1:9000";
+    return "https://safelists.io:777";
 }
 
 std::string defaultReferralName() {

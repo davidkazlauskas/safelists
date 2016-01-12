@@ -212,6 +212,7 @@ struct LicenseDaemon {
 };
 
 int firstTierSignatureVerification(const std::string& theJson);
+std::string getServerSignKey();
 
 }
 

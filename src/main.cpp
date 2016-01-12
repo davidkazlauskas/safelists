@@ -20,6 +20,7 @@
 #include <io/AsyncDownloader.hpp>
 #include <model/AsyncSqliteFactory.hpp>
 #include <meta/Licensing.hpp>
+#include <meta/SignatureCheck.hpp>
 #include <meta/GlobalConsts.hpp>
 
 TEMPLATIOUS_TRIPLET_STD;
@@ -1956,9 +1957,34 @@ void gtkSpec() {
     ::gtk_icon_theme_prepend_search_path(def,arr);
 }
 
-void checkSignature() {
-    Gtk::MessageDialog dlg("This is Fernando Martinez");
+void startupDialog(const char* message) {
+    Gtk::MessageDialog dlg(message);
     dlg.run();
+}
+
+void checkSignature() {
+    std::string srvKey = SafeLists::getServerSignKey();
+    std::string sigPath = SafeLists::executablePath();
+    sigPath += "/signature.json";
+
+    std::vector< std::string > out;
+    std::string signature;
+    auto err =
+        SafeLists::getFileListWSignature(
+            sigPath.c_str(),
+            out,
+            signature);
+
+    const char* ERR_STRING =
+        "Could not verify safelists signature. "
+        "Installation might be corrupted. "
+        "Redownload is recommended, only continue "
+        "if you know what you're doing.";
+
+    if (SafeLists::GetFileListError::Success != err) {
+        startupDialog(ERR_STRING);
+        return;
+    }
 }
 
 int main(int argc,char** argv) {

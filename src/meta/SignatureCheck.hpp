@@ -45,6 +45,7 @@ enum class VerifyFileListError {
     KeyReadFail,
     DigestRecoveryFail,
     InvalidSignatureFail,
+    EmptySignature,
     HashingFailed
 };
 

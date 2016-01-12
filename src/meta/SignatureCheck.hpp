@@ -48,6 +48,13 @@ enum class VerifyFileListError {
     HashingFailed
 };
 
+VerifyFileListError verifyFileListB64(
+    const char* publicKeyBase64,
+    const char* signature,
+    const std::string& rootPath,
+    const std::vector< std::string >& paths
+);
+
 VerifyFileListError verifyFileList(
     const char* publicKeyPath,
     const char* signature,

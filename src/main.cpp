@@ -1959,6 +1959,7 @@ void gtkSpec() {
 
 void startupDialog(const char* message) {
     Gtk::MessageDialog dlg(message);
+    dlg.set_position(Gtk::WindowPosition::WIN_POS_CENTER);
     dlg.run();
 }
 

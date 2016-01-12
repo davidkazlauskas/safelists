@@ -2,6 +2,7 @@
 # <file mode> <file path in input dir> <file path in output (- if same)>
 # file modes:
 #   normal - add file and compress to the max
+#   nosign - like normal but don't add to signature
 #   strip - as normal but strips symbols
 #   directory - copy entire directory
 #   store - store file rather than compress
@@ -27,8 +28,8 @@ directory|appdata/themes/|-
 # refid, store to overwrite on server according to referral
 store|appdata/refid|-
 # examples
-normal|exampleData/example1.safelist|appdata/examples/example1.safelist
-normal|exampleData/example2.safelist|appdata/examples/example2.safelist
+nosign|exampleData/example1.safelist|appdata/examples/example1.safelist
+nosign|exampleData/example2.safelist|appdata/examples/example2.safelist
 # gnome schemas
 directory|appdata/usr/share/glib-2.0/schemas|-
 # default icons

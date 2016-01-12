@@ -27,22 +27,25 @@ namespace {
             ::fclose(file);
         );
 
-        char buf;
-        unsigned char* rein = reinterpret_cast<unsigned char*>(&buf);
+        char buffer[1024 * 64];
+        unsigned char* rein = reinterpret_cast<unsigned char*>(buffer);
 
         ::crypto_hash_sha256_update(
             &hash,
             reinterpret_cast<const unsigned char*>(relPath.c_str()),
             relPath.size());
 
-        int state;
+        size_t readres;
         do {
-            state = ::fgetc(file);
-            if (state != EOF) {
-                buf = static_cast<char>(state);
-                ::crypto_hash_sha256_update(&hash,rein,1);
-            }
-        } while (state != EOF);
+            readres = ::fread(
+                buffer,sizeof(char),sizeof(buffer),file);
+            ::crypto_hash_sha256_update(
+                &hash,rein,readres);
+        } while (readres == sizeof(buffer));
+
+        if (0 == ::feof(file)) {
+            return false;
+        }
 
         return true;
     }

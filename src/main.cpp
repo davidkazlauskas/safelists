@@ -163,6 +163,12 @@ struct MainWindowInterface {
     // >
     DUMMY_REG(InSetCurrentFileValues,"MWI_InSetCurrentFileValues");
 
+    // Quit app.
+    // Signature: <
+    //     InQuit
+    // >
+    DUMMY_REG(InQuit,"MWI_InQuit");
+
     // query current directory id
     // Signature: < QueryCurrentDirId, int (output) >
     DUMMY_REG(QueryCurrentDirId,"MWI_QueryCurrentDirId");
@@ -691,6 +697,11 @@ private:
                     } else {
                         assert( false && "Iter fail..." );
                     }
+                }
+            ),
+            SF::virtualMatch< MWI::InQuit >(
+                [=](ANY_CONV) {
+                    this->_wnd->get_application()->quit();
                 }
             ),
             SF::virtualMatch< MWI::QueryCurrentFileId, int >(

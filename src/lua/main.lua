@@ -424,6 +424,13 @@ initAll = function()
     local globConsts = ctx:namedMessageable("globalConsts")
     local writer = ctx:namedMessageable("randomFileWriter")
 
+    local quitApplication = function()
+        ctx:message(
+            mainWnd,
+            VSig("MWI_InQuit")
+        )
+    end
+
     local constsTbl = {}
     constsTbl['ispaidmode'] = false
 

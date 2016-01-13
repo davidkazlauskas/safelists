@@ -240,10 +240,13 @@ private:
             SF::virtualMatch< AS::OutSingleNum, const std::string, int, bool >(
                 [=](AS::OutSingleNum, const std::string& query,int& out,bool& succeeded) {
                     HolderSingleNum h(out,succeeded);
-                    sqlite3_exec(this->_sqlite,query.c_str(),&sqliteFuncSingleOut,&h,nullptr);
+                    char* outErr = nullptr;
+                    sqlite3_exec(this->_sqlite,query.c_str(),&sqliteFuncSingleOut,&h,&outErr);
                     if (h._success) {
                         out = h._out;
                         succeeded = h._success;
+                    } else {
+                        printf("AsyncSqlite out single num error: |%s|\n",outErr);
                     }
                 }
             ),

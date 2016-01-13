@@ -2256,19 +2256,19 @@ initAll = function()
 
                 local condition =
                        " SELECT CASE"
-                    --.. " WHEN (" .. currentDirToMoveIdWhole .. " IN"
-                    --.. " ("
-                    --.. "     WITH RECURSIVE"
-                    --.. "     children(d_id) AS ("
-                    --.. "           SELECT dir_id FROM directories "
-                    --.. "               WHERE dir_parent=" .. inId
-                    --.. "           UNION ALL"
-                    --.. "           SELECT dir_id"
-                    --.. "           FROM directories JOIN children ON "
-                    --.. "              directories.dir_parent=children.d_id "
-                    --.. "     ) SELECT d_id FROM children"
-                    --.. " )) THEN 1"
-
+                    -- dir is a parent of dir to move under
+                    .. " WHEN (" .. inIdWhole .. " IN"
+                    .. " ("
+                    .. "     WITH RECURSIVE"
+                    .. "     children(d_id) AS ("
+                    .. "           SELECT dir_id FROM directories "
+                    .. "               WHERE dir_parent=" .. currentDirToMoveIdWhole
+                    .. "           UNION ALL"
+                    .. "           SELECT dir_id"
+                    .. "           FROM directories JOIN children ON "
+                    .. "              directories.dir_parent=children.d_id "
+                    .. "     ) SELECT d_id FROM children"
+                    .. " )) THEN 1"
                     -- dir under parent already
                     .. " WHEN ((SELECT dir_parent FROM directories"
                     .. "     WHERE dir_id=" .. currentDirToMoveIdWhole
@@ -2287,7 +2287,8 @@ initAll = function()
                         local table = outres:values()
                         local value = table._3
                         local success = table._4
-                        assert( success, "Great success failed..." )
+                        --assert( success, "Great success failed..." )
+                        print("val|" .. value .. "|")
                         if (value == 0) then
                             ctx:messageAsync(asyncSqlite,
                                 VSig("ASQL_OutAffected"),
@@ -2300,12 +2301,12 @@ initAll = function()
                                 VInt(-1))
                             updateRevision()
                             loadCurrentRoutine()
-                        --elseif (value == 1) then
-                            --messageBox(
-                                --"Cannot move!",
-                                --"Directory to move cannot be a parent"
-                                --.. " of directory to move under."
-                            --)
+                        elseif (value == 1) then
+                            messageBox(
+                                "Cannot move!",
+                                "Directory to move cannot be a parent"
+                                .. " of directory to move under."
+                            )
                         elseif (value == 2) then
                             messageBoxWParent(
                                 "Cannot move!",
@@ -2883,6 +2884,7 @@ initAll = function()
 
                             local dirName = ctx:messageRetValues(mainWnd,VSig("MWI_QueryCurrentDirName"),VString("?"))._2
                             local dirId = getCurrentDirId()
+                            local dirIdWhole = whole(dirId)
 
                             if (dirName == "[unselected]") then
                                 setStatus(ctx,mainWnd,"No directory was selected to create new one.")
@@ -2914,10 +2916,10 @@ initAll = function()
 
                                     local theQuery =
                                            "INSERT INTO directories (dir_name,dir_parent)"
-                                        .. " SELECT '" .. outName .. "', " .. dirId
+                                        .. " SELECT '" .. outName .. "', " .. dirIdWhole
                                         .. " WHERE NOT EXISTS("
                                         .. " SELECT 1 FROM directories WHERE dir_name='".. outName
-                                        .. "' AND dir_parent=" .. dirId .. ");"
+                                        .. "' AND dir_parent=" .. dirIdWhole .. ");"
 
                                     ctx:messageAsyncWCallback(
                                         asyncSqlite,

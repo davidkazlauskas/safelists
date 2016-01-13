@@ -1374,7 +1374,7 @@ initAll = function()
         assert( result.finished, "Should be good..." )
 
         if (result.name ~= nil and
-            not string.match(result.name,"^[-0-9a-zA-Z_. ]+$")
+            not isValidFilename(result.name)
         ) then
             messageBoxWParent(
                 "Invalid input",

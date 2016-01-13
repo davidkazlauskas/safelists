@@ -64,7 +64,7 @@ end
 
 function isValidFilename(str)
     return string.match(
-        str,"^[%w\-. ]+$"
+        str,'^[%w\\-. ]+$'
     ) ~= nil
 end
 
@@ -2919,6 +2919,11 @@ initAll = function()
                                     -- more thorough user input check should be performed
                                     if (outName == "") then
                                         setDlgErr("Some directory name must be specified.")
+                                        return
+                                    end
+
+                                    if (not isValidFilename(outName)) then
+                                        setDlgErr("Directory name entered contains invalid characters.")
                                         return
                                     end
 

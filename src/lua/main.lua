@@ -2882,6 +2882,15 @@ initAll = function()
                                 ctx:message(dialog,VSig("INDLG_InShowDialog"),VBool(val))
                             end
 
+                            local setDlgErr = function(val)
+                                ctx:message(dialog,
+                                    VSig("INDLG_InSetErrLabel"),VString(val))
+                            end
+
+                            ctx:message(dialog,
+                                VSig("INDLG_InSetParent"),
+                                VMsg(mainWnd))
+
                             local dirName = ctx:messageRetValues(mainWnd,VSig("MWI_QueryCurrentDirName"),VString("?"))._2
                             local dirId = getCurrentDirId()
                             local dirIdWhole = whole(dirId)
@@ -2903,7 +2912,7 @@ initAll = function()
                                     local outName = ctx:messageRetValues(dialog,VSig("INDLG_QueryInput"),VString("?"))._2
                                     -- more thorough user input check should be performed
                                     if (outName == "") then
-                                        setStatus(ctx,mainWnd,"Some directory name must be specified.")
+                                        setDlgErr("Some directory name must be specified.")
                                         return
                                     end
 

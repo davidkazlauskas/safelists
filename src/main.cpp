@@ -1223,6 +1223,15 @@ struct GtkGenericDialogMessages {
     // >
     DUMMY_REG(InSetLabel,"INDLG_InSetLabel");
 
+    // Set label text
+    // in lua: INDLG_InSetErrLabel
+    // Signature: < InSetErrLabel, std::string (if only one label) >
+    // Signature: < InSetErrLabel,
+    //     std::string (label name from glade),
+    //     std::string (the value)
+    // >
+    DUMMY_REG(InSetErrLabel,"INDLG_InSetErrLabel");
+
     // Set value text
     // in lua: INDLG_InSetValue
     // Signature: < InSetValue, std::string (if only one value) >
@@ -1247,6 +1256,11 @@ struct GtkGenericDialogMessages {
     // Signature:
     // < InSetControlEnabled, std::string (name), bool (value) >
     DUMMY_REG(InSetControlEnabled,"INDLG_InSetControlEnabled");
+
+    // Set control parent.
+    // Signature:
+    // < InSetParent, StrongMsgPtr >
+    DUMMY_REG(InSetParent,"INDLG_InSetParent");
 
     // Emitted when ok button is clicked
     DUMMY_REG(OutOkClicked,"INDLG_OutOkClicked");
@@ -1445,7 +1459,7 @@ private:
     VmfPtr _handler;
     Glib::RefPtr< Gtk::Builder > _bldPtr;
     WeakMsgPtr _toNotify;
-    Gtk::Widget* _main;
+    Gtk::Window* _main;
     int _signalId;
 };
 
@@ -1759,7 +1773,10 @@ private:
 
 struct GtkInputDialog : public Messageable {
 
-    GtkInputDialog(Glib::RefPtr<Gtk::Builder>& bld) : _handler(genHandler()) {
+    GtkInputDialog(Glib::RefPtr<Gtk::Builder>& bld) :
+        _handler(genHandler()),
+        _parent(nullptr)
+    {
         Gtk::Dialog* dlg = nullptr;
         bld->get_widget("dialog2",_dlg);
 
@@ -1767,6 +1784,7 @@ struct GtkInputDialog : public Messageable {
         bld->get_widget("dialogInput",_entry);
         bld->get_widget("dialogOkButton",_okButton);
         bld->get_widget("dialogCancelButton",_cancelButton);
+        bld->get_widget("errLabel",_labelErr);
 
         _okButton->signal_clicked().connect(
             sigc::mem_fun(*this,&GtkInputDialog::okClicked)
@@ -1815,6 +1833,8 @@ private:
                 [=](INT::InShowDialog,bool show) {
                     if (show) {
                         _dlg->set_modal(true);
+                        _dlg->set_position(
+                            Gtk::WindowPosition::WIN_POS_CENTER_ALWAYS);
                         _dlg->show();
                     } else {
                         _dlg->hide();
@@ -1831,9 +1851,31 @@ private:
                     this->_label->set_text(str.c_str());
                 }
             ),
+            SF::virtualMatch< INT::InSetErrLabel, const std::string >(
+                [=](ANY_CONV,const std::string& str) {
+                    this->_labelErr->set_text(str.c_str());
+                }
+            ),
             SF::virtualMatch< INT::InSetValue, const std::string >(
                 [=](INT::InSetLabel,const std::string& str) {
                     this->_entry->set_text(str.c_str());
+                }
+            ),
+            SF::virtualMatch< INT::InSetParent, StrongMsgPtr >(
+                [=](ANY_CONV,StrongMsgPtr& parent) {
+                    auto query = SF::vpack<
+                        SafeLists::GenericGtkWidgetNodePrivateWindow
+                            ::QueryWindow,
+                        Gtk::Window*
+                    >(nullptr,nullptr);
+                    parent->message(query);
+                    assert( query.useCount() > 0 );
+
+                    _parent = query.fGet<1>();
+                    if (nullptr != _parent) {
+                        printf("settin parent\n");
+                        this->_dlg->set_parent(*_parent);
+                    }
                 }
             ),
             SF::virtualMatch< INT::QueryInput, std::string >(
@@ -1846,9 +1888,11 @@ private:
 
     Gtk::Dialog* _dlg;
     Gtk::Label* _label;
+    Gtk::Label* _labelErr;
     Gtk::Entry* _entry;
     Gtk::Button* _okButton;
     Gtk::Button* _cancelButton;
+    Gtk::Window* _parent;
 
     WeakMsgPtr _toNotify;
 

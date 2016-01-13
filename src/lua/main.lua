@@ -419,6 +419,11 @@ initAll = function()
     local writer = ctx:namedMessageable("randomFileWriter")
 
     local constsTbl = {}
+    constsTbl['ispaidmode'] = false
+
+    local isPaidMode = function()
+        return constsTbl['ispaidmode']
+    end
 
     local isReleaseBuild = function()
         if (constsTbl['isrelease'] == nil) then
@@ -862,6 +867,7 @@ initAll = function()
 
         licenseOk = function(theId)
             print("BALLIN")
+            constsTbl['ispaidmode'] = true
             closeDialog()
         end
 

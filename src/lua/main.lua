@@ -62,6 +62,12 @@ function byteBelongsToHex(c)
     return false
 end
 
+function isValidFilename(str)
+    return string.match(
+        str,"^[%w\-. ]+$"
+    ) ~= nil
+end
+
 function isValidDumbHash256(str)
     if (#str ~= 64) then
         return false

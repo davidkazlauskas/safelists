@@ -105,7 +105,7 @@ namespace SafeLists {
             return SF::virtualMatchFunctorPtr(
                 SF::virtualMatch< MNG::LoadTheme, const std::string >(
                     [=](ANY_CONV,const std::string& path) {
-                        assert( !path.is_empty() && "Some path must be supplied." );
+                        assert( !path.empty() && "Some path must be supplied." );
                         if (path[0] == '@') {
                             // load themes by resource
                             auto sub = path.substr(1);

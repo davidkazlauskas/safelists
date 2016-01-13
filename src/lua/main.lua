@@ -445,7 +445,7 @@ initAll = function()
     end
 
     local shouldAllowPaidFeatures = function()
-        if (isReleaseBuild() and isPaidMode()) then
+        if (not isReleaseBuild() or isPaidMode()) then
             return true
         else
             return false

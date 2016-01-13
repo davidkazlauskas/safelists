@@ -2991,6 +2991,10 @@ initAll = function()
                 function(result)
                     arraySwitch(result+1,menuModel,
                         arrayBranch("New file",function()
+                            if (not shouldAllowPaidFeatures()) then
+                                return onlyPaidModeMessageBox()
+                            end
+
                             print("New file clicked")
                             newFileDialog(
                                 function(result,dialog)
@@ -3006,6 +3010,10 @@ initAll = function()
                             )
                         end),
                         arrayBranch("Modify file",function()
+                            if (not shouldAllowPaidFeatures()) then
+                                return onlyPaidModeMessageBox()
+                            end
+
                             modifyFileDialog(
                                 fileId,
                                 function(result,orig,dialog)
@@ -3020,6 +3028,10 @@ initAll = function()
                             )
                         end),
                         arrayBranch("Move to another directory",function()
+                            if (not shouldAllowPaidFeatures()) then
+                                return onlyPaidModeMessageBox()
+                            end
+
                             setStatus(ctx,mainWnd,"Select folder to move file to.")
                             fileToMove = fileId
                             shouldMoveFile = true

@@ -1359,6 +1359,11 @@ initAll = function()
         messageBoxWParent(title,message,mainAppWnd:getMessageable())
     end
 
+    local onlyPaidModeMessageBox = function()
+        return messageBox("Only in licensed",
+            "Feature is only available in licensed mode.")
+    end
+
     local validateNewFileDialogFirst = function(result,dialog)
         assert( result.finished, "Should be good..." )
 
@@ -2555,6 +2560,10 @@ initAll = function()
             end
         end,"MWI_OutOpenSafelistButtonClicked"),
         VMatch(function()
+            if (not shouldAllowPaidFeatures()) then
+                return onlyPaidModeMessageBox()
+            end
+
             local dialogService = ctx:namedMessageable("dialogService")
             local outVal = ctx:messageRetValues(dialogService,
                 VSig("GDS_FileSaverDialog"),

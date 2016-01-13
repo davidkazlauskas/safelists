@@ -1191,6 +1191,8 @@ initAll = function()
             loadTheme("Vertex (dark)")
         end)
 
+        another:appendSubLeaf("quit-application","Quit",quitApplication)
+
         local model = luaModel:makeMessageable(ctx)
         local id = objRetainer:retainNewId(model)
 

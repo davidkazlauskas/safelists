@@ -2750,6 +2750,10 @@ initAll = function()
                 function(result)
                     arraySwitch(result+1,menuModel,
                         arrayBranch("Move",function()
+                            if (not shouldAllowPaidFeatures()) then
+                                return onlyPaidModeMessageBox()
+                            end
+
                             currentDirToMoveId = getCurrentDirId()
                             if (currentDirToMoveId ~= -1) then
                                 ctx:message(mainWnd,
@@ -2759,6 +2763,10 @@ initAll = function()
                             end
                         end),
                         arrayBranch("Delete",function()
+                            if (not shouldAllowPaidFeatures()) then
+                                return onlyPaidModeMessageBox()
+                            end
+
                             currentDirId = getCurrentDirId()
                             if (currentDirId ~= -1) then
                                 if (currentDirId == 1) then
@@ -2780,6 +2788,10 @@ initAll = function()
                             end
                         end),
                         arrayBranch("Rename",function()
+                            if (not shouldAllowPaidFeatures()) then
+                                return onlyPaidModeMessageBox()
+                            end
+
                             local dialog = ctx:namedMessageable("singleInputDialog")
 
                             local showOrHide = function(val)
@@ -2859,6 +2871,10 @@ initAll = function()
                             showOrHide(true)
                         end),
                         arrayBranch("New directory",function()
+                            if (not shouldAllowPaidFeatures()) then
+                                return onlyPaidModeMessageBox()
+                            end
+
                             local dialog = ctx:namedMessageable("singleInputDialog")
 
                             local showOrHide = function(val)

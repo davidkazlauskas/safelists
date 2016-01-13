@@ -444,6 +444,14 @@ initAll = function()
         return constsTbl['isrelease']
     end
 
+    local shouldAllowPaidFeatures = function()
+        if (isReleaseBuild() and isPaidMode()) then
+            return true
+        else
+            return false
+        end
+    end
+
     local settingsFileLocation = ctx:messageRetValues(
         globConsts,
         VSig("GLC_LookupString"),

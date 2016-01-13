@@ -50,6 +50,7 @@ ADD_DEFINITIONS(
 if(CMAKE_BUILD_TYPE STREQUAL "Release" OR USE_PROD_KEYS)
     ADD_DEFINITIONS(
         -DSAFELISTS_KEY_FOR_SIGN="${SAFELISTS_PRODUCTION_KEY_SIGNING}"
+        -DSAFELISTS_RELEASE_BUILD="true"
     )
     message("Using production public keys for authentication.")
 endif(CMAKE_BUILD_TYPE STREQUAL "Release" OR USE_PROD_KEYS)

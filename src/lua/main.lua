@@ -418,6 +418,27 @@ initAll = function()
     local globConsts = ctx:namedMessageable("globalConsts")
     local writer = ctx:namedMessageable("randomFileWriter")
 
+    local constsTbl = {}
+
+    local isReleaseBuild = function()
+        if (constsTbl['isrelease'] == nil) then
+            local tmp = ctx:messageRetValues(
+                globConsts,
+                VSig("GLC_LookupString"),
+                VString("isrelease"),
+                VString(""),
+                VInt(-1)
+            )._3
+            if (tmp == "true") then
+                constsTbl['isrelease'] = true
+            else
+                constsTbl['isrelease'] = false
+            end
+        end
+
+        return constsTbl['isrelease']
+    end
+
     local settingsFileLocation = ctx:messageRetValues(
         globConsts,
         VSig("GLC_LookupString"),

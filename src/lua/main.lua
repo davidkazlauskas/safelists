@@ -64,7 +64,7 @@ end
 
 function isValidFilename(str)
     return string.match(
-        str,'^[%w\\-. ]+$'
+        str,'^[%w. _-]+$'
     ) ~= nil
 end
 
@@ -2926,6 +2926,8 @@ initAll = function()
                                         setDlgErr("Directory name entered contains invalid characters.")
                                         return
                                     end
+
+                                    setDlgErr("")
 
                                     local asyncSqlite = currentAsyncSqlite
                                     if (messageablesEqual(VMsgNil(),asyncSqlite)) then

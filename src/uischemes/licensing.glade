@@ -573,7 +573,75 @@ Alternatively press offline mode button (allows downloading only)</property>
           <placeholder/>
         </child>
         <child>
-          <placeholder/>
+          <object class="GtkBox" id="box13">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="margin_left">10</property>
+            <property name="margin_right">10</property>
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkLabel" id="offlineModeLabel2">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="xpad">7</property>
+                <property name="label" translatable="yes">Referral described in this installation doesn't exist, therefore, cannot register.
+You may only go offline now.
+
+Is your installation corruped?</property>
+                <property name="justify">center</property>
+                <property name="wrap">True</property>
+                <property name="max_width_chars">60</property>
+                <property name="track_visited_links">False</property>
+                <property name="lines">4</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkBox" id="box14">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="spacing">6</property>
+                <child>
+                  <object class="GtkLayout" id="layout4">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="buttonGoOfflineBadRef">
+                    <property name="label" translatable="yes">Offline</property>
+                    <property name="width_request">77</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="padding">10</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="position">5</property>
+          </packing>
         </child>
         <child type="tab">
           <placeholder/>

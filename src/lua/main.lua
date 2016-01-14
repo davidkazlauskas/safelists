@@ -521,6 +521,7 @@ initAll = function()
         local REGISTRATION_TAB = 2
         local SUBSCRIPTION_TAB = 3
         local UNSAFE_LOGIN_TAB = 4
+        local BAD_REFERRAL_TAB = 5
 
         local setupFromScratch = nil
         local registerUser = nil
@@ -675,6 +676,7 @@ initAll = function()
             local buttonOfflineUnsafe = gwgt("buttonGoOfflineUnsafe")
             local buttonLoginUnsafe = gwgt("buttonLoginUnsafe")
             local statusLabelUnsafe = gwgt("statusLabelUnsafe")
+            local buttonGoOfflineBadRef = gwgt("buttonGoOfflineBadRef")
 
             -- export to outer scope
             safecoinRateWidget = safecoinRateWgt
@@ -806,19 +808,27 @@ initAll = function()
 
                     local nextId = objRetainer:newId()
 
+                    local setupAgain = {
+                        val = true
+                    }
+
                     local handler = ctx:makeLuaMatchHandler(
                         VMatch(function(natpack,values)
                             changeLoadingText("Solving challenge...")
                         end,"LD_RU_OutSolving"),
                         VMatch(function(natpack,values)
                             objRetainer:release(nextId)
-                            setupFromScratch()
+                            if (setupAgain.val) then
+                                setupFromScratch()
+                            end
                         end,"LD_RU_OutFinished","int"),
                         VMatch(function(natpack,values)
                             local theRes = values:values()._2
                             if (theRes == "NO_SUCH_REFERRAL") then
-                                print("Referral doesn't exist. "
-                                    .. " Is you installation corrupted?")
+                                setupAgain.val = false
+                                switchLoaderTab(BAD_REFERRAL_TAB)
+                                --print("Referral doesn't exist. "
+                                    --.. " Is you installation corrupted?")
                             end
                         end,"LD_RU_OutServerResponse","string")
                     )
@@ -845,14 +855,16 @@ initAll = function()
                 end
             )
 
-            buttonOfflineUnsafe:hookButtonClick(
-                function()
-                    local func = loginClickedEvents['offline']
-                    if (nil ~= func) then
-                        func()
-                    end
+            callOfflineFunc = function()
+                local func = loginClickedEvents['offline']
+                if (nil ~= func) then
+                    func()
                 end
-            )
+            end
+
+            buttonOfflineUnsafe:hookButtonClick(callOfflineFunc)
+
+            buttonGoOfflineBadRef:hookButtonClick(callOfflineFunc)
 
             offlineButton:hookButtonClick(closeDialog)
             tryAgainButton:hookButtonClick(setupFromScratch)

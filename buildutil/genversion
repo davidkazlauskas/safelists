@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# $1 - safelists source path
+# $2 - MXE version
+# $3 - safelists version
+# $4 - output to
+
+SAFELISTS_PATH="$1"
+MXE_HASH="$2"
+VERSION_NUM="$3"
+OUT_FILE="$4"
+
+SAFELISTS_HASH=$( cd "$SAFELISTS_PATH" && git rev-parse HEAD )
+
+echo "{
+    \"safelists_version_num\":\"$VERSION_NUM\",
+    \"safelists_version\":\"$SAFELISTS_HASH\",
+    \"mxe_version\":\"$MXE_HASH\",
+    }" | python -m json.tool > $OUT_FILE

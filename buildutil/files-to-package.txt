@@ -37,3 +37,5 @@ normal|appdata/usr/share/icons/Adwaita/index.theme|-
 directory|appdata/usr/share/icons/Adwaita/16x16|-
 # signature generation path
 signature|signature.json
+# version info
+normal|version.json|-

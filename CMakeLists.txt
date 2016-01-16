@@ -19,6 +19,7 @@ macro(ensure_pkg_version action package version var)
     endif()
 endmacro()
 
+SET( SAFELISTS_VERSION "1.0.0" )
 SET( SAFELISTS_PRODUCTION_KEY_BOXING  "LtwTrQKKoNBK9cdW3aNizhu/zCJ4NBZo66KtxXCUXg0=" )
 SET( SAFELISTS_PRODUCTION_KEY_SIGNING "6D9ezHBmnJOEAfKlt5hTpU1/OLcPWiTvtpgiWH/cqy8=" )
 
@@ -195,10 +196,16 @@ else()
         COMMAND ${RSYNC} "${SAFE_FILE_DOWNLOADER_PREBUILT}" "${RUST_LINK_DIR}/" )
 endif()
 
+add_custom_target( version-info
+    COMMAND ${CMAKE_SOURCE_DIR}/buildutil/genversion
+    "${CMAKE_SOURCE_DIR}" "${CMAKE_MXE_HASH}"
+    "${SAFELISTS_VERSION}" "${CMAKE_BINARY_DIR}/version.json" )
+
 add_custom_target( package-zip
     COMMAND ${CMAKE_SOURCE_DIR}/buildutil/packagestuff
         ${CMAKE_SOURCE_DIR}/buildutil/files-to-package.txt
-        ${CMAKE_BINARY_DIR} ${CMAKE_BINARY_DIR}/package )
+        ${CMAKE_BINARY_DIR} ${CMAKE_BINARY_DIR}/package
+    DEPENDS version-info )
 
 file(GLOB SCRYPT_SOURCES ${LIBSCRYPT_DIR}/*.c )
 set_source_files_properties( ${SCRYPT_SOURCES} PROPERTIES LANGUAGE CXX )

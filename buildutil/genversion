@@ -15,5 +15,5 @@ SAFELISTS_HASH=$( cd "$SAFELISTS_PATH" && git rev-parse HEAD )
 echo "{
     \"safelists_version_num\":\"$VERSION_NUM\",
     \"safelists_version\":\"$SAFELISTS_HASH\",
-    \"mxe_version\":\"$MXE_HASH\",
+    \"mxe_version\":\"$MXE_HASH\"
     }" | python -m json.tool > $OUT_FILE

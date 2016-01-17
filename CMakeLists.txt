@@ -144,6 +144,7 @@ SET( CMAKE_EXPORT_COMPILE_COMMANDS yes )
 # just guessing, should be more robust in the future
 SET( TARGET_ARCHITECTURE "i686" )
 SET( CARGO_COMMAND cargo build )
+SET( ICON_RESOURCE "" )
 if(CMAKE_CROSS_COMPILING)
     if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux"
        OR "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
@@ -151,6 +152,9 @@ if(CMAKE_CROSS_COMPILING)
         SET( CARGO_COMMAND PKG_CONFIG_ALLOW_CROSS=1 cargo rustc
             --target=${TARGET_ARCHITECTURE}-unknown-linux-gnu
             -Clinker=${CMAKE_C_COMPILER} )
+        # icon generated with:
+        # $MXE_PATH/usr/bin/i686-w64-mingw32.static-windres icon.rc -O coff -o icon.res
+        SET( ICON_RESOURCE "${CMAKE_SOURCE_DIR}/misc/icon.res" )
     endif()
 endif()
 
@@ -268,6 +272,6 @@ add_library( gtkspec ${GTK_SOURCES} )
 target_link_libraries( gtkspec domain ${GTKMM_LIBRARIES} )
 
 add_executable( safelists src/main.cpp )
-target_link_libraries( safelists gtkspec )
+target_link_libraries( safelists gtkspec ${ICON_RESOURCE} )
 set_target_properties( safelists PROPERTIES LINK_FLAGS "-Wl,-rpath -Wl,$ORIGIN" )
 

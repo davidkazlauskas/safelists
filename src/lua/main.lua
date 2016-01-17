@@ -2679,30 +2679,46 @@ initAll = function()
                         else
                             local dialogService =
                                 ctx:namedMessageable("dialogService")
-                            local values = ctx:messageRetValues(
+
+                            local afterAnswer = function(response)
+
+                                if (response == 0) then
+                                    ctx:messageAsyncWCallback(
+                                        writer,
+                                        ifContinue,
+                                        VSig("RFW_DeleteFile"),
+                                        VString(outPath)
+                                    )
+                                elseif (response == 1 or response == -1) then
+                                    noSafelistState()
+                                else
+                                    assert( false, "Wrong neighbourhood, milky." )
+                                    noSafelistState()
+                                end
+
+                            end
+
+                            local nId = objRetainer:newId()
+
+                            local handler = ctx:makeLuaMatchHandler(
+                                VMatch(function(natPack,val)
+                                    local outPath = val:values()._2
+                                    afterAnswer(outPath)
+                                    objRetainer:release(nId)
+                                end,"GDS_OutNotifyAnswer","int")
+                            )
+
+                            objRetainer:retain(nId,handler)
+
+                            ctx:message(
                                 dialogService,
                                 VSig("GDS_OkCancelDialog"),
                                 VMsg(mainWnd),
                                 VString("Safelist exists"),
                                 VString("Safelist already exists."
                                 .. " Overwrite it? (data will be lost)"),
-                                VInt(-7)
+                                VMsg(handler)
                             )
-
-                            local response = values._5
-                            if (response == 0) then
-                                ctx:messageAsyncWCallback(
-                                    writer,
-                                    ifContinue,
-                                    VSig("RFW_DeleteFile"),
-                                    VString(outPath)
-                                )
-                            elseif (response == 1 or response == -1) then
-                                noSafelistState()
-                            else
-                                assert( false, "Wrong neighbourhood, milky." )
-                                noSafelistState()
-                            end
                         end
                     end,
                     VSig("RFW_DoesFileExist"),

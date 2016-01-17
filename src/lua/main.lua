@@ -2548,54 +2548,68 @@ initAll = function()
         end,"MWI_OutDownloadSafelistButtonClicked"),
         VMatch(function()
             local dialogService = ctx:namedMessageable("dialogService")
-            local outVal = ctx:messageRetValues(dialogService,
+
+            local afterPath = function(outPath)
+                if (outPath ~= "") then
+                    if (currentSafelist:isSamePath(outPath)) then
+                        messageBox(
+                            "Already opened!",
+                            "'" .. outPath ..
+                            "' safelist is already opened."
+                        )
+                        return
+                    end
+                    currentSafelist:setPath(outPath)
+                    if (not currentSafelist:isEmpty()) then
+                        noSafelistState() -- prevent user from doing
+                                          -- anything for split second
+                    end
+
+                    local openNew = function()
+                        local mainModel = ctx:namedMessageable("mainModel")
+
+                        currentAsyncSqlite = newAsqlite(outPath)
+
+                        ctx:message(mainWnd,VSig("MWI_InClearCurrentFiles"))
+                        ctx:message(mainModel,
+                            VSig("MMI_InLoadFolderTree"),
+                            VMsg(currentAsyncSqlite),VMsg(mainWnd))
+                        onSafelistState()
+                        updateRevision()
+                    end
+
+                    local asql = currentAsyncSqlite
+                    if (nil ~= asql) then
+                        ctx:messageAsyncWCallback(
+                            currentAsyncSqlite,
+                            function()
+                                openNew()
+                            end,
+                            VSig("ASQL_Shutdown"))
+                    else
+                        openNew()
+                    end
+                end
+            end
+
+            local nId = objRetainer:newId()
+
+            local handler = ctx:makeLuaMatchHandler(
+                VMatch(function(natPack,val)
+                    local outPath = val:values()._2
+                    afterPath(outPath)
+                    objRetainer:release(nId)
+                end,"GDS_OutNotifyPath","string")
+            )
+
+            objRetainer:retain(nId,handler)
+
+            ctx:message(dialogService,
                 VSig("GDS_FileChooserDialog"),
                 VMsg(mainWnd),
                 VString("Select safelist to open."),
                 VString("*.safelist"),
-                VString(""))
-
-            local outPath = outVal._5
-            if (outPath ~= "") then
-                if (currentSafelist:isSamePath(outPath)) then
-                    messageBox(
-                        "Already opened!",
-                        "'" .. outPath ..
-                        "' safelist is already opened."
-                    )
-                    return
-                end
-                currentSafelist:setPath(outPath)
-                if (not currentSafelist:isEmpty()) then
-                    noSafelistState() -- prevent user from doing
-                                      -- anything for split second
-                end
-
-                local openNew = function()
-                    local mainModel = ctx:namedMessageable("mainModel")
-
-                    currentAsyncSqlite = newAsqlite(outPath)
-
-                    ctx:message(mainWnd,VSig("MWI_InClearCurrentFiles"))
-                    ctx:message(mainModel,
-                        VSig("MMI_InLoadFolderTree"),
-                        VMsg(currentAsyncSqlite),VMsg(mainWnd))
-                    onSafelistState()
-                    updateRevision()
-                end
-
-                local asql = currentAsyncSqlite
-                if (nil ~= asql) then
-                    ctx:messageAsyncWCallback(
-                        currentAsyncSqlite,
-                        function()
-                            openNew()
-                        end,
-                        VSig("ASQL_Shutdown"))
-                else
-                    openNew()
-                end
-            end
+                VMsg(handler))
         end,"MWI_OutOpenSafelistButtonClicked"),
         VMatch(function()
             if (not shouldAllowPaidFeatures()) then

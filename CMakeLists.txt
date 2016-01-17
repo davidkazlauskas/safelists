@@ -144,7 +144,6 @@ SET( CMAKE_EXPORT_COMPILE_COMMANDS yes )
 # just guessing, should be more robust in the future
 SET( TARGET_ARCHITECTURE "i686" )
 SET( CARGO_COMMAND cargo build )
-SET( ICON_RESOURCE "" )
 if(CMAKE_CROSS_COMPILING)
     if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux"
        OR "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
@@ -152,11 +151,15 @@ if(CMAKE_CROSS_COMPILING)
         SET( CARGO_COMMAND PKG_CONFIG_ALLOW_CROSS=1 cargo rustc
             --target=${TARGET_ARCHITECTURE}-unknown-linux-gnu
             -Clinker=${CMAKE_C_COMPILER} )
-        # icon generated with:
-        # $MXE_PATH/usr/bin/i686-w64-mingw32.static-windres icon.rc -O coff -o icon.res
-        SET( ICON_RESOURCE "${CMAKE_SOURCE_DIR}/misc/icon.res" )
     endif()
 endif()
+
+SET( ICON_RESOURCE "" )
+if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
+    # icon generated with:
+    # $MXE_PATH/usr/bin/i686-w64-mingw32.static-windres icon.rc -O coff -o icon.res
+    SET( ICON_RESOURCE "${CMAKE_SOURCE_DIR}/misc/icon.res" )
+endif("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
 
 add_custom_target( create-runtime-files-dir
     COMMAND ${MKDIR} -p "${CMAKE_BINARY_DIR}/appdata/uischemes" )

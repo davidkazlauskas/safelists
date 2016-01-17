@@ -1531,6 +1531,15 @@ struct GtkDialogService : public Messageable {
     // >
     DUMMY_REG(OutNotifyPath,"GDS_OutNotifyPath");
 
+    // Notify message box answer,
+    // 0 if ok, -1 otherwise
+    // Signature:
+    // <
+    //  OutNotifyAnswer,
+    //  int
+    // >
+    DUMMY_REG(OutNotifyAnswer,"GDS_OutNotifyAnswer");
+
     // Open file saver dialog
     // Signature:
     // <
@@ -1600,6 +1609,29 @@ struct GtkDialogService : public Messageable {
 
         if (Gtk::RESPONSE_OK == moo) {
             toSend.fGet<1>() = outDlg->get_filename();
+        }
+
+        del.fire();
+
+        toNotify->message(toSend);
+    }
+
+    static void notifyMsgBox(
+        Gtk::MessageDialog* outDlg,
+        const StrongMsgPtr& toNotify,
+        int moo
+    ) {
+        auto del = SCOPE_GUARD_LC(
+            outDlg->hide();
+            delete outDlg;
+        );
+
+        auto toSend = SF::vpack< OutNotifyAnswer, int >(
+            nullptr, -1
+        );
+
+        if (Gtk::RESPONSE_OK == moo) {
+            toSend.fGet<1>() = 0;
         }
 
         del.fire();
@@ -1800,13 +1832,13 @@ struct GtkDialogService : public Messageable {
                 StrongMsgPtr,
                 const std::string,
                 const std::string,
-                int
+                StrongMsgPtr
             >(
                 [](OkCancelDialog,
                    const StrongMsgPtr& parent,
                    const std::string& title,
                    const std::string& message,
-                   int& out)
+                   StrongMsgPtr& out)
                 {
                     auto queryTransient = SF::vpack<
                         SafeLists::GenericGtkWidgetNodePrivateWindow
@@ -1815,16 +1847,27 @@ struct GtkDialogService : public Messageable {
                     >(nullptr,nullptr);
                     parent->message(queryTransient);
                     auto gtkParent = queryTransient.fGet<1>();
-                    Gtk::MessageDialog dlg(
+                    auto dlg = new Gtk::MessageDialog(
                         title.c_str(),gtkParent);
-                    dlg.set_secondary_text(message.c_str());
-                    dlg.add_button("_Cancel",1);
-                    dlg.set_default_response(-1);
-                    int outRes = dlg.run();
-                    if (outRes == Gtk::RESPONSE_OK) {
-                        outRes = 0;
-                    }
-                    out = outRes;
+                    auto delg = SCOPE_GUARD_LC(
+                        delete dlg;
+                    );
+
+                    dlg->set_transient_for(*gtkParent);
+                    dlg->set_secondary_text(message.c_str());
+                    dlg->add_button("_Cancel",1);
+                    dlg->set_default_response(-1);
+                    dlg->set_modal(true);
+
+                    dlg->show_all();
+
+                    dlg->signal_response().connect(
+                        [dlg,out](int signal) {
+                            notifyMsgBox(dlg,out,signal);
+                        }
+                    );
+
+                    delg.dismiss();
                 }
             )
         );

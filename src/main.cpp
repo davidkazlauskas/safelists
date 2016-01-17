@@ -1,5 +1,6 @@
 #ifdef  __WIN32
 #include <windows.h>
+#include <gtk-3.0/gdk/gdkwin32.h>
 #endif
 
 #include <iostream>
@@ -402,6 +403,12 @@ struct GtkMainWindow : public SafeLists::GenericGtkWidget {
         _wnd->signal_delete_event().connect(
             sigc::mem_fun(*this,&GtkMainWindow::onCloseEvent)
         );
+
+        _wnd->set_title("SafeLists");
+#ifdef __WIN32
+        auto handle = GDK_WINDOW_HWND(
+            _wnd->get_window()->gobj());
+#endif
 
         createDirModel();
         createFileModel();

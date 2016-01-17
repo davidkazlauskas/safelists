@@ -2368,6 +2368,14 @@ initAll = function()
                 return
             end
 
+            local isCurrentDead = function()
+                return ctx:messageRetValues(
+                    asyncSqlite,
+                    VSig("ASQL_IsDead"),
+                    VBool(true)
+                )._2
+            end
+
             local outVal = ctx:messageRetValues(dialogService,
                 VSig("GDS_DirChooserDialog"),
                 VMsg(mainWnd),
@@ -2443,27 +2451,26 @@ initAll = function()
                     objRetainer:release(newId)
                 end,"SLD_OutDone"),
                 VMatch(function(natpack,val)
+                    if (isCurrentDead()) then
+                        return
+                    end
                     local tbl = val:values()
                     local fileId = tbl._2
                     local fileIdWhole = whole(fileId)
                     local theMirror = tbl._3
-                    local current = currentAsyncSqlite
-                    if (nil ~= current) then
-                        ctx:messageAsync(
-                            current,
-                            VSig("ASQL_Execute"),
-                            VString(
-                                "UPDATE mirrors SET use_count=use_count+1"
-                                .. " WHERE file_id=" .. fileIdWhole .. ";"
-                            )
+                    ctx:messageAsync(
+                        asyncSqlite,
+                        VSig("ASQL_Execute"),
+                        VString(
+                            "UPDATE mirrors SET use_count=use_count+1"
+                            .. " WHERE file_id=" .. fileIdWhole .. ";"
                         )
-                    end
+                    )
                 end,"SLD_OutMirrorUsed","int","string"),
                 VMatch(function(natPack,val)
                     local values = val:values()
                     local hash = values._3
-                    local asyncSqlite = currentAsyncSqlite
-                    if (nil == asyncSqlite) then
+                    if (nil == asyncSqlite or isCurrentDead()) then
                         return
                     end
 
@@ -2493,8 +2500,11 @@ initAll = function()
                         VBool(false))
                 end,"SLD_OutHashUpdate","int","string"),
                 VMatch(function(natPack,out)
+                    if (isCurrentDead()) then
+                        return
+                    end
+
                     local val = out:values()
-                    local asyncSqlite = currentAsyncSqlite
                     local id = val._2
                     local idWhole = whole(id)
                     local newSize = val._3

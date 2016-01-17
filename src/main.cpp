@@ -1523,6 +1523,14 @@ struct GtkDialogService : public Messageable {
     // >
     DUMMY_REG(DirChooserDialog,"GDS_DirChooserDialog");
 
+    // Notify output path, empty if none
+    // Signature:
+    // <
+    //  OutNotifyPath,
+    //  std::string (path)
+    // >
+    DUMMY_REG(OutNotifyPath,"GDS_OutNotifyPath");
+
     // Open file saver dialog
     // Signature:
     // <
@@ -1576,13 +1584,24 @@ struct GtkDialogService : public Messageable {
         assert( false && "Single threaded messaging only." );
     }
 
-    static void notifyDialogResult(Gtk::FileChooserDialog* outDlg,int moo) {
+    static void notifyDialogResult(
+        Gtk::FileChooserDialog* outDlg,
+        const StrongMsgPtr& toNotify,
+        int moo
+    ) {
         auto del = SCOPE_GUARD_LC(
             delete outDlg;
         );
 
-        std::string fname = outDlg->get_filename();
-        printf("no bloack |%d|%s|\n",moo,fname.c_str());
+        auto toSend = SF::vpack< OutNotifyPath, std::string >(
+            nullptr, ""
+        );
+
+        if (Gtk::RESPONSE_OK == moo) {
+            toSend.fGet<1>() = outDlg->get_filename();
+        }
+
+        toNotify->message(toSend);
     }
 
     SafeLists::VmfPtr genHandler() {
@@ -1592,13 +1611,13 @@ struct GtkDialogService : public Messageable {
                 StrongMsgPtr,
                 std::string,
                 std::string,
-                std::string
+                StrongMsgPtr
             >(
                 [](FileChooserDialog,
                     const StrongMsgPtr& window,
                     const std::string& title,
                     const std::string& wildcard,
-                    std::string& out)
+                    StrongMsgPtr& out)
                 {
                     auto dlg = new Gtk::FileChooserDialog(title.c_str(),Gtk::FILE_CHOOSER_ACTION_OPEN);
                     auto delg = SCOPE_GUARD_LC(
@@ -1624,8 +1643,8 @@ struct GtkDialogService : public Messageable {
                     delg.dismiss();
 
                     dlg->signal_response().connect(
-                        [dlg](int moo) {
-                            notifyDialogResult(dlg,moo);
+                        [dlg,out](int signal) {
+                            notifyDialogResult(dlg,out,signal);
                         }
                     );
                 }

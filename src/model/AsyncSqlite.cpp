@@ -326,7 +326,14 @@ private:
 
 struct AsyncSqliteProxy : public Messageable {
     void message(templatious::VirtualPack& pack) override {
-        assert( false && "Synchronous messages are disabled." );
+        bool isDeadCheck = pack.tryCallFunction<
+            AsyncSqlite::IsDead, bool
+        >([&](ANY_CONV,bool& out) {
+            auto locked = _weakPtr.lock();
+            out = locked == nullptr;
+        });
+
+        assert( isDeadCheck && "Synchronous messages are disabled." );
     }
 
     void message(const StrongPackPtr& pack) override {
@@ -334,15 +341,7 @@ struct AsyncSqliteProxy : public Messageable {
         assert( nullptr != locked &&
             "Not cool bro, shouldn't be destroyed...");
 
-        bool isDeadCheck = pack->tryCallFunction<
-            AsyncSqlite::IsDead, bool
-        >([&](ANY_CONV,bool& out) {
-            out = locked == nullptr;
-        });
-
-        if (!isDeadCheck) {
-            locked->enqueueMessage(pack);
-        }
+        locked->enqueueMessage(pack);
     }
 
     ~AsyncSqliteProxy() {

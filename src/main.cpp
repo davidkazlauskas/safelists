@@ -14,6 +14,7 @@
 #include <util/GracefulShutdownGuard.hpp>
 #include <util/GenericStMessageable.hpp>
 #include <util/ProgramArgs.hpp>
+#include <util/ScopeGuard.hpp>
 #include <gtkmm/GtkMMSessionWidget.hpp>
 #include <gtkmm/GtkMMFileString.hpp>
 #include <gtkmm/GenericGtkWidget.hpp>
@@ -1575,6 +1576,15 @@ struct GtkDialogService : public Messageable {
         assert( false && "Single threaded messaging only." );
     }
 
+    static void notifyDialogResult(Gtk::FileChooserDialog* outDlg,int moo) {
+        auto del = SCOPE_GUARD_LC(
+            delete outDlg;
+        );
+
+        std::string fname = outDlg->get_filename();
+        printf("no bloack |%d|%s|\n",moo,fname.c_str());
+    }
+
     SafeLists::VmfPtr genHandler() {
         return SF::virtualMatchFunctorPtr(
             SF::virtualMatch<
@@ -1590,7 +1600,11 @@ struct GtkDialogService : public Messageable {
                     const std::string& wildcard,
                     std::string& out)
                 {
-                    Gtk::FileChooserDialog dlg(title.c_str(),Gtk::FILE_CHOOSER_ACTION_OPEN);
+                    auto dlg = new Gtk::FileChooserDialog(title.c_str(),Gtk::FILE_CHOOSER_ACTION_OPEN);
+                    auto delg = SCOPE_GUARD_LC(
+                        delete dlg;
+                    );
+
                     auto queryTransient = SF::vpack<
                         SafeLists::GenericGtkWidgetNodePrivateWindow
                         ::QueryWindow,
@@ -1598,21 +1612,22 @@ struct GtkDialogService : public Messageable {
                     >(nullptr,nullptr);
                     window->message(queryTransient);
                     assert( queryTransient.useCount() > 0 && "No transient cholo..." );
-                    dlg.set_transient_for(*queryTransient.fGet<1>());
-                    dlg.add_button("_Cancel",Gtk::RESPONSE_CANCEL);
-                    dlg.add_button("Ok",Gtk::RESPONSE_OK);
+                    dlg->set_transient_for(*queryTransient.fGet<1>());
+                    dlg->add_button("_Cancel",Gtk::RESPONSE_CANCEL);
+                    dlg->add_button("Ok",Gtk::RESPONSE_OK);
 
                     Glib::RefPtr<Gtk::FileFilter> filter = Gtk::FileFilter::create();
                     filter->add_pattern(wildcard.c_str());
-                    dlg.set_filter(filter);
+                    dlg->set_filter(filter);
 
-                    int result = dlg.run();
-                    if (Gtk::RESPONSE_OK == result) {
-                        out = dlg.get_filename();
-                        return;
-                    }
+                    dlg->show_all();
+                    delg.dismiss();
 
-                    out = "";
+                    dlg->signal_response().connect(
+                        [dlg](int moo) {
+                            notifyDialogResult(dlg,moo);
+                        }
+                    );
                 }
             ),
             SF::virtualMatch<

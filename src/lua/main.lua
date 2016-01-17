@@ -2713,79 +2713,82 @@ initAll = function()
                 VString("")
             )
 
-            local thePath = outVal._5
+            local afterPath = function(thePath)
 
-            if (currentSessions[thePath] == "t") then
-                messageBox(
-                    "In progress",
-                    "Safelist already being downloaded."
-                )
-                return
-            end
+                if (currentSessions[thePath] == "t") then
+                    messageBox(
+                        "In progress",
+                        "Safelist already being downloaded."
+                    )
+                    return
+                end
 
-            currentSessions[thePath] = "t"
-            local currSess = DownloadsModel:newSession()
-            local newId = objRetainer:newId()
+                currentSessions[thePath] = "t"
+                local currSess = DownloadsModel:newSession()
+                local newId = objRetainer:newId()
 
-            local handler = ctx:makeLuaMatchHandler(
-                VMatch(function(natPack,val)
-                    local values = val:values()
-                    local dl = currSess:keyDownload(values._2)
-                    -- dead progress update
-                    if (nil ~= dl) then
-                        local ratio = values._3 / values._4
+                local handler = ctx:makeLuaMatchHandler(
+                    VMatch(function(natPack,val)
+                        local values = val:values()
+                        local dl = currSess:keyDownload(values._2)
+                        -- dead progress update
+                        if (nil ~= dl) then
+                            local ratio = values._3 / values._4
+                            DownloadsModel:incRevision()
+                            dl:setProgress(ratio)
+                        end
+                        local newBytes = values._5
+                        downloadSpeedChecker:regBytes(newBytes)
+                    end,"SLD_OutProgressUpdate","int","double","double","double"),
+                    VMatch(function(natpack,val)
+                        local valTree = val:values()
+                        local newKey = valTree._2
+                        local newPath = valTree._3
                         DownloadsModel:incRevision()
-                        dl:setProgress(ratio)
-                    end
-                    local newBytes = values._5
-                    downloadSpeedChecker:regBytes(newBytes)
-                end,"SLD_OutProgressUpdate","int","double","double","double"),
-                VMatch(function(natpack,val)
-                    local valTree = val:values()
-                    local newKey = valTree._2
-                    local newPath = valTree._3
-                    DownloadsModel:incRevision()
-                    currSess:addDownload(newKey,newPath)
-                end,"SLD_OutStarted","int","string"),
-                VMatch(function(natpack,val)
-                    local valTree = val:values()
-                    local delKey = valTree._2
-                    DownloadsModel:incRevision()
-                    currSess:removeDownload(delKey)
-                end,"SLD_OutSingleDone","int"),
-                VMatch(function()
-                    print('Downloaded!')
-                    currentSessions[thePath] = nil
-                    DownloadsModel:incRevision()
-                    DownloadsModel:dropSession(currSess)
-                    objRetainer:release(newId)
-                end,"SLD_OutDone"),
-                VMatch(function(natPack,val)
-                    -- dont care, arbitrary safelist
-                    -- resumed
-                end,"SLD_OutHashUpdate","int","string"),
-                VMatch(function(natPack,out)
-                    -- dont care, arbitrary safelist
-                    -- resumed
-                end,"SLD_OutSizeUpdate","int","double"),
-                VMatch(function(natPack,val)
-                    local vals = val:values()
-                    print("The total: " .. vals._2)
-                    currSess:setTotalDownloads(vals._2)
-                end,"SLD_OutTotalDownloads","int")
-            )
+                        currSess:addDownload(newKey,newPath)
+                    end,"SLD_OutStarted","int","string"),
+                    VMatch(function(natpack,val)
+                        local valTree = val:values()
+                        local delKey = valTree._2
+                        DownloadsModel:incRevision()
+                        currSess:removeDownload(delKey)
+                    end,"SLD_OutSingleDone","int"),
+                    VMatch(function()
+                        print('Downloaded!')
+                        currentSessions[thePath] = nil
+                        DownloadsModel:incRevision()
+                        DownloadsModel:dropSession(currSess)
+                        objRetainer:release(newId)
+                    end,"SLD_OutDone"),
+                    VMatch(function(natPack,val)
+                        -- dont care, arbitrary safelist
+                        -- resumed
+                    end,"SLD_OutHashUpdate","int","string"),
+                    VMatch(function(natPack,out)
+                        -- dont care, arbitrary safelist
+                        -- resumed
+                    end,"SLD_OutSizeUpdate","int","double"),
+                    VMatch(function(natPack,val)
+                        local vals = val:values()
+                        print("The total: " .. vals._2)
+                        currSess:setTotalDownloads(vals._2)
+                    end,"SLD_OutTotalDownloads","int")
+                )
 
-            objRetainer:retain(newId,handler)
+                objRetainer:retain(newId,handler)
 
-            local dlFactory = ctx:namedMessageable("dlSessionFactory")
-            local dlHandle = ctx:messageRetValues(dlFactory,
-                VSig("SLDF_InNewAsync"),
-                VString(thePath),
-                VMsg(handler),
-                VMsg(nil)
-            )._4
-            assert( dlHandle ~= nil )
+                local dlFactory = ctx:namedMessageable("dlSessionFactory")
+                local dlHandle = ctx:messageRetValues(dlFactory,
+                    VSig("SLDF_InNewAsync"),
+                    VString(thePath),
+                    VMsg(handler),
+                    VMsg(nil)
+                )._4
+                assert( dlHandle ~= nil )
 
+                end
+
+            afterPath(outVal._5)
         end,"MWI_OutResumeDownloadButtonClicked"),
         VMatch(function(natPack,val)
             local thisState = val:values()._2

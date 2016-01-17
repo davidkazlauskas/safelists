@@ -1602,6 +1602,8 @@ struct GtkDialogService : public Messageable {
             toSend.fGet<1>() = outDlg->get_filename();
         }
 
+        del.fire();
+
         toNotify->message(toSend);
     }
 

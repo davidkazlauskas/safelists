@@ -141,6 +141,12 @@ add_subdirectory( ${RAPID_JSON_DIR} )
 
 SET( CMAKE_EXPORT_COMPILE_COMMANDS yes )
 
+if("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+    SET(CARGO_BUILD_MODE "--release")
+else()
+    SET(CARGO_BUILD_MODE "--debug")
+endif("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+
 # just guessing, should be more robust in the future
 SET( TARGET_ARCHITECTURE "i686" )
 SET( CARGO_COMMAND cargo build )
@@ -148,7 +154,8 @@ if(CMAKE_CROSS_COMPILING)
     if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux"
        OR "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
         # support musl in future?
-        SET( CARGO_COMMAND PKG_CONFIG_ALLOW_CROSS=1 cargo rustc
+        SET( CARGO_COMMAND PKG_CONFIG_ALLOW_CROSS=1 cargo
+            rustc ${CARGO_BUILD_MODE}
             --target=${TARGET_ARCHITECTURE}-unknown-linux-gnu
             -Clinker=${CMAKE_C_COMPILER} )
     endif()

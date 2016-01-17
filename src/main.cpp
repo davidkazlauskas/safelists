@@ -1,3 +1,6 @@
+#ifdef  __WIN32
+#include <windows.h>
+#endif
 
 #include <iostream>
 #include <cstdlib>
@@ -2054,6 +2057,10 @@ void checkSignature() {
 }
 
 int main(int argc,char** argv) {
+#ifdef  __WIN32
+    FreeConsole();
+#endif
+
     std::vector< std::unique_ptr<char[]> > envVars;
     prepEnv(envVars,argc,argv);
 

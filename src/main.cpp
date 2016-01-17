@@ -1643,28 +1643,33 @@ struct GtkDialogService : public Messageable {
                     dlg->set_filter(filter);
 
                     dlg->show_all();
-                    delg.dismiss();
 
                     dlg->signal_response().connect(
                         [dlg,out](int signal) {
                             notifyDialogResult(dlg,out,signal);
                         }
                     );
+
+                    delg.dismiss();
                 }
             ),
             SF::virtualMatch<
                 DirChooserDialog,
                 StrongMsgPtr,
                 const std::string,
-                std::string
+                StrongMsgPtr
             >(
                 [](DirChooserDialog,
                    const StrongMsgPtr& window,
                    const std::string& title,
-                   std::string& out)
+                   StrongMsgPtr& out)
                 {
-                    Gtk::FileChooserDialog dlg(title.c_str(),
+                    auto dlg = new Gtk::FileChooserDialog(title.c_str(),
                         Gtk::FILE_CHOOSER_ACTION_SELECT_FOLDER);
+                    auto delg = SCOPE_GUARD_LC(
+                        delete dlg;
+                    );
+
                     auto queryTransient = SF::vpack<
                         SafeLists::GenericGtkWidgetNodePrivateWindow
                         ::QueryWindow,
@@ -1672,17 +1677,18 @@ struct GtkDialogService : public Messageable {
                     >(nullptr,nullptr);
                     window->message(queryTransient);
                     assert( queryTransient.useCount() > 0 && "No transient cholo..." );
-                    dlg.set_transient_for(*queryTransient.fGet<1>());
-                    dlg.add_button("_Cancel",Gtk::RESPONSE_CANCEL);
-                    dlg.add_button("Ok",Gtk::RESPONSE_OK);
+                    dlg->set_transient_for(*queryTransient.fGet<1>());
+                    dlg->add_button("_Cancel",Gtk::RESPONSE_CANCEL);
+                    dlg->add_button("Ok",Gtk::RESPONSE_OK);
 
-                    int result = dlg.run();
-                    if (Gtk::RESPONSE_OK == result) {
-                        out = dlg.get_filename();
-                        return;
-                    }
+                    dlg->show_all();
+                    dlg->signal_response().connect(
+                        [dlg,out](int signal) {
+                            notifyDialogResult(dlg,out,signal);
+                        }
+                    );
 
-                    out = "";
+                    delg.dismiss();
                 }
             ),
             SF::virtualMatch<

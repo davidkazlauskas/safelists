@@ -2376,175 +2376,190 @@ initAll = function()
                 )._2
             end
 
-            local outVal = ctx:messageRetValues(dialogService,
+            local afterDirectory = function(downloadPath)
+
+                if (downloadPath == "") then
+                    return
+                end
+
+                assert( downloadPath[#downloadPath] ~= "/",
+                    "Don't expect slash at the end." )
+
+                downloadPath = downloadPath .. "/safelist_session"
+
+                if (currentSessions[downloadPath] == "t") then
+                    messageBox(
+                        "In progress",
+                        "Safelist already being downloaded."
+                    )
+                    return
+                end
+
+                currentSessions[downloadPath] = "t"
+
+                --print("Pre col: " .. collectgarbage('count'))
+                --collectgarbage('collect')
+                --print("Post col: " .. collectgarbage('count'))
+
+                local currSess = DownloadsModel:newSession()
+                local newId = objRetainer:newId()
+                local handlerWeak = nil
+                local handler = ctx:makeLuaMatchHandler(
+                    VMatch(function(natPack,val)
+                        local values = val:values()
+                        local dl = currSess:keyDownload(values._2)
+                        -- dead progress update
+                        if (nil ~= dl) then
+                            local ratio = values._3 / values._4
+                            DownloadsModel:incRevision()
+                            dl:setProgress(ratio)
+                        end
+                        local newBytes = values._5
+                        downloadSpeedChecker:regBytes(newBytes)
+                    end,"SLD_OutProgressUpdate","int","double","double","double"),
+                    VMatch(function(natpack,val)
+                        local valTree = val:values()
+                        local newKey = valTree._2
+                        local newPath = valTree._3
+                        DownloadsModel:incRevision()
+                        currSess:addDownload(newKey,newPath)
+                    end,"SLD_OutStarted","int","string"),
+                    VMatch(function(natpack,val)
+                        local valTree = val:values()
+                        local delKey = valTree._2
+                        DownloadsModel:incRevision()
+                        currSess:removeDownload(delKey)
+                    end,"SLD_OutSingleDone","int"),
+                    VMatch(function(natpack,val)
+                        -- MAKE-PRETTY
+                        local valTree = val:values()
+                        local delKey = valTree._2
+                        print("File not found brah: |" .. delKey .. "|")
+                        DownloadsModel:incRevision()
+                        currSess:removeDownload(delKey)
+                    end,"SLD_OutFileNotFound","int"),
+                    VMatch(function()
+                        print('Downloaded!')
+                        currentSessions[downloadPath] = nil
+                        DownloadsModel:incRevision()
+                        DownloadsModel:dropSession(currSess)
+                        objRetainer:release(newId)
+                    end,"SLD_OutDone"),
+                    VMatch(function(natpack,val)
+                        if (isCurrentDead()) then
+                            return
+                        end
+                        local tbl = val:values()
+                        local fileId = tbl._2
+                        local fileIdWhole = whole(fileId)
+                        local theMirror = tbl._3
+                        ctx:messageAsync(
+                            asyncSqlite,
+                            VSig("ASQL_Execute"),
+                            VString(
+                                "UPDATE mirrors SET use_count=use_count+1"
+                                .. " WHERE file_id=" .. fileIdWhole .. ";"
+                            )
+                        )
+                    end,"SLD_OutMirrorUsed","int","string"),
+                    VMatch(function(natPack,val)
+                        local values = val:values()
+                        local hash = values._3
+                        if (nil == asyncSqlite or isCurrentDead()) then
+                            return
+                        end
+
+                        local id = values._2
+                        local idWhole = whole(id)
+
+                        ctx:messageAsyncWCallback(asyncSqlite,
+                            function (out)
+                                local outVal = out:values()
+
+                                assert( outVal._4, "Query failed..." )
+                                assert( outVal._3 == "", "Hash collision, hash is different."
+                                    .. " (todo: handle this case)" )
+
+                                ctx:messageAsync(
+                                    asyncSqlite,
+                                    VSig("ASQL_Execute"),
+                                    VString("UPDATE files SET file_hash_256='"
+                                        .. hash .. "' WHERE file_id='" .. idWhole .. "';")
+                                )
+                                updateRevision()
+                            end,
+                            VSig("ASQL_OutSingleRow"),
+                            VString("SELECT file_hash_256 FROM files WHERE file_id='"
+                                .. idWhole .. "';"),
+                            VString(""),
+                            VBool(false))
+                    end,"SLD_OutHashUpdate","int","string"),
+                    VMatch(function(natPack,out)
+                        if (isCurrentDead()) then
+                            return
+                        end
+
+                        local val = out:values()
+                        local id = val._2
+                        local idWhole = whole(id)
+                        local newSize = val._3
+                        -- size collision already checked with assert
+                        ctx:messageAsync(
+                            asyncSqlite,
+                            VSig("ASQL_Execute"),
+                            VString("UPDATE files SET file_size='"
+                                .. newSize .. "' WHERE file_id='" .. idWhole .. "';")
+                        )
+                        updateRevision()
+                    end,"SLD_OutSizeUpdate","int","double"),
+                    VMatch(function()
+                        print('Safelist session dun! Downloading...')
+                        local locked = handlerWeak:lockPtr()
+                        assert( nil ~= locked , "Locking weak ptr gives nil..." )
+                        local dlHandle = ctx:messageRetValues(dlFactory,
+                            VSig("SLDF_InNewAsync"),
+                            VString(downloadPath),
+                            VMsg(locked),
+                            VMsg(nil)
+                        )._4
+                        assert( dlHandle ~= nil )
+                    end,"SLDF_OutCreateSessionDone"),
+                    VMatch(function(natPack,val)
+                        local vals = val:values()
+                        print("The total: " .. vals._2)
+                        currSess:setTotalDownloads(vals._2)
+                    end,"SLD_OutTotalDownloads","int")
+                )
+
+                handlerWeak = handler:getWeak()
+                objRetainer:retain(newId,handler)
+
+                ctx:message(dlFactory,
+                    VSig("SLDF_CreateSession"),
+                    VMsg(asyncSqlite),
+                    VMsg(handler),
+                    VString(downloadPath)
+                )
+
+            end
+
+            local nId = objRetainer:newId()
+
+            local handler = ctx:makeLuaMatchHandler(
+                VMatch(function(natPack,val)
+                    local outPath = val:values()._2
+                    afterDirectory(outPath)
+                    objRetainer:release(nId)
+                end,"GDS_OutNotifyPath","string")
+            )
+
+            objRetainer:retain(nId,handler)
+
+            local outVal = ctx:message(dialogService,
                 VSig("GDS_DirChooserDialog"),
                 VMsg(mainWnd),
                 VString("Select download location."),
-                VString(""))
-
-            local downloadPath = outVal._4
-            if (downloadPath == "") then
-                return
-            end
-
-            assert( downloadPath[#downloadPath] ~= "/",
-                "Don't expect slash at the end." )
-
-            downloadPath = downloadPath .. "/safelist_session"
-
-            if (currentSessions[downloadPath] == "t") then
-                messageBox(
-                    "In progress",
-                    "Safelist already being downloaded."
-                )
-                return
-            end
-
-            currentSessions[downloadPath] = "t"
-
-            --print("Pre col: " .. collectgarbage('count'))
-            --collectgarbage('collect')
-            --print("Post col: " .. collectgarbage('count'))
-
-            local currSess = DownloadsModel:newSession()
-            local newId = objRetainer:newId()
-            local handlerWeak = nil
-            local handler = ctx:makeLuaMatchHandler(
-                VMatch(function(natPack,val)
-                    local values = val:values()
-                    local dl = currSess:keyDownload(values._2)
-                    -- dead progress update
-                    if (nil ~= dl) then
-                        local ratio = values._3 / values._4
-                        DownloadsModel:incRevision()
-                        dl:setProgress(ratio)
-                    end
-                    local newBytes = values._5
-                    downloadSpeedChecker:regBytes(newBytes)
-                end,"SLD_OutProgressUpdate","int","double","double","double"),
-                VMatch(function(natpack,val)
-                    local valTree = val:values()
-                    local newKey = valTree._2
-                    local newPath = valTree._3
-                    DownloadsModel:incRevision()
-                    currSess:addDownload(newKey,newPath)
-                end,"SLD_OutStarted","int","string"),
-                VMatch(function(natpack,val)
-                    local valTree = val:values()
-                    local delKey = valTree._2
-                    DownloadsModel:incRevision()
-                    currSess:removeDownload(delKey)
-                end,"SLD_OutSingleDone","int"),
-                VMatch(function(natpack,val)
-                    -- MAKE-PRETTY
-                    local valTree = val:values()
-                    local delKey = valTree._2
-                    print("File not found brah: |" .. delKey .. "|")
-                    DownloadsModel:incRevision()
-                    currSess:removeDownload(delKey)
-                end,"SLD_OutFileNotFound","int"),
-                VMatch(function()
-                    print('Downloaded!')
-                    currentSessions[downloadPath] = nil
-                    DownloadsModel:incRevision()
-                    DownloadsModel:dropSession(currSess)
-                    objRetainer:release(newId)
-                end,"SLD_OutDone"),
-                VMatch(function(natpack,val)
-                    if (isCurrentDead()) then
-                        return
-                    end
-                    local tbl = val:values()
-                    local fileId = tbl._2
-                    local fileIdWhole = whole(fileId)
-                    local theMirror = tbl._3
-                    ctx:messageAsync(
-                        asyncSqlite,
-                        VSig("ASQL_Execute"),
-                        VString(
-                            "UPDATE mirrors SET use_count=use_count+1"
-                            .. " WHERE file_id=" .. fileIdWhole .. ";"
-                        )
-                    )
-                end,"SLD_OutMirrorUsed","int","string"),
-                VMatch(function(natPack,val)
-                    local values = val:values()
-                    local hash = values._3
-                    if (nil == asyncSqlite or isCurrentDead()) then
-                        return
-                    end
-
-                    local id = values._2
-                    local idWhole = whole(id)
-
-                    ctx:messageAsyncWCallback(asyncSqlite,
-                        function (out)
-                            local outVal = out:values()
-
-                            assert( outVal._4, "Query failed..." )
-                            assert( outVal._3 == "", "Hash collision, hash is different."
-                                .. " (todo: handle this case)" )
-
-                            ctx:messageAsync(
-                                asyncSqlite,
-                                VSig("ASQL_Execute"),
-                                VString("UPDATE files SET file_hash_256='"
-                                    .. hash .. "' WHERE file_id='" .. idWhole .. "';")
-                            )
-                            updateRevision()
-                        end,
-                        VSig("ASQL_OutSingleRow"),
-                        VString("SELECT file_hash_256 FROM files WHERE file_id='"
-                            .. idWhole .. "';"),
-                        VString(""),
-                        VBool(false))
-                end,"SLD_OutHashUpdate","int","string"),
-                VMatch(function(natPack,out)
-                    if (isCurrentDead()) then
-                        return
-                    end
-
-                    local val = out:values()
-                    local id = val._2
-                    local idWhole = whole(id)
-                    local newSize = val._3
-                    -- size collision already checked with assert
-                    ctx:messageAsync(
-                        asyncSqlite,
-                        VSig("ASQL_Execute"),
-                        VString("UPDATE files SET file_size='"
-                            .. newSize .. "' WHERE file_id='" .. idWhole .. "';")
-                    )
-                    updateRevision()
-                end,"SLD_OutSizeUpdate","int","double"),
-                VMatch(function()
-                    print('Safelist session dun! Downloading...')
-                    local locked = handlerWeak:lockPtr()
-                    assert( nil ~= locked , "Locking weak ptr gives nil..." )
-                    local dlHandle = ctx:messageRetValues(dlFactory,
-                        VSig("SLDF_InNewAsync"),
-                        VString(downloadPath),
-                        VMsg(locked),
-                        VMsg(nil)
-                    )._4
-                    assert( dlHandle ~= nil )
-                end,"SLDF_OutCreateSessionDone"),
-                VMatch(function(natPack,val)
-                    local vals = val:values()
-                    print("The total: " .. vals._2)
-                    currSess:setTotalDownloads(vals._2)
-                end,"SLD_OutTotalDownloads","int")
-            )
-
-            handlerWeak = handler:getWeak()
-            objRetainer:retain(newId,handler)
-
-            ctx:message(dlFactory,
-                VSig("SLDF_CreateSession"),
-                VMsg(asyncSqlite),
-                VMsg(handler),
-                VString(downloadPath)
-            )
+                VMsg(handler))
         end,"MWI_OutDownloadSafelistButtonClicked"),
         VMatch(function()
             local dialogService = ctx:namedMessageable("dialogService")

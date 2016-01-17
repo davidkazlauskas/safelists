@@ -75,6 +75,11 @@ struct AsyncSqlite {
     // AsyncSqliteProxy
     DUMMY_REG(Shutdown,"ASQL_Shutdown");
 
+    // Check if connection is already closed
+    // Signature:
+    // < IsDead, bool (out) >
+    DUMMY_REG(IsDead,"ASQL_IsDead");
+
     static StrongMsgPtr createNew(const char* name);
 };
 

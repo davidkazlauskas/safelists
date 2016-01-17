@@ -333,7 +333,16 @@ struct AsyncSqliteProxy : public Messageable {
         auto locked = _weakPtr.lock();
         assert( nullptr != locked &&
             "Not cool bro, shouldn't be destroyed...");
-        locked->enqueueMessage(pack);
+
+        bool isDeadCheck = pack->tryCallFunction<
+            AsyncSqlite::IsDead, bool
+        >([&](ANY_CONV,bool& out) {
+            out = locked == nullptr;
+        });
+
+        if (!isDeadCheck) {
+            locked->enqueueMessage(pack);
+        }
     }
 
     ~AsyncSqliteProxy() {

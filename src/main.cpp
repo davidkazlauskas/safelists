@@ -1590,6 +1590,7 @@ struct GtkDialogService : public Messageable {
         int moo
     ) {
         auto del = SCOPE_GUARD_LC(
+            outDlg->hide();
             delete outDlg;
         );
 

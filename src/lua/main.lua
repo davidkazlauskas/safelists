@@ -2705,13 +2705,6 @@ initAll = function()
         VMatch(function()
 
             local dialogService = ctx:namedMessageable("dialogService")
-            local outVal = ctx:messageRetValues(dialogService,
-                VSig("GDS_FileChooserDialog"),
-                VMsg(mainWnd),
-                VString("Select safelist session to resume."),
-                VString("safelist_session"),
-                VString("")
-            )
 
             local afterPath = function(thePath)
 
@@ -2786,9 +2779,27 @@ initAll = function()
                 )._4
                 assert( dlHandle ~= nil )
 
-                end
+            end
 
-            afterPath(outVal._5)
+            local nId = objRetainer:newId()
+
+            local handler = ctx:makeLuaMatchHandler(
+                VMatch(function(natPack,val)
+                    local outPath = val:values()._2
+                    afterPath(outPath)
+                    objRetainer:release(nId)
+                end,"GDS_OutNotifyPath","string")
+            )
+
+            objRetainer:retain(nId,handler)
+
+            ctx:message(dialogService,
+                VSig("GDS_FileChooserDialog"),
+                VMsg(mainWnd),
+                VString("Select safelist session to resume."),
+                VString("safelist_session"),
+                VMsg(handler)
+            )
         end,"MWI_OutResumeDownloadButtonClicked"),
         VMatch(function(natPack,val)
             local thisState = val:values()._2

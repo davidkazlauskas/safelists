@@ -70,6 +70,9 @@ namespace SafeLists {
     const char* POST_FIXES =
         ".window-frame {\n"
         "box-shadow: none;\n"
+        "}\n"
+        "GtkTreeView.view.expander {\n"
+        "-gtk-icon-source: none;\n"
         "}\n";
 
     struct GtkMMThemeManagerImpl : public GenericStMessageable {

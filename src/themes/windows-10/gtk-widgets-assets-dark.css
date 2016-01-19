@@ -1,0 +1,65 @@
+/*
+# name: Windows 8
+# author: Maxime Doyen
+# date: May 30, 2015
+# description: Windows 8 modern ui gtk theme v0.7
+*/
+
+
+
+/*********************
+ * GtkScale's slider *
+ *********************/
+.scale.slider.horizontal,
+.scale.scale-has-marks-above.slider,
+.scale.scale-has-marks-below.slider,
+.scale.scale-has-marks-above.slider.horizontal,
+.scale.scale-has-marks-below.slider.horizontal {
+	background-image: url("./assets/slider-horiz-dark.png");
+}
+
+.scale.slider.horizontal:hover,
+.scale.scale-has-marks-above.slider:hover,
+.scale.scale-has-marks-below.slider:hover,
+.scale.scale-has-marks-above.slider.horizontal:hover,
+.scale.scale-has-marks-below.slider.horizontal:hover {
+	background-image: url("./assets/slider-horiz-over-dark.png");
+}
+
+.scale.slider.horizontal:insensitive,
+.scale.scale-has-marks-above.slider:insensitive,
+.scale.scale-has-marks-below.slider:insensitive,
+.scale.scale-has-marks-above.slider.horizontal:insensitive,
+.scale.scale-has-marks-below.slider.horizontal:insensitive {
+	background-image: url("./assets/slider-horiz-insensitive-dark.png");
+}
+
+.scale.slider.vertical,
+.scale.scale-has-marks-above.slider.vertical,
+.scale.scale-has-marks-below.slider.vertical {
+	background-image: url("assets/slider-vert-dark.png");
+}
+
+.scale.slider.vertical:hover,
+.scale.slider.vertical:active,
+.scale.slider.vertical:active:hover {
+	background-image: url("assets/slider-vert-over-dark.png");
+}
+
+.scale.slider.vertical:insensitive,
+.scale.slider.vertical:insensitive:hover {
+	background-image: url("assets/slider-vert-insensitive-dark.png");
+}
+
+/********************************
+ * Touch text selection handles *
+ ********************************/
+.cursor-handle.bottom {
+	background-image: url("assets/slider-horiz.png");
+}
+
+.cursor-handle.top {
+	background-image: url("assets/slider-horiz.png");
+}
+
+

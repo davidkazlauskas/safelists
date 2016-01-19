@@ -1168,7 +1168,9 @@ initAll = function()
         ["Raleigh"] = "@/org/gtk/libgtk/theme/Raleigh.css",
         ["Vertex (light)"] = "appdata/themes/vertex/gtk.css",
         ["Vertex (dark)"] = "appdata/themes/vertex/gtk-dark.css",
-        ["Borderline GTK"] = "appdata/themes/borderline-gtk/gtk.css"
+        ["Borderline GTK"] = "appdata/themes/borderline-gtk/gtk.css",
+        ["Windows 10 (light)"] = "appdata/themes/windows-10/gtk.css",
+        ["Windows 10 (dark)"] = "appdata/themes/windows-10/gtk-dark.css"
     }
 
     local loadTheme = function(name)
@@ -1205,6 +1207,13 @@ initAll = function()
         end)
         themes:appendSubLeaf("theme-borderline-gtk","Borderline GTK",function()
             loadTheme("Borderline GTK")
+        end)
+        local win10 = themes:appendSubComp("theme-win-10","Windows 10")
+        win10:appendSubLeaf("theme-win-10-light","light",function()
+            loadTheme("Windows 10 (light)")
+        end)
+        win10:appendSubLeaf("theme-win-10-dark","dark",function()
+            loadTheme("Windows 10 (dark)")
         end)
 
         another:appendSubLeaf("quit-application","Quit",quitApplication)

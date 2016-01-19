@@ -1168,8 +1168,7 @@ initAll = function()
         ["Raleigh"] = "@/org/gtk/libgtk/theme/Raleigh.css",
         ["Vertex (light)"] = "appdata/themes/vertex/gtk.css",
         ["Vertex (dark)"] = "appdata/themes/vertex/gtk-dark.css",
-        ["White (light)"] = "appdata/themes/white/gtk.css",
-        ["White (dark)"] = "appdata/themes/white/gtk-dark.css"
+        ["Borderline GTK"] = "appdata/themes/borderline-gtk/gtk.css"
     }
 
     local loadTheme = function(name)
@@ -1204,12 +1203,8 @@ initAll = function()
         vertex:appendSubLeaf("theme-vertex-dark","dark",function()
             loadTheme("Vertex (dark)")
         end)
-        local white = themes:appendSubComp("theme-white","White")
-        white:appendSubLeaf("theme-white-light","light",function()
-            loadTheme("White (light)")
-        end)
-        white:appendSubLeaf("theme-white-dark","dark",function()
-            loadTheme("White (dark)")
+        themes:appendSubLeaf("theme-borderline-gtk","Borderline GTK",function()
+            loadTheme("Borderline GTK")
         end)
 
         another:appendSubLeaf("quit-application","Quit",quitApplication)

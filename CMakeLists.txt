@@ -168,6 +168,9 @@ if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
     SET( ICON_RESOURCE "${CMAKE_SOURCE_DIR}/misc/icon.res" )
 endif("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
 
+SET( APPDATA_DIR "${CMAKE_BINARY_DIR}/appdata" )
+SET( LUASCRIPTS_DIR "${APPDATA_DIR}/lua" )
+
 add_custom_target( create-runtime-files-dir
     COMMAND ${MKDIR} -p "${CMAKE_BINARY_DIR}/appdata/uischemes" )
 add_custom_target( copy-runtime-files ALL
@@ -176,11 +179,11 @@ add_custom_target( copy-runtime-files ALL
 add_custom_target( copy-runtime-files-ex-data ALL
     COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/exampleData/ ${CMAKE_BINARY_DIR}/exampleData/ )
 add_custom_target( copy-lua-plumbing ALL
-    COMMAND cmake -E copy_if_different ${CMAKE_SOURCE_DIR}/${PLUMBING_DIR}/plumbing.lua ${CMAKE_BINARY_DIR}/lua/plumbing.lua )
+    COMMAND cmake -E copy_if_different ${CMAKE_SOURCE_DIR}/${PLUMBING_DIR}/plumbing.lua ${LUASCRIPTS_DIR}/plumbing.lua )
 add_custom_target( copy-lua-debug ALL
-    COMMAND cmake -E copy_if_different ${CMAKE_SOURCE_DIR}/${PLUMBING_DIR}/mobdebug.lua ${CMAKE_BINARY_DIR}/lua/mobdebug.lua )
+    COMMAND cmake -E copy_if_different ${CMAKE_SOURCE_DIR}/${PLUMBING_DIR}/mobdebug.lua ${LUASCRIPTS_DIR}/mobdebug.lua )
 add_custom_target( copy-lua-scripts ALL
-    COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/src/lua ${CMAKE_BINARY_DIR}/appdata/lua )
+    COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/src/lua ${LUASCRIPTS_DIR} )
 add_custom_target( copy-root-data ALL
     COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/rootData/ ${CMAKE_BINARY_DIR} )
 add_custom_target( create-gtk-schemas-dir

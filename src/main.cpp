@@ -2172,7 +2172,7 @@ int main(int argc,char** argv) {
     auto scriptsPath = SafeLists::luaScriptsPath();
 
     auto ctx = LuaContext::makeContext((scriptsPath + "/plumbing.lua").c_str());
-    luaContextSetGlobalStr(ctx,"LUA_SCRIPTS_PATH",scriptsPath.c_str());
+    luaContextSetGlobalStr(*ctx,"LUA_SCRIPTS_PATH",scriptsPath.c_str());
 
     ctx->setFactory(vFactory());
 

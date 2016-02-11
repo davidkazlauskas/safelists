@@ -16,7 +16,7 @@ strip|libsafefiledownloader.so|-
 strip|safelists.exe|-
 strip|safefiledownloader.dll|-
 # lua
-directory|lua|-
+directory|appdata/lua|-
 # appdata uischemes
 normal|appdata/uischemes/|-
 normal|appdata/uischemes/dialogs.glade|-

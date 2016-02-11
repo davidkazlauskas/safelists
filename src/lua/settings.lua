@@ -1,5 +1,5 @@
 
-JSON = require('lua/JSON')
+JSON = require('JSON')
 
 function JSON:onDecodeError(message,text,location,etc)
     -- http://replygif.net/i/828.gif

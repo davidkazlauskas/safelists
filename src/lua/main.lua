@@ -1,8 +1,11 @@
 
 --require('lua/mobdebug').start()
-require('lua/safelist-constants')
-require('lua/genericwidget')
-require('lua/settings')
+
+package.path = package.path .. ";" .. LUA_SCRIPTS_PATH .. "/?.lua"
+
+require('safelist-constants')
+require('genericwidget')
+require('settings')
 
 setStatus = function(context,widget,text)
     context:message(widget,VSig("MWI_InSetStatusText"),VString(text))

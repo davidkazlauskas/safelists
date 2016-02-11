@@ -2149,6 +2149,12 @@ void checkSignature() {
     }
 }
 
+void luaContextSetGlobalStr(LuaContext& ctx,const char* name,const char* value) {
+    auto s = ctx.s();
+    ::lua_pushstring(s,value);
+    ::lua_setglobal(s,name);
+}
+
 int main(int argc,char** argv) {
 #ifdef  __WIN32
     FreeConsole();
@@ -2163,7 +2169,11 @@ int main(int argc,char** argv) {
 
     checkSignature();
 
-    auto ctx = LuaContext::makeContext("lua/plumbing.lua");
+    auto scriptsPath = SafeLists::luaScriptsPath();
+
+    auto ctx = LuaContext::makeContext((scriptsPath + "/plumbing.lua").c_str());
+    luaContextSetGlobalStr(ctx,"LUA_SCRIPTS_PATH",scriptsPath.c_str());
+
     ctx->setFactory(vFactory());
 
     auto downloader = SafeLists::AsyncDownloader::createNew("imitation");
@@ -2200,8 +2210,6 @@ int main(int argc,char** argv) {
     ctx->addMessageableStrong("asyncSqliteFactory",asyncSqliteFactory);
     ctx->addMessageableStrong("dialogService",dialogService);
     ctx->addMessageableStrong("themeManager",themeManager);
-
-    auto scriptsPath = SafeLists::luaScriptsPath();
 
     ctx->doFile((scriptsPath + "/main.lua").c_str());
     app->run(mainWnd->getWindow(),argc,argv);

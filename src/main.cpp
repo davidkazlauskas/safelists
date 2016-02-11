@@ -2049,7 +2049,8 @@ void prepEnv(
     auto catEnv =
         [&](const char* str) {
             int len = ::strlen(str);
-            auto buff = std::unique_ptr< char[] >( new char[len] );
+            assert( len < 512 && "Length problems, friendo..." );
+            auto buff = std::unique_ptr< char[] >( new char[512] );
             ::strcpy( buff.get(), str );
             SA::add( envVec, std::move(buff) );
         };

@@ -12,6 +12,7 @@ namespace SafeLists {
     std::string executablePath();
     std::string appDataPath();
     std::string userDataPath();
+    std::string luaScriptsPath();
 
 }
 

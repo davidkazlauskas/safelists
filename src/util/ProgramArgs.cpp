@@ -55,5 +55,11 @@ std::string userDataPath() {
     return execPath;
 }
 
+std::string luaScriptsPath() {
+    auto appData = appDataPath();
+    appData += "/lua";
+    return appData;
+}
+
 }
 

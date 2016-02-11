@@ -180,7 +180,7 @@ add_custom_target( copy-lua-plumbing ALL
 add_custom_target( copy-lua-debug ALL
     COMMAND cmake -E copy_if_different ${CMAKE_SOURCE_DIR}/${PLUMBING_DIR}/mobdebug.lua ${CMAKE_BINARY_DIR}/lua/mobdebug.lua )
 add_custom_target( copy-lua-scripts ALL
-    COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/src/lua ${CMAKE_BINARY_DIR}/lua )
+    COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/src/lua ${CMAKE_BINARY_DIR}/appdata/lua )
 add_custom_target( copy-root-data ALL
     COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/rootData/ ${CMAKE_BINARY_DIR} )
 add_custom_target( create-gtk-schemas-dir

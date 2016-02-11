@@ -2200,7 +2200,10 @@ int main(int argc,char** argv) {
     ctx->addMessageableStrong("asyncSqliteFactory",asyncSqliteFactory);
     ctx->addMessageableStrong("dialogService",dialogService);
     ctx->addMessageableStrong("themeManager",themeManager);
-    ctx->doFile("lua/main.lua");
+
+    auto scriptsPath = SafeLists::luaScriptsPath();
+
+    ctx->doFile((scriptsPath + "/main.lua").c_str());
     app->run(mainWnd->getWindow(),argc,argv);
 }
 

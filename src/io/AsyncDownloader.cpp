@@ -621,7 +621,16 @@ namespace SafeLists {
                         const std::weak_ptr< Messageable >& wmsg)
                     {
                         if (!interval.isDefined()) {
+                            auto locked = wmsg.lock();
+                            if (nullptr == locked) {
+                                return;
+                            }
                             IntervalList predefined(Interval(0,77777));
+                            auto toNotify = SF::vpackPtr< AD::OutSizeKnown, int64_t >(
+                                nullptr, predefined.range().size()
+                            );
+                            locked->message(toNotify);
+
                             ImitationPtr newImitation(
                                 new DownloadJobImitation(std::move(predefined),func,wmsg) );
                             SA::add(_imitationVector,std::move(newImitation));

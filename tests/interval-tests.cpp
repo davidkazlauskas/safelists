@@ -536,13 +536,33 @@ TEST_CASE("interval_stop_at_first_empty","[interval]") {
     list.append(Interval(3,7));
 
     int counter = 0;
+    int times = 0;
 
-    list.traverseEmpty(
+    auto reset = [&](int timesCount) {
+        times = timesCount;
+        counter = 0;
+    };
+
+    reset(1);
+
+    auto counterf =
         [&](const Interval&) {
             ++counter;
-            return false;
-        }
-    );
+            --times;
+            return times > 0;
+        };
+
+    list.traverseEmpty( counterf );
 
     REQUIRE( 1 == counter );
+
+    reset(2);
+    list.traverseEmpty( counterf );
+
+    REQUIRE( 2 == counter );
+
+    reset(3);
+    list.traverseEmpty( counterf );
+
+    REQUIRE( 2 == counter );
 }

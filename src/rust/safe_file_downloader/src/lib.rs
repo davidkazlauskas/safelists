@@ -12,7 +12,7 @@ extern crate rustc_serialize;
 use std::sync::{Arc,Mutex};
 use regex::Regex;
 
-const CHUNK_SIZE : u64 = 64 * 1024;
+const CHUNK_SIZE : u64 = 1024 * 1024;
 
 const SAFE_DOWNLOADER_MSG_FILE_NOT_FOUND : i32 = 7;
 const SAFE_DOWNLOADER_MSG_DOWNLOAD_SUCCESS : i32 = 8;

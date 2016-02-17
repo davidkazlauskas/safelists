@@ -82,7 +82,7 @@ function genericcopy {
 
     TO_CREATE=$( dirname "$OUTPATH" )
     mkdir -p "$TO_CREATE"
-    cp $CPFLAGS "$INPATH" "$OUTPATH"
+    rsync --exclude ".*" $CPFLAGS "$INPATH" "$OUTPATH"
 }
 
 INPUT_FILE_STR=$( cat "$INPUT_FILE" )

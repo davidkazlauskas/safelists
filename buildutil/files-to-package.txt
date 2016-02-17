@@ -4,7 +4,7 @@
 #   normal - add file and compress to the max
 #   nosign - like normal but don't add to signature
 #   strip - as normal but strips symbols
-#   directory - copy entire directory
+#   directory - copy entire directory (MUST END WITH SLASH)
 #   store - store file rather than compress
 #   signature - signature file path
 #
@@ -16,7 +16,7 @@ strip|libsafefiledownloader.so|-
 strip|safelists.exe|-
 strip|safefiledownloader.dll|-
 # lua
-directory|appdata/lua|-
+directory|appdata/lua/|-
 # appdata uischemes
 normal|appdata/uischemes/|-
 normal|appdata/uischemes/dialogs.glade|-
@@ -31,10 +31,10 @@ store|appdata/refid|-
 nosign|exampleData/example1.safelist|appdata/examples/example1.safelist
 nosign|exampleData/example2.safelist|appdata/examples/example2.safelist
 # gnome schemas
-directory|appdata/usr/share/glib-2.0/schemas|-
+directory|appdata/usr/share/glib-2.0/schemas/|-
 # default icons
 normal|appdata/usr/share/icons/Adwaita/index.theme|-
-directory|appdata/usr/share/icons/Adwaita/16x16|-
+directory|appdata/usr/share/icons/Adwaita/16x16/|-
 # signature generation path
 signature|signature.json
 # version info

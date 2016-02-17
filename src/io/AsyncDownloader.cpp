@@ -627,7 +627,7 @@ namespace SafeLists {
                                 return;
                             }
                             IntervalList predefined(Interval(0,77777));
-                            auto toNotify = SF::vpackPtr< AD::OutSizeKnown, int64_t >(
+                            auto toNotify = SF::vpack< AD::OutSizeKnown, int64_t >(
                                 nullptr, predefined.range().size()
                             );
                             locked->message(toNotify);

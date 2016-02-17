@@ -1797,7 +1797,9 @@ struct LicenseDaemonDummyImpl : public Messageable {
     static std::shared_ptr< LicenseDaemonDummyImpl > makeNew() {
         // perfect spot
         auto res = ::sodium_init();
-        assert( 0 == res && "Sodium init failed." );
+
+        // could be instantiated from safe file downloader too
+        //assert( 0 == res && "Sodium init failed." );
 
         std::shared_ptr< LicenseDaemonDummyImpl > result(
             new LicenseDaemonDummyImpl()

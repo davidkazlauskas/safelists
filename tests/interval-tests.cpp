@@ -602,3 +602,14 @@ TEST_CASE("interval_stop_at_first_filled","[interval]") {
     list.traverseFilled( counterf );
     REQUIRE( 2 == counter );
 }
+
+TEST_CASE("interval_empty_traverse","[interval]") {
+    using namespace SafeLists;
+
+    IntervalList list(Interval(0,100));
+    Interval out;
+    list.traverseEmpty([&](const Interval& i) { out = i; return false; });
+
+    REQUIRE( out.start() == 0 );
+    REQUIRE( out.end() == 100 );
+}

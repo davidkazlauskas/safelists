@@ -92,18 +92,21 @@ namespace SafeLists {
                 const std::string& path,
                 IntervalList&& interval,
                 const ByteFunction& func,
-                const std::weak_ptr< Messageable >& wmsg)
+                const std::weak_ptr< Messageable >& wmsg,
+                int64_t chunkSizes = 1024 * 1024)
                 :
                     _path(path),
                     _counter(std::move(interval)),
                     _func(func),
-                    _wmsg(wmsg)
+                    _wmsg(wmsg),
+                    _maxChunkSize(chunkSizes)
             {}
 
             std::string _path;
             IntervalList _counter;
             ByteFunction _func;
             std::weak_ptr< Messageable > _wmsg;
+            int64_t _maxChunkSize;
 
             template <class... Sig,class... Args>
             bool notify(Args&&... args) {

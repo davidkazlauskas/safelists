@@ -377,7 +377,8 @@ SignFileListError signFileList(
         return SignFileListError::SigningFailed;
     }
 
-    assert( outLen < sizeof(sigret) );
+    // meh
+    //assert( outLen < sizeof(sigret) );
 
     char sigRetString[sizeof(sigret) * 2];
     int enc = ::base64encode(

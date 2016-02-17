@@ -249,13 +249,19 @@ void IntervalList::traverseEmpty(const IntervalReceiveFunction& func) const {
     auto beg = SA::begin(_list);
     auto end = SA::end(_list);
     if (beg->start() > 0) {
-        func(Interval(0,beg->start()));
+        bool res = func(Interval(0,beg->start()));
+        if (!res) {
+            return;
+        }
     }
 
     victim = *beg;
     ++beg;
     while (beg != end) {
-        func(Interval(victim.end(),beg->start()));
+        bool res = func(Interval(victim.end(),beg->start()));
+        if (!res) {
+            return;
+        }
         victim = *beg;
         ++beg;
     }

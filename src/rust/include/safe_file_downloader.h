@@ -9,6 +9,9 @@ extern "C" {
     typedef int32_t (*sfd_userdata_buffer_func)(
         void* userdata,int64_t start,int64_t end,const uint8_t* buf);
 
+    typedef int32_t (*sfd_request_next_range_func)(
+        void* userdata,int64_t* start,int64_t* end);
+
     typedef void (*sfd_userdata_arbitrary_message_func)(
         void* userdata,int32_t msgtype,const void* buf);
 

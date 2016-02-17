@@ -29,6 +29,10 @@ namespace SafeLists {
         // >
         DUMMY_REG(ScheduleDownload,"AD_ScheduleDownload");
 
+        // Signalled when download size is known.
+        // Signature: < OutSizeKnown, int64_t (file size) >
+        DUMMY_REG(OutSizeKnown,"AD_OutSizeKnown");
+
         // Signalled when download is finished.
         // Signature: < OutDownloadFinished >
         DUMMY_REG(OutDownloadFinished,"AD_OutDownloadFinished");

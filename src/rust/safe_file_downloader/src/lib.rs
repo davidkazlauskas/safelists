@@ -100,6 +100,10 @@ struct DownloadTask {
         libc::uint64_t,
         libc::uint64_t,
         *const libc::uint8_t) -> libc::int32_t,
+    userdata_next_range_func: extern fn(
+        param: *mut libc::c_void,
+        *mut libc::uint64_t,
+        *mut libc::uint64_t) -> libc::int32_t,
     userdata_arbitrary_message_func: extern fn(
         param: *mut libc::c_void,
         msgtype: i32,
@@ -134,8 +138,15 @@ struct DownloadTaskWRreader {
 impl DownloadTaskWRreader {
     fn next_chunk(&self,chunk_size: u64) -> (u64,u64) // start, length
     {
-        let remaining = self.remaining_size(chunk_size);
-        (self.state.progress,remaining)
+        let (mut chunkstart,mut chunkend) = (0u64,0u64);
+
+        unsafe {
+            (self.task.userdata_next_range_func)(
+                self.task.userdata,
+                &mut chunkstart as *mut u64,
+                &mut chunkend as *mut u64);
+        }
+        (chunkstart,chunkend)
     }
 
     fn remaining_size(&self,to_take: u64) -> u64 {
@@ -493,6 +504,8 @@ pub extern fn safe_file_downloader_schedule(
             userdata: (*argptr).userdata,
             userdata_buffer_func:
                 (*argptr).userdata_buffer_func,
+            userdata_next_range_func:
+                (*argptr).userdata_next_range_func,
             userdata_arbitrary_message_func:
                 (*argptr).userdata_arbitrary_message_func,
             userdata_destructor: (*argptr).userdata_destructor,

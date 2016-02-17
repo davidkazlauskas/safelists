@@ -469,6 +469,10 @@ struct ScheduleArgs {
         libc::uint64_t,
         libc::uint64_t,
         *const libc::uint8_t) -> libc::int32_t,
+    userdata_next_range_func: extern fn(
+        param: *mut libc::c_void,
+        *mut libc::uint64_t,
+        *mut libc::uint64_t) -> libc::int32_t,
     userdata_arbitrary_message_func: extern fn(
         param: *mut libc::c_void,
         msgtype: i32,

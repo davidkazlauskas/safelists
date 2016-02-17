@@ -21,6 +21,7 @@ extern "C" {
     struct safe_file_downloader_args {
         void* userdata;
         sfd_userdata_buffer_func userdata_buffer_func;
+        sfd_request_next_range_func userdata_next_range_func;
         sfd_userdata_arbitrary_message_func userdata_arbitrary_message_func;
         sfd_userdata_function userdata_destructor;
         const char* path;

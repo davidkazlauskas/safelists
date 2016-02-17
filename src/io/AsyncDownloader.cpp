@@ -188,6 +188,7 @@ namespace SafeLists {
                     case SAFE_DOWNLOADER_MSG_FILE_SIZE_FOUND:
                         {
                         int64_t theSize = *reinterpret_cast< const int64_t* >(optinfo);
+                        cell.notify<AD::OutSizeKnown,int64_t>(nullptr,theSize);
                         if (cell._counter.range().size() != theSize) {
                             cell._counter = IntervalList(Interval(0,theSize));
                         }

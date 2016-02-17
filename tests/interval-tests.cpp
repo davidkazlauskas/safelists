@@ -528,3 +528,21 @@ TEST_CASE("interval_list_is_defined","[interval]") {
 
     REQUIRE( listV.isDefined() );
 }
+
+TEST_CASE("interval_stop_at_first_empty","[interval]") {
+    using namespace SafeLists;
+
+    IntervalList list(Interval(0,10));
+    list.append(Interval(3,7));
+
+    int counter = 0;
+
+    list.traverseEmpty(
+        [&](const Interval&) {
+            ++counter;
+            return false;
+        }
+    );
+
+    REQUIRE( 1 == counter );
+}

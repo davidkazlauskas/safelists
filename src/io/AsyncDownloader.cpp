@@ -143,6 +143,23 @@ namespace SafeLists {
                 ScheduleDownloadCell& cell =
                     *reinterpret_cast< ScheduleDownloadCell* >(userdata);
 
+                auto& theList = cell._counter;
+                Interval next;
+                theList.traverseEmpty(
+                    [&](const Interval& i) {
+                        next = i;
+                        return false;
+                    }
+                );
+
+                *start = next.start();
+
+                if (next.size() > cell._maxChunkSize) {
+                    *end = next.start() + cell._maxChunkSize;
+                } else {
+                    *end = next.end();
+                }
+
                 return 0;
             }
 

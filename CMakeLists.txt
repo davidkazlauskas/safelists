@@ -144,7 +144,7 @@ SET( CMAKE_EXPORT_COMPILE_COMMANDS yes )
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
     SET(CARGO_BUILD_MODE "--release")
 else()
-    SET(CARGO_BUILD_MODE "--debug")
+    SET(CARGO_BUILD_MODE "")
 endif("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
 
 # just guessing, should be more robust in the future

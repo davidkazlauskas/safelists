@@ -317,6 +317,11 @@ private:
                             locked->message(msg);
                         }
                     }
+                ),
+                SF::virtualMatch< AD::OutSizeKnown, int64_t >(
+                    [&](ANY_CONV,int64_t theval) {
+                        this->_sizeUpdate = theval;
+                    }
                 )
             );
         }
@@ -325,6 +330,7 @@ private:
         int _id;
         int _error;
         int64_t _size;
+        int64_t _sizeUpdate;
         std::string _link;
         std::string _dumbHash256;
         std::string _path;
@@ -460,6 +466,17 @@ private:
 
     void jobStatusUpdate() {
         TEMPLATIOUS_FOREACH(auto& i,_jobs) {
+            int64_t sizeUpdate = i->_sizeUpdate;
+            int64_t sizePrelim = i->_size;
+            if (sizeUpdate > 0 && sizeUpdate != sizePrelim) {
+                i->_size = sizeUpdate;
+                notifyObserver<
+                    SafeListDownloader::OutSizeUpdate,
+                    int,
+                    double
+                >(nullptr,i->_id,sizeUpdate);
+            }
+
             int64_t done = i->_progressDone;
             int64_t reported = i->_progressReported;
             int64_t diff = done - reported;
@@ -704,6 +721,7 @@ private:
             ++_jobCachePoint;
             newList->_id = cacheItem._mirrorId;
             newList->_size = cacheItem._size;
+            newList->_sizeUpdate = -1;
             newList->_link = cacheItem._url;
             newList->_path = cacheItem._path;
             newList->_dumbHash256 = cacheItem._dumbHash256;

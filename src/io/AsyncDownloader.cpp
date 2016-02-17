@@ -132,6 +132,17 @@ namespace SafeLists {
                 return res ? 0 : 1;
             }
 
+            static int32_t nextIntervalFunc(
+                void* userdata,
+                int64_t* start,
+                int64_t* end)
+            {
+                ScheduleDownloadCell& cell =
+                    *reinterpret_cast< ScheduleDownloadCell* >(userdata);
+
+                return 0;
+            }
+
             static void arbitraryMessageFunc(
                 void* userdata,
                 int32_t type,
@@ -172,6 +183,8 @@ namespace SafeLists {
             args.userdata = p.get();
             args.userdata_buffer_func =
                 &ScheduleDownloadCell::bufferfunc;
+            args.userdata_next_range_func =
+                &ScheduleDownloadCell::nextIntervalFunc;
             args.userdata_arbitrary_message_func =
                 &ScheduleDownloadCell::arbitraryMessageFunc;
             args.userdata_destructor =

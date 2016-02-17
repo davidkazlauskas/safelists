@@ -567,3 +567,38 @@ TEST_CASE("interval_stop_at_first_empty","[interval]") {
     list.traverseEmpty( counterf );
     REQUIRE( 3 == counter );
 }
+
+TEST_CASE("interval_stop_at_first_filled","[interval]") {
+    using namespace SafeLists;
+
+    IntervalList list(Interval(0,100));
+    list.append(Interval(3,7));
+    list.append(Interval(10,77));
+
+    int counter = 0;
+    int times = 0;
+
+    auto reset = [&](int timesCount) {
+        times = timesCount;
+        counter = 0;
+    };
+
+    auto counterf =
+        [&](const Interval&) {
+            ++counter;
+            --times;
+            return times > 0;
+        };
+
+    reset(1);
+    list.traverseFilled( counterf );
+    REQUIRE( 1 == counter );
+
+    reset(2);
+    list.traverseFilled( counterf );
+    REQUIRE( 2 == counter );
+
+    reset(3);
+    list.traverseFilled( counterf );
+    REQUIRE( 2 == counter );
+}

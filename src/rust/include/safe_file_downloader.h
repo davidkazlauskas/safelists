@@ -13,7 +13,7 @@ extern "C" {
         void* userdata,int64_t* start,int64_t* end);
 
     typedef void (*sfd_userdata_arbitrary_message_func)(
-        void* userdata,int32_t msgtype,const void* buf);
+        void* userdata,int32_t msgtype,void* buf);
 
     typedef void (*sfd_userdata_function)(
         void* userdata);
@@ -34,6 +34,10 @@ extern "C" {
 // messaged after successful download.
 // additional arg is null.
 #define SAFE_DOWNLOADER_MSG_DOWNLOAD_SUCCESS 8
+
+// messaged to find out if download is
+// done and should be stopped
+#define SAFE_DOWNLOADER_MSG_IS_DONE 9
 
     // init safe file downloader and return handle.
     void* safe_file_downloader_new();

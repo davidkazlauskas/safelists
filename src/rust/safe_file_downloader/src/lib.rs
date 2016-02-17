@@ -16,6 +16,7 @@ const CHUNK_SIZE : u64 = 1024 * 1024;
 
 const SAFE_DOWNLOADER_MSG_FILE_NOT_FOUND : i32 = 7;
 const SAFE_DOWNLOADER_MSG_DOWNLOAD_SUCCESS : i32 = 8;
+const SAFE_DOWNLOADER_MSG_IS_DONE : i32 = 9;
 
 // chunk size for each download
 fn get_chunk_size() -> u64 {
@@ -102,12 +103,12 @@ struct DownloadTask {
         *const libc::uint8_t) -> libc::int32_t,
     userdata_next_range_func: extern fn(
         param: *mut libc::c_void,
-        *mut libc::uint64_t,
-        *mut libc::uint64_t) -> libc::int32_t,
+        *mut libc::int64_t,
+        *mut libc::int64_t) -> libc::int32_t,
     userdata_arbitrary_message_func: extern fn(
         param: *mut libc::c_void,
         msgtype: i32,
-        param: *const libc::c_void),
+        param: *mut libc::c_void),
     userdata_destructor: extern fn(param: *mut libc::c_void),
 }
 
@@ -138,15 +139,21 @@ struct DownloadTaskWRreader {
 impl DownloadTaskWRreader {
     fn next_chunk(&self,chunk_size: u64) -> (u64,u64) // start, length
     {
-        let (mut chunkstart,mut chunkend) = (0u64,0u64);
+        let (mut chunkstart,mut chunkend) = (0i64,0i64);
 
         unsafe {
             (self.task.userdata_next_range_func)(
                 self.task.userdata,
-                &mut chunkstart as *mut u64,
-                &mut chunkend as *mut u64);
+                &mut chunkstart as *mut i64,
+                &mut chunkend as *mut i64);
         }
-        (chunkstart,chunkend)
+
+        if chunkstart == chunkend && chunkstart == 0 {
+            let remaining = self.remaining_size(chunk_size);
+            (self.state.progress,remaining)
+        } else {
+            (chunkstart as u64,chunkend as u64)
+        }
     }
 
     fn remaining_size(&self,to_take: u64) -> u64 {
@@ -164,7 +171,15 @@ impl DownloadTaskWRreader {
     }
 
     fn is_done(&self) -> bool {
-        self.state.size == self.state.progress
+        let mut out: i32 = 0i32;
+        unsafe {
+            (self.task.userdata_arbitrary_message_func)(
+                self.task.userdata,
+                SAFE_DOWNLOADER_MSG_IS_DONE,
+                std::mem::transmute(&mut out as *mut i32));
+        }
+
+        out > 0
     }
 }
 
@@ -245,7 +260,7 @@ impl DownloaderActorLocal {
             (task.userdata_arbitrary_message_func)(
                 task.userdata,
                 SAFE_DOWNLOADER_MSG_FILE_NOT_FOUND,
-                std::ptr::null()
+                std::ptr::null_mut()
             );
             return Err( AddTaskError
                 ::FileNotFound("Could not find file.") );
@@ -352,8 +367,9 @@ impl DownloaderActorLocal {
                 let (chunkstart,chunkend) =
                     nextu.next_chunk(get_chunk_size());
                 let mut reader = self.rkit.file_helper.read(&nextu.file);
-                let readres = reader.read(chunkstart,chunkend);
-                (readres,chunkstart,chunkstart+chunkend)
+                let size = chunkend - chunkstart;
+                let readres = reader.read(chunkstart,size);
+                (readres,chunkstart,chunkend)
             }
         };
 
@@ -374,7 +390,7 @@ impl DownloaderActorLocal {
                     (next.task.userdata_arbitrary_message_func)(
                         next.task.userdata,
                         SAFE_DOWNLOADER_MSG_DOWNLOAD_SUCCESS,
-                        std::ptr::null()
+                        std::ptr::null_mut()
                     );
                 }
             }
@@ -482,12 +498,12 @@ struct ScheduleArgs {
         *const libc::uint8_t) -> libc::int32_t,
     userdata_next_range_func: extern fn(
         param: *mut libc::c_void,
-        *mut libc::uint64_t,
-        *mut libc::uint64_t) -> libc::int32_t,
+        *mut libc::int64_t,
+        *mut libc::int64_t) -> libc::int32_t,
     userdata_arbitrary_message_func: extern fn(
         param: *mut libc::c_void,
         msgtype: i32,
-        param: *const libc::c_void),
+        param: *mut libc::c_void),
     userdata_destructor: extern fn(param: *mut libc::c_void),
     path: *const libc::c_schar,
 }

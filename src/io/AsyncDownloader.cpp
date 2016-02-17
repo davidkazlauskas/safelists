@@ -130,6 +130,7 @@ namespace SafeLists {
 
                 const char* conv = reinterpret_cast< const char* >(buf);
 
+                cell._counter.append(Interval(start,end));
                 bool res = cell._func(conv,start,end);
 
                 return res ? 0 : 1;
@@ -166,7 +167,7 @@ namespace SafeLists {
             static void arbitraryMessageFunc(
                 void* userdata,
                 int32_t type,
-                const void* optinfo)
+                void* optinfo)
             {
                 ScheduleDownloadCell& cell =
                     *reinterpret_cast< ScheduleDownloadCell* >(userdata);
@@ -177,6 +178,10 @@ namespace SafeLists {
                         break;
                     case SAFE_DOWNLOADER_MSG_FILE_NOT_FOUND:
                         cell.notify<AD::OutFileNotFound>(nullptr);
+                        break;
+                    case SAFE_DOWNLOADER_MSG_IS_DONE:
+                        int32_t* theAns = reinterpret_cast< int32_t* >(optinfo);
+                        *theAns = cell._counter.isFilled() ? 1 : 0;
                         break;
                 }
             }

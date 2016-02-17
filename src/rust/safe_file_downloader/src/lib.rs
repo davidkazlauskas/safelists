@@ -17,6 +17,7 @@ const CHUNK_SIZE : u64 = 1024 * 1024;
 const SAFE_DOWNLOADER_MSG_FILE_NOT_FOUND : i32 = 7;
 const SAFE_DOWNLOADER_MSG_DOWNLOAD_SUCCESS : i32 = 8;
 const SAFE_DOWNLOADER_MSG_IS_DONE : i32 = 9;
+const SAFE_DOWNLOADER_MSG_FILE_SIZE_FOUND : i32 = 10;
 
 // chunk size for each download
 fn get_chunk_size() -> u64 {
@@ -72,28 +73,6 @@ impl ReaderKit {
     }
 }
 
-struct DownloadTaskState {
-    size: u64,
-    progress: u64
-}
-
-impl DownloadTaskState {
-    fn new(rk: &ReaderKit,file: &::safe_nfs::file::File)
-     -> DownloadTaskState
-    {
-        let reader = rk.file_helper.read(&file);
-        let size = reader.size();
-
-        let res =
-            DownloadTaskState {
-                size: size,
-                progress: 0,
-            };
-
-        res
-    }
-}
-
 struct DownloadTask {
     userdata: *mut libc::c_void,
     userdata_buffer_func: extern fn(
@@ -133,7 +112,6 @@ enum DownloaderMsgs {
 struct DownloadTaskWRreader {
     task: DownloadTask,
     file: ::safe_nfs::file::File,
-    state: DownloadTaskState,
 }
 
 impl DownloadTaskWRreader {
@@ -148,26 +126,8 @@ impl DownloadTaskWRreader {
                 &mut chunkend as *mut i64);
         }
 
-        if chunkstart == chunkend && chunkstart == 0 {
-            let remaining = self.remaining_size(chunk_size);
-            (self.state.progress,remaining)
-        } else {
-            (chunkstart as u64,chunkend as u64)
-        }
-    }
 
-    fn remaining_size(&self,to_take: u64) -> u64 {
-        let remaining = self.state.size - self.state.progress;
-        if remaining > to_take {
-            to_take
-        } else {
-            remaining
-        }
-    }
-
-    fn advance(&mut self,chunk_size: u64) {
-        let remaining = self.remaining_size(chunk_size);
-        self.state.progress += remaining;
+        (chunkstart as u64,chunkend as u64)
     }
 
     fn is_done(&self) -> bool {
@@ -268,20 +228,21 @@ impl DownloaderActorLocal {
 
         let fileu = file.unwrap();
 
-        let state =
-            {
-                let reader = self.rkit.file_helper.read(&fileu);
-                let size = reader.size();
-                DownloadTaskState {
-                    size: size,
-                    progress: 0,
-                }
-            };
+        {
+            let reader = self.rkit.file_helper.read(&fileu);
+            let size = reader.size() as i64;
+            let mut sizemut : i64 = size;
+            unsafe {
+                (task.userdata_arbitrary_message_func)(
+                    task.userdata,
+                    SAFE_DOWNLOADER_MSG_FILE_SIZE_FOUND,
+                    std::mem::transmute(&mut sizemut as *mut i64));
+            }
+        }
 
         let mut res = DownloadTaskWRreader {
             task: task,
             file: fileu,
-            state: state,
         };
 
         self.tasks.push(res);
@@ -385,7 +346,6 @@ impl DownloaderActorLocal {
             }
             {
                 let next = self.current_task_mut().unwrap();
-                next.advance(chunkend - chunkstart);
                 if next.is_done() {
                     (next.task.userdata_arbitrary_message_func)(
                         next.task.userdata,

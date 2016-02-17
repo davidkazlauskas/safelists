@@ -36,8 +36,11 @@ extern "C" {
 #define SAFE_DOWNLOADER_MSG_DOWNLOAD_SUCCESS 8
 
 // messaged to find out if download is
-// done and should be stopped
+// done and should be stopped (arg is i32, 0 is false anything else true)
 #define SAFE_DOWNLOADER_MSG_IS_DONE 9
+
+// messaged when file size is known (arg is filesize as i64)
+#define SAFE_DOWNLOADER_MSG_FILE_SIZE_FOUND 10
 
     // init safe file downloader and return handle.
     void* safe_file_downloader_new();

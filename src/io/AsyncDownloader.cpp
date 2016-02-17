@@ -180,8 +180,18 @@ namespace SafeLists {
                         cell.notify<AD::OutFileNotFound>(nullptr);
                         break;
                     case SAFE_DOWNLOADER_MSG_IS_DONE:
+                        {
                         int32_t* theAns = reinterpret_cast< int32_t* >(optinfo);
                         *theAns = cell._counter.isFilled() ? 1 : 0;
+                        }
+                        break;
+                    case SAFE_DOWNLOADER_MSG_FILE_SIZE_FOUND:
+                        {
+                        int64_t theSize = *reinterpret_cast< const int64_t* >(optinfo);
+                        if (cell._counter.range().size() != theSize) {
+                            cell._counter = IntervalList(Interval(0,theSize));
+                        }
+                        }
                         break;
                 }
             }

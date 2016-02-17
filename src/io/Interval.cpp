@@ -234,7 +234,10 @@ void IntervalList::traverseFilled(const IntervalReceiveFunction& func) const {
     Interval victim;
     TEMPLATIOUS_FOREACH(auto& i,_list) {
         victim = i;
-        func(victim);
+        bool res = func(victim);
+        if (!res) {
+            return;
+        }
     }
 }
 

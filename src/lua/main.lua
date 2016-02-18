@@ -28,10 +28,10 @@ function roundFloatStr(number,decimals)
 end
 
 function humanReadableBytes(number)
-    if (number > 1024 * 1024) then
-        return number .. "MB"
-    elseif (number > 1024) then
-        return number .. "KB"
+    if (number >= 1024 * 1024) then
+        return roundFloatStr((number / (1024 * 1024)),2) .. "MB"
+    elseif (number >= 1024) then
+        return roundFloatStr((number / 1024),2) .. "KB"
     else
         return number .. " bytes"
     end

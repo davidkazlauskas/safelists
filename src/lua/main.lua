@@ -3219,8 +3219,14 @@ initAll = function()
 
             local sess = DownloadsModel:nthSession(sessNum)
             local download = sess:nthDownload(dlNum)
+            local progress = roundFloatStr(download:getProgress() * 100,2)
+            local done = download:getDone()
+            local total = download:getTotal()
+            local thelabel = download:getPath() .. " ("
+                .. humanReadableBytes(done) .. " out of " .. humanReadableBytes(total)
+                .. ", " .. progress .. "%)"
 
-            natPack:setSlot(4,VString(download:getPath()))
+            natPack:setSlot(4,VString(thelabel))
             natPack:setSlot(5,VDouble(download:getProgress()))
         end,"DLMDL_QueryDownloadLabelAndProgress","int","int","string","double"),
         VMatch(function(natPack)

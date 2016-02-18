@@ -290,20 +290,28 @@ SingleDownload = {
             local res = {
                 id=id,
                 filePath=path,
-                progress=0,
+                done=0,
+                total=-1,
                 speed=0 -- bytes/sec
             }
             setmetatable(res,SingleDownload)
             return res
         end,
         getProgress = function(self)
-            return self.progress
+            return self.done / self.total
+        end,
+        getDone = function(self)
+            return self.done
+        end,
+        getTotal = function(self)
+            return self.total
         end,
         getPath = function(self)
             return self.filePath
         end,
-        setProgress = function(self,progress)
-            self.progress = progress
+        setProgress = function(self,bytesDone,bytesTotal)
+            self.done = bytesDone
+            self.total = bytesTotal
         end
     }
 }
@@ -2436,9 +2444,10 @@ initAll = function()
                         local dl = currSess:keyDownload(values._2)
                         -- dead progress update
                         if (nil ~= dl) then
-                            local ratio = values._3 / values._4
+                            local done = values._3
+                            local total = values._4
                             DownloadsModel:incRevision()
-                            dl:setProgress(ratio)
+                            dl:setProgress(done,total)
                         end
                         local newBytes = values._5
                         downloadSpeedChecker:regBytes(newBytes)
@@ -2796,9 +2805,10 @@ initAll = function()
                         local dl = currSess:keyDownload(values._2)
                         -- dead progress update
                         if (nil ~= dl) then
-                            local ratio = values._3 / values._4
+                            local done = values._3
+                            local total = values._4
                             DownloadsModel:incRevision()
-                            dl:setProgress(ratio)
+                            dl:setProgress(done,total)
                         end
                         local newBytes = values._5
                         downloadSpeedChecker:regBytes(newBytes)

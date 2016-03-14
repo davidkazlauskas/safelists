@@ -3,12 +3,19 @@
 extern crate libc;
 extern crate safe_core;
 extern crate regex;
-extern crate core;
 extern crate rustc_serialize;
 #[macro_use] extern crate quick_error;
 
 use std::sync::{Arc,Mutex};
 use regex::Regex;
+
+use safe_core::core::client::Client;
+use safe_core::nfs::helper::directory_helper::DirectoryHelper;
+use safe_core::nfs::helper::file_helper::FileHelper;
+use safe_core::nfs::directory_listing::DirectoryListing;
+use safe_core::nfs::errors::NfsError;
+use safe_core::dns::dns_operations::DnsOperations;
+use safe_core::dns::errors::DnsError;
 
 const CHUNK_SIZE : u64 = 1024 * 1024;
 
@@ -23,10 +30,10 @@ fn get_chunk_size() -> u64 {
 }
 
 struct ReaderKit {
-    client: Arc< Mutex< ::safe_core::client::Client > >,
-    dns_ops: ::safe_dns::dns_operations::DnsOperations,
-    dir_helper: ::safe_nfs::helper::directory_helper::DirectoryHelper,
-    file_helper: ::safe_nfs::helper::file_helper::FileHelper,
+    client: Arc< Mutex< Client > >,
+    dns_ops: DnsOperations,
+    dir_helper: DirectoryHelper,
+    file_helper: FileHelper,
 }
 
 quick_error! {
@@ -43,8 +50,7 @@ impl ReaderKit {
     // should be created only once
     // per program
     fn unregistered_kit() -> Result< ReaderKit, GetReaderKitError >  {
-        let client = ::safe_core::client
-            ::Client::create_unregistered_client();
+        let client = Client::create_unregistered_client();
 
         if client.is_err() {
             return Err( GetReaderKitError::CouldNotCreateClient(
@@ -53,12 +59,9 @@ impl ReaderKit {
 
         let clientu = Arc::new( Mutex::new( client.unwrap() ) );
 
-        let dns_ops = ::safe_dns::dns_operations
-            ::DnsOperations::new_unregistered(clientu.clone());
-        let dir_helper = ::safe_nfs::helper::directory_helper
-            ::DirectoryHelper::new(clientu.clone());
-        let file_helper = ::safe_nfs::helper::file_helper
-            ::FileHelper::new(clientu.clone());
+        let dns_ops = DnsOperations::new_unregistered(clientu.clone());
+        let dir_helper = DirectoryHelper::new(clientu.clone());
+        let file_helper = FileHelper::new(clientu.clone());
 
         Ok(
             ReaderKit {
@@ -109,7 +112,7 @@ enum DownloaderMsgs {
 
 struct DownloadTaskWRreader {
     task: DownloadTask,
-    file: ::safe_nfs::file::File,
+    file: safe_core::nfs::file::File,
 }
 
 impl DownloadTaskWRreader {
@@ -535,8 +538,7 @@ pub extern fn extract_maid_info(
     }
     let passwordS = passwordC.unwrap().to_string();
 
-    let client = ::safe_core::client
-        ::Client::log_in(keywordS,pinS,passwordS);
+    let client = Client::log_in(keywordS,pinS,passwordS);
 
     if !client.is_ok() {
         // login fail
@@ -597,12 +599,12 @@ pub extern fn extract_maid_info(
 quick_error! {
     #[derive(Debug)]
     pub enum GetReaderError {
-        SafeDns(err: ::safe_dns::errors::DnsError) {
+        SafeDns(err: DnsError) {
             from()
             description("Safe DNS error")
             display("Safe DNS error: {:?}",err)
         }
-        SafeNfs(err: ::safe_nfs::errors::NfsError) {
+        SafeNfs(err: NfsError) {
             from()
             description("Safe NFS error")
             display("Safe NFS error: {:?}",err)
@@ -632,9 +634,9 @@ pub fn path_tokenizer(the_path: String) -> Vec<String> {
 
 fn recursive_find_path(
     tokens: &Vec< String >,num: usize,
-    root: ::safe_nfs::directory_listing::DirectoryListing,
-    dir_helper: &::safe_nfs::helper::directory_helper::DirectoryHelper)
-    -> Result< ::safe_nfs::directory_listing::DirectoryListing,
+    root: DirectoryListing,
+    dir_helper: &DirectoryHelper)
+    -> Result< DirectoryListing,
                GetReaderError >
 {
     if num < tokens.len() - 1 {
@@ -666,7 +668,7 @@ fn recursive_find_path(
 fn get_file(
     rk: &ReaderKit,
     path: &String)
-    -> Result< ::safe_nfs::file::File, GetReaderError >
+    -> Result< safe_core::nfs::file::File, GetReaderError >
 {
     let trimmed = path.trim();
     let namergx = Regex::new(

@@ -1,8 +1,6 @@
 #![feature(plugin)]
 
 extern crate libc;
-extern crate safe_nfs;
-extern crate safe_dns;
 extern crate safe_core;
 extern crate regex;
 extern crate core;

@@ -9,7 +9,7 @@ safe_core = "0.11.0"
 sodiumoxide = "0.0.9"
 regex = "0.1.8"
 quick-error = "0.1.4"
-rustc-serialize = "0.3.16"
+rustc-serialize = "0.3.18"
 
 [lib]
 name = "safefiledownloader"

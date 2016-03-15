@@ -229,6 +229,9 @@ private:
                 [=](AS::Execute,const std::string& query) {
                     char* errmsg = nullptr;
                     sqlite3_exec(this->_sqlite,query.c_str(),nullptr,nullptr,&errmsg);
+                    if (nullptr != errmsg) {
+                        printf("Async sqlite execute error: %s\n");
+                    }
                     assert( nullptr == errmsg );
                 }
             ),

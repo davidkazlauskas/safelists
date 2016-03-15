@@ -39,3 +39,5 @@ directory|appdata/usr/share/icons/Adwaita/16x16/|-
 signature|signature.json
 # version info
 normal|version.json|-
+# crust config
+normal|appdata/safelists.crust.config|safelists.crust.config

@@ -2036,7 +2036,7 @@ initAll = function()
 
                 for k,v in ipairs(mirrSplit) do
                     push("INSERT INTO mirrors (file_id,url,use_count) SELECT ")
-                    push("" .. fileId .. ",'" .. v .. "',0")
+                    push("" .. fileIdWhole .. ",'" .. v .. "',0")
                     push(" WHERE '" .. v .. "' NOT IN ")
                     push(" (SELECT url FROM mirrors WHERE file_id=" .. fileIdWhole .. ");")
                 end

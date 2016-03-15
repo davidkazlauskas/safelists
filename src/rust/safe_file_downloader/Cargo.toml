@@ -5,7 +5,7 @@ authors = ["David <david@templatious.org>"]
 
 [dependencies]
 libc = "0.2.2"
-safe_core = "0.11.0"
+safe_core = "0.10.0"
 sodiumoxide = "0.0.9"
 regex = "0.1.8"
 quick-error = "0.1.4"

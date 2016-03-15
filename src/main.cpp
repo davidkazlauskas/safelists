@@ -2177,8 +2177,8 @@ int main(int argc,char** argv) {
 
     ctx->setFactory(vFactory());
 
-    auto downloader = SafeLists::AsyncDownloader::createNew("imitation");
-    //auto downloader = SafeLists::AsyncDownloader::createNew("safenetwork");
+    //auto downloader = SafeLists::AsyncDownloader::createNew("imitation");
+    auto downloader = SafeLists::AsyncDownloader::createNew("safenetwork");
     auto randomFileWriter = SafeLists::RandomFileWriter::make();
     auto licenseService = SafeLists::LicenseDaemon::getDaemon();
     auto globalConsts = SafeLists::GlobalConsts::getConsts();

@@ -2158,6 +2158,7 @@ void luaContextSetGlobalStr(LuaContext& ctx,const char* name,const char* value) 
 
 int main(int argc,char** argv) {
 #ifdef  __WIN32
+    // TODO: start right away without console (win32 main)
     FreeConsole();
 #endif
 

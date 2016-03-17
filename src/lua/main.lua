@@ -2777,7 +2777,7 @@ initAll = function()
             ctx:message(dialogService,
                 VSig("GDS_FileSaverDialog"),
                 VMsg(mainWnd),
-                VString("Select safelist session to resume."),
+                VString("Select new safelist path"),
                 VMsg(handler)
             )
         end,"MWI_OutCreateSafelistButtonClicked"),

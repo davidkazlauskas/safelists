@@ -2852,9 +2852,9 @@ initAll = function()
                     VMatch(function()
                         print('Downloaded!')
                         currentSessions[thePath] = nil
-                        DownloadsModel:incRevision()
-                        DownloadsModel:dropSession(currSess)
-                        objRetainer:release(newId)
+                        --DownloadsModel:incRevision()
+                        --DownloadsModel:dropSession(currSess)
+                        --objRetainer:release(newId)
                     end,"SLD_OutDone"),
                     VMatch(function(natPack,val)
                         -- dont care, arbitrary safelist

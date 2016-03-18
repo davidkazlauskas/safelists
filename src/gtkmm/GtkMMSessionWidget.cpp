@@ -279,8 +279,13 @@ void GtkSessionTab::fullModelUpdate() {
         auto& progLabel = querySessionProgress.fGet<2>();
         double progFraction = querySessionProgress.fGet<3>();
 
+        locked->message(querySessionLog);
+        assert( querySessionProgress.useCount() > 0 && "Pack was unused..." );
+
         _sessions[i]->getSessionLabel()->set_text(progLabel.c_str());
         _sessions[i]->getSessionProgress()->set_fraction(progFraction);
+        auto buf = _sessions[i]->getSessionLog()->get_buffer();
+        buf->insert(buf->end(),querySessionProgress.fGet<2>());
 
         TEMPLATIOUS_0_TO_N(j,theCount) {
             queryLabelAndProgress.fGet<2>() = j;

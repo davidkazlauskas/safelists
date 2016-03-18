@@ -247,12 +247,16 @@ void GtkSessionTab::fullModelUpdate() {
         std::string,
         double
     >(nullptr,-1,"",-1);
+    auto querySessionLog = SF::vpack<
+        MI::QuerySessionLog, int, std::string
+    >(nullptr,-1,"");
     TEMPLATIOUS_0_TO_N(i,total) {
         SM::set(i,
             queryCurrentSessionCount.fGet<1>(),
             queryLabelAndProgress.fGet<1>(),
             querySessionTitle.fGet<1>(),
-            querySessionProgress.fGet<1>());
+            querySessionProgress.fGet<1>(),
+            querySessionLog.fGet<1>());
 
         locked->message(queryCurrentSessionCount);
         assert( queryCurrentSessionCount.useCount() > 0 && "Pack was unused..." );

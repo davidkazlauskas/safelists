@@ -2557,6 +2557,19 @@ initAll = function()
                         )
                         updateRevision()
                     end,"SLD_OutSizeUpdate","int","double"),
+                    VMatch(function(natPack,out)
+                        local val = out:values()
+                        local id = val._2
+                        local exp = val._3
+                        local real = val._4
+                        local theDl = currSess:keyDownload(id)
+                        currSess:appendLog(
+                          "Size mismatch: " .. theDl:getPath()
+                          .. " is reported to be of size " .. whole(exp)
+                          .. " but turns out to be " .. whole(real) .. "."
+                          .. " Are mirrors pointing to the same file?"
+                        )
+                    end,"SLD_OutSizeMismatch","int","double","double")
                     VMatch(function()
                         print('Safelist session dun! Downloading...')
                         local locked = handlerWeak:lockPtr()

@@ -7,24 +7,67 @@
     <property name="can_focus">False</property>
     <property name="orientation">vertical</property>
     <child>
-      <object class="GtkScrolledWindow" id="scrolledSessionWindow">
+      <object class="GtkNotebook" id="notebook2">
         <property name="visible">True</property>
         <property name="can_focus">True</property>
-        <property name="hscrollbar_policy">never</property>
-        <property name="vscrollbar_policy">always</property>
-        <property name="kinetic_scrolling">False</property>
         <child>
-          <object class="GtkViewport" id="scrolledSessionViewport">
+          <object class="GtkScrolledWindow" id="scrolledSessionWindow">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="shadow_type">out</property>
+            <property name="can_focus">True</property>
+            <property name="hscrollbar_policy">never</property>
+            <property name="vscrollbar_policy">always</property>
+            <property name="kinetic_scrolling">False</property>
             <child>
-              <object class="GtkListBox" id="downloadArea">
+              <object class="GtkViewport" id="scrolledSessionViewport">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="shadow_type">out</property>
+                <child>
+                  <object class="GtkListBox" id="downloadArea">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                  </object>
+                </child>
               </object>
             </child>
           </object>
+        </child>
+        <child type="tab">
+          <object class="GtkLabel" id="label5">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">Downloads</property>
+          </object>
+          <packing>
+            <property name="tab_fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkTextView" id="textview1">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="editable">False</property>
+          </object>
+          <packing>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child type="tab">
+          <object class="GtkLabel" id="label6">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">Logs</property>
+          </object>
+          <packing>
+            <property name="position">1</property>
+            <property name="tab_fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child type="tab">
+          <placeholder/>
         </child>
       </object>
       <packing>
@@ -66,7 +109,7 @@
       <packing>
         <property name="expand">False</property>
         <property name="fill">True</property>
-        <property name="position">1</property>
+        <property name="position">2</property>
       </packing>
     </child>
   </object>

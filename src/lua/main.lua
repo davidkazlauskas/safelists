@@ -2476,9 +2476,9 @@ initAll = function()
                     VMatch(function()
                         print('Downloaded!')
                         currentSessions[downloadPath] = nil
-                        DownloadsModel:incRevision()
-                        DownloadsModel:dropSession(currSess)
-                        objRetainer:release(newId)
+                        --DownloadsModel:incRevision()
+                        --DownloadsModel:dropSession(currSess)
+                        --objRetainer:release(newId)
                     end,"SLD_OutDone"),
                     VMatch(function(natpack,val)
                         if (isCurrentDead()) then

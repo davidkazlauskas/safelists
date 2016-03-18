@@ -3272,7 +3272,13 @@ initAll = function()
                 progRounded .. "%)"
             natPack:setSlot(3,VString(theLabel))
             natPack:setSlot(4,VDouble(prog))
-        end,"DLMDL_QuerySessionTotalProgress","int","string","double")
+        end,"DLMDL_QuerySessionTotalProgress","int","string","double"),
+        VMatch(function(natPack,vtree)
+            local sessN = vtree:values()._2 + 1
+            local sess = DownloadsModel:nthSession(sessN)
+            local consumed = sess:consumeLog()
+            natPack:setSlot(3,VString(consumed))
+        end,"DLMDL_QuerySessionLog","int","string")
     )
     ctx:message(mainWnd,VSig("MWI_InSetDownloadModel"),VMsg(downloadUpdateModel))
 

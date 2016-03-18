@@ -586,9 +586,14 @@ private:
                             double
                         >(nullptr,dl->_id,sizeDone);
                     } else {
-                        assert( sizeDone == sizePrelim &&
-                            "Unhandled case, what if reported"
-                            " size doesn't match actual?");
+                        if (sizeDone != sizePrelim) {
+                            notifyObserver<
+                                SLD::OutSizeMismatch,
+                                int,
+                                double,
+                                double
+                            >(nullptr,dl->_id,sizePrelim,sizeDone);
+                        }
                     }
                 }
             },

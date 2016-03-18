@@ -341,6 +341,15 @@ SingleSession = {
         doneDownloads = function(self)
             return self.doneDownloadsNum
         end,
+        consumeLog = function(self)
+            local res = self.pendingLog
+            self.pendingLog = ""
+            return res
+        end,
+        appendLog = function(self,newLog)
+            self.pendingLog =
+                self.pendingLog .. newLog .. "\n"
+        end,
         totalDownloads = function(self)
             return self.totalDownloadsNum
         end,
@@ -363,7 +372,8 @@ function DownloadsModel:newSession()
         progress = 0,
         downloadTable = {},
         downloadEnum = {},
-        key = theSession
+        key = theSession,
+        pendingLog = ""
     }
     setmetatable(res,SingleSession)
     self.sessions[theSession] = res

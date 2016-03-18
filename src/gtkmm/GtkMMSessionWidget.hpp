@@ -68,6 +68,11 @@ struct GtkSessionTab : public Messageable {
         // < QuerySessionTitle, int (session), std::string (out title) >
         DUMMY_REG(QuerySessionTitle,"DLMDL_QuerySessionTitle");
 
+        // Query session log
+        // Signature:
+        // < QuerySessionLog, int (session), std::string (out log) >
+        DUMMY_REG(QuerySessionLog,"DLMDL_QuerySessionLog");
+
         // Query session title
         // Signature:
         // < QuerySessionTotalProgress, int (session), std::string (out title), double (progress) >

@@ -279,7 +279,7 @@ impl DownloaderActorLocal {
 
     fn ensure_valid(&mut self) {
         if self.iter >= self.tasks.len() {
-            next_task();
+            self.next_task();
         }
     }
 

@@ -118,6 +118,7 @@ GtkSessionWidget::GtkSessionWidget(Glib::RefPtr<Gtk::Builder>& bld) :
     _container->get_widget("downloadArea",_sessionList);
     _container->get_widget("sessionLabel",_sessionLabel);
     _container->get_widget("sessionProgressbar",_sessionProgressBar);
+    _container->get_widget("sessionLog",_sessionLog);
 }
 
 GtkSessionWidget::~GtkSessionWidget() {

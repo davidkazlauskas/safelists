@@ -41,6 +41,7 @@ private:
     Gtk::ListBox* _sessionList;
     Gtk::Label* _sessionLabel;
     Gtk::ProgressBar* _sessionProgressBar;
+    Gtk::TextView* _sessionLog;
 };
 
 struct GtkSessionTab : public Messageable {

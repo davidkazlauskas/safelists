@@ -2569,7 +2569,7 @@ initAll = function()
                           .. " but turns out to be " .. whole(real) .. "."
                           .. " Are mirrors pointing to the same file?"
                         )
-                    end,"SLD_OutSizeMismatch","int","double","double")
+                    end,"SLD_OutSizeMismatch","int","double","double"),
                     VMatch(function()
                         print('Safelist session dun! Downloading...')
                         local locked = handlerWeak:lockPtr()

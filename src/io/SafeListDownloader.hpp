@@ -55,6 +55,12 @@ struct SafeListDownloader {
     // < OutSizeUpdate, int (id), double (size) >
     DUMMY_REG(OutSizeUpdate,"SLD_OutSizeUpdate");
 
+    // messaged when file size expected
+    // doesn't match actual
+    // Signature:
+    // < OutSizeMismatch, int (id), double (size exp), double (size act) >
+    DUMMY_REG(OutSizeMismatch,"SLD_OutSizeMismatch");
+
     // messaged when download has finished successfully
     // with a mirror.
     // Signature:

@@ -277,6 +277,12 @@ impl DownloaderActorLocal {
         }
     }
 
+    fn ensure_valid(&mut self) {
+        if self.iter >= self.tasks.len() {
+            next_task();
+        }
+    }
+
     fn main_tasks(&mut self) -> bool {
         let res = self.proc_messages_non_blocking();
         if !res {
@@ -312,6 +318,7 @@ impl DownloaderActorLocal {
 
     fn download_next(&mut self) {
         let (readres,chunkstart,chunkend) = {
+            self.ensure_valid();
             let nextu = {
                 let next = self.current_task();
 

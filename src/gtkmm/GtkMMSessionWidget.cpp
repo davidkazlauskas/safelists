@@ -173,6 +173,10 @@ Gtk::ProgressBar* GtkSessionWidget::getSessionProgress() {
     return this->_sessionProgressBar;
 }
 
+Gtk::TextView* GtkSessionWidget::getSessionLog() {
+    return this->_sessionLog;
+}
+
 std::shared_ptr< GtkSessionTab > GtkSessionTab::makeNew() {
     auto& dlCache = getSessionTabCache();
 

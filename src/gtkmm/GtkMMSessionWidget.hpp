@@ -32,6 +32,7 @@ struct GtkSessionWidget {
     GtkDownloadItem* nthItem(int num);
     Gtk::Label* getSessionLabel();
     Gtk::ProgressBar* getSessionProgress();
+    Gtk::TextView* getSessionLog();
 private:
     GtkSessionWidget(Glib::RefPtr<Gtk::Builder>& bld);
     Glib::RefPtr<Gtk::Builder> _container;

@@ -289,7 +289,7 @@ private:
                     [&](AD::OutDownloadFinished) {
                         //printf("Plucked twanger! %s\n",_path.c_str());
                         assert(
-                            !this->_list.isDefined() || !this->_list.isFilled() &&
+                            !this->_list.isDefined() || this->_list.isFilled() &&
                             "Whoa, cholo, lunch didn't finish yet?"
                         );
                         this->_hasEnded = true;

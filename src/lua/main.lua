@@ -2516,6 +2516,8 @@ initAll = function()
 
                         local id = values._2
                         local idWhole = whole(id)
+                        local theDl = currSess:keyDownload(id)
+                        local thePath = theDl:getPath()
 
                         ctx:messageAsyncWCallback(asyncSqlite,
                             function (out)
@@ -2526,11 +2528,9 @@ initAll = function()
                                 --assert( qhash ~= hash, "Hash collision, hash is different."
                                     --.. " (todo: handle this case)" )
 
-                                local theDl = currSess:keyDownload(id)
-
                                 if (qhash ~= hash and qhash ~= "") then
                                     currSess:appendLog(
-                                      "Hash mismatch: " .. theDl:getPath()
+                                      "Hash mismatch: " .. thePath
                                       .. " is reported to be of hash \"" .. qhash .. "\""
                                       .. " but turns out to be \"" .. hash .. "\"."
                                       .. " Are mirrors pointing to the same file?"

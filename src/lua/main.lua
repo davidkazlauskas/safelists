@@ -2572,7 +2572,8 @@ initAll = function()
                             asyncSqlite,
                             VSig("ASQL_Execute"),
                             VString("UPDATE files SET file_size='"
-                                .. newSize .. "' WHERE file_id='" .. idWhole .. "';")
+                                .. newSize .. "' WHERE file_id='" .. idWhole .. "'"
+                                .. " AND file_size=-1;")
                         )
                         updateRevision()
                     end,"SLD_OutSizeUpdate","int","double"),

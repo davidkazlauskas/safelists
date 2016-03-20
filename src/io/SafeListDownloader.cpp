@@ -540,33 +540,6 @@ private:
                         cleanPathLeftovers(dl->_absPath);
                     );
 
-                    --_count;
-                    if (0 == dl->_error) {
-                        notifyObserver<
-                            SLD::OutSingleDone, int
-                        >(
-                            nullptr, dl->_id
-                        );
-                    } else if (ToDownloadList::ERROR_FILE_NOT_FOUND
-                        == dl->_error)
-                    {
-                        notifyObserver<
-                            SLD::OutFileNotFound, int
-                        >(
-                            nullptr, dl->_id
-                        );
-                    } else {
-                        printf("ERR: |%d|",dl->_error);
-                        assert( false && "Cannot handle this type of error." );
-                    }
-
-                    notifyObserver<
-                        SLD::OutMirrorUsed, int,
-                        std::string
-                    >(
-                        nullptr, dl->_id, dl->_link
-                    );
-
                     char buf[128];
                     dl->_hasher.toString(buf);
                     if (dl->_dumbHash256 != buf) {
@@ -595,6 +568,33 @@ private:
                             >(nullptr,dl->_id,sizePrelim,sizeDone);
                         }
                     }
+
+                    --_count;
+                    if (0 == dl->_error) {
+                        notifyObserver<
+                            SLD::OutSingleDone, int
+                        >(
+                            nullptr, dl->_id
+                        );
+                    } else if (ToDownloadList::ERROR_FILE_NOT_FOUND
+                        == dl->_error)
+                    {
+                        notifyObserver<
+                            SLD::OutFileNotFound, int
+                        >(
+                            nullptr, dl->_id
+                        );
+                    } else {
+                        printf("ERR: |%d|",dl->_error);
+                        assert( false && "Cannot handle this type of error." );
+                    }
+
+                    notifyObserver<
+                        SLD::OutMirrorUsed, int,
+                        std::string
+                    >(
+                        nullptr, dl->_id, dl->_link
+                    );
                 }
             },
             _jobs

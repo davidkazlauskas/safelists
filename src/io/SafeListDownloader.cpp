@@ -417,6 +417,7 @@ private:
         }
         scheduleJobs(writerCpy);
         markStartedInDb(toMarkStarted);
+        emptyProgressPing();
         do {
             if (SA::size(_jobs) > 0) {
                 _sem.wait();
@@ -457,6 +458,18 @@ private:
                     writeIntervalListAtomic(i->_absPath,clone,hashCopy);
                 }
             }
+        }
+    }
+
+    void emptyProgressPing() {
+        TEMPLATIOUS_FOREACH(auto& i,_jobs) {
+            notifyObserver<
+                SafeListDownloader::OutProgressUpdate,
+                int,
+                double,
+                double,
+                double
+            >(nullptr,i->_id,0,i->_size,0);
         }
     }
 

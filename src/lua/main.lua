@@ -2520,18 +2520,30 @@ initAll = function()
                         ctx:messageAsyncWCallback(asyncSqlite,
                             function (out)
                                 local outVal = out:values()
+                                local qhash = outVal._3
 
                                 assert( outVal._4, "Query failed..." )
-                                assert( outVal._3 == "", "Hash collision, hash is different."
-                                    .. " (todo: handle this case)" )
+                                --assert( qhash ~= hash, "Hash collision, hash is different."
+                                    --.. " (todo: handle this case)" )
 
-                                ctx:messageAsync(
-                                    asyncSqlite,
-                                    VSig("ASQL_Execute"),
-                                    VString("UPDATE files SET file_hash_256='"
-                                        .. hash .. "' WHERE file_id='" .. idWhole .. "';")
-                                )
-                                updateRevision()
+                                local theDl = currSess:keyDownload(id)
+
+                                if (qhash ~= hash and qhash ~= "") then
+                                    currSess:appendLog(
+                                      "Hash mismatch: " .. theDl:getPath()
+                                      .. " is reported to be of hash \"" .. qhash .. "\""
+                                      .. " but turns out to be \"" .. hash .. "\"."
+                                      .. " Are mirrors pointing to the same file?"
+                                    )
+                                else
+                                    ctx:messageAsync(
+                                        asyncSqlite,
+                                        VSig("ASQL_Execute"),
+                                        VString("UPDATE files SET file_hash_256='"
+                                            .. hash .. "' WHERE file_id='" .. idWhole .. "';")
+                                    )
+                                    updateRevision()
+                                end
                             end,
                             VSig("ASQL_OutSingleRow"),
                             VString("SELECT file_hash_256 FROM files WHERE file_id='"

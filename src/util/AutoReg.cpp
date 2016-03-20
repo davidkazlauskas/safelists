@@ -29,7 +29,9 @@ char registerTypeInMap(const char* name,const templatious::TypeNode* node) {
 
     auto found = map.find(name);
     if (map.end() != found) {
-        assert(false && "Key already exists");
+        printf("Warning, name |%s| is registered two times.\n");
+        printf("Previous: |0x%p| Current: |0x%p|\n",(const void*) found->second,(const void*) node);
+        //assert(false && "Key already exists");
     }
 
     map.insert({name,node});

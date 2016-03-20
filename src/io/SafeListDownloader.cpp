@@ -288,10 +288,6 @@ private:
                 SF::virtualMatch< AD::OutDownloadFinished >(
                     [&](AD::OutDownloadFinished) {
                         //printf("Plucked twanger! %s\n",_path.c_str());
-                        assert(
-                            !this->_list.isDefined() || this->_list.isFilled() &&
-                            "Whoa, cholo, lunch didn't finish yet?"
-                        );
                         this->_hasEnded = true;
                         auto locked = _session.lock();
                         if (nullptr != locked) {
@@ -560,6 +556,15 @@ private:
                         >(nullptr,dl->_id,sizeDone);
                     } else {
                         if (sizeDone != sizePrelim) {
+                            auto newList = SafeLists::IntervalList(
+                                SafeLists::Interval(0,sizeDone));
+                            dl->_list.traverseFilled(
+                                [&](const Interval& i) {
+                                    newList.append(i);
+                                    return true;
+                                }
+                            );
+                            dl->_list = std::move(newList);
                             notifyObserver<
                                 SLD::OutSizeMismatch,
                                 int,

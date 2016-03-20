@@ -2446,6 +2446,11 @@ initAll = function()
                 --print("Post col: " .. collectgarbage('count'))
 
                 local currSess = DownloadsModel:newSession()
+
+                local appendLog = function(theStr)
+                    currSess:appendLog(theStr)
+                end
+
                 local newId = objRetainer:newId()
                 local handlerWeak = nil
                 local handler = ctx:makeLuaMatchHandler(
@@ -2529,7 +2534,7 @@ initAll = function()
                                     --.. " (todo: handle this case)" )
 
                                 if (qhash ~= hash and qhash ~= "") then
-                                    currSess:appendLog(
+                                    appendLog(
                                       "Hash mismatch: " .. thePath
                                       .. " is reported to be of hash \"" .. qhash .. "\""
                                       .. " but turns out to be \"" .. hash .. "\"."
@@ -2575,7 +2580,7 @@ initAll = function()
                         local exp = val._3
                         local real = val._4
                         local theDl = currSess:keyDownload(id)
-                        currSess:appendLog(
+                        appendLog(
                           "Size mismatch: " .. theDl:getPath()
                           .. " is reported to be of size " .. whole(exp)
                           .. " but turns out to be " .. whole(real) .. "."

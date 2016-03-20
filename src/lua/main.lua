@@ -2446,9 +2446,11 @@ initAll = function()
                 --print("Post col: " .. collectgarbage('count'))
 
                 local currSess = DownloadsModel:newSession()
+                currSess.loggedErrors = false
 
                 local appendLog = function(theStr)
                     currSess:appendLog(theStr)
+                    currSess.loggedErrors = true
                 end
 
                 local newId = objRetainer:newId()
@@ -3300,6 +3302,11 @@ initAll = function()
             local theLabel = doneWhole .. " out of "
                 .. totalWhole .. " downloads done (" ..
                 progRounded .. "%)"
+
+            if (sess.loggedErrors) then
+                theLabel = theLabel .. " (errors logged)"
+            end
+
             natPack:setSlot(3,VString(theLabel))
             natPack:setSlot(4,VDouble(prog))
         end,"DLMDL_QuerySessionTotalProgress","int","string","double"),

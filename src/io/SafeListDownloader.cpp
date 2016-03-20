@@ -465,6 +465,14 @@ private:
             int64_t sizeUpdate = i->_sizeUpdate;
             int64_t sizePrelim = i->_size;
             if (sizeUpdate > 0 && sizeUpdate != sizePrelim) {
+                if (sizePrelim > 0) {
+                    notifyObserver<
+                        SafeListDownloader::OutSizeMismatch,
+                        int,
+                        double,
+                        double
+                    >(nullptr,i->_id,sizePrelim,sizeUpdate);
+                }
                 i->_size = sizeUpdate;
                 notifyObserver<
                     SafeListDownloader::OutSizeUpdate,

@@ -1486,7 +1486,7 @@ void openUrlInBrowserCrossPlatform(const std::string& theurl) {
     ::sprintf(bfr,"xdg-open %s",theurl.c_str());
     ::system(bfr);
 #elif defined(__MINGW32__)
-
+    ::ShellExecute(nullptr,"open",theurl.c_str(),nullptr,nullptr,SW_SHOWNORMAL);
 #else
     static_assert( false, "Platform not supported yet." );
 #endif

@@ -1658,6 +1658,44 @@ struct GtkDialogService : public Messageable {
         toNotify->message(toSend);
     }
 
+    static void fileChooserDialogGeneric(
+            const StrongMsgPtr& window,
+            const std::string& title,
+            const std::string& wildcard,
+            const std::string& path,
+            StrongMsgPtr& out)
+    {
+        auto dlg = new Gtk::FileChooserDialog(title.c_str(),Gtk::FILE_CHOOSER_ACTION_OPEN);
+        auto delg = SCOPE_GUARD_LC(
+            delete dlg;
+        );
+
+        auto queryTransient = SF::vpack<
+            SafeLists::GenericGtkWidgetNodePrivateWindow
+            ::QueryWindow,
+            Gtk::Window*
+        >(nullptr,nullptr);
+        window->message(queryTransient);
+        assert( queryTransient.useCount() > 0 && "No transient cholo..." );
+        dlg->set_transient_for(*queryTransient.fGet<1>());
+        dlg->add_button("_Cancel",Gtk::RESPONSE_CANCEL);
+        dlg->add_button("Ok",Gtk::RESPONSE_OK);
+
+        Glib::RefPtr<Gtk::FileFilter> filter = Gtk::FileFilter::create();
+        filter->add_pattern(wildcard.c_str());
+        dlg->set_filter(filter);
+
+        dlg->show_all();
+
+        dlg->signal_response().connect(
+            [dlg,out](int signal) {
+                notifyDialogResult(dlg,out,signal);
+            }
+        );
+
+        delg.dismiss();
+    }
+
     SafeLists::VmfPtr genHandler() {
         return SF::virtualMatchFunctorPtr(
             SF::virtualMatch<
@@ -1673,35 +1711,27 @@ struct GtkDialogService : public Messageable {
                     const std::string& wildcard,
                     StrongMsgPtr& out)
                 {
-                    auto dlg = new Gtk::FileChooserDialog(title.c_str(),Gtk::FILE_CHOOSER_ACTION_OPEN);
-                    auto delg = SCOPE_GUARD_LC(
-                        delete dlg;
-                    );
-
-                    auto queryTransient = SF::vpack<
-                        SafeLists::GenericGtkWidgetNodePrivateWindow
-                        ::QueryWindow,
-                        Gtk::Window*
-                    >(nullptr,nullptr);
-                    window->message(queryTransient);
-                    assert( queryTransient.useCount() > 0 && "No transient cholo..." );
-                    dlg->set_transient_for(*queryTransient.fGet<1>());
-                    dlg->add_button("_Cancel",Gtk::RESPONSE_CANCEL);
-                    dlg->add_button("Ok",Gtk::RESPONSE_OK);
-
-                    Glib::RefPtr<Gtk::FileFilter> filter = Gtk::FileFilter::create();
-                    filter->add_pattern(wildcard.c_str());
-                    dlg->set_filter(filter);
-
-                    dlg->show_all();
-
-                    dlg->signal_response().connect(
-                        [dlg,out](int signal) {
-                            notifyDialogResult(dlg,out,signal);
-                        }
-                    );
-
-                    delg.dismiss();
+                    fileChooserDialogGeneric(
+                        window,title,wildcard,"",out);
+                }
+            ),
+            SF::virtualMatch<
+                FileChooserDialog,
+                StrongMsgPtr,
+                std::string,
+                std::string,
+                std::string,
+                StrongMsgPtr
+            >(
+                [](FileChooserDialog,
+                    const StrongMsgPtr& window,
+                    const std::string& title,
+                    const std::string& wildcard,
+                    const std::string& path,
+                    StrongMsgPtr& out)
+                {
+                    fileChooserDialogGeneric(
+                        window,title,wildcard,path,out);
                 }
             ),
             SF::virtualMatch<

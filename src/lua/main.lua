@@ -517,7 +517,7 @@ initAll = function()
         end
 
     local settingsFileLocation = globSetting("settingspath")
-    local examplesPath = globSetting("appdatapath") + "/examples/"
+    local examplesPath = globSetting("appdatapath") .. "/examples/"
 
     local persistentSettings = PersistentSettings.new(
         function(saveData)

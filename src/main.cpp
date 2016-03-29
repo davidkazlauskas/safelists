@@ -1480,6 +1480,9 @@ private:
     int _signalId;
 };
 
+void openUrlInBrowserCrossPlatform(const std::string& theurl) {
+}
+
 const Glib::ustring& mainUiSchema() {
     static Glib::ustring res = SafeLists::readFile("appdata/uischemes/main.glade");
     return res;
@@ -1832,6 +1835,17 @@ struct GtkDialogService : public Messageable {
                         SafeLists::GenericGtkWidget >(
                             bld,widgetName.c_str());
                     outPtr = dialog;
+                }
+            ),
+            SF::virtualMatch< OpenUrlInBrowser, const std::string >(
+                [=](ANY_CONV,const std::string& theurl) {
+                    // things you do to have no chance of
+                    // blocking...
+                    std::thread(
+                        [=]() {
+                            openUrlInBrowserCrossPlatform(theurl);
+                        }
+                    ).detach();
                 }
             ),
             SF::virtualMatch<

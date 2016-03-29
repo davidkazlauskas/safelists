@@ -1227,6 +1227,11 @@ initAll = function()
 
         local luaModel = MenuModel.new()
         local another = luaModel:appendSubComp("settings","Settings")
+        local bugRep = luaModel:appendSubLeaf("report-bug","Report a bug",
+            function()
+                openUrlInBrowser("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+            end
+        )
         local themes = another:appendSubComp("settings-themes","Themes")
         local adwaita = themes:appendSubComp("theme-adwaita","Adwaita")
         adwaita:appendSubLeaf("theme-adwaita-light","light",function()

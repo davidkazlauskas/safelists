@@ -28,8 +28,7 @@ directory|appdata/themes/|-
 # refid, store to overwrite on server according to referral
 store|appdata/refid|-
 # examples
-nosign|exampleData/example1.safelist|appdata/examples/example1.safelist
-nosign|exampleData/example2.safelist|appdata/examples/example2.safelist
+nosign|exampleData/prod1.safelist|appdata/examples/example1.safelist
 # gnome schemas
 directory|appdata/usr/share/glib-2.0/schemas/|-
 # default icons

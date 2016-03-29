@@ -14,6 +14,9 @@ namespace {
             auto udata = SafeLists::userDataPath();
             udata += "/settings.json";
             out = udata;
+        } else if (path == "appdatapath") {
+            auto udata = SafeLists::appDataPath();
+            out = udata;
         } else if (path == "isrelease") {
 #ifdef SAFELISTS_RELEASE_BUILD
             out = "true";

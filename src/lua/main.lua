@@ -505,13 +505,19 @@ initAll = function()
         end
     end
 
-    local settingsFileLocation = ctx:messageRetValues(
-        globConsts,
-        VSig("GLC_LookupString"),
-        VString("settingspath"),
-        VString(""),
-        VInt(-1)
-    )._3
+    local globSetting =
+        function(thename)
+            ctx:messageRetValues(
+                globConsts,
+                VSig("GLC_LookupString"),
+                VString(thename),
+                VString(""),
+                VInt(-1)
+            )._3
+        end
+
+    local settingsFileLocation = globSetting("settingspath")
+    local examplesPath = globSetting("appdatapath") + "/examples/"
 
     local persistentSettings = PersistentSettings.new(
         function(saveData)

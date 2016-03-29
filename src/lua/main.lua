@@ -2711,9 +2711,11 @@ initAll = function()
             local handler = ctx:makeLuaMatchHandler(
                 VMatch(function(natPack,val)
                     local outPath = val:values()._2
-                    local folder = string.find(outPath,"(.*\\/).*")
-                    persistentSettings:setValue(
-                        "safelists.lastopen",folder)
+                    local folder = string.match(outPath,".+/")
+                    if (folder ~= nil) then
+                        persistentSettings:setValue(
+                            "safelists.lastopen",folder)
+                    end
                     afterPath(outPath)
                     objRetainer:release(nId)
                 end,"GDS_OutNotifyPath","string")

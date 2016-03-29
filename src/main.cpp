@@ -1585,6 +1585,13 @@ struct GtkDialogService : public Messageable {
     // >
     DUMMY_REG(MakeGenericWidget,"GDS_MakeGenericWidget");
 
+    // open user specified url in browser.
+    // Signature:
+    // < OpenUrlInBrowser,
+    //   std::string (theurl)
+    // >
+    DUMMY_REG(OpenUrlInBrowser,"GDS_OpenUrlInBrowser");
+
     void message(templatious::VirtualPack& msg) override {
         _handler->tryMatch(msg);
     }

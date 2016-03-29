@@ -1681,8 +1681,9 @@ struct GtkDialogService : public Messageable {
         dlg->add_button("_Cancel",Gtk::RESPONSE_CANCEL);
         dlg->add_button("Ok",Gtk::RESPONSE_OK);
 
-        if (path != "")
+        if (path != "") {
             dlg->set_current_folder(path);
+        }
 
         Glib::RefPtr<Gtk::FileFilter> filter = Gtk::FileFilter::create();
         filter->add_pattern(wildcard.c_str());

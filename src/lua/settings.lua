@@ -50,6 +50,14 @@ PersistentSettings.mt = {
         getValue = function(self,key)
             return self.settings[key]
         end,
+        getValueDefault = function(self,key,defval)
+            local first = self:getValue(key)
+            if (first ~= nil) then
+                return first
+            else
+                return defval
+            end
+        end,
         -- persist settings,
         -- called on gui loop.
         -- task of this function is to defer

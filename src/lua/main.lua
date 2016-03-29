@@ -2726,7 +2726,7 @@ initAll = function()
                 VString("Select safelist to open."),
                 VString("*.safelist"),
                 VString(persistentSettings:getValueDefault(
-                    "safelists.lastopen",examplesPath))
+                    "safelists.lastopen",examplesPath)),
                 VMsg(handler))
         end,"MWI_OutOpenSafelistButtonClicked"),
         VMatch(function()

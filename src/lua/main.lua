@@ -1230,7 +1230,7 @@ initAll = function()
         local help = luaModel:appendSubComp("help","Help")
         local bugRep = help:appendSubLeaf("report-bug","Report a bug",
             function()
-                openUrlInBrowser("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+                openUrlInBrowser("https://safelists.io/bugzilla/")
             end
         )
         local themes = another:appendSubComp("settings-themes","Themes")

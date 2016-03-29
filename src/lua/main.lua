@@ -507,7 +507,7 @@ initAll = function()
 
     local globSetting =
         function(thename)
-            ctx:messageRetValues(
+            return ctx:messageRetValues(
                 globConsts,
                 VSig("GLC_LookupString"),
                 VString(thename),

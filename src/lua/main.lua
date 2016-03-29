@@ -462,6 +462,15 @@ initAll = function()
         )
     end
 
+    local openUrlInBrowser = function(url)
+        local dialogService = ctx:namedMessageable("dialogService")
+        ctx:message(
+            dialogService,
+            VSig("GDS_OpenUrlInBrowser"),
+            VString(url)
+        )
+    end
+
     local constsTbl = {}
     constsTbl['ispaidmode'] = false
 

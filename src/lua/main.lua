@@ -1227,7 +1227,8 @@ initAll = function()
 
         local luaModel = MenuModel.new()
         local another = luaModel:appendSubComp("settings","Settings")
-        local bugRep = luaModel:appendSubLeaf("report-bug","Report a bug",
+        local help = luaModel:appendSubComp("help","Help")
+        local bugRep = help:appendSubLeaf("report-bug","Report a bug",
             function()
                 openUrlInBrowser("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
             end

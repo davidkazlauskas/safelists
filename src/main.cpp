@@ -1481,6 +1481,15 @@ private:
 };
 
 void openUrlInBrowserCrossPlatform(const std::string& theurl) {
+#ifdef __linux__
+    char bfr[1024];
+    ::sprintf(bfr,"xdg-open %s",theurl.c_str());
+    ::system(bfr);
+#elif defined(__MINGW32__)
+
+#else
+    static_assert( false, "Platform not supported yet." );
+#endif
 }
 
 const Glib::ustring& mainUiSchema() {

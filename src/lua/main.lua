@@ -2711,6 +2711,8 @@ initAll = function()
             local handler = ctx:makeLuaMatchHandler(
                 VMatch(function(natPack,val)
                     local outPath = val:values()._2
+                    persistentSettings:setValue(
+                        "safelists.lastopen",outPath)
                     afterPath(outPath)
                     objRetainer:release(nId)
                 end,"GDS_OutNotifyPath","string")
@@ -2723,6 +2725,8 @@ initAll = function()
                 VMsg(mainWnd),
                 VString("Select safelist to open."),
                 VString("*.safelist"),
+                VString(persistentSettings:getValueDefault(
+                    "safelists.lastopen",examplesPath))
                 VMsg(handler))
         end,"MWI_OutOpenSafelistButtonClicked"),
         VMatch(function()

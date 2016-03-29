@@ -255,6 +255,10 @@ MenuModel.mt = {
             return self.data:appendSubComp(
                 shortname,title)
         end,
+        appendSubLeaf = function(self,shortname,title,func)
+            return self.data:appendSubLeaf(
+                shortname,title,func)
+        end,
         enumerate = function(self)
             local container = {}
             self.data:dumpItems(container)

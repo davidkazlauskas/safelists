@@ -18,17 +18,10 @@ use safe_core::nfs::errors::NfsError;
 use safe_core::dns::dns_operations::DnsOperations;
 use safe_core::dns::errors::DnsError;
 
-const CHUNK_SIZE : u64 = 1024 * 1024;
-
 const SAFE_DOWNLOADER_MSG_FILE_NOT_FOUND : i32 = 7;
 const SAFE_DOWNLOADER_MSG_DOWNLOAD_SUCCESS : i32 = 8;
 const SAFE_DOWNLOADER_MSG_IS_DONE : i32 = 9;
 const SAFE_DOWNLOADER_MSG_FILE_SIZE_FOUND : i32 = 10;
-
-// chunk size for each download
-fn get_chunk_size() -> u64 {
-    CHUNK_SIZE
-}
 
 struct ReaderKit {
     client: Arc< Mutex< Client > >,
@@ -117,7 +110,7 @@ struct DownloadTaskWRreader {
 }
 
 impl DownloadTaskWRreader {
-    fn next_chunk(&self,chunk_size: u64) -> (u64,u64) // start, length
+    fn next_chunk(&self) -> (u64,u64) // start, length
     {
         let (mut chunkstart,mut chunkend) = (0i64,0i64);
 
@@ -334,8 +327,7 @@ impl DownloaderActorLocal {
             };
 
             {
-                let (chunkstart,chunkend) =
-                    nextu.next_chunk(get_chunk_size());
+                let (chunkstart,chunkend) = nextu.next_chunk();
                 let mut reader = self.rkit.file_helper.read(&nextu.file);
                 let size = chunkend - chunkstart;
                 let readres = reader.read(chunkstart,size);

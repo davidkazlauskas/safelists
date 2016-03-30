@@ -93,7 +93,7 @@ namespace SafeLists {
                 IntervalList&& interval,
                 const ByteFunction& func,
                 const std::weak_ptr< Messageable >& wmsg,
-                int64_t chunkSizes = 1024 * 1024)
+                int64_t chunkSizes = 1024 * 64)
                 :
                     _path(path),
                     _counter(std::move(interval)),

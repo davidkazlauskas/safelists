@@ -1236,7 +1236,7 @@ initAll = function()
         local help = luaModel:appendSubComp("help","Help")
         local bugRep = help:appendSubLeaf("report-bug","Report a bug",
             function()
-                openUrlInBrowser("https://safelists.io/bugzilla/")
+                openUrlInBrowser("https://bugs.launchpad.net/safelists")
             end
         )
         local themes = another:appendSubComp("settings-themes","Themes")

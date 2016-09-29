@@ -2,4 +2,4 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-docker run -it -v $DIR:/safelists/ --rm intermediate_rust_musl:v1 /safelists/innerbuild
+docker run -it -v $DIR:/safelists/ --rm safelists_templatious:v1 /safelists/innerbuild

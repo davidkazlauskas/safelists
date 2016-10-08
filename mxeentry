@@ -1,0 +1,3 @@
+export USER=root
+export PATH=$PATH:/mxe/usr/i686-unknown-linux-musl/bin
+

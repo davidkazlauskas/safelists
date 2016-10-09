@@ -1,3 +1,6 @@
+#!/bin/bash
+
 export USER=root
-export PATH=$PATH:/mxe/usr/i686-unknown-linux-musl/bin
+export PATH=$PATH:/mxe/usr/i686-pc-linux-gnu.static/bin
+export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/mxe/usr/i686-pc-linux-gnu.static/lib/pkgconfig
 

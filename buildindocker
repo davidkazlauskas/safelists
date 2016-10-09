@@ -2,4 +2,6 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-docker run -it -v $DIR:/safelists/ --rm safelists_templatious:v1 /safelists/innerbuild
+mkdir -p $DIR/homecache
+
+docker run -it -v $DIR:/safelists/ -v $DIR/homecache:/root/ --rm safelists_templatious:v1 /safelists/innerbuild

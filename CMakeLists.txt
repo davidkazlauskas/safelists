@@ -65,7 +65,7 @@ endif()
 SET( LIBINCLUDE_DIRS
     ${GTKMM_INCLUDE_DIRS}
     $ENV{TEMPLATIOUS_DIR}
-    ${PLUMBING_DIR}
+    ${PLUMBING_DIR}/..
     ${Boost_INCLUDE_DIRS}
     ${RAPID_JSON_INCLUDE_DIR}
     ${LIBSCRYPT_DIR} )
@@ -155,8 +155,9 @@ if(CMAKE_CROSS_COMPILING)
     if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux"
        OR "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
         # support musl in future?
-        SET( CARGO_COMMAND PKG_CONFIG_ALLOW_CROSS=1 cargo
-            rustc ${CARGO_BUILD_MODE}
+        SET( CARGO_COMMAND PKG_CONFIG_ALLOW_CROSS=1
+            CC=${CMAKE_C_COMPILER}
+            cargo rustc ${CARGO_BUILD_MODE}
             --target=${TARGET_ARCHITECTURE}-unknown-linux-gnu
             -Clinker=${CMAKE_C_COMPILER} )
     endif()
@@ -245,11 +246,12 @@ target_link_libraries( metasign
 add_library( domain ${DOMAIN_SOURCES} )
 target_link_libraries( domain
     metasign sqlite3 pthread
-    sodium scrypt plumbing
+    scrypt plumbing
     ${CURL_LIBRARIES}
     ${Boost_FILESYSTEM_LIBRARY}
     ${Boost_SYSTEM_LIBRARY}
     safefiledownloader
+    sodium
     ${LINUX_EXTRA_LIBS}
 )
 

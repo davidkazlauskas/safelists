@@ -32,6 +32,7 @@ ensure_pkg_version(STREQUAL libcurl ${CURL_VERSION_REQUIRED} CURL)
 
 SET( MKDIR /bin/mkdir )
 SET( RSYNC /usr/bin/rsync )
+SET( RSYNC_ARGS -rlDz )
 SET( FLATGLOBCOPY ${CMAKE_SOURCE_DIR}/buildutil/flatglobcopy )
 
 SET( PLUMBING_DIR submodules/LibLuaPlumbing/LuaPlumbing )
@@ -174,7 +175,7 @@ SET( LUASCRIPTS_DIR "${APPDATA_DIR}/lua" )
 add_custom_target( create-runtime-files-dir
     COMMAND ${MKDIR} -p "${CMAKE_BINARY_DIR}/appdata/uischemes" )
 add_custom_target( copy-runtime-files ALL
-    COMMAND ${RSYNC} -az "${CMAKE_SOURCE_DIR}/src/uischemes/" "${CMAKE_BINARY_DIR}/appdata/uischemes/"
+    COMMAND ${RSYNC} ${RSYNC_ARGS} "${CMAKE_SOURCE_DIR}/src/uischemes/" "${CMAKE_BINARY_DIR}/appdata/uischemes/"
     DEPENDS create-runtime-files-dir )
 add_custom_target( copy-runtime-files-ex-data ALL
     COMMAND cmake -E copy_directory ${CMAKE_SOURCE_DIR}/exampleData/ ${CMAKE_BINARY_DIR}/exampleData/ )
@@ -189,23 +190,23 @@ add_custom_target( copy-root-data ALL
 add_custom_target( create-gtk-schemas-dir
     COMMAND ${MKDIR} -p "${CMAKE_BINARY_DIR}/appdata/usr/share/glib-2.0/schemas" )
 add_custom_target( copy-gtk-schemas ALL
-    COMMAND ${RSYNC} -az "${CMAKE_PREFIX_PATH}/share/glib-2.0/schemas/" "${CMAKE_BINARY_DIR}/appdata/usr/share/glib-2.0/schemas/"
+    COMMAND ${RSYNC} ${RSYNC_ARGS} "${CMAKE_PREFIX_PATH}/share/glib-2.0/schemas/" "${CMAKE_BINARY_DIR}/appdata/usr/share/glib-2.0/schemas/"
     DEPENDS create-gtk-schemas-dir )
 add_custom_target( copy-gtk-icons ALL
-    COMMAND ${RSYNC} -az "${CMAKE_PREFIX_PATH}/share/icons" "${CMAKE_BINARY_DIR}/appdata/usr/share/"
+    COMMAND ${RSYNC} ${RSYNC_ARGS} "${CMAKE_PREFIX_PATH}/share/icons" "${CMAKE_BINARY_DIR}/appdata/usr/share/"
     DEPENDS create-gtk-schemas-dir )
 add_custom_target( copy-gtk-themes ALL
-    COMMAND ${RSYNC} -az "${CMAKE_SOURCE_DIR}/src/themes" "${CMAKE_BINARY_DIR}/appdata/"
+    COMMAND ${RSYNC} ${RSYNC_ARGS} "${CMAKE_SOURCE_DIR}/src/themes" "${CMAKE_BINARY_DIR}/appdata/"
     DEPENDS create-gtk-schemas-dir )
 add_custom_target( copy-app-data ALL
-    COMMAND ${RSYNC} -az "${CMAKE_SOURCE_DIR}/appData/" "${CMAKE_BINARY_DIR}/appdata/"
+    COMMAND ${RSYNC} ${RSYNC_ARGS} "${CMAKE_SOURCE_DIR}/appData/" "${CMAKE_BINARY_DIR}/appdata/"
     DEPENDS create-gtk-schemas-dir )
 if (NOT SAFE_FILE_DOWNLOADER_PREBUILT)
     add_custom_target( build-safe-dl-build ALL
         COMMAND CARGO_TARGET_DIR=${CMAKE_BINARY_DIR}/rustlib ${CARGO_COMMAND}
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/rust/safe_file_downloader )
     add_custom_target( build-safe-dl ALL
-        COMMAND ${FLATGLOBCOPY} ${RUST_LIB_DIR} "safefiledownloader\\\\\\.\\(so\\|dll\\)" ${RUST_LINK_DIR}
+        COMMAND ${FLATGLOBCOPY} ${RUST_LIB_DIR} "safefiledownloader\\\\\\.\\(so\\|dll\\|a\\)" ${RUST_LINK_DIR}
         DEPENDS build-safe-dl-build
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src/rust/safe_file_downloader )
 else()

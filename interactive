@@ -2,5 +2,5 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-docker run -it -v $DIR:/safelists/ -v $DIR/homecache:/root/ --rm safelists_templatious:v1 bash -c 'source /safelists/mxeentry && /bin/bash'
+docker run -it -e LOCAL_USER_ID=`id -u $USER` -v $DIR:/safelists/ -v $DIR/homecache:/root/ --rm safelists_templatious:v1 bash -c 'source /safelists/mxeentry && /bin/bash'
 

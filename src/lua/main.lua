@@ -497,14 +497,6 @@ initAll = function()
         return constsTbl['isrelease']
     end
 
-    local shouldAllowPaidFeatures = function()
-        if (not isReleaseBuild() or isPaidMode()) then
-            return true
-        else
-            return false
-        end
-    end
-
     local globSetting =
         function(thename)
             return ctx:messageRetValues(
@@ -545,651 +537,6 @@ initAll = function()
             )
         end
     )
-
-    local licTest = function()
-        local dialogService = ctx:namedMessageable("dialogService")
-        local license = ctx:namedMessageable("licenseService")
-
-        local dialog = ctx:messageRetValues(
-            dialogService,
-            VSig("GDS_MakeGenericWidget"),
-            VString("licensing"),
-            VString("spinnerWindow"),
-            VMsg(nil)
-        )._4
-
-        local closeDialog = nil
-        local changeLoadingText = nil
-        local switchLoaderTab = nil
-
-        local LOADER_TAB = 0
-        local OFFLINE_MODE_TAB = 1
-        local REGISTRATION_TAB = 2
-        local SUBSCRIPTION_TAB = 3
-        local UNSAFE_LOGIN_TAB = 4
-        local BAD_REFERRAL_TAB = 5
-
-        local setupFromScratch = nil
-        local registerUser = nil
-        local currUserId = nil
-
-        local offlineMode,userInvalid,
-              licenseOk,licenseExpired,
-              fishyStuffGoingOn = nil
-
-        local afterId,afterIdSuccess,localIdSucc,
-              localIdFail,localStoreLic,
-              verificationSuccess,localVerificationFail,
-              getServerTimespan,localSpanFail,
-              tryVerifyUserRecord,tryVerifyTimespan,
-              subsTextChanged,localStoreSubs
-              = nil
-
-        local safecoinRate = {
-            value = -1
-        }
-
-        local safecoinRateWidget = nil
-        local safecoinEntryWidget = nil
-        local licenseConclusionWidget = nil
-        local subscriptionWidget = nil
-
-        local lookupSafecoinRate = function()
-            safecoinRateWidget:labelSetText("Loading...")
-            licenseConclusionWidget:labelSetText("")
-            subscriptionWidget:widgetSetActive(false)
-
-            local tryParseRate = function(content)
-                ctx:messageAsyncWCallback(
-                    license,
-                    function(val)
-                        local vals = val:values()
-                        if (0 == vals._4) then
-                            safecoinRate.value = vals._3
-                            safecoinRate.err = nil
-                            safecoinRateWidget:labelSetText(
-                                "Current price for day is "
-                                .. safecoinRate.value .. " safecoins."
-                            )
-                        else
-                            safecoinRate.err = "Could not verify rate."
-                            safecoinRateWidget:labelSetText(safecoinRate.err)
-                        end
-                    end,
-                    VSig("LD_SafecoinRateValidity"),
-                    VString(content),
-                    VDouble(-1),
-                    VInt(-1)
-                )
-            end
-
-            ctx:messageAsyncWCallback(
-                license,
-                function(val)
-                    local vals = val:values()
-                    local outErr = vals._3
-                    local outCont = vals._2
-                    if (0 == outErr) then
-                        tryParseRate(outCont)
-                    else
-                        -- lookup in server
-                        ctx:messageAsyncWCallback(
-                            license,
-                            function(val)
-                                local vals = val:values()
-                                if (vals._3 == 0) then
-                                    tryParseRate(vals._2)
-                                    ctx:messageAsync(
-                                        license,
-                                        VSig("LD_StoreLocalSafecoinRate"),
-                                        VString(vals._2),
-                                        VInt(-1)
-                                    )
-                                else
-                                    safecoinRate.err =
-                                        "Could not retrieve rates from server."
-
-                                    safecoinRateWidget:labelSetText(safecoinRate.err)
-                                    licenseConclusionWidget:labelSetText("")
-                                end
-                            end,
-                            VSig("LD_GetServerSafecoinRate"),
-                            VString(""),
-                            VInt(-1)
-                        )
-                    end
-                end,
-                VSig("LD_GetLocalSafecoinRate"),
-                VString(""),
-                VInt(-1)
-            )
-        end
-
-        subsTextChanged =
-            function()
-                if (safecoinRate.err == nil) then
-                    local amount = tonumber(safecoinEntryWidget:entryQueryValue())
-                    if (amount ~= nil) then
-                        local days = amount / safecoinRate.value
-                        licenseConclusionWidget:labelSetText(
-                            "Subscribe for " .. roundFloatStr(days,2)
-                                .. " days for " .. amount .. " safecoins."
-                        )
-                        subscriptionWidget:widgetSetActive(true)
-                    else
-                        licenseConclusionWidget:labelSetText(
-                            "Invalid input."
-                        )
-                        subscriptionWidget:widgetSetActive(false)
-                    end
-                end
-            end
-
-        local keywordField,pinField,
-            passwordField,unsafeStatus = nil
-
-        local loginClickedEvents = {}
-        local setLoginClickedEvent = function(func)
-            loginClickedEvents['login'] = func
-        end
-
-        local setOfflineUnsafeEvent = function(func)
-            loginClickedEvents['offline'] = func
-        end
-
-        local userblob = {
-            authblob = ""
-        }
-
-        local setupDialog = function()
-            local genericDialog = GenericWidget.putOn(dialog)
-            local gwgt = function(name) return genericDialog:getWidget(name) end
-            local dlgWindow = gwgt("spinnerWindow")
-            local offlineButton = gwgt("buttonGoOffline")
-            local tryAgainButton = gwgt("buttonTryAgain")
-            local theNotebook = gwgt("dialogPages")
-            local loadingText = gwgt("mainLabel")
-            local offlineButtonReg = gwgt("buttonGoOffline2")
-            local registerButton = gwgt("buttonRegister")
-            local offlineButtonSub = gwgt("buttonGoOffline3")
-            local subsAmountEntry = gwgt("subscriptionAmountEntry")
-            local licenseConclusion = gwgt("licenseConclusionLabel")
-            local safecoinRateWgt = gwgt("safecoinRateLabel")
-            local subsButton = gwgt("buttonSubscribe")
-            local keywordFieldWgt = gwgt("unsafeKeywordEntry")
-            local pinFieldWgt = gwgt("unsafePinEntry")
-            local passwordFieldWgt = gwgt("unsafePasswordEntry")
-            local buttonOfflineUnsafe = gwgt("buttonGoOfflineUnsafe")
-            local buttonLoginUnsafe = gwgt("buttonLoginUnsafe")
-            local statusLabelUnsafe = gwgt("statusLabelUnsafe")
-            local buttonGoOfflineBadRef = gwgt("buttonGoOfflineBadRef")
-
-            -- export to outer scope
-            safecoinRateWidget = safecoinRateWgt
-            licenseConclusionWidget = licenseConclusion
-            safecoinEntryWidget = subsAmountEntry
-            subscriptionWidget = subsButton
-            keywordField = keywordFieldWgt
-            pinField = pinFieldWgt
-            passwordField = passwordFieldWgt
-            unsafeStatus = statusLabelUnsafe
-
-            closeDialog =
-                function()
-                    -- TODO: GO OFFLINE (set state)
-                    dlgWindow:setVisible(false)
-                end
-
-            changeLoadingText =
-                function(value)
-                    loadingText:labelSetText(value)
-                end
-
-            switchLoaderTab =
-                function(value)
-                    theNotebook:notebookSwitchTab(value)
-                end
-
-            setupFromScratch =
-                function()
-                    switchLoaderTab(LOADER_TAB)
-                    if (currUserId ~= nil and currUserId ~= "") then
-                        afterId(currUserId)
-                    else
-                        ctx:messageAsyncWCallback(
-                            license,
-                            function(val)
-                                local tbl = val:values()
-                                local theId = tbl._2
-                                local err = tbl._3
-                                if (0 == err) then
-                                    print("Queried: |" .. theId .. "|")
-                                    currUserId = theId
-                                    afterId(theId)
-                                else
-                                    -- offer to query from
-                                    -- credentials
-                                    switchLoaderTab(UNSAFE_LOGIN_TAB)
-
-                                    setOfflineUnsafeEvent(
-                                        function()
-                                            offlineMode()
-                                        end
-                                    )
-                                    setLoginClickedEvent(
-                                        function()
-                                            local kw = trimString(keywordField:entryQueryValue())
-                                            local pin = pinField:entryQueryValue()
-                                            local passwd = passwordField:entryQueryValue()
-
-                                            if ("" == kw) then
-                                                unsafeStatus:labelSetText("Keyword cannot be empty.")
-                                                return
-                                            end
-
-                                            if ("" == pin) then
-                                                unsafeStatus:labelSetText("Pin cannot be empty.")
-                                                return
-                                            end
-
-                                            if ("" == passwd) then
-                                                unsafeStatus:labelSetText("Password cannot be empty.")
-                                                return
-                                            end
-
-                                            keywordField:widgetSetActive(false)
-                                            pinField:widgetSetActive(false)
-                                            passwordField:widgetSetActive(false)
-                                            buttonOfflineUnsafe:widgetSetActive(false)
-                                            buttonLoginUnsafe:widgetSetActive(false)
-
-                                            ctx:messageAsyncWCallback(
-                                                license,
-                                                function(val)
-                                                    local tbl = val:values()
-                                                    local gargle = tbl._5
-                                                    userblob.authblob = gargle
-                                                    ctx:messageAsyncWCallback(
-                                                        license,
-                                                        function(val)
-                                                            local tbl = val:values()
-                                                            assert( tbl._4 == 0, "Blob id extraction failed?" )
-                                                            if (tbl._4 == 0) then
-                                                                currUserId = tbl._3
-                                                                afterId(tbl._3)
-                                                            end
-                                                        end,
-                                                        VSig("LD_GetPubIdFromInfoBlob"),
-                                                        VString(gargle),
-                                                        VString("test"),
-                                                        VInt(-1)
-                                                    )
-                                                end,
-                                                VSig("LD_GetPrivateUserInfoBlob"),
-                                                VString(kw),
-                                                VString(pin),
-                                                VString(passwd),
-                                                --VString("test"),
-                                                --VString("1234"),
-                                                --VString("test"),
-                                                VString("empty"),
-                                                VInt(-1)
-                                            )
-                                        end
-                                    )
-                                end
-                            end,
-                            VSig("LD_GetCurrentUserId"),
-                            VString("empty"),
-                            VInt(-1)
-                        )
-                    end
-                end
-
-            registerUser =
-                function()
-                    print("Sunshine reggae")
-                    assert( nil ~= currUserId,
-                        "Id should be known by now..." )
-
-                    local nextId = objRetainer:newId()
-
-                    local setupAgain = {
-                        val = true
-                    }
-
-                    local handler = ctx:makeLuaMatchHandler(
-                        VMatch(function(natpack,values)
-                            changeLoadingText("Solving challenge...")
-                        end,"LD_RU_OutSolving"),
-                        VMatch(function(natpack,values)
-                            objRetainer:release(nextId)
-                            if (setupAgain.val) then
-                                setupFromScratch()
-                            end
-                        end,"LD_RU_OutFinished","int"),
-                        VMatch(function(natpack,values)
-                            local theRes = values:values()._2
-                            if (theRes == "NO_SUCH_REFERRAL") then
-                                setupAgain.val = false
-                                switchLoaderTab(BAD_REFERRAL_TAB)
-                                --print("Referral doesn't exist. "
-                                    --.. " Is you installation corrupted?")
-                            end
-                        end,"LD_RU_OutServerResponse","string")
-                    )
-
-                    objRetainer:retain(nextId,handler)
-
-                    changeLoadingText("Registering...")
-                    switchLoaderTab(LOADER_TAB)
-                    ctx:messageAsync(
-                        license,
-                        VSig("LD_RegisterUser"),
-                        VString(currUserId),
-                        VString(userblob.authblob),
-                        VMsg(handler)
-                    )
-                end
-
-            buttonLoginUnsafe:hookButtonClick(
-                function()
-                    local func = loginClickedEvents['login']
-                    if (nil ~= func) then
-                        func()
-                    end
-                end
-            )
-
-            callOfflineFunc = function()
-                local func = loginClickedEvents['offline']
-                if (nil ~= func) then
-                    func()
-                end
-            end
-
-            buttonOfflineUnsafe:hookButtonClick(callOfflineFunc)
-
-            buttonGoOfflineBadRef:hookButtonClick(callOfflineFunc)
-
-            offlineButton:hookButtonClick(closeDialog)
-            tryAgainButton:hookButtonClick(setupFromScratch)
-            offlineButtonReg:hookButtonClick(closeDialog)
-            registerButton:hookButtonClick(registerUser)
-            offlineButtonSub:hookButtonClick(closeDialog)
-            subsAmountEntry:hookTextChanged(subsTextChanged)
-            dlgWindow:setVisible(true)
-        end
-        setupDialog()
-
-        local showDialog = function(val)
-            if (val) then
-                ctx:message(
-                    dialog,
-                    VSig("INDLG_InShowDialog")
-                )
-            else
-                ctx:message(
-                    dialog,
-                    VSig("INDLG_InHideDialog")
-                )
-            end
-        end
-
-        setupFromScratch()
-        showDialog(true)
-
-        userInvalid = function(theId)
-            print("User invalid...")
-            switchLoaderTab(OFFLINE_MODE_TAB)
-        end
-
-        licenseOk = function(theId)
-            print("BALLIN")
-            constsTbl['ispaidmode'] = true
-            closeDialog()
-        end
-
-        licenseExpired = function(theId)
-            lookupSafecoinRate()
-            switchLoaderTab(SUBSCRIPTION_TAB)
-        end
-
-        fishyStuffGoingOn = function()
-            print( "Totally shouldn't happen..." )
-            print(debug.traceback())
-            os.exit()
-        end
-
-        changeLoadingText("Querying id...")
-
-        afterId = function(userid)
-            changeLoadingText("Fetching registration record...")
-            ctx:messageAsyncWCallback(
-                license,
-                function(val)
-                    local vals = val:values()
-                    local didSucceed = vals._4 == 0
-                    if (didSucceed) then
-                        localIdSucc(userid,vals._3)
-                    else
-                        localIdFail(userid)
-                    end
-                end,
-                VSig("LD_GetLocalRecord"),
-                VString(userid),
-                VString(""),
-                VInt(-1)
-            )
-        end
-
-        localIdSucc = function(theId,contents)
-            print("|" .. theId .. "| -> |" .. contents .. "|")
-            changeLoadingText("Record loaded, verifying...")
-            tryVerifyUserRecord(
-                theId,
-                contents,
-                function()
-                    verificationSuccess(theId)
-                end,
-                function()
-                    localVerificationFail(theId)
-                    localIdFail(theId)
-                end
-            )
-        end
-
-        tryVerifyUserRecord = function(theId,key,success,fail)
-            ctx:messageAsyncWCallback(
-                license,
-                function(val)
-                    local vals = val:values()
-                    if (vals._3 == 0) then
-                        success(theId,key)
-                    else
-                        fail(theId,key)
-                    end
-                end,
-                VSig("LD_UserRecordValidity"),
-                VString(key),
-                VInt(-1)
-            )
-        end
-
-        tryVerifyTimespan = function(theId,span,success,fail)
-            ctx:messageAsyncWCallback(
-                license,
-                function(val)
-                    local vals = val:values()
-                    if (vals._4 == 0) then
-                        success(theId,span)
-                    else
-                        fail(theId,span)
-                    end
-                end,
-                VSig("LD_TimeSpanValidity"),
-                VString(theId),
-                VString(span),
-                VInt(-1)
-            )
-        end
-
-        localIdFail = function(theId)
-            print("Id query failed... " .. theId)
-            ctx:messageAsyncWCallback(
-                license,
-                function(val)
-                    local vals = val:values()
-                    local didSucceed = vals._4 == 0
-                    print("VER:|" .. theId .. "|" .. vals._3 .. "|")
-                    if (didSucceed) then
-                        if (vals._3 == "NO_SUCH_USER") then
-                            print("NO SUCH USER, OFFER TO REGISTER")
-                            switchLoaderTab(REGISTRATION_TAB)
-                        else
-                            tryVerifyUserRecord(
-                                theId,
-                                vals._3,
-                                function()
-                                    localStoreLic(theId,vals._3)
-                                    verificationSuccess(theId)
-                                end,
-                                function()
-                                    assert( false,
-                                    "HUH?!? Server verification failed?" )
-                                end
-                            )
-                        end
-                    else
-                        print("Could not query server for user info..." .. vals._4)
-                        userInvalid(theId)
-                    end
-                end,
-                VSig("LD_GetServerRecord"),
-                VString(theId),
-                VString(""),
-                VInt(-1)
-            )
-        end
-
-        localSpanFail = function(theId)
-            ctx:messageAsync(
-                license,
-                VSig("LD_DeleteLocalSpan"),
-                VString(pubKey),
-                VInt(-1)
-            )
-        end
-
-        offlineMode = function()
-            -- show dialog if user
-            -- wants to go to offline mode
-            closeDialog()
-        end
-
-        localStoreLic = function(pubKey,content)
-            ctx:messageAsyncWCallback(
-                license,
-                function(val)
-                    local vals = val:values()
-                    local didSucceed = vals._4 == 0
-                    assert( didSucceed,
-                        "Didnt save user info locally, errcode: "
-                        .. vals._4 )
-                end,
-                VSig("LD_StoreLocalLicense"),
-                VString(pubKey),
-                VString(content),
-                VInt(-1)
-            )
-        end
-
-        localStoreSubs = function(pubKey,content)
-            ctx:messageAsyncWCallback(
-                license,
-                function(val)
-                    local vals = val:values()
-                    local didSucceed = vals._4 == 0
-                    assert( didSucceed,
-                        "Didnt save timespan locally, errcode: "
-                        .. vals._4 )
-                end,
-                VSig("LD_StoreLocalTimespan"),
-                VString(pubKey),
-                VString(content),
-                VInt(-1)
-            )
-        end
-
-        verificationSuccess = function(theId)
-            print("Verification success")
-            -- further check if license
-            -- is expired.
-            ctx:messageAsyncWCallback(
-                license,
-                function(val)
-                    local vals = val:values()
-                    local didSucceed = vals._4 == 0
-                    if (didSucceed) then
-                        tryVerifyTimespan(
-                            theId,vals._3,
-                            function()
-                                licenseOk(theId)
-                            end,
-                            function()
-                                getServerTimespan(theId)
-                                localSpanFail(theId)
-                            end
-                        )
-                    else
-                        getServerTimespan(theId)
-                    end
-                end,
-                VSig("LD_GetLocalTimespan"),
-                VString(theId),
-                VString("empty"),
-                VInt(-1)
-            )
-        end
-
-        localVerificationFail = function(theId)
-            ctx:messageAsync(
-                license,
-                VSig("LD_DeleteLocalLicense"),
-                VString(theId),
-                VInt(-1)
-            )
-        end
-
-        getServerTimespan = function(theId)
-            ctx:messageAsyncWCallback(
-                license,
-                function(val)
-                    local vals = val:values()
-                    local didSucceed = vals._4 == 0
-                    if (didSucceed) then
-                        tryVerifyTimespan(
-                            theId,vals._3,
-                            function()
-                                localStoreSubs(theId,vals._3)
-                                licenseOk(theId)
-                            end,
-                            function()
-                                licenseExpired(theId)
-                            end
-                        )
-                    else
-                        userInvalid(theId)
-                    end
-                end,
-                VSig("LD_GetServerTimespan"),
-                VString(theId),
-                VString("empty"),
-                VInt(-1)
-            )
-        end
-    end
-    table.insert(OneOffFunctions,licTest)
 
     local mainWndButtonHandlers = {}
 
@@ -1449,11 +796,6 @@ initAll = function()
         local mainAppWnd = mainWrapped:getWidget("mainAppWindow")
 
         messageBoxWParent(title,message,mainAppWnd:getMessageable())
-    end
-
-    local onlyPaidModeMessageBox = function()
-        return messageBox("Only in licensed",
-            "Feature is only available in licensed mode.")
     end
 
     local validateNewFileDialogFirst = function(result,dialog)
@@ -2733,10 +2075,6 @@ initAll = function()
                 VMsg(handler))
         end,"MWI_OutOpenSafelistButtonClicked"),
         VMatch(function()
-            if (not shouldAllowPaidFeatures()) then
-                return onlyPaidModeMessageBox()
-            end
-
             local dialogService = ctx:namedMessageable("dialogService")
             local afterPath = function(outPath)
                 if (outPath == "") then
@@ -2967,10 +2305,6 @@ initAll = function()
                 function(result)
                     arraySwitch(result+1,menuModel,
                         arrayBranch("Move",function()
-                            if (not shouldAllowPaidFeatures()) then
-                                return onlyPaidModeMessageBox()
-                            end
-
                             currentDirToMoveId = getCurrentDirId()
                             if (currentDirToMoveId ~= -1) then
                                 ctx:message(mainWnd,
@@ -2980,10 +2314,6 @@ initAll = function()
                             end
                         end),
                         arrayBranch("Delete",function()
-                            if (not shouldAllowPaidFeatures()) then
-                                return onlyPaidModeMessageBox()
-                            end
-
                             currentDirId = getCurrentDirId()
                             if (currentDirId ~= -1) then
                                 if (currentDirId == 1) then
@@ -3005,10 +2335,6 @@ initAll = function()
                             end
                         end),
                         arrayBranch("Rename",function()
-                            if (not shouldAllowPaidFeatures()) then
-                                return onlyPaidModeMessageBox()
-                            end
-
                             local dialog = ctx:namedMessageable("singleInputDialog")
 
                             local showOrHide = function(val)
@@ -3088,10 +2414,6 @@ initAll = function()
                             showOrHide(true)
                         end),
                         arrayBranch("New directory",function()
-                            if (not shouldAllowPaidFeatures()) then
-                                return onlyPaidModeMessageBox()
-                            end
-
                             local dialog = ctx:namedMessageable("singleInputDialog")
 
                             local showOrHide = function(val)
@@ -3225,10 +2547,6 @@ initAll = function()
                 function(result)
                     arraySwitch(result+1,menuModel,
                         arrayBranch("New file",function()
-                            if (not shouldAllowPaidFeatures()) then
-                                return onlyPaidModeMessageBox()
-                            end
-
                             print("New file clicked")
                             newFileDialog(
                                 function(result,dialog)
@@ -3244,10 +2562,6 @@ initAll = function()
                             )
                         end),
                         arrayBranch("Modify file",function()
-                            if (not shouldAllowPaidFeatures()) then
-                                return onlyPaidModeMessageBox()
-                            end
-
                             modifyFileDialog(
                                 fileId,
                                 function(result,orig,dialog)
@@ -3262,10 +2576,6 @@ initAll = function()
                             )
                         end),
                         arrayBranch("Move to another directory",function()
-                            if (not shouldAllowPaidFeatures()) then
-                                return onlyPaidModeMessageBox()
-                            end
-
                             setStatus(ctx,mainWnd,"Select folder to move file to.")
                             fileToMove = fileId
                             shouldMoveFile = true

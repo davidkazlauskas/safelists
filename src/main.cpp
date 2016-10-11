@@ -1497,11 +1497,6 @@ const Glib::ustring& mainUiSchema() {
     return res;
 }
 
-const Glib::ustring& licensingUiSchema() {
-    static Glib::ustring res = SafeLists::readFile("appdata/uischemes/licensing.glade");
-    return res;
-}
-
 const Glib::ustring& dialogsSchema() {
     static Glib::ustring res = SafeLists::readFile("appdata/uischemes/dialogs.glade");
     return res;
@@ -1510,7 +1505,6 @@ const Glib::ustring& dialogsSchema() {
 struct GtkDialogService : public Messageable {
     GtkDialogService() : _handler(genHandler()) {
         _schemaMap["main"] = &mainUiSchema();
-        _schemaMap["licensing"] = &licensingUiSchema();
         _schemaMap["dialogs"] = &dialogsSchema();
     }
 
@@ -2245,7 +2239,6 @@ int main(int argc,char** argv) {
     //auto downloader = SafeLists::AsyncDownloader::createNew("imitation");
     auto downloader = SafeLists::AsyncDownloader::createNew("safenetwork");
     auto randomFileWriter = SafeLists::RandomFileWriter::make();
-    auto licenseService = SafeLists::LicenseDaemon::getDaemon();
     auto globalConsts = SafeLists::GlobalConsts::getConsts();
 
     auto dlFactory = SafeLists::
@@ -2263,7 +2256,6 @@ int main(int argc,char** argv) {
     auto shutdownGuard = SafeLists::GracefulShutdownGuard::makeNew();
     shutdownGuard->add(randomFileWriter);
     shutdownGuard->add(downloader);
-    shutdownGuard->add(licenseService);
 
     mainWnd->setShutdownGuard(shutdownGuard);
     ctx->addMessageableWeak("mainWindow",mainWnd);
@@ -2271,7 +2263,6 @@ int main(int argc,char** argv) {
     ctx->addMessageableWeak("mainModel",mainModel);
     ctx->addMessageableWeak("shutdownGuard",shutdownGuard);
     ctx->addMessageableWeak("randomFileWriter",randomFileWriter);
-    ctx->addMessageableWeak("licenseService",licenseService);
     ctx->addMessageableWeak("globalConsts",globalConsts);
     ctx->addMessageableStrong("dlSessionFactory",dlFactory);
     ctx->addMessageableStrong("asyncSqliteFactory",asyncSqliteFactory);

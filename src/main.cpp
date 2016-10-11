@@ -2178,6 +2178,7 @@ void luaContextSetGlobalStr(LuaContext& ctx,const char* name,const char* value) 
 }
 
 #ifdef __linux__
+// TODO: check if variable already set
 static int iconPutenv = ::putenv(const_cast<char*>("FONTCONFIG_PATH=/etc/fonts"));
 #endif
 

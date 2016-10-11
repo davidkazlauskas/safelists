@@ -23,8 +23,6 @@
 #include <io/RandomFileWriter.hpp>
 #include <io/AsyncDownloader.hpp>
 #include <model/AsyncSqliteFactory.hpp>
-#include <meta/Licensing.hpp>
-#include <meta/SignatureCheck.hpp>
 #include <meta/GlobalConsts.hpp>
 
 TEMPLATIOUS_TRIPLET_STD;
@@ -2171,41 +2169,6 @@ void startupDialog(const char* message) {
     Gtk::MessageDialog dlg(message);
     dlg.set_position(Gtk::WindowPosition::WIN_POS_CENTER);
     dlg.run();
-}
-
-void checkSignature() {
-    std::string srvKey = SafeLists::getServerSignKey();
-    std::string rootPath = SafeLists::executablePath() + "/";
-    std::string sigPath = rootPath + "signature.json";
-
-    std::vector< std::string > outPaths;
-    std::string signature;
-    auto err =
-        SafeLists::getFileListWSignature(
-            sigPath.c_str(),
-            outPaths,
-            signature);
-
-    const char* ERR_STRING =
-        "Could not verify safelists signature. "
-        "Installation might be corrupted. "
-        "Redownload is recommended, only continue "
-        "if you know what you're doing.";
-
-    if (SafeLists::GetFileListError::Success != err) {
-        startupDialog(ERR_STRING);
-        return;
-    }
-
-    auto verRes =
-        SafeLists::verifyFileListB64(
-            srvKey.c_str(),
-            signature.c_str(),
-            rootPath,outPaths);
-
-    if (SafeLists::VerifyFileListError::Success != verRes) {
-        startupDialog(ERR_STRING);
-    }
 }
 
 void luaContextSetGlobalStr(LuaContext& ctx,const char* name,const char* value) {

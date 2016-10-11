@@ -2177,7 +2177,16 @@ void luaContextSetGlobalStr(LuaContext& ctx,const char* name,const char* value) 
     ::lua_setglobal(s,name);
 }
 
+#ifdef __linux__
+static int iconPutenv = ::putenv(const_cast<char*>("FONTCONFIG_PATH=/etc/fonts"));
+#endif
+
 int main(int argc,char** argv) {
+#ifdef __linux__
+    // ensure to "use" static to avoid optimizations if they ever occour
+    ++*(&iconPutenv);
+#endif
+
 #ifdef  __WIN32
     // TODO: start right away without console (win32 main)
     FreeConsole();

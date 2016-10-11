@@ -5,7 +5,7 @@ find_package(PkgConfig REQUIRED)
 find_package(Boost COMPONENTS system filesystem REQUIRED)
 
 # MXE dependencies:
-# make sqlite gtkmm3 lua sodium curl adwaita-icon-theme boost
+# make sqlite gtkmm3 lua sodium adwaita-icon-theme boost
 
 macro(ensure_pkg_version action package version var)
     pkg_check_modules(${var} ${package})
@@ -25,10 +25,8 @@ SET( SAFELISTS_PRODUCTION_KEY_SIGNING "6D9ezHBmnJOEAfKlt5hTpU1/OLcPWiTvtpgiWH/cq
 
 SET( GTK3_VERSION_REQUIRED 3.14.4 )
 SET( GTKMM_VERSION_REQUIRED 3.14.0 )
-SET( CURL_VERSION_REQUIRED 7.45.0 )
 ensure_pkg_version(STREQUAL gtk+-3.0 ${GTK3_VERSION_REQUIRED} GTK3)
 ensure_pkg_version(STREQUAL gtkmm-3.0 ${GTKMM_VERSION_REQUIRED} GTKMM)
-ensure_pkg_version(STREQUAL libcurl ${CURL_VERSION_REQUIRED} CURL)
 
 SET( MKDIR /bin/mkdir )
 SET( RSYNC /usr/bin/rsync )
@@ -221,24 +219,14 @@ add_custom_target( package-zip
 file(GLOB SCRYPT_SOURCES ${LIBSCRYPT_DIR}/*.c )
 set_source_files_properties( ${SCRYPT_SOURCES} PROPERTIES LANGUAGE CXX )
 set_source_files_properties( ${SCRYPT_SOURCES} PROPERTIES COMPILE_FLAGS "-xc -std=c99" )
-add_library( scrypt STATIC ${SCRYPT_SOURCES} )
-set_target_properties( scrypt PROPERTIES LINKER_LANGUAGE CXX )
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     SET( LINUX_EXTRA_LIBS "dl" )
 endif()
 
-target_link_libraries( metasign
-    sodium
-    ${Boost_FILESYSTEM_LIBRARY}
-    ${Boost_SYSTEM_LIBRARY}
-    )
-
 add_library( domain ${DOMAIN_SOURCES} )
 target_link_libraries( domain
-    metasign sqlite3 pthread
-    scrypt plumbing
-    ${CURL_LIBRARIES}
+    sqlite3 pthread plumbing
     ${Boost_FILESYSTEM_LIBRARY}
     ${Boost_SYSTEM_LIBRARY}
     safefiledownloader

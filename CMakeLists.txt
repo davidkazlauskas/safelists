@@ -99,10 +99,6 @@ SET( DOMAIN_SOURCES
     src/meta/GlobalConsts.cpp
     )
 
-SET( SIGN_SOURCES
-    src/meta/SignatureCheck.cpp
-    src/util/Base64.cpp )
-
 include_directories(
     ${LIBINCLUDE_DIRS}
     ${APPINCLUDE_DIRS}
@@ -232,7 +228,6 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     SET( LINUX_EXTRA_LIBS "dl" )
 endif()
 
-add_library( metasign ${SIGN_SOURCES} )
 target_link_libraries( metasign
     sodium
     ${Boost_FILESYSTEM_LIBRARY}

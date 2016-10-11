@@ -2190,8 +2190,6 @@ int main(int argc,char** argv) {
 
     gtkSpec();
 
-    checkSignature();
-
     auto scriptsPath = SafeLists::luaScriptsPath();
 
     auto ctx = LuaContext::makeContext((scriptsPath + "/plumbing.lua").c_str());

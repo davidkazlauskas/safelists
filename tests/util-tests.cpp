@@ -270,35 +270,3 @@ TEST_CASE("generic_messageable_passtoparent","[util]") {
 
     REQUIRE( intMsg.fGet<0>() == 7 );
 }
-
-TEST_CASE("base64","[util]") {
-    const char theString[] = {0,1,2,3,4,5,6};
-
-    char outBase64[64];
-
-    ::base64encode(
-        theString,
-        sizeof(theString),
-        outBase64,
-        sizeof(outBase64));
-
-    const char* EXPECTED = "AAECAwQFBg==";
-
-    int isEqual = ::strcmp(outBase64,EXPECTED);
-
-    REQUIRE( 0 == isEqual );
-
-    unsigned char backToOriginal[64];
-    size_t outLen = sizeof(backToOriginal);
-
-    ::base64decode(
-        outBase64,
-        strlen(EXPECTED),
-        backToOriginal,
-        &outLen);
-
-    int isMemEqual = ::memcmp(
-        theString,backToOriginal,sizeof(theString));
-
-    REQUIRE( 0 == isMemEqual );
-}

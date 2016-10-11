@@ -243,7 +243,6 @@ SET( TEST_SOURCES
     tests/downloader-tests.cpp
     tests/util-tests.cpp
     tests/graceful-shutdown-tests.cpp
-    tests/meta-tests.cpp
 )
 
 SET( DUMB_HASH_SOURCES

@@ -5,4 +5,4 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 mkdir -p $DIR/homecache
 mkdir -p $DIR/build
 
-docker run -it -e LOCAL_USER_ID=`id -u $USER` -v $DIR:/safelists/ -v $DIR/homecache:/root/ --rm safelists_templatious:v1 /safelists/innerbuild
+docker run -it -e LOCAL_USER_ID=`id -u $USER` -v $DIR:/safelists/ -v $DIR/homecache:/home/user/ --rm safelists_templatious:v1 /safelists/innerbuild

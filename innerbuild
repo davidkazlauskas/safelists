@@ -9,8 +9,10 @@ source /safelists/mxeentry
 
 export CMXE_TOOLCHAIN=-DCMAKE_TOOLCHAIN_FILE=/mxe/usr/i686-pc-linux-gnu.static/share/cmake/mxe-conf.cmake
 
-cmake -DCARGO_COMMAND=/mxe/usr/i686-pc-linux-gnu.static/bin/cargo \
-    -DCMAKE_BUILD_TYPE=Debug "$@" -DPLUMBING_LUA_INCLUDE="<lua.hpp>" $CMXE_TOOLCHAIN $SL
+if [ ! -f /safelists/build/CMakeCache.txt ]; then
+    cmake -DCARGO_COMMAND=/mxe/usr/i686-pc-linux-gnu.static/bin/cargo \
+        -DCMAKE_BUILD_TYPE=Debug "$@" -DPLUMBING_LUA_INCLUDE="<lua.hpp>" $CMXE_TOOLCHAIN $SL
+fi
 
 make -j 1 VERBOSE=1
 

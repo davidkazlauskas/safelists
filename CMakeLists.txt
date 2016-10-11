@@ -36,8 +36,6 @@ SET( RSYNC_ARGS -rlDz )
 SET( FLATGLOBCOPY ${CMAKE_SOURCE_DIR}/buildutil/flatglobcopy )
 
 SET( PLUMBING_DIR submodules/LibLuaPlumbing/LuaPlumbing )
-SET( RAPID_JSON_DIR submodules/rapidjson )
-SET( RAPID_JSON_INCLUDE_DIR ${RAPID_JSON_DIR}/include )
 SET( SRC_DIR src )
 SET( LIBSCRYPT_DIR ${CMAKE_SOURCE_DIR}/submodules/libscrypt )
 
@@ -98,7 +96,6 @@ SET( DOMAIN_SOURCES
     src/io/SafeListDownloaderFactory.cpp
     src/io/RandomFileWriter.cpp
     src/model/AsyncSqliteFactory.cpp
-    src/meta/Licensing.cpp
     src/meta/GlobalConsts.cpp
     )
 
@@ -138,7 +135,6 @@ option( RAPID_JSON_BUILD_EXAMPLES OFF )
 option( RAPID_JSON_BUILD_TESTS OFF )
 option( RAPID_JSON_BUILD_THIRDPARTY_GTEST OFF )
 add_subdirectory( ${PLUMBING_DIR} )
-add_subdirectory( ${RAPID_JSON_DIR} )
 
 SET( CMAKE_EXPORT_COMPILE_COMMANDS yes )
 

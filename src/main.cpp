@@ -251,7 +251,7 @@ private:
 
     void handleLoadFolderTree(const StrongMsgPtr& asyncSqlite,const StrongMsgPtr& toNotify) {
         typedef SafeLists::AsyncSqlite ASql;
-        std::vector< std::string > headers({"id","name","parent"});
+        std::vector< std::string > headers({"id","name","parent","type"});
         std::weak_ptr< Messageable > weakNotify = toNotify;
         auto message = SF::vpackPtrWCallback<
             ASYNC_OUT_SNAP_SIGNATURE
@@ -271,13 +271,15 @@ private:
                 locked->message(outMsg);
             },
             nullptr,
-                "WITH RECURSIVE "
-                "children(d_id,d_name,d_parent) AS ( "
-                "   SELECT dir_id,dir_name,dir_parent FROM directories WHERE dir_name='root' AND dir_id=1 "
-                "   UNION ALL "
-                "   SELECT dir_id,dir_name,dir_parent "
-                "   FROM directories JOIN children ON directories.dir_parent=children.d_id "
-                ") SELECT d_id,d_name,d_parent FROM children; ",
+            "WITH RECURSIVE "
+            "children(d_id,d_name,d_parent) AS ( "
+            "   SELECT dir_id,dir_name,dir_parent FROM directories WHERE dir_name='root' AND dir_id=1 "
+            "   UNION ALL "
+            "   SELECT dir_id,dir_name,dir_parent "
+            "   FROM directories JOIN children ON directories.dir_parent=children.d_id "
+            ") SELECT d_id,d_name AS name,d_parent,'d' AS type FROM children "
+            "UNION ALL "
+            "SELECT file_id,file_name,dir_id,'f' AS type FROM files ",
             std::move(headers),TableSnapshot());
 
         asyncSqlite->message(message);
@@ -895,11 +897,13 @@ private:
             add(m_colId);
             add(m_colName);
             add(m_colParent);
+            add(m_colSize);
         }
 
         Gtk::TreeModelColumn<int> m_colId;
         Gtk::TreeModelColumn<int> m_colParent;
         Gtk::TreeModelColumn<Glib::ustring> m_colName;
+        Gtk::TreeModelColumn<Glib::ustring> m_colSize;
     };
 
     struct FileTreeColumns : public Gtk::TreeModel::ColumnRecord {
@@ -922,12 +926,14 @@ private:
         int _id;
         int _parent;
         std::string _name;
+        bool _isdir;
     };
 
     void setDirRow(const DirRow& r,const Gtk::TreeModel::Row& mdlRow) {
         mdlRow[_dirColumns.m_colName] = r._name;
         mdlRow[_dirColumns.m_colId] = r._id;
         mdlRow[_dirColumns.m_colParent] = r._parent;
+        mdlRow[_dirColumns.m_colSize] = r._isdir ? "" : "123";
     }
 
     void getDirRow(DirRow& r,const Gtk::TreeModel::Row& mdlRow) {
@@ -935,6 +941,8 @@ private:
         r._name = name.c_str();
         r._id = mdlRow[_dirColumns.m_colId];
         r._parent = mdlRow[_dirColumns.m_colParent];
+        Glib::ustring size = mdlRow[_dirColumns.m_colSize];
+        r._isdir = size == "" ? true : false;
     }
 
     // receiving id, dir name, dir parent
@@ -953,6 +961,9 @@ private:
                     break;
                 case 2:
                     r._parent = std::atoi(value);
+                    break;
+                case 3:
+                    r._isdir = strcmp("d",value) == 0;
                     SA::add(vecRow,r);
                     break;
                 }

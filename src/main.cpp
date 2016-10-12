@@ -9,6 +9,7 @@
 #include <templatious/detail/DynamicPackCreator.hpp>
 #include <LuaPlumbing/plumbing.hpp>
 #include <gtkmm/GtkMMRangerModel.hpp>
+#include <boost/lexical_cast.hpp>
 #include <util/AutoReg.hpp>
 #include <util/Semaphore.hpp>
 #include <util/GracefulShutdownGuard.hpp>
@@ -251,7 +252,7 @@ private:
 
     void handleLoadFolderTree(const StrongMsgPtr& asyncSqlite,const StrongMsgPtr& toNotify) {
         typedef SafeLists::AsyncSqlite ASql;
-        std::vector< std::string > headers({"id","name","parent","type"});
+        std::vector< std::string > headers({"id","name","parent","type","size","hash"});
         std::weak_ptr< Messageable > weakNotify = toNotify;
         auto message = SF::vpackPtrWCallback<
             ASYNC_OUT_SNAP_SIGNATURE
@@ -277,9 +278,9 @@ private:
             "   UNION ALL "
             "   SELECT dir_id,dir_name,dir_parent "
             "   FROM directories JOIN children ON directories.dir_parent=children.d_id "
-            ") SELECT d_id,d_name AS name,d_parent,'d' AS type FROM children "
+            ") SELECT d_id,d_name AS name,d_parent,'d','','' AS type FROM children "
             "UNION ALL "
-            "SELECT file_id,file_name,dir_id,'f' AS type FROM files ",
+            "SELECT file_id,file_name,dir_id,'f',file_size,file_hash_256 AS type FROM files ",
             std::move(headers),TableSnapshot());
 
         asyncSqlite->message(message);
@@ -897,13 +898,19 @@ private:
             add(m_colId);
             add(m_colName);
             add(m_colParent);
+            add(m_isDir);
             add(m_colSize);
+            add(m_colSizePretty);
+            add(m_colHash);
         }
 
         Gtk::TreeModelColumn<int> m_colId;
         Gtk::TreeModelColumn<int> m_colParent;
+        Gtk::TreeModelColumn<bool> m_isDir;
         Gtk::TreeModelColumn<Glib::ustring> m_colName;
-        Gtk::TreeModelColumn<Glib::ustring> m_colSize;
+        Gtk::TreeModelColumn<int> m_colSize;
+        Gtk::TreeModelColumn<Glib::ustring> m_colSizePretty;
+        Gtk::TreeModelColumn<Glib::ustring> m_colHash;
     };
 
     struct FileTreeColumns : public Gtk::TreeModel::ColumnRecord {
@@ -927,13 +934,28 @@ private:
         int _parent;
         std::string _name;
         bool _isdir;
+        int64_t _size;
+        std::string _hash;
     };
+
+    Glib::ustring sizeToHumanReadableSize(int64_t size) {
+        // TODO: implement MB/KB etc.
+        if (size == 0) {
+            return "";
+        } else if (size == -1) {
+            return "unknown";
+        }
+        return Glib::ustring(std::to_string(size));
+    }
 
     void setDirRow(const DirRow& r,const Gtk::TreeModel::Row& mdlRow) {
         mdlRow[_dirColumns.m_colName] = r._name;
         mdlRow[_dirColumns.m_colId] = r._id;
         mdlRow[_dirColumns.m_colParent] = r._parent;
-        mdlRow[_dirColumns.m_colSize] = r._isdir ? "" : "123";
+        mdlRow[_dirColumns.m_isDir] = r._isdir;
+        mdlRow[_dirColumns.m_colSize] = r._size;
+        mdlRow[_dirColumns.m_colSizePretty] = sizeToHumanReadableSize(r._size);
+        mdlRow[_dirColumns.m_colHash] = r._hash;
     }
 
     void getDirRow(DirRow& r,const Gtk::TreeModel::Row& mdlRow) {
@@ -941,8 +963,9 @@ private:
         r._name = name.c_str();
         r._id = mdlRow[_dirColumns.m_colId];
         r._parent = mdlRow[_dirColumns.m_colParent];
-        Glib::ustring size = mdlRow[_dirColumns.m_colSize];
-        r._isdir = size == "" ? true : false;
+        r._isdir = mdlRow[_dirColumns.m_isDir];
+        r._size = mdlRow[_dirColumns.m_colSize];
+        r._hash = Glib::ustring(mdlRow[_dirColumns.m_colHash]);
     }
 
     // receiving id, dir name, dir parent
@@ -964,6 +987,16 @@ private:
                     break;
                 case 3:
                     r._isdir = strcmp("d",value) == 0;
+                    break;
+                case 4:
+                    if (::strcmp(value,"") == 0) {
+                        r._size = 0;
+                    } else {
+                        r._size = boost::lexical_cast<int64_t>(value);
+                    }
+                    break;
+                case 5:
+                    r._hash = value;
                     SA::add(vecRow,r);
                     break;
                 }
@@ -1115,6 +1148,7 @@ private:
     void createDirModel() {
         _dirStore = Gtk::TreeStore::create(_dirColumns);
         _left->append_column( "Name", _dirColumns.m_colName );
+        _left->append_column( "Size", _dirColumns.m_colSizePretty );
         _left->set_model(_dirStore);
         _left->signal_button_press_event().connect(
             sigc::mem_fun(*this,&GtkMainWindow::leftListClicked),false);

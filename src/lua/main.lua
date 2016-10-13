@@ -1170,7 +1170,7 @@ initAll = function()
 
     local getCurrentEntityId = function()
         local mret = ctx:messageRetValues(mainWnd,
-                        VSig("MWI_QueryCurrentDirId"),VInt(-7),VBool(false))
+                        VSig("MWI_QueryCurrentEntityId"),VInt(-7),VBool(false))
         return mret._2, mret._3
     end
 

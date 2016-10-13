@@ -1658,6 +1658,11 @@ initAll = function()
                                 VDouble(fileSize),
                                 VString(hash)
                             )
+                            ctx:message(
+                                mainWnd,
+                                VSig("MWI_InDeleteSelectedDir"),
+                                VInt(1)
+                            )
                             loadCurrentRoutine()
                             updateRevision()
                         else
@@ -2299,6 +2304,7 @@ initAll = function()
             elseif (currentEntityId > 0 and not isDir) then
                 menuModel = { "Edit file", "Delete file", "Move file" }
                 --"Download file",
+                -- TODO: localize labels not to depend on them
                 -- TODO: implement download
             else
                 return
@@ -2562,6 +2568,24 @@ initAll = function()
                             setStatus(ctx,mainWnd,"Select folder to move file to.")
                             fileToMove = currentEntityId
                             shouldMoveFile = true
+                        end),
+                        arrayBranch("Delete file",function()
+                            local currentFileId = getCurrentEntityId()
+                            -- we know that this is file because
+                            -- we wouldn't see this menu
+                            if (currentFileId ~= -1) then
+                                local asyncSqlite = currentAsyncSqlite
+                                if (messageablesEqual(VMsgNil(),asyncSqlite)) then
+                                    return
+                                end
+                                ctx:messageAsync(asyncSqlite,
+                                    VSig("ASQL_Execute"),
+                                    VString("DELETE FROM files WHERE file_id=" .. whole(currentFileId) .. ";"))
+                                ctx:message(mainWnd,VSig("MWI_InDeleteSelectedDir"))
+                                updateRevision()
+                            else
+                                setStatus(ctx,mainWnd,"No directory selected.")
+                            end
                         end)
                     )
                 end

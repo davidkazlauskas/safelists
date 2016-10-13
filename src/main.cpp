@@ -645,6 +645,8 @@ private:
                         d._id = id;
                         d._parent = (*selection)[_dirColumns.m_colId];
                         d._name = name;
+                        d._size = 0;
+                        d._isdir = true;
                         auto newOne = _dirStore->append(selection->children());
                         setDirRow(d,*newOne);
                     } else {

@@ -1168,9 +1168,10 @@ initAll = function()
     end
 
 
-    local getCurrentDirId = function()
-        return ctx:messageRetValues(mainWnd,
-            VSig("MWI_QueryCurrentDirId"),VInt(-7))._2
+    local getCurrentEntityId = function()
+        local mret = ctx:messageRetValues(mainWnd,
+                        VSig("MWI_QueryCurrentDirId"),VInt(-7),VBool(false))
+        return mret._2, mret._3
     end
 
     local getCurrentFileId = function()
@@ -1180,8 +1181,8 @@ initAll = function()
 
     local addNewFileUnderCurrentDir = function(data,dialog)
 
-        local currentDirId = getCurrentDirId()
-        local currentDirIdWhole = whole(currentDirId)
+        local currentEntityId = getCurrentEntityId()
+        local currentDirIdWhole = whole(currentEntityId)
 
         local asyncSqlite = currentAsyncSqlite
         assert(not messageablesEqual(VMsgNil(),asyncSqlite),
@@ -1274,7 +1275,7 @@ initAll = function()
                                 mainWnd,
                                 VSig("MWI_InAddNewFileInCurrent"),
                                 VInt(theId),
-                                VInt(currentDirId),
+                                VInt(currentEntityId),
                                 VString(data.name),
                                 VDouble(tonumber(data.size)),
                                 VString(data.hash)
@@ -2293,7 +2294,7 @@ initAll = function()
                 function(result)
                     arraySwitch(result+1,menuModel,
                         arrayBranch("Move",function()
-                            currentDirToMoveId = getCurrentDirId()
+                            currentDirToMoveId = getCurrentEntityId()
                             if (currentDirToMoveId ~= -1) then
                                 ctx:message(mainWnd,
                                     VSig("MWI_InSetStatusText"),
@@ -2302,7 +2303,7 @@ initAll = function()
                             end
                         end),
                         arrayBranch("Delete",function()
-                            currentDirId = getCurrentDirId()
+                            currentDirId = getCurrentEntityId()
                             if (currentDirId ~= -1) then
                                 if (currentDirId == 1) then
                                     setStatus(ctx,mainWnd,"Root cannot be deleted.")
@@ -2330,7 +2331,7 @@ initAll = function()
                             end
 
                             local dirName = ctx:messageRetValues(mainWnd,VSig("MWI_QueryCurrentDirName"),VString("?"))._2
-                            local dirId = getCurrentDirId()
+                            local dirId = getCurrentEntityId()
 
                             if (dirName == "[unselected]") then
                                 setStatus(ctx,mainWnd,"No directory was selected to create new one.")
@@ -2418,7 +2419,7 @@ initAll = function()
                                 VMsg(mainWnd))
 
                             local dirName = ctx:messageRetValues(mainWnd,VSig("MWI_QueryCurrentDirName"),VString("?"))._2
-                            local dirId = getCurrentDirId()
+                            local dirId = getCurrentEntityId()
                             local dirIdWhole = whole(dirId)
 
                             if (dirName == "[unselected]") then

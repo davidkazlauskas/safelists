@@ -172,9 +172,9 @@ struct MainWindowInterface {
     // >
     DUMMY_REG(InQuit,"MWI_InQuit");
 
-    // query current directory id
-    // Signature: < QueryCurrentDirId, int (output) >
-    DUMMY_REG(QueryCurrentDirId,"MWI_QueryCurrentDirId");
+    // query current entity id, if is dir is false its a file
+    // Signature: < QueryCurrentEntityId, int (output), bool (is dir) >
+    DUMMY_REG(QueryCurrentEntityId,"MWI_QueryCurrentEntityId");
 
     // query current directory name
     // Signature: < QueryCurrentDirName, std::string (output) >
@@ -657,14 +657,16 @@ private:
                     _fileStore->clear();
                 }
             ),
-            SF::virtualMatch< MWI::QueryCurrentDirId, int >(
-                [=](MWI::QueryCurrentDirId,int& outId) {
+            SF::virtualMatch< MWI::QueryCurrentEntityId, int, bool >(
+                [=](MWI::QueryCurrentEntityId, int& outId, bool& isDir) {
                     auto selection = _dirSelection->get_selected();
                     if (nullptr != selection) {
                         auto row = *selection;
                         outId = row[_dirColumns.m_colId];
+                        isDir = row[_dirColumns.m_isDir];
                     } else {
                         outId = -1;
+                        isDir = false;
                     }
                 }
             ),

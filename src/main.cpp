@@ -70,11 +70,6 @@ struct MainWindowInterface {
     // < OutShowDownloadsToggled >
     DUMMY_REG(OutRightClickFolderList,"MWI_OutRightClickFolderList");
 
-    // emitted when show downloads button is clicked
-    // Signature:
-    // < OutShowDownloadsToggled >
-    DUMMY_REG(OutRightClickFileList,"MWI_OutRightClickFileList");
-
     // emitted in draw routine after async messages processed,
     // yet still in overloaded draw method
     DUMMY_REG(OutDrawEnd,"MWI_OutDrawEnd");
@@ -87,10 +82,6 @@ struct MainWindowInterface {
     // emit to set tree model from snapshot
     // Signature: < InSetTreeData, TableSnapshot >
     DUMMY_STRUCT(InSetTreeData);
-
-    // emit to set tree model from snapshot
-    // Signature: < InSetFileData, TableSnapshot >
-    DUMMY_STRUCT(InSetFileData);
 
     // set current status text
     // Signature: < InSetStatusText, std::string >
@@ -140,9 +131,6 @@ struct MainWindowInterface {
     // Add child directory with specified name under current
     // Signature: < InAddChildUnderCurrentDir, std::string (name), int (id) >
     DUMMY_REG(InAddChildUnderCurrentDir,"MWI_InAddChildUnderCurrentDir");
-
-    // Clear file list.
-    DUMMY_REG(InClearCurrentFiles,"MWI_InClearCurrentFiles");
 
     // add new file under current directory
     // Signature: <
@@ -227,14 +215,6 @@ struct MainModel : public Messageable {
         //     StrongMsgPtr (notify)
         // >
         DUMMY_REG(InLoadFolderTree,"MMI_InLoadFolderTree");
-
-        // use to load folder tree
-        // Signature: <
-        //     InLoadFolderTree,
-        //     StrongMsgPtr (async sqlite),
-        //     StrongMsgPtr (notify)
-        // >
-        DUMMY_REG(InLoadFileList,"MMI_InLoadFileList");
     };
 
     MainModel() : _messageHandler(genHandler()) {}
@@ -286,40 +266,6 @@ private:
         asyncSqlite->message(message);
     }
 
-    void handleLoadFileList(int id,const StrongMsgPtr& asyncSqlite,const StrongMsgPtr& toNotify) {
-        typedef SafeLists::AsyncSqlite ASql;
-        std::vector< std::string > headers(
-            {"file_id","dir_id","file_name","file_size","file_hash"});
-        std::weak_ptr< Messageable > weakNotify = toNotify;
-        char queryBuf[512];
-        sprintf(queryBuf,
-            "SELECT file_id,dir_id,file_name,file_size,file_hash_256 FROM files"
-            " WHERE dir_id=%d;",
-            id);
-        auto message = SF::vpackPtrWCallback<
-            ASYNC_OUT_SNAP_SIGNATURE
-        >(
-            [=](const TEMPLATIOUS_VPCORE< ASYNC_OUT_SNAP_SIGNATURE >& sig) {
-                auto locked = weakNotify.lock();
-                if (nullptr == locked && sig.fGet<3>().isEmpty()) {
-                    return;
-                }
-
-                auto& snapref = const_cast< TableSnapshot& >(sig.fGet<3>());
-                typedef MainWindowInterface MWI;
-                auto outMsg = SF::vpackPtr< MWI::InSetFileData, int, TableSnapshot >(
-                    nullptr, id, std::move(snapref)
-                );
-                locked->message(outMsg);
-            },
-            nullptr,
-            queryBuf,
-            std::move(headers),TableSnapshot()
-        );
-
-        asyncSqlite->message(message);
-    }
-
     VmfPtr genHandler() {
         typedef MainModelInterface MMI;
         return SF::virtualMatchFunctorPtr(
@@ -331,17 +277,6 @@ private:
                 const StrongMsgPtr& asyncSqlite,
                 const StrongMsgPtr& toNotify) {
                 this->handleLoadFolderTree(asyncSqlite,toNotify);
-            }),
-            SF::virtualMatch< MMI::InLoadFileList,
-                              int, // (id)
-                              StrongMsgPtr,
-                              StrongMsgPtr >
-            ([=](
-                MMI::InLoadFileList,
-                int id,
-                const StrongMsgPtr& asyncSqlite,
-                const StrongMsgPtr& toNotify) {
-                this->handleLoadFileList(id,asyncSqlite,toNotify);
             })
         );
     }
@@ -363,15 +298,13 @@ struct GtkMainWindow : public SafeLists::GenericGtkWidget {
     GtkMainWindow(Glib::RefPtr<Gtk::Builder>& bld) :
         SafeLists::GenericGtkWidget(bld,"mainAppWindow"),
         _builder(bld),
-        _left(nullptr),
-        _right(nullptr),
+        _dirTree(nullptr),
         _lastSelectedDirId(-1)
     {
         regHandler(genHandler());
 
         registerAndGetWidget("mainAppWindow",_wnd);
-        registerAndGetWidget("fileList",_right);
-        registerAndGetWidget("dirList",_left);
+        registerAndGetWidget("dirList",_dirTree);
         registerAndGetWidget("statusBarLabel",_statusBar);
         registerAndGetWidget("downloadStatusLabel",_downloadLabel);
         registerAndGetWidget("safelistRevisionLabel",_safelistRevisionLbl);
@@ -408,7 +341,6 @@ struct GtkMainWindow : public SafeLists::GenericGtkWidget {
         _wnd->set_title("SafeLists");
 
         createDirModel();
-        createFileModel();
 
         _selectionStack.resize(2);
     }
@@ -584,13 +516,6 @@ private:
                     setTreeModel(snapshot);
                 }
             ),
-            SF::virtualMatch<
-                MWI::InSetFileData, int, TableSnapshot
-            >(
-                [=](MWI::InSetFileData,int id,TableSnapshot& snapshot) {
-                    setFileModel(id,snapshot);
-                }
-            ),
             SF::virtualMatch< MWI::InSetStatusText, const std::string >(
                 [=](MWI::InSetStatusText,const std::string& text) {
                     this->_statusBar->set_text(text.c_str());
@@ -652,11 +577,6 @@ private:
                     } else {
                         assert( false && "Setting current name when not selected." );
                     }
-                }
-            ),
-            SF::virtualMatch< MWI::InClearCurrentFiles >(
-                [=](ANY_CONV) {
-                    _fileStore->clear();
                 }
             ),
             SF::virtualMatch< MWI::QueryCurrentEntityId, int, bool >(
@@ -931,22 +851,6 @@ private:
         Gtk::TreeModelColumn<Glib::ustring> m_colHash;
     };
 
-    struct FileTreeColumns : public Gtk::TreeModel::ColumnRecord {
-        FileTreeColumns() {
-            add(m_fileId);
-            add(m_dirId);
-            add(m_fileName);
-            add(m_fileSize);
-            add(m_fileHash);
-        }
-
-        Gtk::TreeModelColumn<int> m_fileId;
-        Gtk::TreeModelColumn<int> m_dirId;
-        Gtk::TreeModelColumn<Glib::ustring> m_fileName;
-        Gtk::TreeModelColumn<int> m_fileSize;
-        Gtk::TreeModelColumn<Glib::ustring> m_fileHash;
-    };
-
     struct DirRow {
         int _id;
         int _parent;
@@ -1051,56 +955,6 @@ private:
         }
     }
 
-    void setFileModel(int id,TableSnapshot& snapshot) {
-        struct Row {
-            int _id;
-            int _dirId;
-            long _size;
-            std::string _name;
-            std::string _hash256;
-        };
-
-        if (id != _lastSelectedDirId) {
-            return;
-        }
-
-        auto setRow =
-            [=](const Row& r,Gtk::TreeModel::Row& mdlRow) {
-                mdlRow[_fileColumns.m_fileId] = r._id;
-                mdlRow[_fileColumns.m_dirId] = r._dirId;
-                mdlRow[_fileColumns.m_fileName] = r._name;
-                mdlRow[_fileColumns.m_fileSize] = r._size;
-                mdlRow[_fileColumns.m_fileHash] = r._hash256;
-            };
-
-        Row r;
-        _fileStore->clear();
-        snapshot.traverse(
-            [&](int row,int column,const char* value,const char* header) {
-                switch (column) {
-                case 0:
-                    r._id = std::atoi(value);
-                    break;
-                case 1:
-                    r._dirId = std::atoi(value);
-                    break;
-                case 2:
-                    r._name = value;
-                    break;
-                case 3:
-                    r._size = std::atol(value);
-                    break;
-                case 4:
-                    r._hash256 = value;
-                    auto row = *(_fileStore->append());
-                    setRow(r,row);
-                    break;
-                }
-                return true;
-            }
-        );
-    }
-
     bool onDraw(const Cairo::RefPtr<Cairo::Context>& cr) {
         _callbackCache.process();
         _messageCache.process(
@@ -1128,15 +982,6 @@ private:
         }
     }
 
-    void fileToViewChanged() {
-        auto iter = _fileSelection->get_selected();
-        if (nullptr != iter) {
-            auto row = *iter;
-            int id = row[_fileColumns.m_fileId];
-            _lastSelectedFileId = id;
-        }
-    }
-
     template <class... Types,class... Args>
     void notifySingleThreaded(Args&&... args) {
         auto msg = SF::vpack<Types...>(
@@ -1154,41 +999,19 @@ private:
         return false;
     }
 
-    bool leftFileListClicked(GdkEventButton* event) {
-        if ( (event->type == GDK_BUTTON_PRESS) && (event->button) == 3 ) {
-            notifySingleThreaded< MainWindowInterface::OutRightClickFileList >(nullptr);
-            return true;
-        }
-
-        return false;
-    }
-
     void createDirModel() {
         _dirStore = Gtk::TreeStore::create(_dirColumns);
-        _left->append_column( "Name", _dirColumns.m_colName );
-        _left->append_column( "Size", _dirColumns.m_colSizePretty );
-        _left->set_model(_dirStore);
-        _left->signal_button_press_event().connect(
+        // TODO: add hash
+        _dirTree->append_column( "Name", _dirColumns.m_colName );
+        _dirTree->append_column( "Size", _dirColumns.m_colSizePretty );
+        _dirTree->set_model(_dirStore);
+        _dirTree->signal_button_press_event().connect(
             sigc::mem_fun(*this,&GtkMainWindow::leftListClicked),false);
 
-        _dirSelection = _left->get_selection();
+        _dirSelection = _dirTree->get_selection();
         _dirSelection->set_mode(Gtk::SELECTION_SINGLE);
         _dirSelection->signal_changed().connect(sigc::mem_fun(
             *this,&GtkMainWindow::directoryToViewChanged));
-    }
-
-    void createFileModel() {
-        _fileStore = Gtk::ListStore::create(_fileColumns);
-        _right->append_column("Name", _fileColumns.m_fileName);
-        _right->append_column("Size", _fileColumns.m_fileSize);
-        _right->signal_button_press_event().connect(
-            sigc::mem_fun(*this,&GtkMainWindow::leftFileListClicked),false);
-        _right->set_model(_fileStore);
-
-        _fileSelection = _right->get_selection();
-        _fileSelection->set_mode(Gtk::SELECTION_SINGLE);
-        _fileSelection->signal_changed().connect(sigc::mem_fun(
-            *this,&GtkMainWindow::fileToViewChanged));
     }
 
     void downloadButtonClicked() {
@@ -1233,8 +1056,7 @@ private:
     Glib::RefPtr< Gtk::Builder > _builder;
 
     Gtk::Window* _wnd;
-    Gtk::TreeView* _left;
-    Gtk::TreeView* _right;
+    Gtk::TreeView* _dirTree;
     Gtk::Button* _openSafelistBtn;
     Gtk::Button* _createSafelistBtn;
     Gtk::Button* _dlSafelistBtn;
@@ -1258,18 +1080,12 @@ private:
     Glib::RefPtr<Gtk::TreeStore> _dirStore;
     Glib::RefPtr<Gtk::TreeSelection> _dirSelection;
 
-    // FILES
-    FileTreeColumns _fileColumns;
-    Glib::RefPtr<Gtk::ListStore> _fileStore;
-    Glib::RefPtr<Gtk::TreeSelection> _fileSelection;
-
     // Menu
     Gtk::Menu _popupMenu;
     StrongMsgPtr _popupModel;
 
     // STATE
     int _lastSelectedDirId;
-    int _lastSelectedFileId;
     // should contain two elements always
     std::vector<Gtk::TreeModel::iterator> _selectionStack;
     std::shared_ptr< SafeLists::GtkSessionTab > _sessionTab;

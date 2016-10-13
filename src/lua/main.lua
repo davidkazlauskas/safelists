@@ -641,7 +641,6 @@ initAll = function()
 
     local safelistDependantWigets = {
         "dirList",
-        "fileList",
         "downloadButton"
     }
 
@@ -1576,9 +1575,6 @@ initAll = function()
                 if (messageablesEqual(VMsgNil(),asyncSqlite)) then
                     return
                 end
-                ctx:message(mainModel,
-                    VSig("MMI_InLoadFileList"),VInt(inId),
-                    VMsg(asyncSqlite),VMsg(mainWnd))
             end
 
             if (currentDirId > 0 and shouldMoveFile == true) then
@@ -2041,7 +2037,6 @@ initAll = function()
 
                         currentAsyncSqlite = newAsqlite(outPath)
 
-                        ctx:message(mainWnd,VSig("MWI_InClearCurrentFiles"))
                         ctx:message(mainModel,
                             VSig("MMI_InLoadFolderTree"),
                             VMsg(currentAsyncSqlite),VMsg(mainWnd))
@@ -2362,6 +2357,7 @@ initAll = function()
                                 -- TODO: ask if really want to delete
                                 ctx:messageAsync(asyncSqlite,
                                     VSig("ASQL_Execute"),
+                                    -- TODO: IMPORTANT recursive delete query, cold
                                     VString("DELETE FROM directories WHERE dir_id=" .. wholeDir .. ";" ..
                                             "DELETE FROM mirrors WHERE file_id IN " ..
                                             "  (SELECT file_id FROM files WHERE dir_id=" .. wholeDir .. ");" ..

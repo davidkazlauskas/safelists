@@ -2405,6 +2405,8 @@ initAll = function()
                                         return
                                     end
 
+                                    local wholeDir = whole(dirId)
+
                                     local asyncSqlite = currentAsyncSqlite
                                     if (messageablesEqual(VMsgNil(),asyncSqlite)) then
                                         return
@@ -2430,10 +2432,10 @@ initAll = function()
                                         end,
                                         VSig("ASQL_OutAffected"),
                                         VString("UPDATE directories SET dir_name='" .. outName .. "'"
-                                            .. " WHERE dir_id=" .. dirId .. " AND NOT EXISTS("
+                                            .. " WHERE dir_id=" .. wholeDir .. " AND NOT EXISTS("
                                             .. " SELECT 1 FROM directories WHERE dir_name='".. outName
                                             .. "' AND dir_parent=(SELECT dir_parent FROM directories "
-                                            .. " WHERE dir_id=" .. dirId .. " )" .. ");"
+                                            .. " WHERE dir_id=" .. wholeDir .. " )" .. ");"
                                         ),
                                         VInt(-1)
                                     )

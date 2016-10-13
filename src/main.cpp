@@ -702,14 +702,16 @@ private:
                     int fileId, int dirId, const std::string& filename,
                     double fileSize, const std::string& hash
                 ) {
-                    auto selection = _fileSelection->get_selected();
+                    auto selection = _dirSelection->get_selected();
                     if (nullptr != selection) {
-                        auto theRow = *selection;
-                        theRow[_fileColumns.m_fileId] = fileId;
-                        theRow[_fileColumns.m_dirId] = dirId;
-                        theRow[_fileColumns.m_fileName] = filename;
-                        theRow[_fileColumns.m_fileSize] = static_cast<int64_t>(fileSize);
-                        theRow[_fileColumns.m_fileHash] = hash;
+                        DirRow d;
+                        d._isdir = false;
+                        d._name = filename;
+                        d._size = static_cast<int64_t>(fileSize);
+                        d._hash = hash;
+                        d._parent = dirId;
+                        d._id = fileId;
+                        setDirRow(d,*selection);
                     } else {
                         assert( false && "Iter fail..." );
                     }

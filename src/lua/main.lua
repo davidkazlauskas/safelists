@@ -1865,6 +1865,7 @@ initAll = function()
                         -- back in the day use counts were incremented
                         -- but it's a waste of time because now hashes
                         -- don't verify that two safelists are the same
+                        return
                     end,"SLD_OutMirrorUsed","int","string"),
                     VMatch(function(natPack,val)
                         local values = val:values()
@@ -2288,12 +2289,26 @@ initAll = function()
             end
         end,"MWI_OutShowDownloadsToggled","bool"),
         VMatch(function()
-            local menuModel = { "New directory", "Move", "Delete", "Rename" }
+            local menuModel = nil
+
+            local currentEntityId, isDir = getCurrentEntityId()
+            if (currentEntityId > 0 and isDir) then
+                menuModel = { "New directory", "Move directory", "Delete directory", "Rename directory", "New file" }
+                --"Download directory",
+                -- TODO: implement download directory
+            elseif (currentEntityId > 0 and not isDir) then
+                menuModel = { "Edit file", "Delete file", "Move file" }
+                --"Download file",
+                -- TODO: implement download
+            else
+                return
+            end
+
             local menuModelHandler = makePopupMenuModel(
                 ctx,menuModel,
                 function(result)
                     arraySwitch(result+1,menuModel,
-                        arrayBranch("Move",function()
+                        arrayBranch("Move directory",function()
                             currentDirToMoveId = getCurrentEntityId()
                             if (currentDirToMoveId ~= -1) then
                                 ctx:message(mainWnd,
@@ -2302,7 +2317,7 @@ initAll = function()
                                 shouldMoveDir = true
                             end
                         end),
-                        arrayBranch("Delete",function()
+                        arrayBranch("Delete directory",function()
                             currentDirId = getCurrentEntityId()
                             if (currentDirId ~= -1) then
                                 if (currentDirId == 1) then
@@ -2323,7 +2338,7 @@ initAll = function()
                                 setStatus(ctx,mainWnd,"No directory selected.")
                             end
                         end),
-                        arrayBranch("Rename",function()
+                        arrayBranch("Rename directory",function()
                             local dialog = ctx:namedMessageable("singleInputDialog")
 
                             local showOrHide = function(val)
@@ -2564,7 +2579,7 @@ initAll = function()
                                 end
                             )
                         end),
-                        arrayBranch("Move to another directory",function()
+                        arrayBranch("Move file",function()
                             setStatus(ctx,mainWnd,"Select folder to move file to.")
                             fileToMove = fileId
                             shouldMoveFile = true
@@ -2573,7 +2588,7 @@ initAll = function()
                 end
             )
             ctx:message(mainWnd,VSig("MWI_PMM_ShowMenu"),VMsg(menuModelHandler))
-        end,"MWI_OutRightClickFileList")
+        end,"MWI_OutRightClickFolderList")
     )
 
     ctx:message(mainWnd,VSig("MWI_InAttachListener"),VMsg(mainWindowPushButtonHandler))

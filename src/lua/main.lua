@@ -2320,14 +2320,8 @@ initAll = function()
             if (currentEntityId > 0 and isDir) then
                 menuModel = { "New directory", "Move directory", "Delete directory", "Rename directory", "New file" }
                 if (currentEntityId == 1) then
-                    -- root is unmovable
-                    local newModel = {}
-                    for k, v in ipairs(menuModel) do
-                        if (v ~= "Move directory") then
-                            table.insert(newModel, v)
-                        end
-                    end
-                    menuModel = newModel
+                    -- root is unmovable, unrenamable and undeletable
+                    menuModel = { "New directory", "New file" }
                 end
                 --"Download directory",
                 -- TODO: implement download directory

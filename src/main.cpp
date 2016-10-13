@@ -783,6 +783,13 @@ private:
                     _dirStore->erase(toErase);
                 }
             ),
+            SF::virtualMatch< MWI::InDeleteSelectedDir, const int >(
+                // Remove from stack relative to the head
+                [=](ANY_CONV, const int stackNum) {
+                    auto& toErase = _selectionStack[_selectionStack.size() - stackNum - 1];
+                    _dirStore->erase(toErase);
+                }
+            ),
             SF::virtualMatch< MWI::InRevealDownloads, bool >(
                 [=](MWI::InDeleteSelectedDir,bool value) {
                     _revealerSessions->set_reveal_child(value);

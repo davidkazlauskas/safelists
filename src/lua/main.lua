@@ -1583,6 +1583,16 @@ initAll = function()
 
             if (currentDirId > 0 and shouldMoveFile == true) then
                 shouldMoveFile = false
+
+                local _, isDir = getCurrentEntityId()
+                if (not isDir) then
+                    messageBox(
+                        "Cannot move!",
+                        "Cannot move under a file."
+                    )
+                    return
+                end
+
                 setStatus(ctx,mainWnd,"")
                 local toMove = fileToMove
                 local toMoveWhole = whole(toMove)
@@ -1679,8 +1689,18 @@ initAll = function()
 
             if (currentDirToMoveId > 0 and shouldMoveDir == true) then
                 shouldMoveDir = false
+
                 ctx:message(mainWnd,VSig("MWI_InSetStatusText"),VString(""))
                 if (inId == currentDirToMoveId) then
+                    return
+                end
+
+                local _, isDir = getCurrentEntityId()
+                if (not isDir) then
+                    messageBox(
+                        "Cannot move!",
+                        "Cannot move under a file."
+                    )
                     return
                 end
 

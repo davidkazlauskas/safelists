@@ -1861,21 +1861,9 @@ initAll = function()
                         --objRetainer:release(newId)
                     end,"SLD_OutDone"),
                     VMatch(function(natpack,val)
-                        if (isCurrentDead()) then
-                            return
-                        end
-                        local tbl = val:values()
-                        local fileId = tbl._2
-                        local fileIdWhole = whole(fileId)
-                        local theMirror = tbl._3
-                        ctx:messageAsync(
-                            asyncSqlite,
-                            VSig("ASQL_Execute"),
-                            VString(
-                                "UPDATE mirrors SET use_count=use_count+1"
-                                .. " WHERE file_id=" .. fileIdWhole .. ";"
-                            )
-                        )
+                        -- back in the day use counts were incremented
+                        -- but it's a waste of time because now hashes
+                        -- don't verify that two safelists are the same
                     end,"SLD_OutMirrorUsed","int","string"),
                     VMatch(function(natPack,val)
                         local values = val:values()

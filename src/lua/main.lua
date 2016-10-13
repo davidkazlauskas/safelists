@@ -2334,9 +2334,13 @@ initAll = function()
                                 if (messageablesEqual(VMsgNil(),asyncSqlite)) then
                                     return
                                 end
+                                local wholeDir = whole(currentDirId)
                                 ctx:messageAsync(asyncSqlite,
                                     VSig("ASQL_Execute"),
-                                    VString("DELETE FROM directories WHERE dir_id=" .. currentDirId .. ";"))
+                                    VString("DELETE FROM directories WHERE dir_id=" .. wholeDir .. ";" ..
+                                            "DELETE FROM mirrors WHERE file_id IN " ..
+                                            "  (SELECT file_id FROM files WHERE dir_id=" .. wholeDir .. ");" ..
+                                            "DELETE FROM files WHERE dir_id=" .. wholeDir .. ";"))
                                 ctx:message(mainWnd,VSig("MWI_InDeleteSelectedDir"))
                                 currentDirId = -1
                                 updateRevision()

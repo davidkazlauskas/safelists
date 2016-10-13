@@ -185,8 +185,8 @@ struct MainWindowInterface {
     DUMMY_REG(QueryDownloadSessionWidget,"MWI_QueryDownloadSessionWidget");
 
     // query current selected file id
-    // Signature: < QueryCurrentFileId, int >
-    DUMMY_REG(QueryCurrentFileId,"MWI_QueryCurrentFileId");
+    // Signature: < QueryCurrentFileParent, int >
+    DUMMY_REG(QueryCurrentFileParent,"MWI_QueryCurrentFileParent");
 
     // popup model
     // Show popup menu.
@@ -718,12 +718,12 @@ private:
                     this->_wnd->get_application()->quit();
                 }
             ),
-            SF::virtualMatch< MWI::QueryCurrentFileId, int >(
-                [=](MWI::QueryCurrentFileId,int& outId) {
-                    auto selection = _fileSelection->get_selected();
+            SF::virtualMatch< MWI::QueryCurrentFileParent, int >(
+                [=](MWI::QueryCurrentFileParent,int& outId) {
+                    auto selection = _dirSelection->get_selected();
                     if (nullptr != selection) {
                         auto row = *selection;
-                        outId = row[_fileColumns.m_fileId];
+                        outId = row[_dirColumns.m_colParent];
                     } else {
                         outId = -1;
                     }

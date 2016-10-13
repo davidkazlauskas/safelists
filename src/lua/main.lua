@@ -1174,9 +1174,9 @@ initAll = function()
         return mret._2, mret._3
     end
 
-    local getCurrentFileId = function()
+    local getCurrentFileParent = function()
         return ctx:messageRetValues(mainWnd,
-            VSig("MWI_QueryCurrentFileId"),VInt(-7))._2
+            VSig("MWI_QueryCurrentFileParent"),VInt(-7))._2
     end
 
     local addNewFileUnderCurrentDir = function(data,dialog)
@@ -2527,29 +2527,7 @@ initAll = function()
 
                             ctx:message(dialog,VSig("INDLG_InSetNotifier"),VMsg(handler))
                             showOrHide(true)
-                        end)
-                    )
-                end
-            )
-            ctx:message(mainWnd,VSig("MWI_PMM_ShowMenu"),VMsg(menuModelHandler))
-        end,"MWI_OutRightClickFolderList"),
-        VMatch(function()
-            local dirId = getCurrentDirId()
-            if (dirId == -1) then
-                return
-            end
-
-            local fileId = getCurrentFileId()
-
-            local menuModel = { "New file" }
-            if (fileId > 0) then
-                table.insert(menuModel,"Modify file")
-                table.insert(menuModel,"Move to another directory")
-            end
-            local menuModelHandler = makePopupMenuModel(
-                ctx,menuModel,
-                function(result)
-                    arraySwitch(result+1,menuModel,
+                        end),
                         arrayBranch("New file",function()
                             print("New file clicked")
                             newFileDialog(
@@ -2565,9 +2543,10 @@ initAll = function()
                                 end
                             )
                         end),
-                        arrayBranch("Modify file",function()
+                        arrayBranch("Edit file",function()
+                            local dirId = getCurrentFileParent()
                             modifyFileDialog(
-                                fileId,
+                                currentEntityId,
                                 function(result,orig,dialog)
                                     local firstValidation =
                                         validateNewFileDialogFirst(result,dialog)
@@ -2575,13 +2554,13 @@ initAll = function()
                                         return
                                     end
 
-                                    updateFileFromDiff(fileId,dirId,result,orig,dialog)
+                                    updateFileFromDiff(currentEntityId,dirId,result,orig,dialog)
                                 end
                             )
                         end),
                         arrayBranch("Move file",function()
                             setStatus(ctx,mainWnd,"Select folder to move file to.")
-                            fileToMove = fileId
+                            fileToMove = currentEntityId
                             shouldMoveFile = true
                         end)
                     )

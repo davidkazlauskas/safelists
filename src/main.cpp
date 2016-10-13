@@ -676,13 +676,18 @@ private:
                     int fileId, int dirId, const std::string& filename,
                     double fileSize, const std::string& hash
                 ) {
-                    auto newIter = _fileStore->append();
-                    auto newRow = *newIter;
-                    newRow[_fileColumns.m_fileId] = fileId;
-                    newRow[_fileColumns.m_dirId] = dirId;
-                    newRow[_fileColumns.m_fileName] = filename;
-                    newRow[_fileColumns.m_fileSize] = static_cast<int64_t>(fileSize);
-                    newRow[_fileColumns.m_fileHash] = hash;
+                    auto selection = _dirSelection->get_selected();
+                    if (nullptr != selection) {
+                        DirRow d;
+                        d._isdir = false;
+                        d._name = filename;
+                        d._size = static_cast<int64_t>(fileSize);
+                        d._hash = hash;
+                        d._parent = dirId;
+                        d._id = fileId;
+                        auto newOne = _dirStore->append(selection->children());
+                        setDirRow(d,*newOne);
+                    }
                 }
             ),
             SF::virtualMatch< MWI::InSetCurrentFileValues,

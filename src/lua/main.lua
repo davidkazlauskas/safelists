@@ -2335,6 +2335,7 @@ initAll = function()
                                     return
                                 end
                                 local wholeDir = whole(currentDirId)
+                                -- TODO: ask if really want to delete
                                 ctx:messageAsync(asyncSqlite,
                                     VSig("ASQL_Execute"),
                                     VString("DELETE FROM directories WHERE dir_id=" .. wholeDir .. ";" ..
@@ -2577,6 +2578,7 @@ initAll = function()
                             local currentFileId = getCurrentEntityId()
                             -- we know that this is file because
                             -- we wouldn't see this menu
+                            -- TODO: ask if really want to delete
                             if (currentFileId ~= -1) then
                                 local asyncSqlite = currentAsyncSqlite
                                 if (messageablesEqual(VMsgNil(),asyncSqlite)) then

@@ -1625,8 +1625,7 @@ initAll = function()
                                 end
                             end,
                             VSig("ASQL_OutSingleRow"),
-                            VString("SELECT file_hash_256 FROM files WHERE file_id='"
-                                .. idWhole .. "';"),
+                            VString(sqlGetFileHash(idWhole)),
                             VString(""),
                             VBool(false))
                     end,"SLD_OutHashUpdate","int","string"),

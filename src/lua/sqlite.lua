@@ -212,3 +212,9 @@ function sqlUpdateFileHashStatement(fileId,hash)
         "UPDATE files SET file_hash_256='"
         .. hash .. "' WHERE file_id='" .. fileId .. "';"
 end
+
+function sqlGetFileHash(fileId)
+    return
+        "SELECT file_hash_256 FROM files WHERE file_id='"
+        .. fileId .. "';"
+end

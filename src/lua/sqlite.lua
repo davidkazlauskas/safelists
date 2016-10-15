@@ -172,3 +172,32 @@ function sqlMoveFileStatement(toMoveId,dirId)
         .. " WHERE file_id=" .. toMoveId
         .. ";"
 end
+
+function sqlMoveDirCondition(dirInId,dirToMoveId)
+    return
+           " SELECT CASE"
+        -- dir is a parent of dir to move under
+        .. " WHEN (" .. dirInId .. " IN"
+        .. " ("
+        .. "     WITH RECURSIVE"
+        .. "     children(d_id) AS ("
+        .. "           SELECT dir_id FROM directories "
+        .. "               WHERE dir_parent=" .. dirToMoveId
+        .. "           UNION ALL"
+        .. "           SELECT dir_id"
+        .. "           FROM directories JOIN children ON "
+        .. "              directories.dir_parent=children.d_id "
+        .. "     ) SELECT d_id FROM children"
+        .. " )) THEN 1"
+        -- dir under parent already
+        .. " WHEN ((SELECT dir_parent FROM directories"
+        .. "     WHERE dir_id=" .. dirToMoveId
+        .. "     ) = " .. dirInId .. ") THEN 3"
+        -- same name already under directory
+        .. " WHEN (" .. "(SELECT dir_name FROM"
+        .. "     directories WHERE dir_id=" .. dirToMoveId .. ") IN"
+        .. "     ( SELECT dir_name FROM directories WHERE"
+        .. "     dir_parent=" .. dirInId .. ")) THEN 2"
+        .. " ELSE 0"
+        .. " END;"
+end

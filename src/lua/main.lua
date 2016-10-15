@@ -1435,32 +1435,7 @@ initAll = function()
                 local mainWnd = ctx:namedMessageable("mainWindow")
                 local mainModel = ctx:namedMessageable("mainModel")
 
-                local condition =
-                       " SELECT CASE"
-                    -- dir is a parent of dir to move under
-                    .. " WHEN (" .. inIdWhole .. " IN"
-                    .. " ("
-                    .. "     WITH RECURSIVE"
-                    .. "     children(d_id) AS ("
-                    .. "           SELECT dir_id FROM directories "
-                    .. "               WHERE dir_parent=" .. currentDirToMoveIdWhole
-                    .. "           UNION ALL"
-                    .. "           SELECT dir_id"
-                    .. "           FROM directories JOIN children ON "
-                    .. "              directories.dir_parent=children.d_id "
-                    .. "     ) SELECT d_id FROM children"
-                    .. " )) THEN 1"
-                    -- dir under parent already
-                    .. " WHEN ((SELECT dir_parent FROM directories"
-                    .. "     WHERE dir_id=" .. currentDirToMoveIdWhole
-                    .. "     ) = " .. inIdWhole .. ") THEN 3"
-                    -- same name already under directory
-                    .. " WHEN (" .. "(SELECT dir_name FROM"
-                    .. "     directories WHERE dir_id=" .. currentDirToMoveIdWhole .. ") IN"
-                    .. "     ( SELECT dir_name FROM directories WHERE"
-                    .. "     dir_parent=" .. inIdWhole .. ")) THEN 2"
-                    .. " ELSE 0"
-                    .. " END;"
+                local condition = sqlMoveDirCondition(inIdWhole, currentDirToMoveIdWhole)
 
                 ctx:messageAsyncWCallback(
                     asyncSqlite,

@@ -263,6 +263,6 @@ end
 
 function sqlDeleteFile(fileId)
     return
-        "DELETE FROM files WHERE file_id=" .. file .. ";"
-        .. "DELETE FROM mirrors WHERE file_id=" .. file .. ";"
+        "DELETE FROM files WHERE file_id=" .. fileId .. ";"
+        .. "DELETE FROM mirrors WHERE file_id=" .. fileId .. ";"
 end

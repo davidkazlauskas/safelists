@@ -2207,9 +2207,7 @@ initAll = function()
                                                             VString(outName),VInt(newId))
                                                     end,
                                                     VSig("ASQL_OutSingleNum"),
-                                                    VString("SELECT dir_id FROM"
-                                                        .. " directories WHERE"
-                                                        .. " rowid=last_insert_rowid();"),
+                                                    VString(sqlSelectLastInsertedDirId()),
                                                     VInt(-1),
                                                     VBool(false)
                                                 )

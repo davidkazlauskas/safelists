@@ -253,3 +253,10 @@ function sqlNewDirectoryStatement(dirParent,dirName)
         .. " SELECT 1 FROM directories WHERE dir_name='".. dirName
         .. "' AND dir_parent=" .. dirParent .. ");"
 end
+
+function sqlSelectLastInsertedDirId()
+    return
+        "SELECT dir_id FROM"
+        .. " directories WHERE"
+        .. " rowid=last_insert_rowid();"
+end

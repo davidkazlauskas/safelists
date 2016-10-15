@@ -260,3 +260,9 @@ function sqlSelectLastInsertedDirId()
         .. " directories WHERE"
         .. " rowid=last_insert_rowid();"
 end
+
+function sqlDeleteFile(fileId)
+    return
+        "DELETE FROM files WHERE file_id=" .. file .. ";"
+        .. "DELETE FROM mirrors WHERE file_id=" .. file .. ";"
+end

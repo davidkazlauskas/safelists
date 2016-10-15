@@ -2287,7 +2287,7 @@ initAll = function()
                                 end
                                 ctx:messageAsync(asyncSqlite,
                                     VSig("ASQL_Execute"),
-                                    VString("DELETE FROM files WHERE file_id=" .. whole(currentFileId) .. ";"))
+                                    VString(sqlDeleteFile(whole(currentFileId))))
                                 ctx:message(mainWnd,VSig("MWI_InDeleteSelectedDir"))
                                 updateRevision()
                             else

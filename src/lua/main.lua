@@ -4,6 +4,7 @@
 package.path = package.path .. ";" .. LUA_SCRIPTS_PATH .. "/?.lua"
 
 require('util')
+require('sqlite')
 require('safelist-constants')
 require('genericwidget')
 require('settings')
@@ -556,10 +557,8 @@ initAll = function()
                 ctx:message(mainWnd,VSig("MWI_InSetWidgetText"),
                     VString("safelistRevisionLabel"),VString(outRes))
             end,
-            VSig("ASQL_OutSingleRow"),VString(
-                "SELECT revision_number,datetime(modification_date,'unixepoch','localtime')" ..
-                " FROM metadata;"
-            ),VString("empty"),VBool(false))
+            VSig("ASQL_OutSingleRow"),VString(sqlRevNumber()),
+            VString("empty"),VBool(false))
     end
 
     local setDownloadSpeedGui = function(string)

@@ -31,23 +31,6 @@ function makePopupMenuModel(context,table,onSelectFunction)
     return menuModelHandler
 end
 
-function arrayBranch(value,func)
-    return {
-        value=value,
-        func=func
-    }
-end
-
-function arraySwitch(value,table,...)
-    local branches = {...}
-    local toFind = table[value]
-    for k,v in pairs(branches) do
-        if v.value == toFind then
-            return v.func()
-        end
-    end
-end
-
 ObjectRetainer = {
     __index = {
         newId = function(self)

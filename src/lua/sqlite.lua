@@ -206,3 +206,9 @@ function sqlMoveDirStatement(dirToMoveId,dirId)
     return "UPDATE directories SET dir_parent="
            .. dirId .. " WHERE dir_id=" .. dirToMoveId .. ";"
 end
+
+function sqlUpdateFileHashStatement(fileId,hash)
+    return
+        "UPDATE files SET file_hash_256='"
+        .. hash .. "' WHERE file_id='" .. fileId .. "';"
+end

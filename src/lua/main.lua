@@ -1619,8 +1619,7 @@ initAll = function()
                                     ctx:messageAsync(
                                         asyncSqlite,
                                         VSig("ASQL_Execute"),
-                                        VString("UPDATE files SET file_hash_256='"
-                                            .. hash .. "' WHERE file_id='" .. idWhole .. "';")
+                                        VString(sqlUpdateFileHashStatement(idWhole,hash))
                                     )
                                     updateRevision()
                                 end

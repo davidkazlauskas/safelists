@@ -2191,12 +2191,7 @@ initAll = function()
                                     local mainWnd = ctx:namedMessageable("mainWindow")
                                     local mainModel = ctx:namedMessageable("mainModel")
 
-                                    local theQuery =
-                                           "INSERT INTO directories (dir_name,dir_parent)"
-                                        .. " SELECT '" .. outName .. "', " .. dirIdWhole
-                                        .. " WHERE NOT EXISTS("
-                                        .. " SELECT 1 FROM directories WHERE dir_name='".. outName
-                                        .. "' AND dir_parent=" .. dirIdWhole .. ");"
+                                    local theQuery = sqlNewDirectoryStatement(dirIdWhole,outName)
 
                                     ctx:messageAsyncWCallback(
                                         asyncSqlite,

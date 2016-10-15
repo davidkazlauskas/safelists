@@ -244,3 +244,12 @@ function sqlUpdateDirectoryNameStatement(dirId,name)
         .. "' AND dir_parent=(SELECT dir_parent FROM directories "
         .. " WHERE dir_id=" .. dirId .. " )" .. ");"
 end
+
+function sqlNewDirectoryStatement(dirParent,dirName)
+    return
+           "INSERT INTO directories (dir_name,dir_parent)"
+        .. " SELECT '" .. dirName .. "', " .. dirParent
+        .. " WHERE NOT EXISTS("
+        .. " SELECT 1 FROM directories WHERE dir_name='".. dirName
+        .. "' AND dir_parent=" .. dirParent .. ");"
+end

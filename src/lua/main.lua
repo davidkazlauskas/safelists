@@ -2122,12 +2122,7 @@ initAll = function()
                                             end
                                         end,
                                         VSig("ASQL_OutAffected"),
-                                        VString("UPDATE directories SET dir_name='" .. outName .. "'"
-                                            .. " WHERE dir_id=" .. wholeDir .. " AND NOT EXISTS("
-                                            .. " SELECT 1 FROM directories WHERE dir_name='".. outName
-                                            .. "' AND dir_parent=(SELECT dir_parent FROM directories "
-                                            .. " WHERE dir_id=" .. wholeDir .. " )" .. ");"
-                                        ),
+                                        VString(sqlUpdateDirectoryNameStatement(wholeDir,outName)),
                                         VInt(-1)
                                     )
                                     showOrHide(false)

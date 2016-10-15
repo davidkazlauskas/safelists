@@ -235,3 +235,12 @@ function sqlDeleteDirectoryRecursively(dirId)
         "  (SELECT file_id FROM files WHERE dir_id=" .. dirId .. ");" ..
         "DELETE FROM files WHERE dir_id=" .. dirId .. ";"
 end
+
+function sqlUpdateDirectoryNameStatement(dirId,name)
+    return
+        "UPDATE directories SET dir_name='" .. name .. "'"
+        .. " WHERE dir_id=" .. dirId .. " AND NOT EXISTS("
+        .. " SELECT 1 FROM directories WHERE dir_name='".. name
+        .. "' AND dir_parent=(SELECT dir_parent FROM directories "
+        .. " WHERE dir_id=" .. dirId .. " )" .. ");"
+end

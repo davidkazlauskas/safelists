@@ -1342,24 +1342,7 @@ initAll = function()
                 assert( not messageablesEqual(VMsgNil(),asyncSqlite),
                     "Huh cholo?" )
 
-                local fileToMoveSelect =
-                    "(SELECT file_name FROM files WHERE file_id="
-                    .. toMoveWhole .. ")"
-
-                local condition =
-                       " SELECT CASE"
-                    .. " WHEN (EXISTS (SELECT file_name FROM files"
-                    .. "     WHERE dir_id=" .. currentDirIdWhole
-                    .. "     AND file_name=" .. fileToMoveSelect .. ")) THEN 1"
-                    .. " WHEN (EXISTS (SELECT file_name FROM files"
-                    .. "     WHERE dir_id=" .. currentDirIdWhole
-                    .. "     AND (file_name || '.ilist' =" .. fileToMoveSelect .. ""
-                    .. "     OR file_name || '.ilist.tmp' =" .. fileToMoveSelect .. "))) THEN 2"
-                    .. " ELSE 0"
-                    .. " END,"
-                    .. " file_name,file_size,file_hash_256 FROM files WHERE file_id="
-                    .. toMoveWhole
-                    .. ";"
+                local condition = sqlMoveFileValidation(toMoveWhole,currentDirIdWhole)
 
                 ctx:messageAsyncWCallback(
                     asyncSqlite,

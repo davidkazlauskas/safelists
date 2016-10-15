@@ -1065,17 +1065,7 @@ initAll = function()
         end
 
         -- !! check first
-        local condition =
-               " SELECT CASE"
-            .. " WHEN (EXISTS (SELECT file_name FROM files"
-            .. "     WHERE dir_id=" .. currentDirIdWhole
-            .. "     AND file_name='" .. data.name .. "')) THEN 1"
-            .. " WHEN (EXISTS (SELECT file_name FROM files"
-            .. "     WHERE dir_id=" .. currentDirIdWhole
-            .. "     AND (file_name || '.ilist' ='" .. data.name .. "'"
-            .. "     OR file_name || '.ilist.tmp' ='" .. data.name .. "'))) THEN 2"
-            .. " ELSE 0"
-            .. " END;"
+        local condition = sqlCheckForForbiddenFileNames(currentDirIdWhole,data.name)
 
         local onSuccess = function()
             local sqliteTransaction = {}

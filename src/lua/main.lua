@@ -426,10 +426,8 @@ function updateSessionWidget()
     end
 
     if (DownloadsModel:isDirty()) then
-        --print('Update fired!')
         local ctx = luaContext()
-        ctx:message(wgt,
-            VSig("DLMDL_InFullUpdate"))
+        fullDownloadModelUpdate(ctx,wgt)
     end
 end
 

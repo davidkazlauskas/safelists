@@ -218,3 +218,10 @@ function sqlGetFileHash(fileId)
         "SELECT file_hash_256 FROM files WHERE file_id='"
         .. fileId .. "';"
 end
+
+function sqlUpdateFileSizeStatement(fileId,size)
+    return
+        "UPDATE files SET file_size='"
+        .. size .. "' WHERE file_id='" .. fileId .. "'"
+        .. " AND file_size=-1;"
+end

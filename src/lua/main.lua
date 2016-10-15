@@ -1642,9 +1642,7 @@ initAll = function()
                         ctx:messageAsync(
                             asyncSqlite,
                             VSig("ASQL_Execute"),
-                            VString("UPDATE files SET file_size='"
-                                .. newSize .. "' WHERE file_id='" .. idWhole .. "'"
-                                .. " AND file_size=-1;")
+                            VString(sqlUpdateFileSizeStatement(idWhole,newSize))
                         )
                         updateRevision()
                     end,"SLD_OutSizeUpdate","int","double"),

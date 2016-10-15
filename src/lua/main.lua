@@ -575,6 +575,7 @@ initAll = function()
 
         local speedString = ""
         if (theSpeed > 0) then
+            -- TODO: move to separate function
             if (theSpeed > 1024 * 1024) then
                 local mbSec = theSpeed / (1024 * 1024)
                 speedString = roundFloatStr(mbSec,2) .. " MB/s"
@@ -950,14 +951,7 @@ initAll = function()
         )
 
         -- lookup actual data
-        local query =
-            "SELECT file_name,file_size,file_hash_256,"
-            .. " sum(use_count),group_concat(url,',') FROM mirrors"
-            .. " LEFT OUTER JOIN files"
-            .. " ON files.file_id=mirrors.file_id"
-            .. " WHERE mirrors.file_id=" .. fileIdWhole
-            .. " GROUP BY files.file_id;"
-
+        local query = sqlGetMirrorUsesForFile(fileIdWhole)
         local asyncSqlite = currentAsyncSqlite
 
         ctx:messageAsyncWCallback(

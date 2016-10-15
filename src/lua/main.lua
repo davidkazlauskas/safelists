@@ -431,17 +431,6 @@ function updateSessionWidget()
     end
 end
 
-function setWidgetsEnabled(context,wnd,value,...)
-    local values = {...}
-    for k, v in pairs(values) do
-        context:message(wnd,
-            VSig("MWI_InSetWidgetEnabled"),
-            VString(v),
-            VBool(value)
-        )
-    end
-end
-
 initAll = function()
 
     local ctx = luaContext()

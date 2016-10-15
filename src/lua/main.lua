@@ -1373,11 +1373,7 @@ initAll = function()
                             )
                             loadCurrentRoutine()
                         elseif (case == 0) then
-                            local updateQuery =
-                                "UPDATE files SET dir_id="
-                                .. currentDirIdWhole
-                                .. " WHERE file_id=" .. toMoveWhole
-                                .. ";"
+                            local updateQuery = sqlMoveFileStatement(toMoveWhole,currentDirIdWhole)
 
                             ctx:messageAsync(
                                 asyncSqlite,

@@ -164,3 +164,11 @@ function sqlMoveFileValidation(toMoveId,dirId)
         .. toMoveId
         .. ";"
 end
+
+function sqlMoveFileStatement(toMoveId,dirId)
+    return
+        "UPDATE files SET dir_id="
+        .. dirId
+        .. " WHERE file_id=" .. toMoveId
+        .. ";"
+end

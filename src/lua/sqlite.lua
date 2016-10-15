@@ -62,3 +62,69 @@ function sqlAddNewFileQuery(dirId,fileName,fileSize,fileHash,fileMirrors)
 
     return table.concat(sqliteTransaction," ")
 end
+
+-- mirrors are string to be split by new lines
+function sqlUpdateFileQuery(fileId,diffName,diffSize,diffHash,diffMirrors)
+    local updateString = {}
+    local push = function(value)
+        table.insert(updateString,value)
+    end
+
+    local isFirst = true
+    local delim = function()
+        if (not isFirst) then
+            push(",")
+        end
+        isFirst = false
+    end
+
+    -- the action
+    push("BEGIN;")
+
+    if (diffName ~= nil
+        or diffSize ~= nil
+        or diffHash ~= nil)
+    then
+        push("UPDATE files SET ")
+        if (diffName ~= nil) then
+            delim()
+            push("file_name='" .. diffName .. "'")
+            isFirst = false
+        end
+
+        if (diffSize ~= nil) then
+            delim()
+            push("file_size=" .. diffSize)
+            isFirst = false
+        end
+
+        if (diffHash ~= nil) then
+            delim()
+            push("file_hash_256='" .. diffHash .. "'")
+            isFirst = false
+        end
+
+        push(" WHERE file_id=" .. fileId .. ";")
+    end
+
+    if (diffMirrors ~= nil) then
+        local mirrSplit = string.split(diffMirrors,"\n")
+
+        for k,v in ipairs(mirrSplit) do
+            push("INSERT INTO mirrors (file_id,url,use_count) SELECT ")
+            push("" .. fileId .. ",'" .. v .. "',0")
+            push(" WHERE '" .. v .. "' NOT IN ")
+            push(" (SELECT url FROM mirrors WHERE file_id=" .. fileId .. ");")
+        end
+
+        push("DELETE FROM mirrors WHERE file_id=" .. fileId)
+        for k,v in ipairs(mirrSplit) do
+            push(" AND NOT url='" .. v .. "' ")
+        end
+        push(";")
+    end
+
+    push("COMMIT;")
+
+    return table.concat(updateString," ")
+end

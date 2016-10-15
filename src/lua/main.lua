@@ -1177,68 +1177,9 @@ initAll = function()
         local asyncSqlite = currentAsyncSqlite
 
         local updateFunction = function()
-            local updateString = {}
-            local push = function(value)
-                table.insert(updateString,value)
-            end
+            local outString = sqlUpdateFileQuery(fileIdWhole,diffTable.name,
+                diffTable.size,diffTable.hash,diffTable.mirrors)
 
-            local isFirst = true
-            local delim = function()
-                if (not isFirst) then
-                    push(",")
-                end
-                isFirst = false
-            end
-
-            -- the action
-            push("BEGIN;")
-
-            if (diffTable.name ~= nil
-                or diffTable.size ~= nil
-                or diffTable.hash ~= nil)
-            then
-                push("UPDATE files SET ")
-                if (diffTable.name ~= nil) then
-                    delim()
-                    push("file_name='" .. diffTable.name .. "'")
-                    isFirst = false
-                end
-
-                if (diffTable.size ~= nil) then
-                    delim()
-                    push("file_size=" .. diffTable.size)
-                    isFirst = false
-                end
-
-                if (diffTable.hash ~= nil) then
-                    delim()
-                    push("file_hash_256='" .. diffTable.hash .. "'")
-                    isFirst = false
-                end
-
-                push(" WHERE file_id=" .. fileIdWhole .. ";")
-            end
-
-            if (diffTable.mirrors ~= nil) then
-                local mirrSplit = string.split(diffTable.mirrors,"\n")
-
-                for k,v in ipairs(mirrSplit) do
-                    push("INSERT INTO mirrors (file_id,url,use_count) SELECT ")
-                    push("" .. fileIdWhole .. ",'" .. v .. "',0")
-                    push(" WHERE '" .. v .. "' NOT IN ")
-                    push(" (SELECT url FROM mirrors WHERE file_id=" .. fileIdWhole .. ");")
-                end
-
-                push("DELETE FROM mirrors WHERE file_id=" .. fileIdWhole)
-                for k,v in ipairs(mirrSplit) do
-                    push(" AND NOT url='" .. v .. "' ")
-                end
-                push(";")
-            end
-
-            push("COMMIT;")
-
-            local outString = table.concat(updateString," ")
             ctx:messageAsync(
                 asyncSqlite,
                 VSig("ASQL_Execute"),

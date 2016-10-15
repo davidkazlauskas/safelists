@@ -9,21 +9,6 @@ require('genericwidget')
 require('settings')
 require('messages')
 
-function isValidDumbHash256(str)
-    if (#str ~= 64) then
-        return false
-    end
-
-    for i = 1, #str do
-        local c = str:byte(i)
-        if (not byteBelongsToHex(c)) then
-            return false
-        end
-    end
-
-    return true
-end
-
 -- LUA HAS NO SPLIT STRING FUNCTION? ARE YOU SERIOUS?
 function string:split(delimiter)
   local result = { }

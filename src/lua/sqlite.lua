@@ -27,7 +27,7 @@ function sqlCheckForForbiddenFileNames(dirId,fileName)
 end
 
 -- mirrors are string to be split by new lines
-function addNewFileQuery(dirId,fileName,fileSize,fileHash,fileMirrors)
+function sqlAddNewFileQuery(dirId,fileName,fileSize,fileHash,fileMirrors)
     local sqliteTransaction = {}
     local push = function(string)
         table.insert(sqliteTransaction,string)

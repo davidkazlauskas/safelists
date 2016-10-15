@@ -1069,7 +1069,7 @@ initAll = function()
 
         local onSuccess = function()
             local statement =
-                addNewFileQuery(currentDirIdWhole,data.name,
+                sqlAddNewFileQuery(currentDirIdWhole,data.name,
                     data.size,data.hash,data.mirrors)
 
             ctx:messageAsyncWCallback(

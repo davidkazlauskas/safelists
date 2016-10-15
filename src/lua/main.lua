@@ -6,10 +6,7 @@ package.path = package.path .. ";" .. LUA_SCRIPTS_PATH .. "/?.lua"
 require('safelist-constants')
 require('genericwidget')
 require('settings')
-
-setStatus = function(context,widget,text)
-    context:message(widget,VSig("MWI_InSetStatusText"),VString(text))
-end
+require('messages')
 
 function enumerateTable(table)
     local res = {}

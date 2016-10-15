@@ -201,3 +201,8 @@ function sqlMoveDirCondition(dirInId,dirToMoveId)
         .. " ELSE 0"
         .. " END;"
 end
+
+function sqlMoveDirStatement(dirToMoveId,dirId)
+    return "UPDATE directories SET dir_parent="
+           .. dirId .. " WHERE dir_id=" .. dirToMoveId .. ";"
+end

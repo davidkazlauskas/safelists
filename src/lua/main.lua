@@ -1448,8 +1448,7 @@ initAll = function()
                         if (value == 0) then
                             ctx:messageAsync(asyncSqlite,
                                 VSig("ASQL_OutAffected"),
-                                VString("UPDATE directories SET dir_parent="
-                                    .. inIdWhole .. " WHERE dir_id=" .. currentDirToMoveIdWhole .. ";"),
+                                VString(sqlMoveDirStatement(currentDirToMoveIdWhole,inIdWhole)),
                                 VInt(-1))
                             currentDirToMoveId = -1
                             ctx:message(mainWnd,

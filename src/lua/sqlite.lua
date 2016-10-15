@@ -225,3 +225,13 @@ function sqlUpdateFileSizeStatement(fileId,size)
         .. size .. "' WHERE file_id='" .. fileId .. "'"
         .. " AND file_size=-1;"
 end
+
+function sqlDeleteDirectoryRecursively(dirId)
+    -- TODO: IMPORTANT recursive delete query, cold
+    -- this does not delete directories recursively
+    return
+        "DELETE FROM directories WHERE dir_id=" .. dirId .. ";" ..
+        "DELETE FROM mirrors WHERE file_id IN " ..
+        "  (SELECT file_id FROM files WHERE dir_id=" .. dirId .. ");" ..
+        "DELETE FROM files WHERE dir_id=" .. dirId .. ";"
+end

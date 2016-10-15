@@ -2052,11 +2052,7 @@ initAll = function()
                                 -- TODO: ask if really want to delete
                                 ctx:messageAsync(asyncSqlite,
                                     VSig("ASQL_Execute"),
-                                    -- TODO: IMPORTANT recursive delete query, cold
-                                    VString("DELETE FROM directories WHERE dir_id=" .. wholeDir .. ";" ..
-                                            "DELETE FROM mirrors WHERE file_id IN " ..
-                                            "  (SELECT file_id FROM files WHERE dir_id=" .. wholeDir .. ");" ..
-                                            "DELETE FROM files WHERE dir_id=" .. wholeDir .. ";"))
+                                    VString(sqlDeleteDirectoryRecursively(wholeDir)))
                                 ctx:message(mainWnd,VSig("MWI_InDeleteSelectedDir"))
                                 currentDirId = -1
                                 updateRevision()

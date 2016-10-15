@@ -15,3 +15,20 @@ function roundFloatStr(number,decimals)
         number)
 end
 
+function humanReadableBytes(number)
+    if (number >= 1024 * 1024) then
+        return roundFloatStr((number / (1024 * 1024)),2) .. "MB"
+    elseif (number >= 1024) then
+        return roundFloatStr((number / 1024),2) .. "KB"
+    else
+        return number .. " bytes"
+    end
+end
+
+function whole(number)
+    assert( type(number) == "number", "Not number passed." )
+    local res = string.format("%.0f",number)
+    --print("In: |" .. number .. "|" .. res .. "|")
+    return res
+end
+

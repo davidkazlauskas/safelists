@@ -9,23 +9,6 @@ require('genericwidget')
 require('settings')
 require('messages')
 
-function humanReadableBytes(number)
-    if (number >= 1024 * 1024) then
-        return roundFloatStr((number / (1024 * 1024)),2) .. "MB"
-    elseif (number >= 1024) then
-        return roundFloatStr((number / 1024),2) .. "KB"
-    else
-        return number .. " bytes"
-    end
-end
-
-function whole(number)
-    assert( type(number) == "number", "Not number passed." )
-    local res = string.format("%.0f",number)
-    --print("In: |" .. number .. "|" .. res .. "|")
-    return res
-end
-
 -- merge tables, new table overrides old
 function mergeTables(tableOld,tableNew)
     local res = {}

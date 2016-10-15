@@ -32,3 +32,40 @@ function whole(number)
     return res
 end
 
+-- merge tables, new table overrides old
+function mergeTables(tableOld,tableNew)
+    local res = {}
+
+    for k,v in pairs(tableOld) do
+        res[k] = v
+    end
+
+    for k,v in pairs(tableNew) do
+        res[k] = v
+    end
+
+    return res
+end
+
+function byteBelongsToHex(c)
+    if (c >= 48 and c <= 57) then
+        return true
+    end
+
+    if (c >= 65 and c <= 70) then
+        return true
+    end
+
+    if (c >= 97 and c <= 102) then
+        return true
+    end
+
+    return false
+end
+
+function isValidFilename(str)
+    return string.match(
+        str,'^[%w. _-]+$'
+    ) ~= nil
+end
+

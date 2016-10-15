@@ -9,3 +9,9 @@ function enumerateTable(table)
     return res
 end
 
+function roundFloatStr(number,decimals)
+    return string.format(
+        "%." .. (decimals or 0) .. "f",
+        number)
+end
+

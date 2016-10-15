@@ -9,12 +9,6 @@ require('genericwidget')
 require('settings')
 require('messages')
 
-function roundFloatStr(number,decimals)
-    return string.format(
-        "%." .. (decimals or 0) .. "f",
-        number)
-end
-
 function humanReadableBytes(number)
     if (number >= 1024 * 1024) then
         return roundFloatStr((number / (1024 * 1024)),2) .. "MB"

@@ -25,3 +25,40 @@ function sqlCheckForForbiddenFileNames(dirId,fileName)
            .. " ELSE 0"
            .. " END;"
 end
+
+-- mirrors are string to be split by new lines
+function addNewFileQuery(dirId,fileName,fileSize,fileHash,fileMirrors)
+    local sqliteTransaction = {}
+    local push = function(string)
+        table.insert(sqliteTransaction,string)
+    end
+
+    push("BEGIN;")
+
+    push("INSERT INTO files "
+        .. "(dir_id,file_name,file_size,file_hash_256) VALUES(")
+
+    push(dirId .. ",")
+    push("'" .. fileName .. "',")
+    push(fileSize .. ",")
+    push("'" .. fileHash .. "'")
+
+    push(");")
+
+    local currentFileIdSelect =
+        "SELECT file_id FROM files WHERE " ..
+        "file_name='" .. fileName .. "' AND dir_id="
+        .. dirId
+
+    local mirrSplit = string.split(fileMirrors,"\n")
+
+    for k,v in ipairs(mirrSplit) do
+        push("INSERT INTO mirrors (file_id,url,use_count) VALUES(")
+        push("(" .. currentFileIdSelect .. "),'" .. v .. "',0")
+        push(");")
+    end
+
+    push("COMMIT;")
+
+    return table.concat(sqliteTransaction," ")
+end

@@ -1068,39 +1068,10 @@ initAll = function()
         local condition = sqlCheckForForbiddenFileNames(currentDirIdWhole,data.name)
 
         local onSuccess = function()
-            local sqliteTransaction = {}
-            local push = function(string)
-                table.insert(sqliteTransaction,string)
-            end
+            local statement =
+                addNewFileQuery(currentDirIdWhole,data.name,
+                    data.size,data.hash,data.mirrors)
 
-            push("BEGIN;")
-
-            push("INSERT INTO files "
-                .. "(dir_id,file_name,file_size,file_hash_256) VALUES(")
-
-            push(currentDirIdWhole .. ",")
-            push("'" .. data.name .. "',")
-            push(data.size .. ",")
-            push("'" .. data.hash .. "'")
-
-            push(");")
-
-            local currentFileIdSelect =
-                "SELECT file_id FROM files WHERE " ..
-                "file_name='" .. data.name .. "' AND dir_id="
-                .. currentDirIdWhole
-
-            local mirrSplit = string.split(data.mirrors,"\n")
-
-            for k,v in ipairs(mirrSplit) do
-                push("INSERT INTO mirrors (file_id,url,use_count) VALUES(")
-                push("(" .. currentFileIdSelect .. "),'" .. v .. "',0")
-                push(");")
-            end
-
-            push("COMMIT;")
-
-            local statement = table.concat(sqliteTransaction," ")
             ctx:messageAsyncWCallback(
                 asyncSqlite,
                 function()

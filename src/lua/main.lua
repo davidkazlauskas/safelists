@@ -3,20 +3,11 @@
 
 package.path = package.path .. ";" .. LUA_SCRIPTS_PATH .. "/?.lua"
 
+require('util')
 require('safelist-constants')
 require('genericwidget')
 require('settings')
 require('messages')
-
-function enumerateTable(table)
-    local res = {}
-    local index = 0
-    for k,v in pairs(table) do
-        index = index + 1
-        res[index] = v
-    end
-    return res
-end
 
 function roundFloatStr(number,decimals)
     return string.format(
@@ -420,6 +411,7 @@ function DownloadsModel:isDirty()
 end
 
 function updateSessionWidget()
+    -- global state of session move, should we move this?
     local wgt = sessionWidget
     if (nil == wgt) then
         return

@@ -1354,7 +1354,8 @@ initAll = function()
             ctx:message(mainModel,
                 VSig("MMI_InLoadFolderTree"),VMsg(asyncSqlite),VMsg(mainWnd))
         end,"MWI_OutNewFileSignal"),
-        VMatch(function(natpack,val)
+        VMatch(instrument(function(natpack,val)
+            local thisCorout = coroutine.running()
             local inId = val:values()._2
 
             local currentDirId = inId
@@ -1391,65 +1392,65 @@ initAll = function()
 
                 ctx:messageAsyncWCallback(
                     asyncSqlite,
-                    function(out)
-                        local val = out:values()
-                        local success = val._4
-                        assert( success, "Back to sqlite school sucker." )
-                        local outRow = val._3
-                        local split = string.split(outRow,"|")
-                        local case = tonumber(split[1])
-                        local fileName = split[2]
-                        local fileSize = tonumber(split[3])
-                        local hash = split[4]
-                        if (case == 1) then
-                            messageBoxWParent(
-                                "Invalid move",
-                                "File with such name already"
-                                .. " exists under that directory.",
-                                mainWnd
-                            )
-                            loadCurrentRoutine()
-                        elseif (case == 2) then
-                            messageBoxWParent(
-                                "Invalid move",
-                                "File cannot be moved under"
-                                .. " this directory.",
-                                mainWnd
-                            )
-                            loadCurrentRoutine()
-                        elseif (case == 0) then
-                            local updateQuery = sqlMoveFileStatement(toMoveWhole,currentDirIdWhole)
-
-                            ctx:messageAsync(
-                                asyncSqlite,
-                                VSig("ASQL_Execute"),
-                                VString(updateQuery)
-                            )
-                            ctx:message(
-                                mainWnd,
-                                VSig("MWI_InAddNewFileInCurrent"),
-                                VInt(toMove),
-                                VInt(currentDirId),
-                                VString(fileName),
-                                VDouble(fileSize),
-                                VString(hash)
-                            )
-                            ctx:message(
-                                mainWnd,
-                                VSig("MWI_InDeleteSelectedDir"),
-                                VInt(1)
-                            )
-                            loadCurrentRoutine()
-                            updateRevision()
-                        else
-                            assert( false, "Huh?!?" )
-                        end
-                    end,
+                    resumerCallbackValues(thisCorout),
                     VSig("ASQL_OutSingleRow"),
                     VString(condition),
                     VString(""),
                     VBool(false)
                 )
+
+                local val = coroutine.yield()
+                local success = val._4
+                assert( success, "Back to sqlite school sucker." )
+                local outRow = val._3
+                local split = string.split(outRow,"|")
+                local case = tonumber(split[1])
+                local fileName = split[2]
+                local fileSize = tonumber(split[3])
+                local hash = split[4]
+                if (case == 1) then
+                    messageBoxWParent(
+                        "Invalid move",
+                        "File with such name already"
+                        .. " exists under that directory.",
+                        mainWnd
+                    )
+                    loadCurrentRoutine()
+                elseif (case == 2) then
+                    messageBoxWParent(
+                        "Invalid move",
+                        "File cannot be moved under"
+                        .. " this directory.",
+                        mainWnd
+                    )
+                    loadCurrentRoutine()
+                elseif (case == 0) then
+                    local updateQuery = sqlMoveFileStatement(toMoveWhole,currentDirIdWhole)
+
+                    ctx:messageAsync(
+                        asyncSqlite,
+                        VSig("ASQL_Execute"),
+                        VString(updateQuery)
+                    )
+                    ctx:message(
+                        mainWnd,
+                        VSig("MWI_InAddNewFileInCurrent"),
+                        VInt(toMove),
+                        VInt(currentDirId),
+                        VString(fileName),
+                        VDouble(fileSize),
+                        VString(hash)
+                    )
+                    ctx:message(
+                        mainWnd,
+                        VSig("MWI_InDeleteSelectedDir"),
+                        VInt(1)
+                    )
+                    loadCurrentRoutine()
+                    updateRevision()
+                else
+                    assert( false, "Huh?!?" )
+                end
                 return
             end
 
@@ -1530,7 +1531,7 @@ initAll = function()
                 return
             end
             loadCurrentRoutine()
-        end,"MWI_OutDirChangedSignal","int"),
+        end),"MWI_OutDirChangedSignal","int"),
         VMatch(function()
             local dlFactory = ctx:namedMessageable("dlSessionFactory")
             local dialogService = ctx:namedMessageable("dialogService")

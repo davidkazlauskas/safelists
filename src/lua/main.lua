@@ -1485,49 +1485,49 @@ initAll = function()
 
                 ctx:messageAsyncWCallback(
                     asyncSqlite,
-                    function(outres)
-                        local table = outres:values()
-                        local value = table._3
-                        local success = table._4
-                        --assert( success, "Great success failed..." )
-                        print("val|" .. value .. "|")
-                        if (value == 0) then
-                            ctx:messageAsync(asyncSqlite,
-                                VSig("ASQL_OutAffected"),
-                                VString(sqlMoveDirStatement(currentDirToMoveIdWhole,inIdWhole)),
-                                VInt(-1))
-                            currentDirToMoveId = -1
-                            ctx:message(mainWnd,
-                                VSig("MWI_InMoveChildUnderParent"),
-                                VInt(-1))
-                            updateRevision()
-                            loadCurrentRoutine()
-                        elseif (value == 1) then
-                            messageBox(
-                                "Cannot move!",
-                                "Directory to move cannot be a parent"
-                                .. " of directory to move under."
-                            )
-                        elseif (value == 2) then
-                            messageBoxWParent(
-                                "Cannot move!",
-                                "Parent directory already"
-                                .. " has directory with such name.",
-                                mainWnd)
-                        elseif (value == 3) then
-                            messageBox(
-                                "Cannot move!",
-                                "Directory is already under"
-                                .. " this parent."
-                            )
-                        else
-                            assert( false, "Should not happen cholo..." )
-                        end
-                    end,
+                    resumerCallbackValues(thisCorout),
                     VSig("ASQL_OutSingleNum"),
                     VString(condition),
                     VInt(-1),
                     VBool(false))
+
+                local table = coroutine.yield()
+                local value = table._3
+                local success = table._4
+                --assert( success, "Great success failed..." )
+                print("val|" .. value .. "|")
+                if (value == 0) then
+                    ctx:messageAsync(asyncSqlite,
+                        VSig("ASQL_OutAffected"),
+                        VString(sqlMoveDirStatement(currentDirToMoveIdWhole,inIdWhole)),
+                        VInt(-1))
+                    currentDirToMoveId = -1
+                    ctx:message(mainWnd,
+                        VSig("MWI_InMoveChildUnderParent"),
+                        VInt(-1))
+                    updateRevision()
+                    loadCurrentRoutine()
+                elseif (value == 1) then
+                    messageBox(
+                        "Cannot move!",
+                        "Directory to move cannot be a parent"
+                        .. " of directory to move under."
+                    )
+                elseif (value == 2) then
+                    messageBoxWParent(
+                        "Cannot move!",
+                        "Parent directory already"
+                        .. " has directory with such name.",
+                        mainWnd)
+                elseif (value == 3) then
+                    messageBox(
+                        "Cannot move!",
+                        "Directory is already under"
+                        .. " this parent."
+                    )
+                else
+                    assert( false, "Should not happen cholo..." )
+                end
                 return
             end
             loadCurrentRoutine()

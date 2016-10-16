@@ -1828,10 +1828,12 @@ initAll = function()
         end,"MWI_OutOpenSafelistButtonClicked"),
         VMatch(function()
             local dialogService = ctx:namedMessageable("dialogService")
-            local afterPath = function(outPath)
+            local afterPath = instrument(function(outPath)
                 if (outPath == "") then
                     return
                 end
+
+                local thisCorout = coroutine.running()
 
                 if (not string.ends(string.lower(outPath),".safelist")) then
                     outPath = outPath .. ".safelist"
@@ -1867,61 +1869,61 @@ initAll = function()
 
                 ctx:messageAsyncWCallback(
                     writer,
-                    function(out)
-                        local tbl = out:values()
-                        local exists = tbl._3
-                        if (not exists) then
-                            ifContinue()
-                        else
-                            local dialogService =
-                                ctx:namedMessageable("dialogService")
-
-                            local afterAnswer = function(response)
-
-                                if (response == 0) then
-                                    ctx:messageAsyncWCallback(
-                                        writer,
-                                        ifContinue,
-                                        VSig("RFW_DeleteFile"),
-                                        VString(outPath)
-                                    )
-                                elseif (response == 1 or response == -1) then
-                                    noSafelistState()
-                                else
-                                    assert( false, "Wrong neighbourhood, milky." )
-                                    noSafelistState()
-                                end
-
-                            end
-
-                            local nId = objRetainer:newId()
-
-                            local handler = ctx:makeLuaMatchHandler(
-                                VMatch(function(natPack,val)
-                                    local outPath = val:values()._2
-                                    afterAnswer(outPath)
-                                    objRetainer:release(nId)
-                                end,"GDS_OutNotifyAnswer","int")
-                            )
-
-                            objRetainer:retain(nId,handler)
-
-                            ctx:message(
-                                dialogService,
-                                VSig("GDS_OkCancelDialog"),
-                                VMsg(mainWnd),
-                                VString("Safelist exists"),
-                                VString("Safelist already exists."
-                                .. " Overwrite it? (data will be lost)"),
-                                VMsg(handler)
-                            )
-                        end
-                    end,
+                    resumerCallbackValues(thisCorout),
                     VSig("RFW_DoesFileExist"),
                     VString(outPath),
                     VBool(false)
                 )
-            end
+
+                local tbl = coroutine.yield()
+                local exists = tbl._3
+                if (not exists) then
+                    ifContinue()
+                else
+                    local dialogService =
+                        ctx:namedMessageable("dialogService")
+
+                    local afterAnswer = function(response)
+
+                        if (response == 0) then
+                            ctx:messageAsyncWCallback(
+                                writer,
+                                ifContinue,
+                                VSig("RFW_DeleteFile"),
+                                VString(outPath)
+                            )
+                        elseif (response == 1 or response == -1) then
+                            noSafelistState()
+                        else
+                            assert( false, "Wrong neighbourhood, milky." )
+                            noSafelistState()
+                        end
+
+                    end
+
+                    local nId = objRetainer:newId()
+
+                    local handler = ctx:makeLuaMatchHandler(
+                        VMatch(function(natPack,val)
+                            local outPath = val:values()._2
+                            afterAnswer(outPath)
+                            objRetainer:release(nId)
+                        end,"GDS_OutNotifyAnswer","int")
+                    )
+
+                    objRetainer:retain(nId,handler)
+
+                    ctx:message(
+                        dialogService,
+                        VSig("GDS_OkCancelDialog"),
+                        VMsg(mainWnd),
+                        VString("Safelist exists"),
+                        VString("Safelist already exists."
+                        .. " Overwrite it? (data will be lost)"),
+                        VMsg(handler)
+                    )
+                end
+            end)
 
             local nId = objRetainer:newId()
 

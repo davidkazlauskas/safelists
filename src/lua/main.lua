@@ -121,7 +121,9 @@ sessionWidget = nil
 DomainGlobals = {
     currentAsyncSqlite = nil,
     shouldMoveDir = false,
-    shouldMoveFile = false
+    shouldMoveFile = false,
+    ctx = nil,
+    mainWnd = nil
 }
 
 DomainFunctions = {
@@ -304,6 +306,9 @@ initAll = function()
     local genMainWnd = GenericWidget.putOn(mainWnd)
     local globConsts = ctx:namedMessageable("globalConsts")
     local writer = ctx:namedMessageable("randomFileWriter")
+
+    DomainGlobals.ctx = ctx
+    DomainGlobals.mainWnd = mainWnd
 
     local quitApplication = function()
         ctx:message(

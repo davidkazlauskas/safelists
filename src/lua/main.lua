@@ -746,7 +746,8 @@ initAll = function()
         return true
     end
 
-    local newFileDialog = function(funcSuccess)
+    local newFileDialog = instrument(function(funcSuccess)
+        local thisCorout = coroutine.running()
         local dialogService = ctx:namedMessageable("dialogService")
 
         local dialog = ctx:messageRetValues(
@@ -778,7 +779,34 @@ initAll = function()
 
         local newId = objRetainer:newId()
         local handler = ctx:makeLuaMatchHandler(
-            VMatch(function(natpack,val)
+            VMatch(resumerCallbackWBranch("answer", thisCorout),
+                "INDLG_OutGenSignalEmitted","int"),
+            VMatch(resumerCallbackWBranch("exited", thisCorout),
+                "INDLG_OutDialogExited")
+        )
+
+        objRetainer:retain(newId,handler)
+
+        ctx:message(
+            dialog,
+            VSig("INDLG_InSetNotifier"),
+            VMsg(handler)
+        )
+        ctx:message(
+            dialog,
+            VSig("INDLG_InAlwaysAbove")
+        )
+
+        ctx:message(
+            dialog,
+            VSig("INDLG_InShowDialog")
+        )
+
+        while true do
+            -- nap: wait for response of the dialog
+            local outBranch, _, val = coroutine.yield()
+
+            if (outBranch == "answer") then
                 local signal = val:values()._2
                 if (signal == hookedOk) then
                     print("ok clicked")
@@ -805,7 +833,9 @@ initAll = function()
                     outResult.size = queryInput("fileSizeInp")
                     outResult.hash = queryInput("fileHashInp")
 
-                    funcSuccess(outResult,dialog)
+                    if funcSuccess(outResult,dialog) then
+                        objRetainer:release(newId)
+                    end
                 elseif (signal == hookedCancel) then
                     print("Cancel clicked")
                     hideDlg()
@@ -813,30 +843,14 @@ initAll = function()
                 else
                     assert( false, "No such signal? " .. signal )
                 end
-            end,"INDLG_OutGenSignalEmitted","int"),
-            VMatch(function()
+            elseif (outBranch == "exited") then
                 print("Exit vanilla")
                 objRetainer:release(newId)
-            end,"INDLG_OutDialogExited")
-        )
-
-        objRetainer:retain(newId,handler)
-
-        ctx:message(
-            dialog,
-            VSig("INDLG_InSetNotifier"),
-            VMsg(handler)
-        )
-        ctx:message(
-            dialog,
-            VSig("INDLG_InAlwaysAbove")
-        )
-
-        ctx:message(
-            dialog,
-            VSig("INDLG_InShowDialog")
-        )
-    end
+            else
+                assert(false, "lolwut?")
+            end
+        end
+    end)
 
     local modifyFileDialog = instrument(function(fileId,funcSuccess)
         local fileIdWhole = whole(fileId)

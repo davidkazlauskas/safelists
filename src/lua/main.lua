@@ -1073,8 +1073,8 @@ initAll = function()
             VSig("MWI_QueryCurrentFileParent"),VInt(-7))._2
     end
 
-    local addNewFileUnderCurrentDir = function(data,dialog)
-
+    local addNewFileUnderCurrentDir = instrument(function(data,dialog)
+        local thisCorout = coroutine.running()
         local currentEntityId = getCurrentEntityId()
         local currentDirIdWhole = whole(currentEntityId)
 
@@ -1108,79 +1108,83 @@ initAll = function()
         -- !! check first
         local condition = sqlCheckForForbiddenFileNames(currentDirIdWhole,data.name)
 
-        local onSuccess = function()
-            local statement =
-                sqlAddNewFileQuery(currentDirIdWhole,data.name,
-                    data.size,data.hash,data.mirrors)
-
-            ctx:messageAsyncWCallback(
-                asyncSqlite,
-                function()
-                    -- you know, I'd love a feature
-                    -- in sqlite to query something
-                    -- right after insert, that'd be great.
-                    local lastFileId = sqlFileIdSelect(currentDirIdWhole,data.name) .. ";"
-                    ctx:messageAsyncWCallback(
-                        asyncSqlite,
-                        function(val)
-                            local tbl = val:values()
-                            assert( tbl._4, "Aww, zigga nease..." )
-                            local theId = tbl._3
-                            ctx:message(
-                                mainWnd,
-                                VSig("MWI_InAddNewFileInCurrent"),
-                                VInt(theId),
-                                VInt(currentEntityId),
-                                VString(data.name),
-                                VDouble(tonumber(data.size)),
-                                VString(data.hash)
-                            )
-                            ctx:message(
-                                dialog,
-                                VSig("INDLG_InHideDialog")
-                            )
-                            updateRevision()
-                        end,
-                        VSig("ASQL_OutSingleNum"),
-                        VString(lastFileId),
-                        VInt(-1),
-                        VBool(false)
-                    )
-                end,
-                VSig("ASQL_Execute"),
-                VString(statement)
-            )
-        end
-
         ctx:messageAsyncWCallback(
             asyncSqlite,
-            function(outres)
-                local val = outres:values()
-                local success = val._4
-                assert( success, "YOU GET NOTHING, YOU LOSE" )
-                local case = val._3
-                if (case == 1) then
-                    inputFail( "File '" .. data.name .. "' already"
-                        .. " exists under current directory.")
-                    return
-                elseif (case == 2) then
-                    inputFail("Name '" .. data.name .. "' is forbidden.")
-                    return
-                end
-
-                if (case ~= 0) then
-                    assert( false, "Say what cholo?" )
-                    return
-                end
-
-                onSuccess()
-            end,
+            resumerCallbackValues(thisCorout),
             VSig("ASQL_OutSingleNum"),
             VString(condition),
             VInt(-1),
             VBool(false)
         )
-    end
+
+        local val = coroutine.yield()
+        local success = val._4
+        assert( success, "YOU GET NOTHING, YOU LOSE" )
+        local case = val._3
+        if (case == 1) then
+            inputFail( "File '" .. data.name .. "' already"
+                .. " exists under current directory.")
+            return false
+        elseif (case == 2) then
+            inputFail("Name '" .. data.name .. "' is forbidden.")
+            return false
+        end
+
+        if (case ~= 0) then
+            assert( false, "Say what cholo?" )
+            return false
+        end
+
+        -- db validation succeeded
+        local statement =
+            sqlAddNewFileQuery(currentDirIdWhole,data.name,
+                data.size,data.hash,data.mirrors)
+
+        ctx:messageAsyncWCallback(
+            asyncSqlite,
+            -- you know, I'd love a feature
+            -- in sqlite to query something
+            -- right after insert, that'd be great.
+            resumerCallbackValues(thisCorout),
+            VSig("ASQL_Execute"),
+            VString(statement)
+        )
+
+        -- nap: just wait for execution, no values returned
+        coroutine.yield()
+
+        local lastFileId = sqlFileIdSelect(currentDirIdWhole,data.name) .. ";"
+        ctx:messageAsyncWCallback(
+            asyncSqlite,
+            resumerCallbackValues(thisCorout),
+            VSig("ASQL_OutSingleNum"),
+            VString(lastFileId),
+            VInt(-1),
+            VBool(false)
+        )
+
+        -- nap: end, we got file id, not update it
+        local tbl = coroutine.yield()
+        assert( tbl._4, "Aww, zigga nease..." )
+        local theId = tbl._3
+        ctx:message(
+            mainWnd,
+            VSig("MWI_InAddNewFileInCurrent"),
+            VInt(theId),
+            VInt(currentEntityId),
+            VString(data.name),
+            VDouble(tonumber(data.size)),
+            VString(data.hash)
+        )
+        ctx:message(
+            dialog,
+            VSig("INDLG_InHideDialog")
+        )
+        updateRevision()
+
+        -- TODO: how to reflect db failures to dialog?
+        return true
+    end)
 
     local updateFileFromDiff = function(fileId,currentDirId,diffTable,orig,dialog)
         -- diffTable:

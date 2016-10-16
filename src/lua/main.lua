@@ -901,49 +901,10 @@ initAll = function()
 
         local newId = objRetainer:newId()
         local handler = ctx:makeLuaMatchHandler(
-            VMatch(function(natpack,val)
-                local signal = val:values()._2
-                if (signal == hookedOk) then
-
-                    local queryInput = function(value)
-                        return ctx:messageRetValues(
-                            dialog,
-                            VSig("INDLG_QueryInput"),
-                            VString(value),
-                            VString(""))._3
-                    end
-
-                    local diffAssign = function(field,prev,inpField)
-                        local current = queryInput(inpField)
-                        if (prev ~= current) then
-                            outResult[field] = current
-                        end
-                    end
-
-                    local mirrTrimmed = trimMirrors(queryInput("mirrorsTextView"))
-
-                    outResult.finished = true
-                    diffAssign("name",original.name,"fileNameInp")
-                    diffAssign("size",original.size,"fileSizeInp")
-                    diffAssign("hash",original.hash,"fileHashInp")
-
-                    if (mirrTrimmed ~= original.mirrors) then
-                        outResult.mirrors = mirrTrimmed
-                    end
-
-                    funcSuccess(outResult,original,dialog)
-                elseif (signal == hookedCancel) then
-                    print("Cancel clicked")
-                    hideDlg()
-                    objRetainer:release(newId)
-                else
-                    assert( false, "No such signal? " .. signal )
-                end
-            end,"INDLG_OutGenSignalEmitted","int"),
-            VMatch(function()
-                print("Exit vanilla")
-                objRetainer:release(newId)
-            end,"INDLG_OutDialogExited")
+            VMatch(resumerCallbackWBranch("answer", thisCorout),
+                "INDLG_OutGenSignalEmitted","int"),
+            VMatch(resumerCallbackWBranch("exited", thisCorout),
+                "INDLG_OutDialogExited")
         )
 
         objRetainer:retain(newId,handler)
@@ -1028,6 +989,54 @@ initAll = function()
             dialog,
             VSig("INDLG_InShowDialog")
         )
+
+        -- nap: wait for response of the dialog
+        local outBranch, _, val = coroutine.yield()
+
+        if (outBranch == "answer") then
+            local signal = val:values()._2
+            if (signal == hookedOk) then
+
+                local queryInput = function(value)
+                    return ctx:messageRetValues(
+                        dialog,
+                        VSig("INDLG_QueryInput"),
+                        VString(value),
+                        VString(""))._3
+                end
+
+                local diffAssign = function(field,prev,inpField)
+                    local current = queryInput(inpField)
+                    if (prev ~= current) then
+                        outResult[field] = current
+                    end
+                end
+
+                local mirrTrimmed = trimMirrors(queryInput("mirrorsTextView"))
+
+                outResult.finished = true
+                diffAssign("name",original.name,"fileNameInp")
+                diffAssign("size",original.size,"fileSizeInp")
+                diffAssign("hash",original.hash,"fileHashInp")
+
+                if (mirrTrimmed ~= original.mirrors) then
+                    outResult.mirrors = mirrTrimmed
+                end
+
+                funcSuccess(outResult,original,dialog)
+            elseif (signal == hookedCancel) then
+                print("Cancel clicked")
+                hideDlg()
+                objRetainer:release(newId)
+            else
+                assert( false, "No such signal? " .. signal )
+            end
+        elseif (outBranch == "exited") then
+            print("Exit vanilla")
+            objRetainer:release(newId)
+        else
+            assert(false, "lolwut?")
+        end
     end)
 
 

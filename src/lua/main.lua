@@ -2296,6 +2296,7 @@ initAll = function()
                                     end
 
                                     -- great success, form validation passed
+                                    -- TODO: how to prolong file dialog?
                                     addNewFileUnderCurrentDir(result,dialog)
                                     return true
                                 end

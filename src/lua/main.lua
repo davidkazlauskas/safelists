@@ -1105,7 +1105,7 @@ initAll = function()
                     -- you know, I'd love a feature
                     -- in sqlite to query something
                     -- right after insert, that'd be great.
-                    local lastFileId = currentFileIdSelect .. ";"
+                    local lastFileId = sqlFileIdSelect(currentDirIdWhole,data.name) .. ";"
                     ctx:messageAsyncWCallback(
                         asyncSqlite,
                         function(val)

@@ -117,7 +117,10 @@ currentSessions = {}
 
 revealDownloads = false
 sessionWidget = nil
-currentAsyncSqlite = nil
+
+DomainGlobals = {
+    currentAsyncSqlite = nil
+}
 
 FrameEndFunctions = {}
 OneOffFunctions = {}
@@ -524,7 +527,7 @@ initAll = function()
 
         local thisCorout = coroutine.running()
 
-        local sess = currentAsyncSqlite
+        local sess = DomainGlobals.currentAsyncSqlite
         assert( nil ~= sess, "Sess is null for revision read..." )
 
         ctx:messageAsyncWCallback(sess,
@@ -908,7 +911,7 @@ initAll = function()
 
         -- lookup actual data
         local query = sqlGetMirrorUsesForFile(fileIdWhole)
-        local asyncSqlite = currentAsyncSqlite
+        local asyncSqlite = DomainGlobals.currentAsyncSqlite
 
         ctx:messageAsyncWCallback(
             asyncSqlite,
@@ -1057,7 +1060,7 @@ initAll = function()
         local currentEntityId = getCurrentEntityId()
         local currentDirIdWhole = whole(currentEntityId)
 
-        local asyncSqlite = currentAsyncSqlite
+        local asyncSqlite = DomainGlobals.currentAsyncSqlite
         assert(not messageablesEqual(VMsgNil(),asyncSqlite),
             "No async sqlite." )
 
@@ -1198,7 +1201,7 @@ initAll = function()
             return
         end
 
-        local asyncSqlite = currentAsyncSqlite
+        local asyncSqlite = DomainGlobals.currentAsyncSqlite
 
         local updateFunction = function()
             local outString = sqlUpdateFileQuery(fileIdWhole,diffTable.name,
@@ -1326,7 +1329,7 @@ initAll = function()
         end,"GWI_GBT_OutClickEvent","int"),
         VMatch(function()
             local mainModel = ctx:namedMessageable("mainModel")
-            local asyncSqlite = currentAsyncSqlite
+            local asyncSqlite = DomainGlobals.currentAsyncSqlite
             if (messageablesEqual(VMsgNil(),asyncSqlite)) then
                 return
             end
@@ -1342,7 +1345,7 @@ initAll = function()
 
             local loadCurrentRoutine = function()
                 local mainModel = ctx:namedMessageable("mainModel")
-                local asyncSqlite = currentAsyncSqlite
+                local asyncSqlite = DomainGlobals.currentAsyncSqlite
                 if (messageablesEqual(VMsgNil(),asyncSqlite)) then
                     return
                 end
@@ -1363,7 +1366,7 @@ initAll = function()
                 setStatus(ctx,mainWnd,"")
                 local toMove = fileToMove
                 local toMoveWhole = whole(toMove)
-                local asyncSqlite = currentAsyncSqlite
+                local asyncSqlite = DomainGlobals.currentAsyncSqlite
                 assert( not messageablesEqual(VMsgNil(),asyncSqlite),
                     "Huh cholo?" )
 
@@ -1453,7 +1456,7 @@ initAll = function()
                 local inIdWhole = whole(inId)
                 local currentDirToMoveIdWhole = whole(currentDirToMoveId)
 
-                local asyncSqlite = currentAsyncSqlite
+                local asyncSqlite = DomainGlobals.currentAsyncSqlite
                 if (messageablesEqual(VMsgNil(),asyncSqlite)) then
                     return
                 end
@@ -1514,7 +1517,7 @@ initAll = function()
         VMatch(function()
             local dlFactory = ctx:namedMessageable("dlSessionFactory")
             local dialogService = ctx:namedMessageable("dialogService")
-            local asyncSqlite = currentAsyncSqlite
+            local asyncSqlite = DomainGlobals.currentAsyncSqlite
             if (messageablesEqual(VMsgNil(),asyncSqlite)) then
                 assert( false, "Didn't expect download request" ..
                     " with null safelist.")
@@ -1756,19 +1759,19 @@ initAll = function()
                     local openNew = function()
                         local mainModel = ctx:namedMessageable("mainModel")
 
-                        currentAsyncSqlite = newAsqlite(outPath)
+                        DomainGlobals.currentAsyncSqlite = newAsqlite(outPath)
 
                         ctx:message(mainModel,
                             VSig("MMI_InLoadFolderTree"),
-                            VMsg(currentAsyncSqlite),VMsg(mainWnd))
+                            VMsg(DomainGlobals.currentAsyncSqlite),VMsg(mainWnd))
                         onSafelistState()
                         updateRevision()
                     end
 
-                    local asql = currentAsyncSqlite
+                    local asql = DomainGlobals.currentAsyncSqlite
                     if (nil ~= asql) then
                         ctx:messageAsyncWCallback(
-                            currentAsyncSqlite,
+                            DomainGlobals.currentAsyncSqlite,
                             function()
                                 openNew()
                             end,
@@ -1822,8 +1825,8 @@ initAll = function()
                     local openNew = function()
                         local mainModel = ctx:namedMessageable("mainModel")
 
-                        currentAsyncSqlite = newSafelist(outPath)
-                        local new = currentAsyncSqlite
+                        DomainGlobals.currentAsyncSqlite = newSafelist(outPath)
+                        local new = DomainGlobals.currentAsyncSqlite
                         resetVarsForSafelist()
                         ctx:message(mainModel,
                             VSig("MMI_InLoadFolderTree"),
@@ -1832,7 +1835,7 @@ initAll = function()
                         onSafelistState()
                     end
 
-                    local prev = currentAsyncSqlite
+                    local prev = DomainGlobals.currentAsyncSqlite
                     if (nil ~= prev) then
                         ctx:messageAsyncWCallback(
                             prev,
@@ -2072,7 +2075,7 @@ initAll = function()
                                     setStatus(ctx,mainWnd,"Root cannot be deleted.")
                                     return
                                 end
-                                local asyncSqlite = currentAsyncSqlite
+                                local asyncSqlite = DomainGlobals.currentAsyncSqlite
                                 if (messageablesEqual(VMsgNil(),asyncSqlite)) then
                                     return
                                 end
@@ -2126,7 +2129,7 @@ initAll = function()
 
                                     local wholeDir = whole(dirId)
 
-                                    local asyncSqlite = currentAsyncSqlite
+                                    local asyncSqlite = DomainGlobals.currentAsyncSqlite
                                     if (messageablesEqual(VMsgNil(),asyncSqlite)) then
                                         return
                                     end
@@ -2212,7 +2215,7 @@ initAll = function()
 
                                     setDlgErr("")
 
-                                    local asyncSqlite = currentAsyncSqlite
+                                    local asyncSqlite = DomainGlobals.currentAsyncSqlite
                                     if (messageablesEqual(VMsgNil(),asyncSqlite)) then
                                         return
                                     end
@@ -2312,7 +2315,7 @@ initAll = function()
                             -- we wouldn't see this menu
                             -- TODO: ask if really want to delete
                             if (currentFileId ~= -1) then
-                                local asyncSqlite = currentAsyncSqlite
+                                local asyncSqlite = DomainGlobals.currentAsyncSqlite
                                 if (messageablesEqual(VMsgNil(),asyncSqlite)) then
                                     return
                                 end

@@ -120,6 +120,8 @@ sessionWidget = nil
 
 DomainGlobals = {
     currentAsyncSqlite = nil
+    shouldMoveDir = false
+    shouldMoveFile = false
 }
 
 FrameEndFunctions = {}
@@ -1351,8 +1353,8 @@ initAll = function()
                 end
             end
 
-            if (currentDirId > 0 and shouldMoveFile == true) then
-                shouldMoveFile = false
+            if (currentDirId > 0 and DomainGlobal.shouldMoveFile == true) then
+                DomainGlobal.shouldMoveFile = false
 
                 local _, isDir = getCurrentEntityId()
                 if (not isDir) then
@@ -1436,8 +1438,8 @@ initAll = function()
                 return
             end
 
-            if (currentDirToMoveId > 0 and shouldMoveDir == true) then
-                shouldMoveDir = false
+            if (currentDirToMoveId > 0 and DomainGlobal.shouldMoveDir == true) then
+                DomainGlobal.shouldMoveDir = false
 
                 ctx:message(mainWnd,VSig("MWI_InSetStatusText"),VString(""))
                 if (inId == currentDirToMoveId) then
@@ -2065,7 +2067,7 @@ initAll = function()
                                 ctx:message(mainWnd,
                                     VSig("MWI_InSetStatusText"),
                                     VString("Press on node under which to move"))
-                                shouldMoveDir = true
+                                DomainGlobal.shouldMoveDir = true
                             end
                         end),
                         arrayBranch("Delete directory",function()
@@ -2307,7 +2309,7 @@ initAll = function()
                         arrayBranch("Move file",function()
                             setStatus(ctx,mainWnd,"Select folder to move file to.")
                             fileToMove = currentEntityId
-                            shouldMoveFile = true
+                            DomainGlobal.shouldMoveFile = true
                         end),
                         arrayBranch("Delete file",function()
                             local currentFileId = getCurrentEntityId()

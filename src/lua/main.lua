@@ -851,10 +851,6 @@ initAll = function()
         -- mirrors - the mirror string
         -- size - file size (no by default)
         -- hash - hash (no by default)
-        local outResult = {
-            finished = false
-        }
-
         local original = {
             finished = false
         }
@@ -990,52 +986,66 @@ initAll = function()
             VSig("INDLG_InShowDialog")
         )
 
-        -- nap: wait for response of the dialog
-        local outBranch, _, val = coroutine.yield()
+        while true do
+            -- nap: wait for response of the dialog
+            local outBranch, _, val = coroutine.yield()
 
-        if (outBranch == "answer") then
-            local signal = val:values()._2
-            if (signal == hookedOk) then
+            if (outBranch == "answer") then
+                local signal = val:values()._2
+                if (signal == hookedOk) then
 
-                local queryInput = function(value)
-                    return ctx:messageRetValues(
-                        dialog,
-                        VSig("INDLG_QueryInput"),
-                        VString(value),
-                        VString(""))._3
-                end
-
-                local diffAssign = function(field,prev,inpField)
-                    local current = queryInput(inpField)
-                    if (prev ~= current) then
-                        outResult[field] = current
+                    local queryInput = function(value)
+                        return ctx:messageRetValues(
+                            dialog,
+                            VSig("INDLG_QueryInput"),
+                            VString(value),
+                            VString(""))._3
                     end
+
+                    local outResult = {
+                        finished = false
+                    }
+
+                    local diffAssign = function(field,prev,inpField)
+                        local current = queryInput(inpField)
+                        if (prev ~= current) then
+                            outResult[field] = current
+                        end
+                    end
+
+                    local mirrTrimmed = trimMirrors(queryInput("mirrorsTextView"))
+
+                    outResult.finished = true
+                    diffAssign("name",original.name,"fileNameInp")
+                    diffAssign("size",original.size,"fileSizeInp")
+                    diffAssign("hash",original.hash,"fileHashInp")
+
+                    if (mirrTrimmed ~= original.mirrors) then
+                        outResult.mirrors = mirrTrimmed
+                    end
+
+                    if funcSuccess(outResult,original,dialog) then
+                        print("success, returned")
+                        objRetainer:release(newId)
+                        return
+                    else
+                        print("Fail, repeating")
+                    end
+                elseif (signal == hookedCancel) then
+                    print("Cancel clicked")
+                    hideDlg()
+                    objRetainer:release(newId)
+                    print("fail, returned")
+                    return
+                else
+                    assert( false, "No such signal? " .. signal )
                 end
-
-                local mirrTrimmed = trimMirrors(queryInput("mirrorsTextView"))
-
-                outResult.finished = true
-                diffAssign("name",original.name,"fileNameInp")
-                diffAssign("size",original.size,"fileSizeInp")
-                diffAssign("hash",original.hash,"fileHashInp")
-
-                if (mirrTrimmed ~= original.mirrors) then
-                    outResult.mirrors = mirrTrimmed
-                end
-
-                funcSuccess(outResult,original,dialog)
-            elseif (signal == hookedCancel) then
-                print("Cancel clicked")
-                hideDlg()
+            elseif (outBranch == "exited") then
+                print("Exit vanilla")
                 objRetainer:release(newId)
             else
-                assert( false, "No such signal? " .. signal )
+                assert(false, "lolwut?")
             end
-        elseif (outBranch == "exited") then
-            print("Exit vanilla")
-            objRetainer:release(newId)
-        else
-            assert(false, "lolwut?")
         end
     end)
 
@@ -2266,11 +2276,12 @@ initAll = function()
                                     local firstValidation =
                                         validateNewFileDialogFirst(result,dialog)
                                     if (not firstValidation) then
-                                        return
+                                        return false
                                     end
 
                                     -- great success, form validation passed
                                     addNewFileUnderCurrentDir(result,dialog)
+                                    return true
                                 end
                             )
                         end),
@@ -2282,10 +2293,11 @@ initAll = function()
                                     local firstValidation =
                                         validateNewFileDialogFirst(result,dialog)
                                     if (not firstValidation) then
-                                        return
+                                        return false
                                     end
 
                                     updateFileFromDiff(currentEntityId,dirId,result,orig,dialog)
+                                    return true
                                 end
                             )
                         end),

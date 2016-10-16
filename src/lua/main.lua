@@ -119,9 +119,13 @@ revealDownloads = false
 sessionWidget = nil
 
 DomainGlobals = {
-    currentAsyncSqlite = nil
-    shouldMoveDir = false
+    currentAsyncSqlite = nil,
+    shouldMoveDir = false,
     shouldMoveFile = false
+}
+
+DomainFunctions = {
+    updateRevision = nil
 }
 
 FrameEndFunctions = {}
@@ -511,7 +515,7 @@ initAll = function()
         )
     end
 
-    local updateRevision = function()
+    DomainFunctions.updateRevision = function()
         HashRevisionModel.hashRevisionUpdate =
             HashRevisionModel.hashRevisionUpdate + 1
         FrameEndFunctions[2]()
@@ -1164,7 +1168,7 @@ initAll = function()
             dialog,
             VSig("INDLG_InHideDialog")
         )
-        updateRevision()
+        DomainFunctions.updateRevision()
 
         -- TODO: how to reflect db failures to dialog?
         return true
@@ -1231,7 +1235,7 @@ initAll = function()
                 VString(merged.hash)
             )
             hideDlg()
-            updateRevision()
+            DomainFunctions.updateRevision()
         end
 
         local inputFail = function(message)
@@ -1431,7 +1435,7 @@ initAll = function()
                         VInt(1)
                     )
                     loadCurrentRoutine()
-                    updateRevision()
+                    DomainFunctions.updateRevision()
                 else
                     assert( false, "Huh?!?" )
                 end
@@ -1489,7 +1493,7 @@ initAll = function()
                     ctx:message(mainWnd,
                         VSig("MWI_InMoveChildUnderParent"),
                         VInt(-1))
-                    updateRevision()
+                    DomainFunctions.updateRevision()
                     loadCurrentRoutine()
                 elseif (value == 1) then
                     messageBox(
@@ -1657,7 +1661,7 @@ initAll = function()
                                 VSig("ASQL_Execute"),
                                 VString(sqlUpdateFileHashStatement(idWhole,hash))
                             )
-                            updateRevision()
+                            DomainFunctions.updateRevision()
                         end
                     end),"SLD_OutHashUpdate","int","string"),
                     VMatch(function(natPack,out)
@@ -1675,7 +1679,7 @@ initAll = function()
                             VSig("ASQL_Execute"),
                             VString(sqlUpdateFileSizeStatement(idWhole,newSize))
                         )
-                        updateRevision()
+                        DomainFunctions.updateRevision()
                     end,"SLD_OutSizeUpdate","int","double"),
                     VMatch(function(natPack,out)
                         local val = out:values()
@@ -1767,7 +1771,7 @@ initAll = function()
                             VSig("MMI_InLoadFolderTree"),
                             VMsg(DomainGlobals.currentAsyncSqlite),VMsg(mainWnd))
                         onSafelistState()
-                        updateRevision()
+                        DomainFunctions.updateRevision()
                     end
 
                     local asql = DomainGlobals.currentAsyncSqlite
@@ -1833,7 +1837,7 @@ initAll = function()
                         ctx:message(mainModel,
                             VSig("MMI_InLoadFolderTree"),
                             VMsg(new),VMsg(mainWnd))
-                        updateRevision()
+                        DomainFunctions.updateRevision()
                         onSafelistState()
                     end
 
@@ -2088,7 +2092,7 @@ initAll = function()
                                     VString(sqlDeleteDirectoryRecursively(wholeDir)))
                                 ctx:message(mainWnd,VSig("MWI_InDeleteSelectedDir"))
                                 currentDirId = -1
-                                updateRevision()
+                                DomainFunctions.updateRevision()
                             else
                                 setStatus(ctx,mainWnd,"No directory selected.")
                             end
@@ -2244,7 +2248,7 @@ initAll = function()
                                                     VInt(-1),
                                                     VBool(false)
                                                 )
-                                                updateRevision()
+                                                DomainFunctions.updateRevision()
                                             else
                                                 messageBox(
                                                     "Duplicate name!",
@@ -2325,7 +2329,7 @@ initAll = function()
                                     VSig("ASQL_Execute"),
                                     VString(sqlDeleteFile(whole(currentFileId))))
                                 ctx:message(mainWnd,VSig("MWI_InDeleteSelectedDir"))
-                                updateRevision()
+                                DomainFunctions.updateRevision()
                             else
                                 setStatus(ctx,mainWnd,"No directory selected.")
                             end

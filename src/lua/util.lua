@@ -124,3 +124,17 @@ function arraySwitch(value,table,...)
     end
 end
 
+-- make function callable as a coroutine
+function instrument(func)
+    return function(...)
+        local co = coroutine.create(func)
+        return co, coroutine.resume(co,table.unpack({...}))
+    end
+end
+
+-- TODO: we might need keys sometime?
+function resumerCallbackValues(corout)
+    return function(out)
+        coroutine.resume(corout,out:values())
+    end
+end

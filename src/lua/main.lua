@@ -533,7 +533,7 @@ initAll = function()
         FrameEndFunctions[2]()
     end
 
-    local updateRevisionGui = function()
+    local updateRevisionGui = instrument(function()
         if (HashRevisionModel.hashRevisionUpdate ==
             HashRevisionModel.hashRevisionDrawingUpdate)
         then
@@ -543,23 +543,30 @@ initAll = function()
         HashRevisionModel.hashRevisionDrawingUpdate =
             HashRevisionModel.hashRevisionUpdate
 
+        local thisCorout = coroutine.running()
+
         local sess = currentAsyncSqlite
         assert( nil ~= sess, "Sess is null for revision read..." )
+
         ctx:messageAsyncWCallback(sess,
-            function(out)
-                local values = out:values()
-                local succeeded = values._4
-                local outString = values._3
-                assert( succeeded, "Great success!" )
-                local split = outString:split("|")
-                local outRes = "Safelist revision: " .. split[1] ..
-                    ", last modification date: " .. split[2]
-                ctx:message(mainWnd,VSig("MWI_InSetWidgetText"),
-                    VString("safelistRevisionLabel"),VString(outRes))
-            end,
+            resumerCallbackValues(thisCorout),
             VSig("ASQL_OutSingleRow"),VString(sqlRevNumber()),
             VString("empty"),VBool(false))
-    end
+
+        -- nap time
+        local values = coroutine.yield()
+
+        local succeeded = values._4
+        local outString = values._3
+        assert( succeeded, "Great success!" )
+        local split = outString:split("|")
+        local outRes = "Safelist revision: " .. split[1] ..
+            ", last modification date: " .. split[2]
+
+        ctx:message(mainWnd,VSig("MWI_InSetWidgetText"),
+            VString("safelistRevisionLabel"),VString(outRes))
+
+        end)
 
     local setDownloadSpeedGui = function(string)
         ctx:message(

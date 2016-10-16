@@ -130,6 +130,9 @@ DomainFunctions = {
     updateRevision = nil
 }
 
+dg = DomainGlobals
+df = DomainFunctions
+
 FrameEndFunctions = {}
 OneOffFunctions = {}
 
@@ -307,8 +310,8 @@ initAll = function()
     local globConsts = ctx:namedMessageable("globalConsts")
     local writer = ctx:namedMessageable("randomFileWriter")
 
-    DomainGlobals.ctx = ctx
-    DomainGlobals.mainWnd = mainWnd
+    dg.ctx = ctx
+    dg.mainWnd = mainWnd
 
     local quitApplication = function()
         ctx:message(
@@ -520,7 +523,7 @@ initAll = function()
         )
     end
 
-    DomainFunctions.updateRevision = function()
+    df.updateRevision = function()
         HashRevisionModel.hashRevisionUpdate =
             HashRevisionModel.hashRevisionUpdate + 1
         FrameEndFunctions[2]()
@@ -538,7 +541,7 @@ initAll = function()
 
         local thisCorout = coroutine.running()
 
-        local sess = DomainGlobals.currentAsyncSqlite
+        local sess = dg.currentAsyncSqlite
         assert( nil ~= sess, "Sess is null for revision read..." )
 
         ctx:messageAsyncWCallback(sess,
@@ -922,7 +925,7 @@ initAll = function()
 
         -- lookup actual data
         local query = sqlGetMirrorUsesForFile(fileIdWhole)
-        local asyncSqlite = DomainGlobals.currentAsyncSqlite
+        local asyncSqlite = dg.currentAsyncSqlite
 
         ctx:messageAsyncWCallback(
             asyncSqlite,
@@ -1065,13 +1068,16 @@ initAll = function()
         return ctx:messageRetValues(mainWnd,
             VSig("MWI_QueryCurrentFileParent"),VInt(-7))._2
     end
+    -- export
+    df.getCurrentEntityId = getCurrentEntityId
+    df.getCurrentFileParent = getCurrentFileParent
 
     local addNewFileUnderCurrentDir = instrument(function(data,dialog)
         local thisCorout = coroutine.running()
         local currentEntityId = getCurrentEntityId()
         local currentDirIdWhole = whole(currentEntityId)
 
-        local asyncSqlite = DomainGlobals.currentAsyncSqlite
+        local asyncSqlite = dg.currentAsyncSqlite
         assert(not messageablesEqual(VMsgNil(),asyncSqlite),
             "No async sqlite." )
 
@@ -1173,7 +1179,7 @@ initAll = function()
             dialog,
             VSig("INDLG_InHideDialog")
         )
-        DomainFunctions.updateRevision()
+        df.updateRevision()
 
         -- TODO: how to reflect db failures to dialog?
         return true
@@ -1212,7 +1218,7 @@ initAll = function()
             return
         end
 
-        local asyncSqlite = DomainGlobals.currentAsyncSqlite
+        local asyncSqlite = dg.currentAsyncSqlite
 
         local updateFunction = function()
             local outString = sqlUpdateFileQuery(fileIdWhole,diffTable.name,
@@ -1240,7 +1246,7 @@ initAll = function()
                 VString(merged.hash)
             )
             hideDlg()
-            DomainFunctions.updateRevision()
+            df.updateRevision()
         end
 
         local inputFail = function(message)
@@ -1340,7 +1346,7 @@ initAll = function()
         end,"GWI_GBT_OutClickEvent","int"),
         VMatch(function()
             local mainModel = ctx:namedMessageable("mainModel")
-            local asyncSqlite = DomainGlobals.currentAsyncSqlite
+            local asyncSqlite = dg.currentAsyncSqlite
             if (messageablesEqual(VMsgNil(),asyncSqlite)) then
                 return
             end
@@ -1356,7 +1362,7 @@ initAll = function()
 
             local loadCurrentRoutine = function()
                 local mainModel = ctx:namedMessageable("mainModel")
-                local asyncSqlite = DomainGlobals.currentAsyncSqlite
+                local asyncSqlite = dg.currentAsyncSqlite
                 if (messageablesEqual(VMsgNil(),asyncSqlite)) then
                     return
                 end
@@ -1377,7 +1383,7 @@ initAll = function()
                 setStatus(ctx,mainWnd,"")
                 local toMove = fileToMove
                 local toMoveWhole = whole(toMove)
-                local asyncSqlite = DomainGlobals.currentAsyncSqlite
+                local asyncSqlite = dg.currentAsyncSqlite
                 assert( not messageablesEqual(VMsgNil(),asyncSqlite),
                     "Huh cholo?" )
 
@@ -1440,7 +1446,7 @@ initAll = function()
                         VInt(1)
                     )
                     loadCurrentRoutine()
-                    DomainFunctions.updateRevision()
+                    df.updateRevision()
                 else
                     assert( false, "Huh?!?" )
                 end
@@ -1467,7 +1473,7 @@ initAll = function()
                 local inIdWhole = whole(inId)
                 local currentDirToMoveIdWhole = whole(currentDirToMoveId)
 
-                local asyncSqlite = DomainGlobals.currentAsyncSqlite
+                local asyncSqlite = dg.currentAsyncSqlite
                 if (messageablesEqual(VMsgNil(),asyncSqlite)) then
                     return
                 end
@@ -1498,7 +1504,7 @@ initAll = function()
                     ctx:message(mainWnd,
                         VSig("MWI_InMoveChildUnderParent"),
                         VInt(-1))
-                    DomainFunctions.updateRevision()
+                    df.updateRevision()
                     loadCurrentRoutine()
                 elseif (value == 1) then
                     messageBox(
@@ -1528,7 +1534,7 @@ initAll = function()
         VMatch(function()
             local dlFactory = ctx:namedMessageable("dlSessionFactory")
             local dialogService = ctx:namedMessageable("dialogService")
-            local asyncSqlite = DomainGlobals.currentAsyncSqlite
+            local asyncSqlite = dg.currentAsyncSqlite
             if (messageablesEqual(VMsgNil(),asyncSqlite)) then
                 assert( false, "Didn't expect download request" ..
                     " with null safelist.")
@@ -1666,7 +1672,7 @@ initAll = function()
                                 VSig("ASQL_Execute"),
                                 VString(sqlUpdateFileHashStatement(idWhole,hash))
                             )
-                            DomainFunctions.updateRevision()
+                            df.updateRevision()
                         end
                     end),"SLD_OutHashUpdate","int","string"),
                     VMatch(function(natPack,out)
@@ -1684,7 +1690,7 @@ initAll = function()
                             VSig("ASQL_Execute"),
                             VString(sqlUpdateFileSizeStatement(idWhole,newSize))
                         )
-                        DomainFunctions.updateRevision()
+                        df.updateRevision()
                     end,"SLD_OutSizeUpdate","int","double"),
                     VMatch(function(natPack,out)
                         local val = out:values()
@@ -1770,19 +1776,19 @@ initAll = function()
                     local openNew = function()
                         local mainModel = ctx:namedMessageable("mainModel")
 
-                        DomainGlobals.currentAsyncSqlite = newAsqlite(outPath)
+                        dg.currentAsyncSqlite = newAsqlite(outPath)
 
                         ctx:message(mainModel,
                             VSig("MMI_InLoadFolderTree"),
-                            VMsg(DomainGlobals.currentAsyncSqlite),VMsg(mainWnd))
+                            VMsg(dg.currentAsyncSqlite),VMsg(mainWnd))
                         onSafelistState()
-                        DomainFunctions.updateRevision()
+                        df.updateRevision()
                     end
 
-                    local asql = DomainGlobals.currentAsyncSqlite
+                    local asql = dg.currentAsyncSqlite
                     if (nil ~= asql) then
                         ctx:messageAsyncWCallback(
-                            DomainGlobals.currentAsyncSqlite,
+                            dg.currentAsyncSqlite,
                             function()
                                 openNew()
                             end,
@@ -1836,17 +1842,17 @@ initAll = function()
                     local openNew = function()
                         local mainModel = ctx:namedMessageable("mainModel")
 
-                        DomainGlobals.currentAsyncSqlite = newSafelist(outPath)
-                        local new = DomainGlobals.currentAsyncSqlite
+                        dg.currentAsyncSqlite = newSafelist(outPath)
+                        local new = dg.currentAsyncSqlite
                         resetVarsForSafelist()
                         ctx:message(mainModel,
                             VSig("MMI_InLoadFolderTree"),
                             VMsg(new),VMsg(mainWnd))
-                        DomainFunctions.updateRevision()
+                        df.updateRevision()
                         onSafelistState()
                     end
 
-                    local prev = DomainGlobals.currentAsyncSqlite
+                    local prev = dg.currentAsyncSqlite
                     if (nil ~= prev) then
                         ctx:messageAsyncWCallback(
                             prev,

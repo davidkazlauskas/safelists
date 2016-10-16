@@ -840,9 +840,10 @@ initAll = function()
         )
     end
 
-    local modifyFileDialog = function(fileId,funcSuccess)
+    local modifyFileDialog = instrument(function(fileId,funcSuccess)
         local fileIdWhole = whole(fileId)
         local dialogService = ctx:namedMessageable("dialogService")
+        local thisCorout = coroutine.running()
 
         -- Return results:
         -- finished - did finish?
@@ -963,69 +964,71 @@ initAll = function()
 
         ctx:messageAsyncWCallback(
             asyncSqlite,
-            function(out)
-                local tbl = out:values()
-                local isOk = tbl._4
-                assert( isOk, "Your query failed, friendo" )
-                local outputRow = tbl._3
-
-                local splitRow = string.split(outputRow,"|")
-
-                local fileName = splitRow[1]
-                local fileSize = splitRow[2]
-                local fileHash = splitRow[3]
-                local totalUses = tonumber(splitRow[4])
-                local splitMirrors = string.split(splitRow[5],",")
-
-                if (fileSize == "-1") then
-                    fileSize = ""
-                end
-
-                local setInput = function(name,value)
-                    ctx:message(
-                        dialog,
-                        VSig("INDLG_InSetValue"),
-                        VString(name),
-                        VString(value)
-                    )
-                end
-
-                local concatMirrors = table.concat(splitMirrors,"\n")
-
-                original.name = fileName
-                original.size = fileSize
-                original.hash = fileHash
-                original.mirrors = concatMirrors
-
-                setInput("fileNameInp",fileName)
-                setInput("mirrorsTextView",concatMirrors)
-                setInput("fileSizeInp",fileSize)
-                setInput("fileHashInp",fileHash)
-
-                local hashAndSizeOff = totalUses > 0
-                if (hashAndSizeOff) then
-                    local offInput = function(name)
-                        ctx:message(dialog,
-                            VSig("INDLG_InSetControlEnabled"),
-                            VString(name),
-                            VBool(false))
-                    end
-
-                    offInput("fileSizeInp")
-                    offInput("fileHashInp")
-                end
-
-                ctx:message(
-                    dialog,
-                    VSig("INDLG_InShowDialog")
-                )
-            end,
+            resumerCallbackValues(thisCorout),
             VSig("ASQL_OutSingleRow"),
             VString(query),
             VString(""),
             VBool(false)
         )
-    end
+
+        -- nap: file modified dialog is finished
+        local tbl = coroutine.yield()
+
+        local isOk = tbl._4
+        assert( isOk, "Your query failed, friendo" )
+        local outputRow = tbl._3
+
+        local splitRow = string.split(outputRow,"|")
+
+        local fileName = splitRow[1]
+        local fileSize = splitRow[2]
+        local fileHash = splitRow[3]
+        local totalUses = tonumber(splitRow[4])
+        local splitMirrors = string.split(splitRow[5],",")
+
+        if (fileSize == "-1") then
+            fileSize = ""
+        end
+
+        local setInput = function(name,value)
+            ctx:message(
+                dialog,
+                VSig("INDLG_InSetValue"),
+                VString(name),
+                VString(value)
+            )
+        end
+
+        local concatMirrors = table.concat(splitMirrors,"\n")
+
+        original.name = fileName
+        original.size = fileSize
+        original.hash = fileHash
+        original.mirrors = concatMirrors
+
+        setInput("fileNameInp",fileName)
+        setInput("mirrorsTextView",concatMirrors)
+        setInput("fileSizeInp",fileSize)
+        setInput("fileHashInp",fileHash)
+
+        local hashAndSizeOff = totalUses > 0
+        if (hashAndSizeOff) then
+            local offInput = function(name)
+                ctx:message(dialog,
+                    VSig("INDLG_InSetControlEnabled"),
+                    VString(name),
+                    VBool(false))
+            end
+
+            offInput("fileSizeInp")
+            offInput("fileHashInp")
+        end
+
+        ctx:message(
+            dialog,
+            VSig("INDLG_InShowDialog")
+        )
+    end)
 
 
     local getCurrentEntityId = function()

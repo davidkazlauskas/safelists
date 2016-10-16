@@ -41,6 +41,13 @@ function sqlCheckForForbiddenFileNamesUpdate(dirId,fileId,fileName)
            .. " END;"
 end
 
+function sqlFileIdSelect(dirId,fileName)
+    return
+        "SELECT file_id FROM files WHERE " ..
+        "file_name='" .. fileName .. "' AND dir_id="
+        .. dirId
+end
+
 -- mirrors are string to be split by new lines
 function sqlAddNewFileQuery(dirId,fileName,fileSize,fileHash,fileMirrors)
     local sqliteTransaction = {}
@@ -60,10 +67,7 @@ function sqlAddNewFileQuery(dirId,fileName,fileSize,fileHash,fileMirrors)
 
     push(");")
 
-    local currentFileIdSelect =
-        "SELECT file_id FROM files WHERE " ..
-        "file_name='" .. fileName .. "' AND dir_id="
-        .. dirId
+    local currentFileIdSelect = sqlFileIdSelect(dirId,fileName)
 
     local mirrSplit = string.split(fileMirrors,"\n")
 

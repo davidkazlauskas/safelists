@@ -9,28 +9,8 @@ require('safelist-constants')
 require('genericwidget')
 require('settings')
 require('messages')
-
--- on select function receives integer option selected,
--- -1 if none
-function makePopupMenuModel(context,table,onSelectFunction)
-    local theModel = table
-
-    local menuModelHandler = context:makeLuaMatchHandler(
-        VMatch(function(natpack,val)
-            local num = val:values()._2 + 1
-            natpack:setSlot(3,VString(theModel[num]))
-        end,"MWI_PMM_QueryItem"),
-        VMatch(function(natpack,val)
-            natpack:setSlot(2,VInt(#theModel))
-        end,"MWI_PMM_QueryCount","int"),
-        VMatch(function(natPack,val)
-            local res = val:values()._2
-            onSelectFunction(res)
-        end,"MWI_PMM_OutSelected","int")
-    )
-
-    return menuModelHandler
-end
+require('guiutil')
+require('domaingui')
 
 ObjectRetainer = {
     __index = {
@@ -138,7 +118,21 @@ currentSessions = {}
 
 revealDownloads = false
 sessionWidget = nil
-currentAsyncSqlite = nil
+
+DomainGlobals = {
+    currentAsyncSqlite = nil,
+    shouldMoveDir = false,
+    shouldMoveFile = false,
+    ctx = nil,
+    mainWnd = nil
+}
+
+DomainFunctions = {
+    updateRevision = nil
+}
+
+dg = DomainGlobals
+df = DomainFunctions
 
 FrameEndFunctions = {}
 OneOffFunctions = {}
@@ -316,6 +310,10 @@ initAll = function()
     local genMainWnd = GenericWidget.putOn(mainWnd)
     local globConsts = ctx:namedMessageable("globalConsts")
     local writer = ctx:namedMessageable("randomFileWriter")
+
+    dg.ctx = ctx
+    dg.mainWnd = mainWnd
+    dg.objRetainer = objRetainer
 
     local quitApplication = function()
         ctx:message(
@@ -507,9 +505,10 @@ initAll = function()
     }
 
     local resetVarsForSafelist = function()
-        currentDirId = -1
-        currentDirToMoveId = -1
+        dg.currentDirToMoveId = -1
     end
+
+    resetVarsForSafelist()
 
     local noSafelistState = function()
         setWidgetsEnabled(
@@ -527,13 +526,13 @@ initAll = function()
         )
     end
 
-    local updateRevision = function()
+    df.updateRevision = function()
         HashRevisionModel.hashRevisionUpdate =
             HashRevisionModel.hashRevisionUpdate + 1
         FrameEndFunctions[2]()
     end
 
-    local updateRevisionGui = function()
+    local updateRevisionGui = instrument(function()
         if (HashRevisionModel.hashRevisionUpdate ==
             HashRevisionModel.hashRevisionDrawingUpdate)
         then
@@ -543,23 +542,30 @@ initAll = function()
         HashRevisionModel.hashRevisionDrawingUpdate =
             HashRevisionModel.hashRevisionUpdate
 
-        local sess = currentAsyncSqlite
+        local thisCorout = coroutine.running()
+
+        local sess = dg.currentAsyncSqlite
         assert( nil ~= sess, "Sess is null for revision read..." )
+
         ctx:messageAsyncWCallback(sess,
-            function(out)
-                local values = out:values()
-                local succeeded = values._4
-                local outString = values._3
-                assert( succeeded, "Great success!" )
-                local split = outString:split("|")
-                local outRes = "Safelist revision: " .. split[1] ..
-                    ", last modification date: " .. split[2]
-                ctx:message(mainWnd,VSig("MWI_InSetWidgetText"),
-                    VString("safelistRevisionLabel"),VString(outRes))
-            end,
+            resumerCallbackValues(thisCorout),
             VSig("ASQL_OutSingleRow"),VString(sqlRevNumber()),
             VString("empty"),VBool(false))
-    end
+
+        -- nap time
+        local values = coroutine.yield()
+
+        local succeeded = values._4
+        local outString = values._3
+        assert( succeeded, "Great success!" )
+        local split = outString:split("|")
+        local outRes = "Safelist revision: " .. split[1] ..
+            ", last modification date: " .. split[2]
+
+        ctx:message(mainWnd,VSig("MWI_InSetWidgetText"),
+            VString("safelistRevisionLabel"),VString(outRes))
+
+        end)
 
     local setDownloadSpeedGui = function(string)
         ctx:message(
@@ -658,7 +664,9 @@ initAll = function()
         messageBoxWParent(title,message,mainAppWnd:getMessageable())
     end
 
-    local validateNewFileDialogFirst = function(result,dialog)
+    df.messageBox = messageBox
+
+    df.validateNewFileDialogFirst = function(result,dialog)
         assert( result.finished, "Should be good..." )
 
         if (result.name ~= nil and
@@ -739,18 +747,9 @@ initAll = function()
         return true
     end
 
-    local newFileDialog = function(funcSuccess)
+    df.newFileDialog = instrument(function(funcSuccess)
+        local thisCorout = coroutine.running()
         local dialogService = ctx:namedMessageable("dialogService")
-
-        -- Return results:
-        -- finished - did finish?
-        -- name - the name
-        -- mirrors - the mirror string
-        -- size - file size (no by default)
-        -- hash - hash (no by default)
-        local outResult = {
-            finished = false
-        }
 
         local dialog = ctx:messageRetValues(
             dialogService,
@@ -781,38 +780,10 @@ initAll = function()
 
         local newId = objRetainer:newId()
         local handler = ctx:makeLuaMatchHandler(
-            VMatch(function(natpack,val)
-                local signal = val:values()._2
-                if (signal == hookedOk) then
-                    print("ok clicked")
-
-                    local queryInput = function(value)
-                        return ctx:messageRetValues(
-                            dialog,
-                            VSig("INDLG_QueryInput"),
-                            VString(value),
-                            VString(""))._3
-                    end
-
-                    outResult.finished = true
-                    outResult.name = queryInput("fileNameInp")
-                    outResult.mirrors = queryInput("mirrorsTextView")
-                    outResult.size = queryInput("fileSizeInp")
-                    outResult.hash = queryInput("fileHashInp")
-
-                    funcSuccess(outResult,dialog)
-                elseif (signal == hookedCancel) then
-                    print("Cancel clicked")
-                    hideDlg()
-                    objRetainer:release(newId)
-                else
-                    assert( false, "No such signal? " .. signal )
-                end
-            end,"INDLG_OutGenSignalEmitted","int"),
-            VMatch(function()
-                print("Exit vanilla")
-                objRetainer:release(newId)
-            end,"INDLG_OutDialogExited")
+            VMatch(resumerCallbackWBranch("answer", thisCorout),
+                "INDLG_OutGenSignalEmitted","int"),
+            VMatch(resumerCallbackWBranch("exited", thisCorout),
+                "INDLG_OutDialogExited")
         )
 
         objRetainer:retain(newId,handler)
@@ -831,11 +802,61 @@ initAll = function()
             dialog,
             VSig("INDLG_InShowDialog")
         )
-    end
 
-    local modifyFileDialog = function(fileId,funcSuccess)
+        while true do
+            -- nap: wait for response of the dialog
+            local outBranch, _, val = coroutine.yield()
+
+            if (outBranch == "answer") then
+                local signal = val:values()._2
+                if (signal == hookedOk) then
+                    print("ok clicked")
+
+                    local queryInput = function(value)
+                        return ctx:messageRetValues(
+                            dialog,
+                            VSig("INDLG_QueryInput"),
+                            VString(value),
+                            VString(""))._3
+                    end
+
+                    -- Return results:
+                    -- finished - did finish?
+                    -- name - the name
+                    -- mirrors - the mirror string
+                    -- size - file size (no by default)
+                    -- hash - hash (no by default)
+                    local outResult = {}
+
+                    outResult.finished = true
+                    outResult.name = queryInput("fileNameInp")
+                    outResult.mirrors = queryInput("mirrorsTextView")
+                    outResult.size = queryInput("fileSizeInp")
+                    outResult.hash = queryInput("fileHashInp")
+
+                    if funcSuccess(outResult,dialog) then
+                        objRetainer:release(newId)
+                    end
+                elseif (signal == hookedCancel) then
+                    print("Cancel clicked")
+                    hideDlg()
+                    objRetainer:release(newId)
+                else
+                    assert( false, "No such signal? " .. signal )
+                end
+            elseif (outBranch == "exited") then
+                print("Exit vanilla")
+                objRetainer:release(newId)
+            else
+                assert(false, "lolwut?")
+            end
+        end
+    end)
+
+    df.modifyFileDialog = instrument(function(fileId,funcSuccess)
         local fileIdWhole = whole(fileId)
         local dialogService = ctx:namedMessageable("dialogService")
+        local thisCorout = coroutine.running()
 
         -- Return results:
         -- finished - did finish?
@@ -843,10 +864,6 @@ initAll = function()
         -- mirrors - the mirror string
         -- size - file size (no by default)
         -- hash - hash (no by default)
-        local outResult = {
-            finished = false
-        }
-
         local original = {
             finished = false
         }
@@ -893,7 +910,100 @@ initAll = function()
 
         local newId = objRetainer:newId()
         local handler = ctx:makeLuaMatchHandler(
-            VMatch(function(natpack,val)
+            VMatch(resumerCallbackWBranch("answer", thisCorout),
+                "INDLG_OutGenSignalEmitted","int"),
+            VMatch(resumerCallbackWBranch("exited", thisCorout),
+                "INDLG_OutDialogExited")
+        )
+
+        objRetainer:retain(newId,handler)
+
+        ctx:message(
+            dialog,
+            VSig("INDLG_InSetNotifier"),
+            VMsg(handler)
+        )
+        ctx:message(
+            dialog,
+            VSig("INDLG_InAlwaysAbove")
+        )
+
+        -- lookup actual data
+        local query = sqlGetMirrorUsesForFile(fileIdWhole)
+        local asyncSqlite = dg.currentAsyncSqlite
+
+        ctx:messageAsyncWCallback(
+            asyncSqlite,
+            resumerCallbackValues(thisCorout),
+            VSig("ASQL_OutSingleRow"),
+            VString(query),
+            VString(""),
+            VBool(false)
+        )
+
+        -- nap: file modified dialog is finished
+        local tbl = coroutine.yield()
+
+        local isOk = tbl._4
+        assert( isOk, "Your query failed, friendo" )
+        local outputRow = tbl._3
+
+        local splitRow = string.split(outputRow,"|")
+
+        local fileName = splitRow[1]
+        local fileSize = splitRow[2]
+        local fileHash = splitRow[3]
+        local totalUses = tonumber(splitRow[4])
+        local splitMirrors = string.split(splitRow[5],",")
+
+        if (fileSize == "-1") then
+            fileSize = ""
+        end
+
+        local setInput = function(name,value)
+            ctx:message(
+                dialog,
+                VSig("INDLG_InSetValue"),
+                VString(name),
+                VString(value)
+            )
+        end
+
+        local concatMirrors = table.concat(splitMirrors,"\n")
+
+        original.name = fileName
+        original.size = fileSize
+        original.hash = fileHash
+        original.mirrors = concatMirrors
+
+        setInput("fileNameInp",fileName)
+        setInput("mirrorsTextView",concatMirrors)
+        setInput("fileSizeInp",fileSize)
+        setInput("fileHashInp",fileHash)
+
+        local hashAndSizeOff = totalUses > 0
+        if (hashAndSizeOff) then
+            local offInput = function(name)
+                ctx:message(dialog,
+                    VSig("INDLG_InSetControlEnabled"),
+                    VString(name),
+                    VBool(false))
+            end
+
+            offInput("fileSizeInp")
+            offInput("fileHashInp")
+        end
+
+        ctx:message(
+            dialog,
+            VSig("INDLG_InShowDialog")
+        )
+
+        while true do
+            -- nap: wait for response of the dialog
+            local outBranch, _, val = coroutine.yield()
+
+            if (outBranch == "answer") then
                 local signal = val:values()._2
                 if (signal == hookedOk) then
 
@@ -904,6 +1014,10 @@ initAll = function()
                             VString(value),
                             VString(""))._3
                     end
+
+                    local outResult = {
+                        finished = false
+                    }
 
                     local diffAssign = function(field,prev,inpField)
                         local current = queryInput(inpField)
@@ -923,102 +1037,30 @@ initAll = function()
                         outResult.mirrors = mirrTrimmed
                     end
 
-                    funcSuccess(outResult,original,dialog)
+                    if funcSuccess(outResult,original,dialog) then
+                        print("success, returned")
+                        objRetainer:release(newId)
+                        return
+                    else
+                        print("Fail, repeating")
+                    end
                 elseif (signal == hookedCancel) then
                     print("Cancel clicked")
                     hideDlg()
                     objRetainer:release(newId)
+                    print("fail, returned")
+                    return
                 else
                     assert( false, "No such signal? " .. signal )
                 end
-            end,"INDLG_OutGenSignalEmitted","int"),
-            VMatch(function()
+            elseif (outBranch == "exited") then
                 print("Exit vanilla")
                 objRetainer:release(newId)
-            end,"INDLG_OutDialogExited")
-        )
-
-        objRetainer:retain(newId,handler)
-
-        ctx:message(
-            dialog,
-            VSig("INDLG_InSetNotifier"),
-            VMsg(handler)
-        )
-        ctx:message(
-            dialog,
-            VSig("INDLG_InAlwaysAbove")
-        )
-
-        -- lookup actual data
-        local query = sqlGetMirrorUsesForFile(fileIdWhole)
-        local asyncSqlite = currentAsyncSqlite
-
-        ctx:messageAsyncWCallback(
-            asyncSqlite,
-            function(out)
-                local tbl = out:values()
-                local isOk = tbl._4
-                assert( isOk, "Your query failed, friendo" )
-                local outputRow = tbl._3
-
-                local splitRow = string.split(outputRow,"|")
-
-                local fileName = splitRow[1]
-                local fileSize = splitRow[2]
-                local fileHash = splitRow[3]
-                local totalUses = tonumber(splitRow[4])
-                local splitMirrors = string.split(splitRow[5],",")
-
-                if (fileSize == "-1") then
-                    fileSize = ""
-                end
-
-                local setInput = function(name,value)
-                    ctx:message(
-                        dialog,
-                        VSig("INDLG_InSetValue"),
-                        VString(name),
-                        VString(value)
-                    )
-                end
-
-                local concatMirrors = table.concat(splitMirrors,"\n")
-
-                original.name = fileName
-                original.size = fileSize
-                original.hash = fileHash
-                original.mirrors = concatMirrors
-
-                setInput("fileNameInp",fileName)
-                setInput("mirrorsTextView",concatMirrors)
-                setInput("fileSizeInp",fileSize)
-                setInput("fileHashInp",fileHash)
-
-                local hashAndSizeOff = totalUses > 0
-                if (hashAndSizeOff) then
-                    local offInput = function(name)
-                        ctx:message(dialog,
-                            VSig("INDLG_InSetControlEnabled"),
-                            VString(name),
-                            VBool(false))
-                    end
-
-                    offInput("fileSizeInp")
-                    offInput("fileHashInp")
-                end
-
-                ctx:message(
-                    dialog,
-                    VSig("INDLG_InShowDialog")
-                )
-            end,
-            VSig("ASQL_OutSingleRow"),
-            VString(query),
-            VString(""),
-            VBool(false)
-        )
-    end
+            else
+                assert(false, "lolwut?")
+            end
+        end
+    end)
 
 
     local getCurrentEntityId = function()
@@ -1031,13 +1073,27 @@ initAll = function()
         return ctx:messageRetValues(mainWnd,
             VSig("MWI_QueryCurrentFileParent"),VInt(-7))._2
     end
+    -- export
+    df.getCurrentEntityId = getCurrentEntityId
+    df.getCurrentFileParent = getCurrentFileParent
+    df.setStatus = function(statText)
+        setStatus(dg.ctx,dg.mainWnd,statText)
+    end
+    df.deleteSelectedDir = function()
+        dg.ctx:message(dg.mainWnd,VSig("MWI_InDeleteSelectedDir"))
+    end
+    df.execSqliteOnHandler = function(sqliteHandler,theStatement)
+        dg.ctx:messageAsync(sqliteHandler,
+            VSig("ASQL_Execute"),
+            VString(theStatement))
+    end
 
-    local addNewFileUnderCurrentDir = function(data,dialog)
-
+    local addNewFileUnderCurrentDir = instrument(function(data,dialog)
+        local thisCorout = coroutine.running()
         local currentEntityId = getCurrentEntityId()
         local currentDirIdWhole = whole(currentEntityId)
 
-        local asyncSqlite = currentAsyncSqlite
+        local asyncSqlite = dg.currentAsyncSqlite
         assert(not messageablesEqual(VMsgNil(),asyncSqlite),
             "No async sqlite." )
 
@@ -1067,81 +1123,87 @@ initAll = function()
         -- !! check first
         local condition = sqlCheckForForbiddenFileNames(currentDirIdWhole,data.name)
 
-        local onSuccess = function()
-            local statement =
-                sqlAddNewFileQuery(currentDirIdWhole,data.name,
-                    data.size,data.hash,data.mirrors)
-
-            ctx:messageAsyncWCallback(
-                asyncSqlite,
-                function()
-                    -- you know, I'd love a feature
-                    -- in sqlite to query something
-                    -- right after insert, that'd be great.
-                    local lastFileId = currentFileIdSelect .. ";"
-                    ctx:messageAsyncWCallback(
-                        asyncSqlite,
-                        function(val)
-                            local tbl = val:values()
-                            assert( tbl._4, "Aww, zigga nease..." )
-                            local theId = tbl._3
-                            ctx:message(
-                                mainWnd,
-                                VSig("MWI_InAddNewFileInCurrent"),
-                                VInt(theId),
-                                VInt(currentEntityId),
-                                VString(data.name),
-                                VDouble(tonumber(data.size)),
-                                VString(data.hash)
-                            )
-                            ctx:message(
-                                dialog,
-                                VSig("INDLG_InHideDialog")
-                            )
-                            updateRevision()
-                        end,
-                        VSig("ASQL_OutSingleNum"),
-                        VString(lastFileId),
-                        VInt(-1),
-                        VBool(false)
-                    )
-                end,
-                VSig("ASQL_Execute"),
-                VString(statement)
-            )
-        end
-
         ctx:messageAsyncWCallback(
             asyncSqlite,
-            function(outres)
-                local val = outres:values()
-                local success = val._4
-                assert( success, "YOU GET NOTHING, YOU LOSE" )
-                local case = val._3
-                if (case == 1) then
-                    inputFail( "File '" .. data.name .. "' already"
-                        .. " exists under current directory.")
-                    return
-                elseif (case == 2) then
-                    inputFail("Name '" .. data.name .. "' is forbidden.")
-                    return
-                end
-
-                if (case ~= 0) then
-                    assert( false, "Say what cholo?" )
-                    return
-                end
-
-                onSuccess()
-            end,
+            resumerCallbackValues(thisCorout),
             VSig("ASQL_OutSingleNum"),
             VString(condition),
             VInt(-1),
             VBool(false)
         )
-    end
 
-    local updateFileFromDiff = function(fileId,currentDirId,diffTable,orig,dialog)
+        local val = coroutine.yield()
+        local success = val._4
+        assert( success, "YOU GET NOTHING, YOU LOSE" )
+        local case = val._3
+        if (case == 1) then
+            inputFail( "File '" .. data.name .. "' already"
+                .. " exists under current directory.")
+            return false
+        elseif (case == 2) then
+            inputFail("Name '" .. data.name .. "' is forbidden.")
+            return false
+        end
+
+        if (case ~= 0) then
+            assert( false, "Say what cholo?" )
+            return false
+        end
+
+        -- db validation succeeded
+        local statement =
+            sqlAddNewFileQuery(currentDirIdWhole,data.name,
+                data.size,data.hash,data.mirrors)
+
+        ctx:messageAsyncWCallback(
+            asyncSqlite,
+            -- you know, I'd love a feature
+            -- in sqlite to query something
+            -- right after insert, that'd be great.
+            resumerCallbackValues(thisCorout),
+            VSig("ASQL_Execute"),
+            VString(statement)
+        )
+
+        -- nap: just wait for execution, no values returned
+        coroutine.yield()
+
+        local lastFileId = sqlFileIdSelect(currentDirIdWhole,data.name) .. ";"
+        ctx:messageAsyncWCallback(
+            asyncSqlite,
+            resumerCallbackValues(thisCorout),
+            VSig("ASQL_OutSingleNum"),
+            VString(lastFileId),
+            VInt(-1),
+            VBool(false)
+        )
+
+        -- nap: end, we got file id, not update it
+        local tbl = coroutine.yield()
+        assert( tbl._4, "Aww, zigga nease..." )
+        local theId = tbl._3
+        ctx:message(
+            mainWnd,
+            VSig("MWI_InAddNewFileInCurrent"),
+            VInt(theId),
+            VInt(currentEntityId),
+            VString(data.name),
+            VDouble(tonumber(data.size)),
+            VString(data.hash)
+        )
+        ctx:message(
+            dialog,
+            VSig("INDLG_InHideDialog")
+        )
+        df.updateRevision()
+
+        -- TODO: how to reflect db failures to dialog?
+        return true
+    end)
+
+    df.addNewFileUnderCurrentDir = addNewFileUnderCurrentDir
+
+    df.updateFileFromDiff = function(fileId,currentDirId,diffTable,orig,dialog)
         -- diffTable:
         -- finished - did finish?
         -- name - the name
@@ -1174,7 +1236,7 @@ initAll = function()
             return
         end
 
-        local asyncSqlite = currentAsyncSqlite
+        local asyncSqlite = dg.currentAsyncSqlite
 
         local updateFunction = function()
             local outString = sqlUpdateFileQuery(fileIdWhole,diffTable.name,
@@ -1202,7 +1264,7 @@ initAll = function()
                 VString(merged.hash)
             )
             hideDlg()
-            updateRevision()
+            df.updateRevision()
         end
 
         local inputFail = function(message)
@@ -1302,29 +1364,30 @@ initAll = function()
         end,"GWI_GBT_OutClickEvent","int"),
         VMatch(function()
             local mainModel = ctx:namedMessageable("mainModel")
-            local asyncSqlite = currentAsyncSqlite
+            local asyncSqlite = dg.currentAsyncSqlite
             if (messageablesEqual(VMsgNil(),asyncSqlite)) then
                 return
             end
             ctx:message(mainModel,
                 VSig("MMI_InLoadFolderTree"),VMsg(asyncSqlite),VMsg(mainWnd))
         end,"MWI_OutNewFileSignal"),
-        VMatch(function(natpack,val)
+        VMatch(instrument(function(natpack,val)
+            local thisCorout = coroutine.running()
             local inId = val:values()._2
 
-            local currentDirId = inId
-            local currentDirIdWhole = whole(currentDirId)
+            dg.currentDirId = inId
+            local currentDirIdWhole = whole(dg.currentDirId)
 
             local loadCurrentRoutine = function()
                 local mainModel = ctx:namedMessageable("mainModel")
-                local asyncSqlite = currentAsyncSqlite
+                local asyncSqlite = dg.currentAsyncSqlite
                 if (messageablesEqual(VMsgNil(),asyncSqlite)) then
                     return
                 end
             end
 
-            if (currentDirId > 0 and shouldMoveFile == true) then
-                shouldMoveFile = false
+            if (dg.currentDirId > 0 and dg.shouldMoveFile == true) then
+                dg.shouldMoveFile = false
 
                 local _, isDir = getCurrentEntityId()
                 if (not isDir) then
@@ -1336,9 +1399,9 @@ initAll = function()
                 end
 
                 setStatus(ctx,mainWnd,"")
-                local toMove = fileToMove
+                local toMove = dg.fileToMove
                 local toMoveWhole = whole(toMove)
-                local asyncSqlite = currentAsyncSqlite
+                local asyncSqlite = dg.currentAsyncSqlite
                 assert( not messageablesEqual(VMsgNil(),asyncSqlite),
                     "Huh cholo?" )
 
@@ -1346,77 +1409,77 @@ initAll = function()
 
                 ctx:messageAsyncWCallback(
                     asyncSqlite,
-                    function(out)
-                        local val = out:values()
-                        local success = val._4
-                        assert( success, "Back to sqlite school sucker." )
-                        local outRow = val._3
-                        local split = string.split(outRow,"|")
-                        local case = tonumber(split[1])
-                        local fileName = split[2]
-                        local fileSize = tonumber(split[3])
-                        local hash = split[4]
-                        if (case == 1) then
-                            messageBoxWParent(
-                                "Invalid move",
-                                "File with such name already"
-                                .. " exists under that directory.",
-                                mainWnd
-                            )
-                            loadCurrentRoutine()
-                        elseif (case == 2) then
-                            messageBoxWParent(
-                                "Invalid move",
-                                "File cannot be moved under"
-                                .. " this directory.",
-                                mainWnd
-                            )
-                            loadCurrentRoutine()
-                        elseif (case == 0) then
-                            local updateQuery = sqlMoveFileStatement(toMoveWhole,currentDirIdWhole)
-
-                            ctx:messageAsync(
-                                asyncSqlite,
-                                VSig("ASQL_Execute"),
-                                VString(updateQuery)
-                            )
-                            ctx:message(
-                                mainWnd,
-                                VSig("MWI_InAddNewFileInCurrent"),
-                                VInt(toMove),
-                                VInt(currentDirId),
-                                VString(fileName),
-                                VDouble(fileSize),
-                                VString(hash)
-                            )
-                            ctx:message(
-                                mainWnd,
-                                VSig("MWI_InDeleteSelectedDir"),
-                                VInt(1)
-                            )
-                            loadCurrentRoutine()
-                            updateRevision()
-                        else
-                            assert( false, "Huh?!?" )
-                        end
-                    end,
+                    resumerCallbackValues(thisCorout),
                     VSig("ASQL_OutSingleRow"),
                     VString(condition),
                     VString(""),
                     VBool(false)
                 )
+
+                local val = coroutine.yield()
+                local success = val._4
+                assert( success, "Back to sqlite school sucker." )
+                local outRow = val._3
+                local split = string.split(outRow,"|")
+                local case = tonumber(split[1])
+                local fileName = split[2]
+                local fileSize = tonumber(split[3])
+                local hash = split[4]
+                if (case == 1) then
+                    messageBoxWParent(
+                        "Invalid move",
+                        "File with such name already"
+                        .. " exists under that directory.",
+                        mainWnd
+                    )
+                    loadCurrentRoutine()
+                elseif (case == 2) then
+                    messageBoxWParent(
+                        "Invalid move",
+                        "File cannot be moved under"
+                        .. " this directory.",
+                        mainWnd
+                    )
+                    loadCurrentRoutine()
+                elseif (case == 0) then
+                    local updateQuery = sqlMoveFileStatement(toMoveWhole,currentDirIdWhole)
+
+                    ctx:messageAsync(
+                        asyncSqlite,
+                        VSig("ASQL_Execute"),
+                        VString(updateQuery)
+                    )
+                    ctx:message(
+                        mainWnd,
+                        VSig("MWI_InAddNewFileInCurrent"),
+                        VInt(toMove),
+                        VInt(dg.currentDirId),
+                        VString(fileName),
+                        VDouble(fileSize),
+                        VString(hash)
+                    )
+                    ctx:message(
+                        mainWnd,
+                        VSig("MWI_InDeleteSelectedDir"),
+                        VInt(1)
+                    )
+                    loadCurrentRoutine()
+                    df.updateRevision()
+                else
+                    assert( false, "Huh?!?" )
+                end
                 return
             end
 
-            if (currentDirToMoveId > 0 and shouldMoveDir == true) then
-                shouldMoveDir = false
+            if (dg.currentDirToMoveId > 0 and dg.shouldMoveDir == true) then
+                dg.shouldMoveDir = false
 
-                ctx:message(mainWnd,VSig("MWI_InSetStatusText"),VString(""))
-                if (inId == currentDirToMoveId) then
+                df.setStatus("")
+                if (inId == dg.currentDirToMoveId) then
                     return
                 end
 
-                local _, isDir = getCurrentEntityId()
+                local _, isDir = df.getCurrentEntityId()
                 if (not isDir) then
                     messageBox(
                         "Cannot move!",
@@ -1426,9 +1489,9 @@ initAll = function()
                 end
 
                 local inIdWhole = whole(inId)
-                local currentDirToMoveIdWhole = whole(currentDirToMoveId)
+                local currentDirToMoveIdWhole = whole(dg.currentDirToMoveId)
 
-                local asyncSqlite = currentAsyncSqlite
+                local asyncSqlite = dg.currentAsyncSqlite
                 if (messageablesEqual(VMsgNil(),asyncSqlite)) then
                     return
                 end
@@ -1439,57 +1502,57 @@ initAll = function()
 
                 ctx:messageAsyncWCallback(
                     asyncSqlite,
-                    function(outres)
-                        local table = outres:values()
-                        local value = table._3
-                        local success = table._4
-                        --assert( success, "Great success failed..." )
-                        print("val|" .. value .. "|")
-                        if (value == 0) then
-                            ctx:messageAsync(asyncSqlite,
-                                VSig("ASQL_OutAffected"),
-                                VString(sqlMoveDirStatement(currentDirToMoveIdWhole,inIdWhole)),
-                                VInt(-1))
-                            currentDirToMoveId = -1
-                            ctx:message(mainWnd,
-                                VSig("MWI_InMoveChildUnderParent"),
-                                VInt(-1))
-                            updateRevision()
-                            loadCurrentRoutine()
-                        elseif (value == 1) then
-                            messageBox(
-                                "Cannot move!",
-                                "Directory to move cannot be a parent"
-                                .. " of directory to move under."
-                            )
-                        elseif (value == 2) then
-                            messageBoxWParent(
-                                "Cannot move!",
-                                "Parent directory already"
-                                .. " has directory with such name.",
-                                mainWnd)
-                        elseif (value == 3) then
-                            messageBox(
-                                "Cannot move!",
-                                "Directory is already under"
-                                .. " this parent."
-                            )
-                        else
-                            assert( false, "Should not happen cholo..." )
-                        end
-                    end,
+                    resumerCallbackValues(thisCorout),
                     VSig("ASQL_OutSingleNum"),
                     VString(condition),
                     VInt(-1),
                     VBool(false))
+
+                local table = coroutine.yield()
+                local value = table._3
+                local success = table._4
+                --assert( success, "Great success failed..." )
+                print("val|" .. value .. "|")
+                if (value == 0) then
+                    ctx:messageAsync(asyncSqlite,
+                        VSig("ASQL_OutAffected"),
+                        VString(sqlMoveDirStatement(currentDirToMoveIdWhole,inIdWhole)),
+                        VInt(-1))
+                    dg.currentDirToMoveId = -1
+                    ctx:message(mainWnd,
+                        VSig("MWI_InMoveChildUnderParent"),
+                        VInt(-1))
+                    df.updateRevision()
+                    loadCurrentRoutine()
+                elseif (value == 1) then
+                    messageBox(
+                        "Cannot move!",
+                        "Directory to move cannot be a parent"
+                        .. " of directory to move under."
+                    )
+                elseif (value == 2) then
+                    messageBoxWParent(
+                        "Cannot move!",
+                        "Parent directory already"
+                        .. " has directory with such name.",
+                        mainWnd)
+                elseif (value == 3) then
+                    messageBox(
+                        "Cannot move!",
+                        "Directory is already under"
+                        .. " this parent."
+                    )
+                else
+                    assert( false, "Should not happen cholo..." )
+                end
                 return
             end
             loadCurrentRoutine()
-        end,"MWI_OutDirChangedSignal","int"),
+        end),"MWI_OutDirChangedSignal","int"),
         VMatch(function()
             local dlFactory = ctx:namedMessageable("dlSessionFactory")
             local dialogService = ctx:namedMessageable("dialogService")
-            local asyncSqlite = currentAsyncSqlite
+            local asyncSqlite = dg.currentAsyncSqlite
             if (messageablesEqual(VMsgNil(),asyncSqlite)) then
                 assert( false, "Didn't expect download request" ..
                     " with null safelist.")
@@ -1587,7 +1650,8 @@ initAll = function()
                         -- don't verify that two safelists are the same
                         return
                     end,"SLD_OutMirrorUsed","int","string"),
-                    VMatch(function(natPack,val)
+                    VMatch(instrument(function(natPack,val)
+                        local thisCorout = coroutine.running()
                         local values = val:values()
                         local hash = values._3
                         if (nil == asyncSqlite or isCurrentDead()) then
@@ -1600,35 +1664,35 @@ initAll = function()
                         local thePath = theDl:getPath()
 
                         ctx:messageAsyncWCallback(asyncSqlite,
-                            function (out)
-                                local outVal = out:values()
-                                local qhash = outVal._3
-
-                                assert( outVal._4, "Query failed..." )
-                                --assert( qhash ~= hash, "Hash collision, hash is different."
-                                    --.. " (todo: handle this case)" )
-
-                                if (qhash ~= hash and qhash ~= "") then
-                                    appendLog(
-                                      "Hash mismatch: " .. thePath
-                                      .. " is reported to be of hash \"" .. qhash .. "\""
-                                      .. " but turns out to be \"" .. hash .. "\"."
-                                      .. " Are mirrors pointing to the same file?"
-                                    )
-                                else
-                                    ctx:messageAsync(
-                                        asyncSqlite,
-                                        VSig("ASQL_Execute"),
-                                        VString(sqlUpdateFileHashStatement(idWhole,hash))
-                                    )
-                                    updateRevision()
-                                end
-                            end,
+                            resumerCallbackValues(thisCorout),
                             VSig("ASQL_OutSingleRow"),
                             VString(sqlGetFileHash(idWhole)),
                             VString(""),
                             VBool(false))
-                    end,"SLD_OutHashUpdate","int","string"),
+
+                        local outVal = coroutine.yield()
+                        local qhash = outVal._3
+
+                        assert( outVal._4, "Query failed..." )
+                        --assert( qhash ~= hash, "Hash collision, hash is different."
+                            --.. " (todo: handle this case)" )
+
+                        if (qhash ~= hash and qhash ~= "") then
+                            appendLog(
+                              "Hash mismatch: " .. thePath
+                              .. " is reported to be of hash \"" .. qhash .. "\""
+                              .. " but turns out to be \"" .. hash .. "\"."
+                              .. " Are mirrors pointing to the same file?"
+                            )
+                        else
+                            ctx:messageAsync(
+                                asyncSqlite,
+                                VSig("ASQL_Execute"),
+                                VString(sqlUpdateFileHashStatement(idWhole,hash))
+                            )
+                            df.updateRevision()
+                        end
+                    end),"SLD_OutHashUpdate","int","string"),
                     VMatch(function(natPack,out)
                         if (isCurrentDead()) then
                             return
@@ -1644,7 +1708,7 @@ initAll = function()
                             VSig("ASQL_Execute"),
                             VString(sqlUpdateFileSizeStatement(idWhole,newSize))
                         )
-                        updateRevision()
+                        df.updateRevision()
                     end,"SLD_OutSizeUpdate","int","double"),
                     VMatch(function(natPack,out)
                         local val = out:values()
@@ -1730,19 +1794,19 @@ initAll = function()
                     local openNew = function()
                         local mainModel = ctx:namedMessageable("mainModel")
 
-                        currentAsyncSqlite = newAsqlite(outPath)
+                        dg.currentAsyncSqlite = newAsqlite(outPath)
 
                         ctx:message(mainModel,
                             VSig("MMI_InLoadFolderTree"),
-                            VMsg(currentAsyncSqlite),VMsg(mainWnd))
+                            VMsg(dg.currentAsyncSqlite),VMsg(mainWnd))
                         onSafelistState()
-                        updateRevision()
+                        df.updateRevision()
                     end
 
-                    local asql = currentAsyncSqlite
+                    local asql = dg.currentAsyncSqlite
                     if (nil ~= asql) then
                         ctx:messageAsyncWCallback(
-                            currentAsyncSqlite,
+                            dg.currentAsyncSqlite,
                             function()
                                 openNew()
                             end,
@@ -1781,10 +1845,12 @@ initAll = function()
         end,"MWI_OutOpenSafelistButtonClicked"),
         VMatch(function()
             local dialogService = ctx:namedMessageable("dialogService")
-            local afterPath = function(outPath)
+            local afterPath = instrument(function(outPath)
                 if (outPath == "") then
                     return
                 end
+
+                local thisCorout = coroutine.running()
 
                 if (not string.ends(string.lower(outPath),".safelist")) then
                     outPath = outPath .. ".safelist"
@@ -1794,17 +1860,17 @@ initAll = function()
                     local openNew = function()
                         local mainModel = ctx:namedMessageable("mainModel")
 
-                        currentAsyncSqlite = newSafelist(outPath)
-                        local new = currentAsyncSqlite
+                        dg.currentAsyncSqlite = newSafelist(outPath)
+                        local new = dg.currentAsyncSqlite
                         resetVarsForSafelist()
                         ctx:message(mainModel,
                             VSig("MMI_InLoadFolderTree"),
                             VMsg(new),VMsg(mainWnd))
-                        updateRevision()
+                        df.updateRevision()
                         onSafelistState()
                     end
 
-                    local prev = currentAsyncSqlite
+                    local prev = dg.currentAsyncSqlite
                     if (nil ~= prev) then
                         ctx:messageAsyncWCallback(
                             prev,
@@ -1820,61 +1886,61 @@ initAll = function()
 
                 ctx:messageAsyncWCallback(
                     writer,
-                    function(out)
-                        local tbl = out:values()
-                        local exists = tbl._3
-                        if (not exists) then
-                            ifContinue()
-                        else
-                            local dialogService =
-                                ctx:namedMessageable("dialogService")
-
-                            local afterAnswer = function(response)
-
-                                if (response == 0) then
-                                    ctx:messageAsyncWCallback(
-                                        writer,
-                                        ifContinue,
-                                        VSig("RFW_DeleteFile"),
-                                        VString(outPath)
-                                    )
-                                elseif (response == 1 or response == -1) then
-                                    noSafelistState()
-                                else
-                                    assert( false, "Wrong neighbourhood, milky." )
-                                    noSafelistState()
-                                end
-
-                            end
-
-                            local nId = objRetainer:newId()
-
-                            local handler = ctx:makeLuaMatchHandler(
-                                VMatch(function(natPack,val)
-                                    local outPath = val:values()._2
-                                    afterAnswer(outPath)
-                                    objRetainer:release(nId)
-                                end,"GDS_OutNotifyAnswer","int")
-                            )
-
-                            objRetainer:retain(nId,handler)
-
-                            ctx:message(
-                                dialogService,
-                                VSig("GDS_OkCancelDialog"),
-                                VMsg(mainWnd),
-                                VString("Safelist exists"),
-                                VString("Safelist already exists."
-                                .. " Overwrite it? (data will be lost)"),
-                                VMsg(handler)
-                            )
-                        end
-                    end,
+                    resumerCallbackValues(thisCorout),
                     VSig("RFW_DoesFileExist"),
                     VString(outPath),
                     VBool(false)
                 )
-            end
+
+                local tbl = coroutine.yield()
+                local exists = tbl._3
+                if (not exists) then
+                    ifContinue()
+                else
+                    local dialogService =
+                        ctx:namedMessageable("dialogService")
+
+                    local afterAnswer = function(response)
+
+                        if (response == 0) then
+                            ctx:messageAsyncWCallback(
+                                writer,
+                                ifContinue,
+                                VSig("RFW_DeleteFile"),
+                                VString(outPath)
+                            )
+                        elseif (response == 1 or response == -1) then
+                            noSafelistState()
+                        else
+                            assert( false, "Wrong neighbourhood, milky." )
+                            noSafelistState()
+                        end
+
+                    end
+
+                    local nId = objRetainer:newId()
+
+                    local handler = ctx:makeLuaMatchHandler(
+                        VMatch(function(natPack,val)
+                            local outPath = val:values()._2
+                            afterAnswer(outPath)
+                            objRetainer:release(nId)
+                        end,"GDS_OutNotifyAnswer","int")
+                    )
+
+                    objRetainer:retain(nId,handler)
+
+                    ctx:message(
+                        dialogService,
+                        VSig("GDS_OkCancelDialog"),
+                        VMsg(mainWnd),
+                        VString("Safelist exists"),
+                        VString("Safelist already exists."
+                        .. " Overwrite it? (data will be lost)"),
+                        VMsg(handler)
+                    )
+                end
+            end)
 
             local nId = objRetainer:newId()
 
@@ -2004,299 +2070,7 @@ initAll = function()
             end
         end,"MWI_OutShowDownloadsToggled","bool"),
         VMatch(function()
-            local menuModel = nil
-
-            local currentEntityId, isDir = getCurrentEntityId()
-            if (currentEntityId > 0 and isDir) then
-                menuModel = { "New directory", "Move directory", "Delete directory", "Rename directory", "New file" }
-                if (currentEntityId == 1) then
-                    -- root is unmovable, unrenamable and undeletable
-                    menuModel = { "New directory", "New file" }
-                end
-                --"Download directory",
-                -- TODO: implement download directory
-            elseif (currentEntityId > 0 and not isDir) then
-                menuModel = { "Edit file", "Delete file", "Move file" }
-                --"Download file",
-                -- TODO: localize labels not to depend on them
-                -- TODO: implement download
-            else
-                return
-            end
-
-            local menuModelHandler = makePopupMenuModel(
-                ctx,menuModel,
-                function(result)
-                    arraySwitch(result+1,menuModel,
-                        arrayBranch("Move directory",function()
-                            currentDirToMoveId = getCurrentEntityId()
-                            if (currentDirToMoveId ~= -1) then
-                                ctx:message(mainWnd,
-                                    VSig("MWI_InSetStatusText"),
-                                    VString("Press on node under which to move"))
-                                shouldMoveDir = true
-                            end
-                        end),
-                        arrayBranch("Delete directory",function()
-                            currentDirId = getCurrentEntityId()
-                            if (currentDirId ~= -1) then
-                                if (currentDirId == 1) then
-                                    setStatus(ctx,mainWnd,"Root cannot be deleted.")
-                                    return
-                                end
-                                local asyncSqlite = currentAsyncSqlite
-                                if (messageablesEqual(VMsgNil(),asyncSqlite)) then
-                                    return
-                                end
-                                local wholeDir = whole(currentDirId)
-                                -- TODO: ask if really want to delete
-                                ctx:messageAsync(asyncSqlite,
-                                    VSig("ASQL_Execute"),
-                                    VString(sqlDeleteDirectoryRecursively(wholeDir)))
-                                ctx:message(mainWnd,VSig("MWI_InDeleteSelectedDir"))
-                                currentDirId = -1
-                                updateRevision()
-                            else
-                                setStatus(ctx,mainWnd,"No directory selected.")
-                            end
-                        end),
-                        arrayBranch("Rename directory",function()
-                            local dialog = ctx:namedMessageable("singleInputDialog")
-
-                            local showOrHide = function(val)
-                                ctx:message(dialog,VSig("INDLG_InShowDialog"),VBool(val))
-                            end
-
-                            local dirName = ctx:messageRetValues(mainWnd,VSig("MWI_QueryCurrentDirName"),VString("?"))._2
-                            local dirId = getCurrentEntityId()
-
-                            if (dirName == "[unselected]") then
-                                setStatus(ctx,mainWnd,"No directory was selected to create new one.")
-                                return
-                            end
-
-                            if (dirName == "root" and dirId == 1) then
-                                setStatus(ctx,mainWnd,"Cannot rename root.")
-                                return
-                            end
-
-                            ctx:message(dialog,VSig("INDLG_InSetLabel"),VString(
-                                "Specify new folder name to rename  " .. dirName .. "."
-                            ))
-
-                            ctx:message(dialog,VSig("INDLG_InSetValue"),VString(dirName))
-
-                            local handler = ctx:makeLuaMatchHandler(
-                                VMatch(function()
-                                    print("Ok renamed!")
-                                    local outName = ctx:messageRetValues(dialog,VSig("INDLG_QueryInput"),VString("?"))._2
-                                    -- more thorough user input check should be performed
-                                    if (outName == "") then
-                                        setStatus(ctx,mainWnd,"Some directory name must be specified.")
-                                        return
-                                    end
-
-                                    local wholeDir = whole(dirId)
-
-                                    local asyncSqlite = currentAsyncSqlite
-                                    if (messageablesEqual(VMsgNil(),asyncSqlite)) then
-                                        return
-                                    end
-                                    local mainWnd = ctx:namedMessageable("mainWindow")
-                                    local mainModel = ctx:namedMessageable("mainModel")
-                                    ctx:messageAsyncWCallback(
-                                        asyncSqlite,
-                                        function(output)
-                                            local val = output:values()
-                                            local affected = val._3
-                                            if (affected > 0) then
-                                                ctx:message(mainWnd,
-                                                    VSig("MWI_InSetCurrentDirName"),
-                                                    VString(outName))
-                                            else
-                                                messageBox(
-                                                    "Duplicate name!",
-                                                    "'" .. outName ..
-                                                    "' already exists under current parent."
-                                                )
-                                            end
-                                        end,
-                                        VSig("ASQL_OutAffected"),
-                                        VString(sqlUpdateDirectoryNameStatement(wholeDir,outName)),
-                                        VInt(-1)
-                                    )
-                                    showOrHide(false)
-                                end,"INDLG_OutOkClicked"),
-                                VMatch(function()
-                                    print("Cancel rename!")
-                                    showOrHide(false)
-                                end,"INDLG_OutCancelClicked")
-                            )
-
-                            ctx:message(dialog,VSig("INDLG_InSetNotifier"),VMsg(handler))
-                            showOrHide(true)
-                        end),
-                        arrayBranch("New directory",function()
-                            local dialog = ctx:namedMessageable("singleInputDialog")
-
-                            local showOrHide = function(val)
-                                ctx:message(dialog,VSig("INDLG_InShowDialog"),VBool(val))
-                            end
-
-                            local setDlgErr = function(val)
-                                ctx:message(dialog,
-                                    VSig("INDLG_InSetErrLabel"),VString(val))
-                            end
-
-                            ctx:message(dialog,
-                                VSig("INDLG_InSetParent"),
-                                VMsg(mainWnd))
-
-                            local dirName = ctx:messageRetValues(mainWnd,VSig("MWI_QueryCurrentDirName"),VString("?"))._2
-                            local dirId = getCurrentEntityId()
-                            local dirIdWhole = whole(dirId)
-
-                            if (dirName == "[unselected]") then
-                                setStatus(ctx,mainWnd,"No directory was selected to create new one.")
-                                return
-                            end
-
-                            ctx:message(dialog,VSig("INDLG_InSetLabel"),VString(
-                                "Specify new folder name to create under " .. dirName .. "."
-                            ))
-
-                            local newId = objRetainer:newId()
-
-                            local handler = ctx:makeLuaMatchHandler(
-                                VMatch(function()
-                                    print("Ok!")
-                                    local outName = ctx:messageRetValues(dialog,VSig("INDLG_QueryInput"),VString("?"))._2
-                                    -- more thorough user input check should be performed
-                                    if (outName == "") then
-                                        setDlgErr("Some directory name must be specified.")
-                                        return
-                                    end
-
-                                    if (not isValidFilename(outName)) then
-                                        setDlgErr("Directory name entered contains invalid characters.")
-                                        return
-                                    end
-
-                                    setDlgErr("")
-
-                                    local asyncSqlite = currentAsyncSqlite
-                                    if (messageablesEqual(VMsgNil(),asyncSqlite)) then
-                                        return
-                                    end
-                                    local mainWnd = ctx:namedMessageable("mainWindow")
-                                    local mainModel = ctx:namedMessageable("mainModel")
-
-                                    local theQuery = sqlNewDirectoryStatement(dirIdWhole,outName)
-
-                                    ctx:messageAsyncWCallback(
-                                        asyncSqlite,
-                                        function(res)
-                                            local num = res:values()._3
-                                            if (num > 0) then
-                                                ctx:messageAsyncWCallback(
-                                                    asyncSqlite,
-                                                    function(back)
-                                                        local newId = back:values()._3
-                                                        ctx:message(mainWnd,
-                                                            VSig("MWI_InAddChildUnderCurrentDir"),
-                                                            VString(outName),VInt(newId))
-                                                    end,
-                                                    VSig("ASQL_OutSingleNum"),
-                                                    VString(sqlSelectLastInsertedDirId()),
-                                                    VInt(-1),
-                                                    VBool(false)
-                                                )
-                                                updateRevision()
-                                            else
-                                                messageBox(
-                                                    "Duplicate name!",
-                                                    "'" .. outName ..
-                                                    "' already exists under current directory."
-                                                )
-                                            end
-                                        end,
-                                        VSig("ASQL_OutAffected"),
-                                        VString(theQuery),
-                                        VInt(-1)
-                                    )
-                                    -- todo: optimize, don't reload all
-                                    showOrHide(false)
-                                    objRetainer:release(newId)
-                                end,"INDLG_OutOkClicked"),
-                                VMatch(function()
-                                    print("Cancel!")
-                                    showOrHide(false)
-                                    objRetainer:release(newId)
-                                end,"INDLG_OutCancelClicked")
-                            )
-
-                            objRetainer:retain(newId,handler)
-
-                            ctx:message(dialog,VSig("INDLG_InSetNotifier"),VMsg(handler))
-                            showOrHide(true)
-                        end),
-                        arrayBranch("New file",function()
-                            print("New file clicked")
-                            newFileDialog(
-                                function(result,dialog)
-                                    local firstValidation =
-                                        validateNewFileDialogFirst(result,dialog)
-                                    if (not firstValidation) then
-                                        return
-                                    end
-
-                                    -- great success, form validation passed
-                                    addNewFileUnderCurrentDir(result,dialog)
-                                end
-                            )
-                        end),
-                        arrayBranch("Edit file",function()
-                            local dirId = getCurrentFileParent()
-                            modifyFileDialog(
-                                currentEntityId,
-                                function(result,orig,dialog)
-                                    local firstValidation =
-                                        validateNewFileDialogFirst(result,dialog)
-                                    if (not firstValidation) then
-                                        return
-                                    end
-
-                                    updateFileFromDiff(currentEntityId,dirId,result,orig,dialog)
-                                end
-                            )
-                        end),
-                        arrayBranch("Move file",function()
-                            setStatus(ctx,mainWnd,"Select folder to move file to.")
-                            fileToMove = currentEntityId
-                            shouldMoveFile = true
-                        end),
-                        arrayBranch("Delete file",function()
-                            local currentFileId = getCurrentEntityId()
-                            -- we know that this is file because
-                            -- we wouldn't see this menu
-                            -- TODO: ask if really want to delete
-                            if (currentFileId ~= -1) then
-                                local asyncSqlite = currentAsyncSqlite
-                                if (messageablesEqual(VMsgNil(),asyncSqlite)) then
-                                    return
-                                end
-                                ctx:messageAsync(asyncSqlite,
-                                    VSig("ASQL_Execute"),
-                                    VString(sqlDeleteFile(whole(currentFileId))))
-                                ctx:message(mainWnd,VSig("MWI_InDeleteSelectedDir"))
-                                updateRevision()
-                            else
-                                setStatus(ctx,mainWnd,"No directory selected.")
-                            end
-                        end)
-                    )
-                end
-            )
+            local menuModelHandler = fileBrowserRightClickHandler(dg,df)
             ctx:message(mainWnd,VSig("MWI_PMM_ShowMenu"),VMsg(menuModelHandler))
         end,"MWI_OutRightClickFolderList")
     )

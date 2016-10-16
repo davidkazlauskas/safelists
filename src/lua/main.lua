@@ -10,6 +10,7 @@ require('genericwidget')
 require('settings')
 require('messages')
 require('guiutil')
+require('domaingui')
 
 ObjectRetainer = {
     __index = {
@@ -312,6 +313,7 @@ initAll = function()
 
     dg.ctx = ctx
     dg.mainWnd = mainWnd
+    dg.objRetainer = objRetainer
 
     local quitApplication = function()
         ctx:message(
@@ -503,9 +505,10 @@ initAll = function()
     }
 
     local resetVarsForSafelist = function()
-        currentDirId = -1
-        currentDirToMoveId = -1
+        dg.currentDirToMoveId = -1
     end
+
+    resetVarsForSafelist()
 
     local noSafelistState = function()
         setWidgetsEnabled(
@@ -661,7 +664,9 @@ initAll = function()
         messageBoxWParent(title,message,mainAppWnd:getMessageable())
     end
 
-    local validateNewFileDialogFirst = function(result,dialog)
+    df.messageBox = messageBox
+
+    df.validateNewFileDialogFirst = function(result,dialog)
         assert( result.finished, "Should be good..." )
 
         if (result.name ~= nil and
@@ -742,7 +747,7 @@ initAll = function()
         return true
     end
 
-    local newFileDialog = instrument(function(funcSuccess)
+    df.newFileDialog = instrument(function(funcSuccess)
         local thisCorout = coroutine.running()
         local dialogService = ctx:namedMessageable("dialogService")
 
@@ -848,7 +853,7 @@ initAll = function()
         end
     end)
 
-    local modifyFileDialog = instrument(function(fileId,funcSuccess)
+    df.modifyFileDialog = instrument(function(fileId,funcSuccess)
         local fileIdWhole = whole(fileId)
         local dialogService = ctx:namedMessageable("dialogService")
         local thisCorout = coroutine.running()
@@ -1071,6 +1076,17 @@ initAll = function()
     -- export
     df.getCurrentEntityId = getCurrentEntityId
     df.getCurrentFileParent = getCurrentFileParent
+    df.setStatus = function(statText)
+        setStatus(dg.ctx,dg.mainWnd,statText)
+    end
+    df.deleteSelectedDir = function()
+        dg.ctx:message(dg.mainWnd,VSig("MWI_InDeleteSelectedDir"))
+    end
+    df.execSqliteOnHandler = function(sqliteHandler,theStatement)
+        dg.ctx:messageAsync(sqliteHandler,
+            VSig("ASQL_Execute"),
+            VString(theStatement))
+    end
 
     local addNewFileUnderCurrentDir = instrument(function(data,dialog)
         local thisCorout = coroutine.running()
@@ -1185,7 +1201,9 @@ initAll = function()
         return true
     end)
 
-    local updateFileFromDiff = function(fileId,currentDirId,diffTable,orig,dialog)
+    df.addNewFileUnderCurrentDir = addNewFileUnderCurrentDir
+
+    df.updateFileFromDiff = function(fileId,currentDirId,diffTable,orig,dialog)
         -- diffTable:
         -- finished - did finish?
         -- name - the name
@@ -1357,8 +1375,8 @@ initAll = function()
             local thisCorout = coroutine.running()
             local inId = val:values()._2
 
-            local currentDirId = inId
-            local currentDirIdWhole = whole(currentDirId)
+            dg.currentDirId = inId
+            local currentDirIdWhole = whole(dg.currentDirId)
 
             local loadCurrentRoutine = function()
                 local mainModel = ctx:namedMessageable("mainModel")
@@ -1368,8 +1386,8 @@ initAll = function()
                 end
             end
 
-            if (currentDirId > 0 and DomainGlobal.shouldMoveFile == true) then
-                DomainGlobal.shouldMoveFile = false
+            if (dg.currentDirId > 0 and dg.shouldMoveFile == true) then
+                dg.shouldMoveFile = false
 
                 local _, isDir = getCurrentEntityId()
                 if (not isDir) then
@@ -1381,7 +1399,7 @@ initAll = function()
                 end
 
                 setStatus(ctx,mainWnd,"")
-                local toMove = fileToMove
+                local toMove = dg.fileToMove
                 local toMoveWhole = whole(toMove)
                 local asyncSqlite = dg.currentAsyncSqlite
                 assert( not messageablesEqual(VMsgNil(),asyncSqlite),
@@ -1435,7 +1453,7 @@ initAll = function()
                         mainWnd,
                         VSig("MWI_InAddNewFileInCurrent"),
                         VInt(toMove),
-                        VInt(currentDirId),
+                        VInt(dg.currentDirId),
                         VString(fileName),
                         VDouble(fileSize),
                         VString(hash)
@@ -1453,15 +1471,15 @@ initAll = function()
                 return
             end
 
-            if (currentDirToMoveId > 0 and DomainGlobal.shouldMoveDir == true) then
-                DomainGlobal.shouldMoveDir = false
+            if (dg.currentDirToMoveId > 0 and dg.shouldMoveDir == true) then
+                dg.shouldMoveDir = false
 
-                ctx:message(mainWnd,VSig("MWI_InSetStatusText"),VString(""))
-                if (inId == currentDirToMoveId) then
+                df.setStatus("")
+                if (inId == dg.currentDirToMoveId) then
                     return
                 end
 
-                local _, isDir = getCurrentEntityId()
+                local _, isDir = df.getCurrentEntityId()
                 if (not isDir) then
                     messageBox(
                         "Cannot move!",
@@ -1471,7 +1489,7 @@ initAll = function()
                 end
 
                 local inIdWhole = whole(inId)
-                local currentDirToMoveIdWhole = whole(currentDirToMoveId)
+                local currentDirToMoveIdWhole = whole(dg.currentDirToMoveId)
 
                 local asyncSqlite = dg.currentAsyncSqlite
                 if (messageablesEqual(VMsgNil(),asyncSqlite)) then
@@ -1500,7 +1518,7 @@ initAll = function()
                         VSig("ASQL_OutAffected"),
                         VString(sqlMoveDirStatement(currentDirToMoveIdWhole,inIdWhole)),
                         VInt(-1))
-                    currentDirToMoveId = -1
+                    dg.currentDirToMoveId = -1
                     ctx:message(mainWnd,
                         VSig("MWI_InMoveChildUnderParent"),
                         VInt(-1))
@@ -2052,302 +2070,7 @@ initAll = function()
             end
         end,"MWI_OutShowDownloadsToggled","bool"),
         VMatch(function()
-            local menuModel = nil
-
-            local currentEntityId, isDir = getCurrentEntityId()
-            if (currentEntityId > 0 and isDir) then
-                menuModel = { "New directory", "Move directory", "Delete directory", "Rename directory", "New file" }
-                if (currentEntityId == 1) then
-                    -- root is unmovable, unrenamable and undeletable
-                    menuModel = { "New directory", "New file" }
-                end
-                --"Download directory",
-                -- TODO: implement download directory
-            elseif (currentEntityId > 0 and not isDir) then
-                menuModel = { "Edit file", "Delete file", "Move file" }
-                --"Download file",
-                -- TODO: localize labels not to depend on them
-                -- TODO: implement download
-            else
-                return
-            end
-
-            local menuModelHandler = makePopupMenuModel(
-                ctx,menuModel,
-                function(result)
-                    arraySwitch(result+1,menuModel,
-                        arrayBranch("Move directory",function()
-                            currentDirToMoveId = getCurrentEntityId()
-                            if (currentDirToMoveId ~= -1) then
-                                ctx:message(mainWnd,
-                                    VSig("MWI_InSetStatusText"),
-                                    VString("Press on node under which to move"))
-                                DomainGlobal.shouldMoveDir = true
-                            end
-                        end),
-                        arrayBranch("Delete directory",function()
-                            currentDirId = getCurrentEntityId()
-                            if (currentDirId ~= -1) then
-                                if (currentDirId == 1) then
-                                    setStatus(ctx,mainWnd,"Root cannot be deleted.")
-                                    return
-                                end
-                                local asyncSqlite = DomainGlobals.currentAsyncSqlite
-                                if (messageablesEqual(VMsgNil(),asyncSqlite)) then
-                                    return
-                                end
-                                local wholeDir = whole(currentDirId)
-                                -- TODO: ask if really want to delete
-                                ctx:messageAsync(asyncSqlite,
-                                    VSig("ASQL_Execute"),
-                                    VString(sqlDeleteDirectoryRecursively(wholeDir)))
-                                ctx:message(mainWnd,VSig("MWI_InDeleteSelectedDir"))
-                                currentDirId = -1
-                                DomainFunctions.updateRevision()
-                            else
-                                setStatus(ctx,mainWnd,"No directory selected.")
-                            end
-                        end),
-                        arrayBranch("Rename directory",function()
-                            local dialog = ctx:namedMessageable("singleInputDialog")
-
-                            local showOrHide = function(val)
-                                ctx:message(dialog,VSig("INDLG_InShowDialog"),VBool(val))
-                            end
-
-                            local dirName = ctx:messageRetValues(mainWnd,VSig("MWI_QueryCurrentDirName"),VString("?"))._2
-                            local dirId = getCurrentEntityId()
-
-                            if (dirName == "[unselected]") then
-                                setStatus(ctx,mainWnd,"No directory was selected to create new one.")
-                                return
-                            end
-
-                            if (dirName == "root" and dirId == 1) then
-                                setStatus(ctx,mainWnd,"Cannot rename root.")
-                                return
-                            end
-
-                            ctx:message(dialog,VSig("INDLG_InSetLabel"),VString(
-                                "Specify new folder name to rename  " .. dirName .. "."
-                            ))
-
-                            ctx:message(dialog,VSig("INDLG_InSetValue"),VString(dirName))
-
-                            local handler = ctx:makeLuaMatchHandler(
-                                VMatch(function()
-                                    print("Ok renamed!")
-                                    local outName = ctx:messageRetValues(dialog,VSig("INDLG_QueryInput"),VString("?"))._2
-                                    -- more thorough user input check should be performed
-                                    if (outName == "") then
-                                        setStatus(ctx,mainWnd,"Some directory name must be specified.")
-                                        return
-                                    end
-
-                                    local wholeDir = whole(dirId)
-
-                                    local asyncSqlite = DomainGlobals.currentAsyncSqlite
-                                    if (messageablesEqual(VMsgNil(),asyncSqlite)) then
-                                        return
-                                    end
-                                    local mainWnd = ctx:namedMessageable("mainWindow")
-                                    local mainModel = ctx:namedMessageable("mainModel")
-                                    ctx:messageAsyncWCallback(
-                                        asyncSqlite,
-                                        function(output)
-                                            local val = output:values()
-                                            local affected = val._3
-                                            if (affected > 0) then
-                                                ctx:message(mainWnd,
-                                                    VSig("MWI_InSetCurrentDirName"),
-                                                    VString(outName))
-                                            else
-                                                messageBox(
-                                                    "Duplicate name!",
-                                                    "'" .. outName ..
-                                                    "' already exists under current parent."
-                                                )
-                                            end
-                                        end,
-                                        VSig("ASQL_OutAffected"),
-                                        VString(sqlUpdateDirectoryNameStatement(wholeDir,outName)),
-                                        VInt(-1)
-                                    )
-                                    showOrHide(false)
-                                end,"INDLG_OutOkClicked"),
-                                VMatch(function()
-                                    print("Cancel rename!")
-                                    showOrHide(false)
-                                end,"INDLG_OutCancelClicked")
-                            )
-
-                            ctx:message(dialog,VSig("INDLG_InSetNotifier"),VMsg(handler))
-                            showOrHide(true)
-                        end),
-                        arrayBranch("New directory",function()
-                            local dialog = ctx:namedMessageable("singleInputDialog")
-
-                            local showOrHide = function(val)
-                                ctx:message(dialog,VSig("INDLG_InShowDialog"),VBool(val))
-                            end
-
-                            local setDlgErr = function(val)
-                                ctx:message(dialog,
-                                    VSig("INDLG_InSetErrLabel"),VString(val))
-                            end
-
-                            ctx:message(dialog,
-                                VSig("INDLG_InSetParent"),
-                                VMsg(mainWnd))
-
-                            local dirName = ctx:messageRetValues(mainWnd,VSig("MWI_QueryCurrentDirName"),VString("?"))._2
-                            local dirId = getCurrentEntityId()
-                            local dirIdWhole = whole(dirId)
-
-                            if (dirName == "[unselected]") then
-                                setStatus(ctx,mainWnd,"No directory was selected to create new one.")
-                                return
-                            end
-
-                            ctx:message(dialog,VSig("INDLG_InSetLabel"),VString(
-                                "Specify new folder name to create under " .. dirName .. "."
-                            ))
-
-                            local newId = objRetainer:newId()
-
-                            local handler = ctx:makeLuaMatchHandler(
-                                VMatch(function()
-                                    print("Ok!")
-                                    local outName = ctx:messageRetValues(dialog,VSig("INDLG_QueryInput"),VString("?"))._2
-                                    -- more thorough user input check should be performed
-                                    if (outName == "") then
-                                        setDlgErr("Some directory name must be specified.")
-                                        return
-                                    end
-
-                                    if (not isValidFilename(outName)) then
-                                        setDlgErr("Directory name entered contains invalid characters.")
-                                        return
-                                    end
-
-                                    setDlgErr("")
-
-                                    local asyncSqlite = DomainGlobals.currentAsyncSqlite
-                                    if (messageablesEqual(VMsgNil(),asyncSqlite)) then
-                                        return
-                                    end
-                                    local mainWnd = ctx:namedMessageable("mainWindow")
-                                    local mainModel = ctx:namedMessageable("mainModel")
-
-                                    local theQuery = sqlNewDirectoryStatement(dirIdWhole,outName)
-
-                                    ctx:messageAsyncWCallback(
-                                        asyncSqlite,
-                                        function(res)
-                                            local num = res:values()._3
-                                            if (num > 0) then
-                                                ctx:messageAsyncWCallback(
-                                                    asyncSqlite,
-                                                    function(back)
-                                                        local newId = back:values()._3
-                                                        ctx:message(mainWnd,
-                                                            VSig("MWI_InAddChildUnderCurrentDir"),
-                                                            VString(outName),VInt(newId))
-                                                    end,
-                                                    VSig("ASQL_OutSingleNum"),
-                                                    VString(sqlSelectLastInsertedDirId()),
-                                                    VInt(-1),
-                                                    VBool(false)
-                                                )
-                                                DomainFunctions.updateRevision()
-                                            else
-                                                messageBox(
-                                                    "Duplicate name!",
-                                                    "'" .. outName ..
-                                                    "' already exists under current directory."
-                                                )
-                                            end
-                                        end,
-                                        VSig("ASQL_OutAffected"),
-                                        VString(theQuery),
-                                        VInt(-1)
-                                    )
-                                    -- todo: optimize, don't reload all
-                                    showOrHide(false)
-                                    objRetainer:release(newId)
-                                end,"INDLG_OutOkClicked"),
-                                VMatch(function()
-                                    print("Cancel!")
-                                    showOrHide(false)
-                                    objRetainer:release(newId)
-                                end,"INDLG_OutCancelClicked")
-                            )
-
-                            objRetainer:retain(newId,handler)
-
-                            ctx:message(dialog,VSig("INDLG_InSetNotifier"),VMsg(handler))
-                            showOrHide(true)
-                        end),
-                        arrayBranch("New file",function()
-                            print("New file clicked")
-                            newFileDialog(
-                                function(result,dialog)
-                                    local firstValidation =
-                                        validateNewFileDialogFirst(result,dialog)
-                                    if (not firstValidation) then
-                                        return false
-                                    end
-
-                                    -- great success, form validation passed
-                                    -- TODO: how to prolong file dialog?
-                                    addNewFileUnderCurrentDir(result,dialog)
-                                    return true
-                                end
-                            )
-                        end),
-                        arrayBranch("Edit file",function()
-                            local dirId = getCurrentFileParent()
-                            modifyFileDialog(
-                                currentEntityId,
-                                function(result,orig,dialog)
-                                    local firstValidation =
-                                        validateNewFileDialogFirst(result,dialog)
-                                    if (not firstValidation) then
-                                        return false
-                                    end
-
-                                    updateFileFromDiff(currentEntityId,dirId,result,orig,dialog)
-                                    return true
-                                end
-                            )
-                        end),
-                        arrayBranch("Move file",function()
-                            setStatus(ctx,mainWnd,"Select folder to move file to.")
-                            fileToMove = currentEntityId
-                            DomainGlobal.shouldMoveFile = true
-                        end),
-                        arrayBranch("Delete file",function()
-                            local currentFileId = getCurrentEntityId()
-                            -- we know that this is file because
-                            -- we wouldn't see this menu
-                            -- TODO: ask if really want to delete
-                            if (currentFileId ~= -1) then
-                                local asyncSqlite = DomainGlobals.currentAsyncSqlite
-                                if (messageablesEqual(VMsgNil(),asyncSqlite)) then
-                                    return
-                                end
-                                ctx:messageAsync(asyncSqlite,
-                                    VSig("ASQL_Execute"),
-                                    VString(sqlDeleteFile(whole(currentFileId))))
-                                ctx:message(mainWnd,VSig("MWI_InDeleteSelectedDir"))
-                                DomainFunctions.updateRevision()
-                            else
-                                setStatus(ctx,mainWnd,"No directory selected.")
-                            end
-                        end)
-                    )
-                end
-            )
+            local menuModelHandler = fileBrowserRightClickHandler(dg,df)
             ctx:message(mainWnd,VSig("MWI_PMM_ShowMenu"),VMsg(menuModelHandler))
         end,"MWI_OutRightClickFolderList")
     )

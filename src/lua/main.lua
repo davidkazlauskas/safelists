@@ -1633,7 +1633,8 @@ initAll = function()
                         -- don't verify that two safelists are the same
                         return
                     end,"SLD_OutMirrorUsed","int","string"),
-                    VMatch(function(natPack,val)
+                    VMatch(instrument(function(natPack,val)
+                        local thisCorout = coroutine.running()
                         local values = val:values()
                         local hash = values._3
                         if (nil == asyncSqlite or isCurrentDead()) then
@@ -1646,35 +1647,35 @@ initAll = function()
                         local thePath = theDl:getPath()
 
                         ctx:messageAsyncWCallback(asyncSqlite,
-                            function (out)
-                                local outVal = out:values()
-                                local qhash = outVal._3
-
-                                assert( outVal._4, "Query failed..." )
-                                --assert( qhash ~= hash, "Hash collision, hash is different."
-                                    --.. " (todo: handle this case)" )
-
-                                if (qhash ~= hash and qhash ~= "") then
-                                    appendLog(
-                                      "Hash mismatch: " .. thePath
-                                      .. " is reported to be of hash \"" .. qhash .. "\""
-                                      .. " but turns out to be \"" .. hash .. "\"."
-                                      .. " Are mirrors pointing to the same file?"
-                                    )
-                                else
-                                    ctx:messageAsync(
-                                        asyncSqlite,
-                                        VSig("ASQL_Execute"),
-                                        VString(sqlUpdateFileHashStatement(idWhole,hash))
-                                    )
-                                    updateRevision()
-                                end
-                            end,
+                            resumerCallbackValues(thisCorout),
                             VSig("ASQL_OutSingleRow"),
                             VString(sqlGetFileHash(idWhole)),
                             VString(""),
                             VBool(false))
-                    end,"SLD_OutHashUpdate","int","string"),
+
+                        local outVal = coroutine.yield()
+                        local qhash = outVal._3
+
+                        assert( outVal._4, "Query failed..." )
+                        --assert( qhash ~= hash, "Hash collision, hash is different."
+                            --.. " (todo: handle this case)" )
+
+                        if (qhash ~= hash and qhash ~= "") then
+                            appendLog(
+                              "Hash mismatch: " .. thePath
+                              .. " is reported to be of hash \"" .. qhash .. "\""
+                              .. " but turns out to be \"" .. hash .. "\"."
+                              .. " Are mirrors pointing to the same file?"
+                            )
+                        else
+                            ctx:messageAsync(
+                                asyncSqlite,
+                                VSig("ASQL_Execute"),
+                                VString(sqlUpdateFileHashStatement(idWhole,hash))
+                            )
+                            updateRevision()
+                        end
+                    end),"SLD_OutHashUpdate","int","string"),
                     VMatch(function(natPack,out)
                         if (isCurrentDead()) then
                             return

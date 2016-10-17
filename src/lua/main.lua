@@ -365,7 +365,7 @@ initAll = function()
         window:setVisible(true)
     end
 
-    local messageBox = function(title,message)
+    df.messageBox = function(title,message)
         local dialogService =
             df.namedMessageable("dialogService")
 
@@ -374,8 +374,6 @@ initAll = function()
 
         df.messageBoxWParent(title,message,mainAppWnd:getMessageable())
     end
-
-    df.messageBox = messageBox
 
     df.validateNewFileDialogFirst = function(result,dialog)
         assert( result.finished, "Should be good..." )
@@ -1099,7 +1097,7 @@ initAll = function()
 
                 local _, isDir = getCurrentEntityId()
                 if (not isDir) then
-                    messageBox(
+                    df.messageBox(
                         "Cannot move!",
                         "Cannot move under a file."
                     )
@@ -1189,7 +1187,7 @@ initAll = function()
 
                 local _, isDir = df.getCurrentEntityId()
                 if (not isDir) then
-                    messageBox(
+                    df.messageBox(
                         "Cannot move!",
                         "Cannot move under a file."
                     )
@@ -1233,7 +1231,7 @@ initAll = function()
                     df.updateRevision()
                     loadCurrentRoutine()
                 elseif (value == 1) then
-                    messageBox(
+                    df.messageBox(
                         "Cannot move!",
                         "Directory to move cannot be a parent"
                         .. " of directory to move under."
@@ -1245,7 +1243,7 @@ initAll = function()
                         .. " has directory with such name.",
                         mainWnd)
                 elseif (value == 3) then
-                    messageBox(
+                    df.messageBox(
                         "Cannot move!",
                         "Directory is already under"
                         .. " this parent."
@@ -1287,7 +1285,7 @@ initAll = function()
                 downloadPath = downloadPath .. "/safelist_session"
 
                 if (dg.currentSessions[downloadPath] == "t") then
-                    messageBox(
+                    df.messageBox(
                         "In progress",
                         "Safelist already being downloaded."
                     )
@@ -1486,7 +1484,7 @@ initAll = function()
             local afterPath = function(outPath)
                 if (outPath ~= "") then
                     if (dg.currentSafelist:isSamePath(outPath)) then
-                        messageBox(
+                        df.messageBox(
                             "Already opened!",
                             "'" .. outPath ..
                             "' safelist is already opened."
@@ -1676,7 +1674,7 @@ initAll = function()
             local afterPath = function(thePath)
 
                 if (dg.currentSessions[thePath] == "t") then
-                    messageBox(
+                    df.messageBox(
                         "In progress",
                         "Safelist already being downloaded."
                     )

@@ -12,37 +12,7 @@ require('messages')
 require('guiutil')
 require('domaingui')
 require('downloadsmodel')
-
-ObjectRetainer = {
-    __index = {
-        newId = function(self)
-            local id = self.count
-            self.count = self.count + 1
-            return id
-        end,
-        retain = function(self,id,object)
-            self.table[id] = object
-        end,
-        retainNewId = function(self,object)
-            local id = self:newId()
-            self:retain(id,object)
-            return id
-        end,
-        release = function(self,id)
-            self.table[id] = nil
-        end,
-        new = function()
-            local res = {
-                count = 0,
-                table = {}
-            }
-            setmetatable(res,ObjectRetainer)
-            return res
-        end
-    }
-}
-
-objRetainer = ObjectRetainer.__index.new()
+require('objretainer')
 
 DownloadSpeedChecker = {
     __index = {
@@ -143,6 +113,20 @@ HashRevisionModel = {
 }
 
 dg.dm = DownloadsModel.newDownloadsModel()
+dg.objRetainer = ObjectRetainer.new()
+
+df.retainObject = function(obj)
+    return dg.objRetainer:retainNewId(obj)
+end
+df.releaseObject = function(id)
+    dg.objRetainer:release(id)
+end
+df.newObjectId = function()
+    return dg.objRetainer:newId()
+end
+df.retainObjectWId = function(id,obj)
+    dg.objRetainer:retain(id,obj)
+end
 
 df.updateSessionWidget = function()
     -- global state of session move, should we move this?
@@ -167,7 +151,6 @@ initAll = function()
 
     dg.ctx = ctx
     dg.mainWnd = mainWnd
-    dg.objRetainer = objRetainer
 
     df.ctx = luaContext
     df.mainWnd = function() return dg.mainWnd end
@@ -316,7 +299,7 @@ initAll = function()
         another:appendSubLeaf("quit-application","Quit",df.quitApplication)
 
         local model = luaModel:makeMessageable(dg.ctx)
-        local id = objRetainer:retainNewId(model)
+        local id = df.retainObject(model)
 
         menuBar:menuBarSetModelStackless(model)
 
@@ -620,7 +603,6 @@ initAll = function()
             )
         end
 
-        local newId = objRetainer:newId()
         local handler = ctx:makeLuaMatchHandler(
             VMatch(resumerCallbackWBranch("answer", thisCorout),
                 "INDLG_OutGenSignalEmitted","int"),
@@ -628,7 +610,7 @@ initAll = function()
                 "INDLG_OutDialogExited")
         )
 
-        objRetainer:retain(newId,handler)
+        local newId = df.retainObject(handler)
 
         ctx:message(
             dialog,
@@ -677,18 +659,18 @@ initAll = function()
                     outResult.hash = queryInput("fileHashInp")
 
                     if funcSuccess(outResult,dialog) then
-                        objRetainer:release(newId)
+                        df.releaseObject(newId)
                     end
                 elseif (signal == hookedCancel) then
                     print("Cancel clicked")
                     hideDlg()
-                    objRetainer:release(newId)
+                    df.releaseObject(newId)
                 else
                     assert( false, "No such signal? " .. signal )
                 end
             elseif (outBranch == "exited") then
                 print("Exit vanilla")
-                objRetainer:release(newId)
+                df.releaseObject(newId)
             else
                 assert(false, "lolwut?")
             end
@@ -750,15 +732,13 @@ initAll = function()
             return table.concat(newTable,"\n")
         end
 
-        local newId = objRetainer:newId()
         local handler = ctx:makeLuaMatchHandler(
             VMatch(resumerCallbackWBranch("answer", thisCorout),
                 "INDLG_OutGenSignalEmitted","int"),
             VMatch(resumerCallbackWBranch("exited", thisCorout),
                 "INDLG_OutDialogExited")
         )
-
-        objRetainer:retain(newId,handler)
+        local newId = df.retainObject(handler)
 
         ctx:message(
             dialog,
@@ -881,7 +861,7 @@ initAll = function()
 
                     if funcSuccess(outResult,original,dialog) then
                         print("success, returned")
-                        objRetainer:release(newId)
+                        df.releaseObject(newId)
                         return
                     else
                         print("Fail, repeating")
@@ -889,7 +869,7 @@ initAll = function()
                 elseif (signal == hookedCancel) then
                     print("Cancel clicked")
                     hideDlg()
-                    objRetainer:release(newId)
+                    df.releaseObject(newId)
                     print("fail, returned")
                     return
                 else
@@ -897,7 +877,7 @@ initAll = function()
                 end
             elseif (outBranch == "exited") then
                 print("Exit vanilla")
-                objRetainer:release(newId)
+                df.releaseObject(newId)
             else
                 assert(false, "lolwut?")
             end
@@ -1442,7 +1422,7 @@ initAll = function()
                     currSess.loggedErrors = true
                 end
 
-                local newId = objRetainer:newId()
+                local newId = df.newObjectId()
                 local handlerWeak = nil
                 local handler = ctx:makeLuaMatchHandler(
                     VMatch(function(natPack,val)
@@ -1585,7 +1565,7 @@ initAll = function()
                 )
 
                 handlerWeak = handler:getWeak()
-                objRetainer:retain(newId,handler)
+                df.retainObjectWId(newId,handler)
 
                 ctx:message(dlFactory,
                     VSig("SLDF_CreateSession"),
@@ -1596,17 +1576,17 @@ initAll = function()
 
             end
 
-            local nId = objRetainer:newId()
+            local nId = df.newObjectId()
 
             local handler = ctx:makeLuaMatchHandler(
                 VMatch(function(natPack,val)
                     local outPath = val:values()._2
                     afterDirectory(outPath)
-                    objRetainer:release(nId)
+                    df.releaseObject(nId)
                 end,"GDS_OutNotifyPath","string")
             )
 
-            objRetainer:retain(nId,handler)
+            df.retainObjectWId(nId,handler)
 
             local outVal = ctx:message(dialogService,
                 VSig("GDS_DirChooserDialog"),
@@ -1659,7 +1639,7 @@ initAll = function()
                 end
             end
 
-            local nId = objRetainer:newId()
+            local nId = df.newObjectId()
 
             local handler = ctx:makeLuaMatchHandler(
                 VMatch(function(natPack,val)
@@ -1670,11 +1650,11 @@ initAll = function()
                             "safelists.lastopen",folder)
                     end
                     afterPath(outPath)
-                    objRetainer:release(nId)
+                    df.releaseObject(nId)
                 end,"GDS_OutNotifyPath","string")
             )
 
-            objRetainer:retain(nId,handler)
+            df.retainObjectWId(nId,handler)
 
             ctx:message(dialogService,
                 VSig("GDS_FileChooserDialog"),
@@ -1760,17 +1740,17 @@ initAll = function()
 
                     end
 
-                    local nId = objRetainer:newId()
+                    local nId = df.newObjectId()
 
                     local handler = ctx:makeLuaMatchHandler(
                         VMatch(function(natPack,val)
                             local outPath = val:values()._2
                             afterAnswer(outPath)
-                            objRetainer:release(nId)
+                            df.releaseObject(nId)
                         end,"GDS_OutNotifyAnswer","int")
                     )
 
-                    objRetainer:retain(nId,handler)
+                    df.retainObjectWId(nId,handler)
 
                     ctx:message(
                         dialogService,
@@ -1784,17 +1764,17 @@ initAll = function()
                 end
             end)
 
-            local nId = objRetainer:newId()
+            local nId = df.newObjectId()
 
             local handler = ctx:makeLuaMatchHandler(
                 VMatch(function(natPack,val)
                     local outPath = val:values()._2
                     afterPath(outPath)
-                    objRetainer:release(nId)
+                    df.releaseObject(nId)
                 end,"GDS_OutNotifyPath","string")
             )
 
-            objRetainer:retain(nId,handler)
+            df.retainObjectWId(nId,handler)
 
             ctx:message(dialogService,
                 VSig("GDS_FileSaverDialog"),
@@ -1819,7 +1799,7 @@ initAll = function()
 
                 currentSessions[thePath] = "t"
                 local currSess = dg.dm:newSession()
-                local newId = objRetainer:newId()
+                local newId = df.newObjectId()
 
                 local handler = ctx:makeLuaMatchHandler(
                     VMatch(function(natPack,val)
@@ -1853,7 +1833,7 @@ initAll = function()
                         currentSessions[thePath] = nil
                         --dg.dm:incRevision()
                         --dg.dm:dropSession(currSess)
-                        --objRetainer:release(newId)
+                        --df.releaseObject(newId)
                     end,"SLD_OutDone"),
                     VMatch(function(natPack,val)
                         -- dont care, arbitrary safelist
@@ -1870,7 +1850,7 @@ initAll = function()
                     end,"SLD_OutTotalDownloads","int")
                 )
 
-                objRetainer:retain(newId,handler)
+                df.retainObjectWId(newId,handler)
 
                 local dlFactory = ctx:namedMessageable("dlSessionFactory")
                 local dlHandle = ctx:messageRetValues(dlFactory,
@@ -1883,17 +1863,17 @@ initAll = function()
 
             end
 
-            local nId = objRetainer:newId()
+            local nId = df.newObjectId()
 
             local handler = ctx:makeLuaMatchHandler(
                 VMatch(function(natPack,val)
                     local outPath = val:values()._2
                     afterPath(outPath)
-                    objRetainer:release(nId)
+                    df.releaseObject(nId)
                 end,"GDS_OutNotifyPath","string")
             )
 
-            objRetainer:retain(nId,handler)
+            df.retainObjectWId(nId,handler)
 
             ctx:message(dialogService,
                 VSig("GDS_FileChooserDialog"),

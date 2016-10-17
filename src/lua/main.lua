@@ -281,10 +281,12 @@ initAll = function()
     -- menu bar model attempt
     setupMenuModel(df,dg)
 
-    local safelistDependantWigets = {
-        "dirList",
-        "downloadButton"
-    }
+    df.safelistDependantWigets = function()
+        return {
+            "dirList",
+            "downloadButton"
+        }
+    end
 
     df.resetVarsForSafelist = function()
         dg.currentDirToMoveId = -1
@@ -300,7 +302,7 @@ initAll = function()
         df.setWidgetsEnabled(
             mainWnd,
             false,
-            table.unpack(safelistDependantWigets)
+            table.unpack(df.safelistDependantWigets())
         )
     end
 
@@ -308,7 +310,7 @@ initAll = function()
         df.setWidgetsEnabled(
             mainWnd,
             true,
-            table.unpack(safelistDependantWigets)
+            table.unpack(df.safelistDependantWigets())
         )
     end
 

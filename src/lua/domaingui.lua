@@ -57,7 +57,7 @@ function fileBrowserRightClickHandler(dg,df)
                         local dialog = df.namedMessageable("singleInputDialog")
 
                         local showOrHide = function(val)
-                            dg.ctx:message(dialog,VSig("INDLG_InShowDialog"),VBool(val))
+                            df.message(dialog,VSig("INDLG_InShowDialog"),VBool(val))
                         end
 
                         local dirName = dg.ctx:messageRetValues(dg.mainWnd,VSig("MWI_QueryCurrentDirName"),VString("?"))._2
@@ -73,11 +73,11 @@ function fileBrowserRightClickHandler(dg,df)
                             return
                         end
 
-                        dg.ctx:message(dialog,VSig("INDLG_InSetLabel"),VString(
+                        df.message(dialog,VSig("INDLG_InSetLabel"),VString(
                             "Specify new folder name to rename  " .. dirName .. "."
                         ))
 
-                        dg.ctx:message(dialog,VSig("INDLG_InSetValue"),VString(dirName))
+                        df.message(dialog,VSig("INDLG_InSetValue"),VString(dirName))
 
                         local handler = dg.ctx:makeLuaMatchHandler(
                             VMatch(function()
@@ -102,7 +102,7 @@ function fileBrowserRightClickHandler(dg,df)
                                         local val = output:values()
                                         local affected = val._3
                                         if (affected > 0) then
-                                            dg.ctx:message(dg.mainWnd,
+                                            df.message(dg.mainWnd,
                                                 VSig("MWI_InSetCurrentDirName"),
                                                 VString(outName))
                                         else
@@ -125,22 +125,22 @@ function fileBrowserRightClickHandler(dg,df)
                             end,"INDLG_OutCancelClicked")
                         )
 
-                        dg.ctx:message(dialog,VSig("INDLG_InSetNotifier"),VMsg(handler))
+                        df.message(dialog,VSig("INDLG_InSetNotifier"),VMsg(handler))
                         showOrHide(true)
                     end),
                     arrayBranch("New directory",function()
                         local dialog = df.namedMessageable("singleInputDialog")
 
                         local showOrHide = function(val)
-                            dg.ctx:message(dialog,VSig("INDLG_InShowDialog"),VBool(val))
+                            df.message(dialog,VSig("INDLG_InShowDialog"),VBool(val))
                         end
 
                         local setDlgErr = function(val)
-                            dg.ctx:message(dialog,
+                            df.message(dialog,
                                 VSig("INDLG_InSetErrLabel"),VString(val))
                         end
 
-                        dg.ctx:message(dialog,
+                        df.message(dialog,
                             VSig("INDLG_InSetParent"),
                             VMsg(dg.mainWnd))
 
@@ -153,7 +153,7 @@ function fileBrowserRightClickHandler(dg,df)
                             return
                         end
 
-                        dg.ctx:message(dialog,VSig("INDLG_InSetLabel"),VString(
+                        df.message(dialog,VSig("INDLG_InSetLabel"),VString(
                             "Specify new folder name to create under " .. dirName .. "."
                         ))
 
@@ -193,7 +193,7 @@ function fileBrowserRightClickHandler(dg,df)
                                                 asyncSqlite,
                                                 function(back)
                                                     local newId = back:values()._3
-                                                    dg.ctx:message(dg.mainWnd,
+                                                    df.message(dg.mainWnd,
                                                         VSig("MWI_InAddChildUnderCurrentDir"),
                                                         VString(outName),VInt(newId))
                                                 end,
@@ -228,7 +228,7 @@ function fileBrowserRightClickHandler(dg,df)
 
                         dg.objRetainer:retain(newId,handler)
 
-                        dg.ctx:message(dialog,VSig("INDLG_InSetNotifier"),VMsg(handler))
+                        df.message(dialog,VSig("INDLG_InSetNotifier"),VMsg(handler))
                         showOrHide(true)
                     end),
                     arrayBranch("New file",function()
@@ -282,7 +282,7 @@ function fileBrowserRightClickHandler(dg,df)
                             dg.ctx:messageAsync(asyncSqlite,
                                 VSig("ASQL_Execute"),
                                 VString(sqlDeleteFile(whole(currentFileId))))
-                            dg.ctx:message(dg.mainWnd,VSig("MWI_InDeleteSelectedDir"))
+                            df.message(dg.mainWnd,VSig("MWI_InDeleteSelectedDir"))
                             df.updateRevision()
                         else
                             df.setStatus("No directory selected.")

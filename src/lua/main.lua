@@ -158,8 +158,12 @@ initAll = function()
         return ctx:namedMessageable(name)
     end
 
+    df.message = function(...)
+        ctx:message(table.unpack({...}))
+    end
+
     df.quitApplication = function()
-        ctx:message(
+        df.message(
             mainWnd,
             VSig("MWI_InQuit")
         )
@@ -167,7 +171,7 @@ initAll = function()
 
     df.openUrlInBrowser = function(url)
         local dialogService = df.namedMessageable("dialogService")
-        ctx:message(
+        df.message(
             dialogService,
             VSig("GDS_OpenUrlInBrowser"),
             VString(url)
@@ -232,7 +236,7 @@ initAll = function()
 
     local loadCss = function(path)
         local cssMng = df.namedMessageable("themeManager")
-        ctx:message(
+        df.message(
             cssMng,
             VSig("THM_LoadTheme"),
             VString(path)
@@ -390,13 +394,13 @@ initAll = function()
         local outRes = "Safelist revision: " .. split[1] ..
             ", last modification date: " .. split[2]
 
-        ctx:message(mainWnd,VSig("MWI_InSetWidgetText"),
+        df.message(mainWnd,VSig("MWI_InSetWidgetText"),
             VString("safelistRevisionLabel"),VString(outRes))
 
         end)
 
     local setDownloadSpeedGui = function(string)
-        ctx:message(
+        df.message(
             mainWnd,
             VSig("MWI_InSetDownloadText"),
             VString(string)
@@ -436,7 +440,7 @@ initAll = function()
             VSig("ASQLF_CreateNew"),
             VString(path),VMsg(nil))._3
 
-        ctx:message(shutdownGuard,
+        df.message(shutdownGuard,
             VSig("GSI_AddNew"),
             VMsg(result))
 
@@ -600,7 +604,7 @@ initAll = function()
         local hookedCancel = hookButton("cancelButton")
 
         local hideDlg = function()
-            ctx:message(
+            df.message(
                 dialog,
                 VSig("INDLG_InHideDialog")
             )
@@ -615,17 +619,17 @@ initAll = function()
 
         local newId = df.retainObject(handler)
 
-        ctx:message(
+        df.message(
             dialog,
             VSig("INDLG_InSetNotifier"),
             VMsg(handler)
         )
-        ctx:message(
+        df.message(
             dialog,
             VSig("INDLG_InAlwaysAbove")
         )
 
-        ctx:message(
+        df.message(
             dialog,
             VSig("INDLG_InShowDialog")
         )
@@ -716,7 +720,7 @@ initAll = function()
         local hookedCancel = hookButton("cancelButton")
 
         local hideDlg = function()
-            ctx:message(
+            df.message(
                 dialog,
                 VSig("INDLG_InHideDialog")
             )
@@ -743,12 +747,12 @@ initAll = function()
         )
         local newId = df.retainObject(handler)
 
-        ctx:message(
+        df.message(
             dialog,
             VSig("INDLG_InSetNotifier"),
             VMsg(handler)
         )
-        ctx:message(
+        df.message(
             dialog,
             VSig("INDLG_InAlwaysAbove")
         )
@@ -786,7 +790,7 @@ initAll = function()
         end
 
         local setInput = function(name,value)
-            ctx:message(
+            df.message(
                 dialog,
                 VSig("INDLG_InSetValue"),
                 VString(name),
@@ -809,7 +813,7 @@ initAll = function()
         local hashAndSizeOff = totalUses > 0
         if (hashAndSizeOff) then
             local offInput = function(name)
-                ctx:message(dialog,
+                df.message(dialog,
                     VSig("INDLG_InSetControlEnabled"),
                     VString(name),
                     VBool(false))
@@ -819,7 +823,7 @@ initAll = function()
             offInput("fileHashInp")
         end
 
-        ctx:message(
+        df.message(
             dialog,
             VSig("INDLG_InShowDialog")
         )
@@ -905,7 +909,7 @@ initAll = function()
         setStatus(dg.ctx,dg.mainWnd,statText)
     end
     df.deleteSelectedDir = function()
-        dg.ctx:message(dg.mainWnd,VSig("MWI_InDeleteSelectedDir"))
+        df.message(dg.mainWnd,VSig("MWI_InDeleteSelectedDir"))
     end
     df.execSqliteOnHandler = function(sqliteHandler,theStatement)
         dg.ctx:messageAsync(sqliteHandler,
@@ -924,7 +928,7 @@ initAll = function()
 
         -- disable Ok button for split
         -- second of async operations
-        ctx:message(
+        df.message(
             dialog,
             VSig("INDLG_InSetControlEnabled"),
             VString("okButton"),
@@ -937,7 +941,7 @@ initAll = function()
                 message,
                 dialog
             )
-            ctx:message(
+            df.message(
                 dialog,
                 VSig("INDLG_InSetControlEnabled"),
                 VString("okButton"),
@@ -1007,7 +1011,7 @@ initAll = function()
         local tbl = coroutine.yield()
         assert( tbl._4, "Aww, zigga nease..." )
         local theId = tbl._3
-        ctx:message(
+        df.message(
             mainWnd,
             VSig("MWI_InAddNewFileInCurrent"),
             VInt(theId),
@@ -1016,7 +1020,7 @@ initAll = function()
             VDouble(tonumber(data.size)),
             VString(data.hash)
         )
-        ctx:message(
+        df.message(
             dialog,
             VSig("INDLG_InHideDialog")
         )
@@ -1049,7 +1053,7 @@ initAll = function()
         end
 
         local hideDlg = function()
-            ctx:message(
+            df.message(
                 dialog,
                 VSig("INDLG_InHideDialog")
             )
@@ -1079,7 +1083,7 @@ initAll = function()
                 toUp = tonumber(merged.size)
             end
 
-            ctx:message(
+            df.message(
                 mainWnd,
                 VSig("MWI_InSetCurrentFileValues"),
                 VInt(fileId),
@@ -1098,7 +1102,7 @@ initAll = function()
                 message,
                 dialog
             )
-            ctx:message(
+            df.message(
                 dialog,
                 VSig("INDLG_InSetControlEnabled"),
                 VString("okButton"),
@@ -1108,7 +1112,7 @@ initAll = function()
 
         if (nil ~= diffTable.name) then
             -- validate if file name is forbidden
-            ctx:message(
+            df.message(
                 dialog,
                 VSig("INDLG_InSetControlEnabled"),
                 VString("okButton"),
@@ -1193,7 +1197,7 @@ initAll = function()
             if (messageablesEqual(VMsgNil(),asyncSqlite)) then
                 return
             end
-            ctx:message(mainModel,
+            df.message(mainModel,
                 VSig("MMI_InLoadFolderTree"),VMsg(asyncSqlite),VMsg(mainWnd))
         end,"MWI_OutNewFileSignal"),
         VMatch(instrument(function(natpack,val)
@@ -1274,7 +1278,7 @@ initAll = function()
                         VSig("ASQL_Execute"),
                         VString(updateQuery)
                     )
-                    ctx:message(
+                    df.message(
                         mainWnd,
                         VSig("MWI_InAddNewFileInCurrent"),
                         VInt(toMove),
@@ -1283,7 +1287,7 @@ initAll = function()
                         VDouble(fileSize),
                         VString(hash)
                     )
-                    ctx:message(
+                    df.message(
                         mainWnd,
                         VSig("MWI_InDeleteSelectedDir"),
                         VInt(1)
@@ -1344,7 +1348,7 @@ initAll = function()
                         VString(sqlMoveDirStatement(currentDirToMoveIdWhole,inIdWhole)),
                         VInt(-1))
                     dg.currentDirToMoveId = -1
-                    ctx:message(mainWnd,
+                    df.message(mainWnd,
                         VSig("MWI_InMoveChildUnderParent"),
                         VInt(-1))
                     df.updateRevision()
@@ -1570,7 +1574,7 @@ initAll = function()
                 handlerWeak = handler:getWeak()
                 df.retainObjectWId(newId,handler)
 
-                ctx:message(dlFactory,
+                df.message(dlFactory,
                     VSig("SLDF_CreateSession"),
                     VMsg(asyncSqlite),
                     VMsg(handler),
@@ -1591,7 +1595,7 @@ initAll = function()
 
             df.retainObjectWId(nId,handler)
 
-            local outVal = ctx:message(dialogService,
+            local outVal = df.message(dialogService,
                 VSig("GDS_DirChooserDialog"),
                 VMsg(mainWnd),
                 VString("Select download location."),
@@ -1621,7 +1625,7 @@ initAll = function()
 
                         dg.currentAsyncSqlite = newAsqlite(outPath)
 
-                        ctx:message(mainModel,
+                        df.message(mainModel,
                             VSig("MMI_InLoadFolderTree"),
                             VMsg(dg.currentAsyncSqlite),VMsg(mainWnd))
                         onSafelistState()
@@ -1659,7 +1663,7 @@ initAll = function()
 
             df.retainObjectWId(nId,handler)
 
-            ctx:message(dialogService,
+            df.message(dialogService,
                 VSig("GDS_FileChooserDialog"),
                 VMsg(mainWnd),
                 VString("Select safelist to open."),
@@ -1688,7 +1692,7 @@ initAll = function()
                         dg.currentAsyncSqlite = newSafelist(outPath)
                         local new = dg.currentAsyncSqlite
                         resetVarsForSafelist()
-                        ctx:message(mainModel,
+                        df.message(mainModel,
                             VSig("MMI_InLoadFolderTree"),
                             VMsg(new),VMsg(mainWnd))
                         df.updateRevision()
@@ -1755,7 +1759,7 @@ initAll = function()
 
                     df.retainObjectWId(nId,handler)
 
-                    ctx:message(
+                    df.message(
                         dialogService,
                         VSig("GDS_OkCancelDialog"),
                         VMsg(mainWnd),
@@ -1779,7 +1783,7 @@ initAll = function()
 
             df.retainObjectWId(nId,handler)
 
-            ctx:message(dialogService,
+            df.message(dialogService,
                 VSig("GDS_FileSaverDialog"),
                 VMsg(mainWnd),
                 VString("Select new safelist path"),
@@ -1878,7 +1882,7 @@ initAll = function()
 
             df.retainObjectWId(nId,handler)
 
-            ctx:message(dialogService,
+            df.message(dialogService,
                 VSig("GDS_FileChooserDialog"),
                 VMsg(mainWnd),
                 VString("Select safelist session to resume."),
@@ -1890,17 +1894,17 @@ initAll = function()
             local thisState = val:values()._2
             if (thisState ~= prevToggleState) then
                 prevToggleState = thisState
-                ctx:message(mainWnd,
+                df.message(mainWnd,
                     VSig("MWI_InRevealDownloads"),VBool(thisState))
             end
         end,"MWI_OutShowDownloadsToggled","bool"),
         VMatch(function()
             local menuModelHandler = fileBrowserRightClickHandler(dg,df)
-            ctx:message(mainWnd,VSig("MWI_PMM_ShowMenu"),VMsg(menuModelHandler))
+            df.message(mainWnd,VSig("MWI_PMM_ShowMenu"),VMsg(menuModelHandler))
         end,"MWI_OutRightClickFolderList")
     )
 
-    ctx:message(mainWnd,VSig("MWI_InAttachListener"),VMsg(mainWindowPushButtonHandler))
+    df.message(mainWnd,VSig("MWI_InAttachListener"),VMsg(mainWindowPushButtonHandler))
 
 
     downloadUpdateModel = ctx:makeLuaMatchHandler(
@@ -1969,7 +1973,7 @@ initAll = function()
             natPack:setSlot(3,VString(consumed))
         end,"DLMDL_QuerySessionLog","int","string")
     )
-    ctx:message(mainWnd,VSig("MWI_InSetDownloadModel"),VMsg(downloadUpdateModel))
+    df.message(mainWnd,VSig("MWI_InSetDownloadModel"),VMsg(downloadUpdateModel))
 
 end
 initAll()

@@ -108,7 +108,7 @@ DomainFunctions = {
 dg = DomainGlobals
 df = DomainFunctions
 
-HashRevisionModel = {
+dg.hrm = {
     hashRevisionUpdate = 0,
     hashRevisionDrawingUpdate = 0
 }
@@ -315,8 +315,8 @@ initAll = function()
     end
 
     df.updateRevision = function()
-        HashRevisionModel.hashRevisionUpdate =
-            HashRevisionModel.hashRevisionUpdate + 1
+        dg.hrm.hashRevisionUpdate =
+            dg.hrm.hashRevisionUpdate + 1
         df.updateSessionWidget()
     end
 
@@ -325,14 +325,14 @@ initAll = function()
     end
 
     local updateRevisionGui = instrument(function()
-        if (HashRevisionModel.hashRevisionUpdate ==
-            HashRevisionModel.hashRevisionDrawingUpdate)
+        if (dg.hrm.hashRevisionUpdate ==
+            dg.hrm.hashRevisionDrawingUpdate)
         then
             return
         end
 
-        HashRevisionModel.hashRevisionDrawingUpdate =
-            HashRevisionModel.hashRevisionUpdate
+        dg.hrm.hashRevisionDrawingUpdate =
+            dg.hrm.hashRevisionUpdate
 
         local thisCorout = coroutine.running()
 

@@ -315,14 +315,17 @@ initAll = function()
     dg.mainWnd = mainWnd
     dg.objRetainer = objRetainer
 
-    local quitApplication = function()
+    df.ctx = luaContext
+    df.mainWnd = function() return dg.mainWnd end
+
+    df.quitApplication = function()
         ctx:message(
             mainWnd,
             VSig("MWI_InQuit")
         )
     end
 
-    local openUrlInBrowser = function(url)
+    df.openUrlInBrowser = function(url)
         local dialogService = ctx:namedMessageable("dialogService")
         ctx:message(
             dialogService,
@@ -334,30 +337,7 @@ initAll = function()
     local constsTbl = {}
     constsTbl['ispaidmode'] = false
 
-    local isPaidMode = function()
-        return constsTbl['ispaidmode']
-    end
-
-    local isReleaseBuild = function()
-        if (constsTbl['isrelease'] == nil) then
-            local tmp = ctx:messageRetValues(
-                globConsts,
-                VSig("GLC_LookupString"),
-                VString("isrelease"),
-                VString(""),
-                VInt(-1)
-            )._3
-            if (tmp == "true") then
-                constsTbl['isrelease'] = true
-            else
-                constsTbl['isrelease'] = false
-            end
-        end
-
-        return constsTbl['isrelease']
-    end
-
-    local globSetting =
+    df.globSetting =
         function(thename)
             return ctx:messageRetValues(
                 globConsts,
@@ -368,10 +348,10 @@ initAll = function()
             )._3
         end
 
-    local settingsFileLocation = globSetting("settingspath")
-    local examplesPath = globSetting("appdatapath") .. "/examples/"
+    local settingsFileLocation = df.globSetting("settingspath")
+    local examplesPath = df.globSetting("appdatapath") .. "/examples/"
 
-    local persistentSettings = PersistentSettings.new(
+    dg.persistentSettings = PersistentSettings.new(
         function(saveData)
             ctx:messageAsync(
                 writer,
@@ -430,7 +410,7 @@ initAll = function()
         local path = themes[name]
         assert( nil ~= path, "Theme doesn't exist." )
         loadCss(path)
-        persistentSettings:setValue("safelists.theme",name)
+        dg.persistentSettings:setValue("safelists.theme",name)
     end
 
     -- menu bar model attempt
@@ -443,7 +423,7 @@ initAll = function()
         local help = luaModel:appendSubComp("help","Help")
         local bugRep = help:appendSubLeaf("report-bug","Report a bug",
             function()
-                openUrlInBrowser("https://bugs.launchpad.net/safelists")
+                df.openUrlInBrowser("https://bugs.launchpad.net/safelists")
             end
         )
         local themes = another:appendSubComp("settings-themes","Themes")
@@ -475,7 +455,7 @@ initAll = function()
             loadTheme("Windows 10 (dark)")
         end)
 
-        another:appendSubLeaf("quit-application","Quit",quitApplication)
+        another:appendSubLeaf("quit-application","Quit",df.quitApplication)
 
         local model = luaModel:makeMessageable(ctx)
         local id = objRetainer:retainNewId(model)
@@ -486,7 +466,7 @@ initAll = function()
         -- json settings are not already queried
         local setupCurrent = function()
             -- current default
-            local currTheme = persistentSettings:getValue("safelists.theme")
+            local currTheme = dg.persistentSettings:getValue("safelists.theme")
             local defaultTheme = "Adwaita (light)"
             if (nil == currTheme) then
                 loadTheme(defaultTheme)
@@ -1334,7 +1314,7 @@ initAll = function()
     table.insert(FrameEndFunctions,updateDownloadSpeed)
 
     table.insert(FrameEndFunctions,function()
-        persistentSettings:persist()
+        dg.persistentSettings:persist()
     end)
 
     noSafelistState()
@@ -1824,7 +1804,7 @@ initAll = function()
                     local outPath = val:values()._2
                     local folder = string.match(outPath,".+/")
                     if (folder ~= nil) then
-                        persistentSettings:setValue(
+                        dg.persistentSettings:setValue(
                             "safelists.lastopen",folder)
                     end
                     afterPath(outPath)
@@ -1839,7 +1819,7 @@ initAll = function()
                 VMsg(mainWnd),
                 VString("Select safelist to open."),
                 VString("*.safelist"),
-                VString(persistentSettings:getValueDefault(
+                VString(dg.persistentSettings:getValueDefault(
                     "safelists.lastopen",examplesPath)),
                 VMsg(handler))
         end,"MWI_OutOpenSafelistButtonClicked"),

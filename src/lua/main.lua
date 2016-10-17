@@ -286,23 +286,27 @@ initAll = function()
         "downloadButton"
     }
 
-    local resetVarsForSafelist = function()
+    df.resetVarsForSafelist = function()
         dg.currentDirToMoveId = -1
     end
 
-    resetVarsForSafelist()
+    df.resetVarsForSafelist()
 
-    local noSafelistState = function()
-        setWidgetsEnabled(
-            ctx,mainWnd,
+    df.setWidgetsEnabled = function(...)
+        setWidgetsEnabled(ctx,table.unpack({...}))
+    end
+
+    df.noSafelistState = function()
+        df.setWidgetsEnabled(
+            mainWnd,
             false,
             table.unpack(safelistDependantWigets)
         )
     end
 
-    local onSafelistState = function()
-        setWidgetsEnabled(
-            ctx,mainWnd,
+    df.onSafelistState = function()
+        df.setWidgetsEnabled(
+            mainWnd,
             true,
             table.unpack(safelistDependantWigets)
         )
@@ -1120,13 +1124,13 @@ initAll = function()
         dg.persistentSettings:persist()
     end)
 
-    noSafelistState()
+    df.noSafelistState()
 
     ctx:attachContextTo(mainWnd)
     dg.sessionWidget = df.messageRetValues(mainWnd,
         VSig("MWI_QueryDownloadSessionWidget"),VMsg(nil))._2
 
-    resetVarsForSafelist()
+    df.resetVarsForSafelist()
 
     mainWindowPushButtonHandler = df.makeLuaMatchHandler(
         VMatch(function()
@@ -1570,7 +1574,7 @@ initAll = function()
                     end
                     currentSafelist:setPath(outPath)
                     if (not currentSafelist:isEmpty()) then
-                        noSafelistState() -- prevent user from doing
+                        df.noSafelistState() -- prevent user from doing
                                           -- anything for split second
                     end
 
@@ -1582,7 +1586,7 @@ initAll = function()
                         df.message(mainModel,
                             VSig("MMI_InLoadFolderTree"),
                             VMsg(dg.currentAsyncSqlite),VMsg(mainWnd))
-                        onSafelistState()
+                        df.onSafelistState()
                         df.updateRevision()
                     end
 
@@ -1645,12 +1649,12 @@ initAll = function()
 
                         dg.currentAsyncSqlite = newSafelist(outPath)
                         local new = dg.currentAsyncSqlite
-                        resetVarsForSafelist()
+                        df.resetVarsForSafelist()
                         df.message(mainModel,
                             VSig("MMI_InLoadFolderTree"),
                             VMsg(new),VMsg(mainWnd))
                         df.updateRevision()
-                        onSafelistState()
+                        df.onSafelistState()
                     end
 
                     local prev = dg.currentAsyncSqlite
@@ -1665,7 +1669,7 @@ initAll = function()
                     openNew()
                 end
 
-                noSafelistState()
+                df.noSafelistState()
 
                 df.messageAsyncWCallback(
                     writer,
@@ -1693,10 +1697,10 @@ initAll = function()
                                 VString(outPath)
                             )
                         elseif (response == 1 or response == -1) then
-                            noSafelistState()
+                            df.noSafelistState()
                         else
                             assert( false, "Wrong neighbourhood, milky." )
-                            noSafelistState()
+                            df.noSafelistState()
                         end
 
                     end

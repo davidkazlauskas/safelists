@@ -243,7 +243,7 @@ initAll = function()
         table.insert(dg.frameEndFunctions,another)
     end
 
-    local updateRevisionGui = instrument(function()
+    df.updateRevisionGui = instrument(function()
         if (dg.hrm.hashRevisionUpdate ==
             dg.hrm.hashRevisionDrawingUpdate)
         then
@@ -1037,7 +1037,7 @@ initAll = function()
 
     end
 
-    df.addFrameEndFunction(updateRevisionGui)
+    df.addFrameEndFunction(df.updateRevisionGui)
     df.addFrameEndFunction(df.updateSessionWidget)
     df.addFrameEndFunction(updateDownloadSpeed)
 

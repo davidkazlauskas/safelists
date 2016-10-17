@@ -86,7 +86,6 @@ CurrentSafelist = {
 
 currentSafelist = CurrentSafelist.__index.new()
 
-currentSessions = {}
 
 revealDownloads = false
 
@@ -98,7 +97,8 @@ DomainGlobals = {
     mainWnd = nil,
     oneOffFunctions = {},
     frameEndFunctions = {},
-    sessionWidget = nil
+    sessionWidget = nil,
+    currentSessions = {}
 }
 
 DomainFunctions = {
@@ -1358,7 +1358,7 @@ initAll = function()
 
                 downloadPath = downloadPath .. "/safelist_session"
 
-                if (currentSessions[downloadPath] == "t") then
+                if (dg.currentSessions[downloadPath] == "t") then
                     messageBox(
                         "In progress",
                         "Safelist already being downloaded."
@@ -1366,7 +1366,7 @@ initAll = function()
                     return
                 end
 
-                currentSessions[downloadPath] = "t"
+                dg.currentSessions[downloadPath] = "t"
 
                 --print("Pre col: " .. collectgarbage('count'))
                 --collectgarbage('collect')
@@ -1419,7 +1419,7 @@ initAll = function()
                     end,"SLD_OutFileNotFound","int"),
                     VMatch(function()
                         print('Downloaded!')
-                        currentSessions[downloadPath] = nil
+                        dg.currentSessions[downloadPath] = nil
                         --dg.dm:incRevision()
                         --dg.dm:dropSession(currSess)
                         --objRetainer:release(newId)
@@ -1747,7 +1747,7 @@ initAll = function()
 
             local afterPath = function(thePath)
 
-                if (currentSessions[thePath] == "t") then
+                if (dg.currentSessions[thePath] == "t") then
                     messageBox(
                         "In progress",
                         "Safelist already being downloaded."
@@ -1755,7 +1755,7 @@ initAll = function()
                     return
                 end
 
-                currentSessions[thePath] = "t"
+                dg.currentSessions[thePath] = "t"
                 local currSess = dg.dm:newSession()
                 local newId = df.newObjectId()
 
@@ -1788,7 +1788,7 @@ initAll = function()
                     end,"SLD_OutSingleDone","int"),
                     VMatch(function()
                         print('Downloaded!')
-                        currentSessions[thePath] = nil
+                        dg.currentSessions[thePath] = nil
                         --dg.dm:incRevision()
                         --dg.dm:dropSession(currSess)
                         --df.releaseObject(newId)

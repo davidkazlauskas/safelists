@@ -174,6 +174,10 @@ initAll = function()
         ctx:messageAsyncWCallback(table.unpack({...}))
     end
 
+    df.makeLuaMatchHandler = function(...)
+        return ctx:makeLuaMatchHandler(table.unpack({...}))
+    end
+
     df.quitApplication = function()
         df.message(
             mainWnd,
@@ -622,7 +626,7 @@ initAll = function()
             )
         end
 
-        local handler = ctx:makeLuaMatchHandler(
+        local handler = df.makeLuaMatchHandler(
             VMatch(resumerCallbackWBranch("answer", thisCorout),
                 "INDLG_OutGenSignalEmitted","int"),
             VMatch(resumerCallbackWBranch("exited", thisCorout),
@@ -751,7 +755,7 @@ initAll = function()
             return table.concat(newTable,"\n")
         end
 
-        local handler = ctx:makeLuaMatchHandler(
+        local handler = df.makeLuaMatchHandler(
             VMatch(resumerCallbackWBranch("answer", thisCorout),
                 "INDLG_OutGenSignalEmitted","int"),
             VMatch(resumerCallbackWBranch("exited", thisCorout),
@@ -1186,7 +1190,7 @@ initAll = function()
 
     resetVarsForSafelist()
 
-    mainWindowPushButtonHandler = ctx:makeLuaMatchHandler(
+    mainWindowPushButtonHandler = df.makeLuaMatchHandler(
         VMatch(function()
             local oneOffSteal = dg.oneOffFunctions
             dg.oneOffFunctions = {}
@@ -1443,7 +1447,7 @@ initAll = function()
 
                 local newId = df.newObjectId()
                 local handlerWeak = nil
-                local handler = ctx:makeLuaMatchHandler(
+                local handler = df.makeLuaMatchHandler(
                     VMatch(function(natPack,val)
                         local values = val:values()
                         local dl = currSess:keyDownload(values._2)
@@ -1597,7 +1601,7 @@ initAll = function()
 
             local nId = df.newObjectId()
 
-            local handler = ctx:makeLuaMatchHandler(
+            local handler = df.makeLuaMatchHandler(
                 VMatch(function(natPack,val)
                     local outPath = val:values()._2
                     afterDirectory(outPath)
@@ -1660,7 +1664,7 @@ initAll = function()
 
             local nId = df.newObjectId()
 
-            local handler = ctx:makeLuaMatchHandler(
+            local handler = df.makeLuaMatchHandler(
                 VMatch(function(natPack,val)
                     local outPath = val:values()._2
                     local folder = string.match(outPath,".+/")
@@ -1761,7 +1765,7 @@ initAll = function()
 
                     local nId = df.newObjectId()
 
-                    local handler = ctx:makeLuaMatchHandler(
+                    local handler = df.makeLuaMatchHandler(
                         VMatch(function(natPack,val)
                             local outPath = val:values()._2
                             afterAnswer(outPath)
@@ -1785,7 +1789,7 @@ initAll = function()
 
             local nId = df.newObjectId()
 
-            local handler = ctx:makeLuaMatchHandler(
+            local handler = df.makeLuaMatchHandler(
                 VMatch(function(natPack,val)
                     local outPath = val:values()._2
                     afterPath(outPath)
@@ -1820,7 +1824,7 @@ initAll = function()
                 local currSess = dg.dm:newSession()
                 local newId = df.newObjectId()
 
-                local handler = ctx:makeLuaMatchHandler(
+                local handler = df.makeLuaMatchHandler(
                     VMatch(function(natPack,val)
                         local values = val:values()
                         local dl = currSess:keyDownload(values._2)
@@ -1884,7 +1888,7 @@ initAll = function()
 
             local nId = df.newObjectId()
 
-            local handler = ctx:makeLuaMatchHandler(
+            local handler = df.makeLuaMatchHandler(
                 VMatch(function(natPack,val)
                     local outPath = val:values()._2
                     afterPath(outPath)
@@ -1919,7 +1923,7 @@ initAll = function()
     df.message(mainWnd,VSig("MWI_InAttachListener"),VMsg(mainWindowPushButtonHandler))
 
 
-    downloadUpdateModel = ctx:makeLuaMatchHandler(
+    downloadUpdateModel = df.makeLuaMatchHandler(
         VMatch(function(natPack,vtree)
             local values = vtree:values()
             local sessNum = values._2 + 1

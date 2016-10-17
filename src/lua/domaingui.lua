@@ -79,7 +79,7 @@ function fileBrowserRightClickHandler(dg,df)
 
                         df.message(dialog,VSig("INDLG_InSetValue"),VString(dirName))
 
-                        local handler = dg.ctx:makeLuaMatchHandler(
+                        local handler = df.makeLuaMatchHandler(
                             VMatch(function()
                                 print("Ok renamed!")
                                 local outName = df.messageRetValues(dialog,VSig("INDLG_QueryInput"),VString("?"))._2
@@ -159,7 +159,7 @@ function fileBrowserRightClickHandler(dg,df)
 
                         local newId = dg.objRetainer:newId()
 
-                        local handler = dg.ctx:makeLuaMatchHandler(
+                        local handler = df.makeLuaMatchHandler(
                             VMatch(function()
                                 print("Ok!")
                                 local outName = df.messageRetValues(dialog,VSig("INDLG_QueryInput"),VString("?"))._2

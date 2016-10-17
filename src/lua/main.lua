@@ -117,7 +117,6 @@ currentSafelist = CurrentSafelist.__index.new()
 currentSessions = {}
 
 revealDownloads = false
-sessionWidget = nil
 
 DomainGlobals = {
     currentAsyncSqlite = nil,
@@ -126,7 +125,8 @@ DomainGlobals = {
     ctx = nil,
     mainWnd = nil,
     oneOffFunctions = {},
-    frameEndFunctions = {}
+    frameEndFunctions = {},
+    sessionWidget = nil
 }
 
 DomainFunctions = {
@@ -289,9 +289,9 @@ function DownloadsModel:isDirty()
     return self.revisionUpdateNum ~= self.revisionNum
 end
 
-function updateSessionWidget()
+df.updateSessionWidget = function()
     -- global state of session move, should we move this?
-    local wgt = sessionWidget
+    local wgt = dg.sessionWidget
     if (nil == wgt) then
         return
     end
@@ -512,7 +512,7 @@ initAll = function()
     df.updateRevision = function()
         HashRevisionModel.hashRevisionUpdate =
             HashRevisionModel.hashRevisionUpdate + 1
-        dg.frameEndFunctions[2]()
+        df.updateSessionWidget()
     end
 
     df.addFrameEndFunction = function(another)
@@ -1317,7 +1317,7 @@ initAll = function()
     end
 
     df.addFrameEndFunction(updateRevisionGui)
-    df.addFrameEndFunction(updateSessionWidget)
+    df.addFrameEndFunction(df.updateSessionWidget)
     df.addFrameEndFunction(updateDownloadSpeed)
 
     df.addFrameEndFunction(function()
@@ -1327,7 +1327,7 @@ initAll = function()
     noSafelistState()
 
     ctx:attachContextTo(mainWnd)
-    sessionWidget = ctx:messageRetValues(mainWnd,
+    dg.sessionWidget = ctx:messageRetValues(mainWnd,
         VSig("MWI_QueryDownloadSessionWidget"),VMsg(nil))._2
 
     resetVarsForSafelist()

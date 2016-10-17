@@ -154,6 +154,9 @@ initAll = function()
 
     df.ctx = luaContext
     df.mainWnd = function() return dg.mainWnd end
+    df.namedMessageable = function(name)
+        return ctx:namedMessageable(name)
+    end
 
     df.quitApplication = function()
         ctx:message(
@@ -163,7 +166,7 @@ initAll = function()
     end
 
     df.openUrlInBrowser = function(url)
-        local dialogService = ctx:namedMessageable("dialogService")
+        local dialogService = df.namedMessageable("dialogService")
         ctx:message(
             dialogService,
             VSig("GDS_OpenUrlInBrowser"),
@@ -228,7 +231,7 @@ initAll = function()
     --end
 
     local loadCss = function(path)
-        local cssMng = ctx:namedMessageable("themeManager")
+        local cssMng = df.namedMessageable("themeManager")
         ctx:message(
             cssMng,
             VSig("THM_LoadTheme"),
@@ -426,8 +429,8 @@ initAll = function()
     end
 
     local newAsqlite = function(path)
-        local factory = ctx:namedMessageable("asyncSqliteFactory")
-        local shutdownGuard = ctx:namedMessageable("shutdownGuard")
+        local factory = df.namedMessageable("asyncSqliteFactory")
+        local shutdownGuard = df.namedMessageable("shutdownGuard")
 
         local result = ctx:messageRetValues(factory,
             VSig("ASQLF_CreateNew"),
@@ -452,7 +455,7 @@ initAll = function()
 
     local messageBoxWParent = function(title,message,parent)
         local dialogService =
-            ctx:namedMessageable("dialogService")
+            df.namedMessageable("dialogService")
 
         local dialog =
             ctx:messageRetValues(
@@ -481,7 +484,7 @@ initAll = function()
 
     local messageBox = function(title,message)
         local dialogService =
-            ctx:namedMessageable("dialogService")
+            df.namedMessageable("dialogService")
 
         local mainWrapped = GenericWidget.putOn(mainWnd)
         local mainAppWnd = mainWrapped:getWidget("mainAppWindow")
@@ -574,7 +577,7 @@ initAll = function()
 
     df.newFileDialog = instrument(function(funcSuccess)
         local thisCorout = coroutine.running()
-        local dialogService = ctx:namedMessageable("dialogService")
+        local dialogService = df.namedMessageable("dialogService")
 
         local dialog = ctx:messageRetValues(
             dialogService,
@@ -679,7 +682,7 @@ initAll = function()
 
     df.modifyFileDialog = instrument(function(fileId,funcSuccess)
         local fileIdWhole = whole(fileId)
-        local dialogService = ctx:namedMessageable("dialogService")
+        local dialogService = df.namedMessageable("dialogService")
         local thisCorout = coroutine.running()
 
         -- Return results:
@@ -1185,7 +1188,7 @@ initAll = function()
             mainWndButtonHandlers[index]()
         end,"GWI_GBT_OutClickEvent","int"),
         VMatch(function()
-            local mainModel = ctx:namedMessageable("mainModel")
+            local mainModel = df.namedMessageable("mainModel")
             local asyncSqlite = dg.currentAsyncSqlite
             if (messageablesEqual(VMsgNil(),asyncSqlite)) then
                 return
@@ -1201,7 +1204,7 @@ initAll = function()
             local currentDirIdWhole = whole(dg.currentDirId)
 
             local loadCurrentRoutine = function()
-                local mainModel = ctx:namedMessageable("mainModel")
+                local mainModel = df.namedMessageable("mainModel")
                 local asyncSqlite = dg.currentAsyncSqlite
                 if (messageablesEqual(VMsgNil(),asyncSqlite)) then
                     return
@@ -1317,8 +1320,8 @@ initAll = function()
                 if (messageablesEqual(VMsgNil(),asyncSqlite)) then
                     return
                 end
-                local mainWnd = ctx:namedMessageable("mainWindow")
-                local mainModel = ctx:namedMessageable("mainModel")
+                local mainWnd = df.namedMessageable("mainWindow")
+                local mainModel = df.namedMessageable("mainModel")
 
                 local condition = sqlMoveDirCondition(inIdWhole, currentDirToMoveIdWhole)
 
@@ -1372,8 +1375,8 @@ initAll = function()
             loadCurrentRoutine()
         end),"MWI_OutDirChangedSignal","int"),
         VMatch(function()
-            local dlFactory = ctx:namedMessageable("dlSessionFactory")
-            local dialogService = ctx:namedMessageable("dialogService")
+            local dlFactory = df.namedMessageable("dlSessionFactory")
+            local dialogService = df.namedMessageable("dialogService")
             local asyncSqlite = dg.currentAsyncSqlite
             if (messageablesEqual(VMsgNil(),asyncSqlite)) then
                 assert( false, "Didn't expect download request" ..
@@ -1595,7 +1598,7 @@ initAll = function()
                 VMsg(handler))
         end,"MWI_OutDownloadSafelistButtonClicked"),
         VMatch(function()
-            local dialogService = ctx:namedMessageable("dialogService")
+            local dialogService = df.namedMessageable("dialogService")
 
             local afterPath = function(outPath)
                 if (outPath ~= "") then
@@ -1614,7 +1617,7 @@ initAll = function()
                     end
 
                     local openNew = function()
-                        local mainModel = ctx:namedMessageable("mainModel")
+                        local mainModel = df.namedMessageable("mainModel")
 
                         dg.currentAsyncSqlite = newAsqlite(outPath)
 
@@ -1666,7 +1669,7 @@ initAll = function()
                 VMsg(handler))
         end,"MWI_OutOpenSafelistButtonClicked"),
         VMatch(function()
-            local dialogService = ctx:namedMessageable("dialogService")
+            local dialogService = df.namedMessageable("dialogService")
             local afterPath = instrument(function(outPath)
                 if (outPath == "") then
                     return
@@ -1680,7 +1683,7 @@ initAll = function()
 
                 local ifContinue = function()
                     local openNew = function()
-                        local mainModel = ctx:namedMessageable("mainModel")
+                        local mainModel = df.namedMessageable("mainModel")
 
                         dg.currentAsyncSqlite = newSafelist(outPath)
                         local new = dg.currentAsyncSqlite
@@ -1720,7 +1723,7 @@ initAll = function()
                     ifContinue()
                 else
                     local dialogService =
-                        ctx:namedMessageable("dialogService")
+                        df.namedMessageable("dialogService")
 
                     local afterAnswer = function(response)
 
@@ -1785,7 +1788,7 @@ initAll = function()
         end,"MWI_OutCreateSafelistButtonClicked"),
         VMatch(function()
 
-            local dialogService = ctx:namedMessageable("dialogService")
+            local dialogService = df.namedMessageable("dialogService")
 
             local afterPath = function(thePath)
 
@@ -1852,7 +1855,7 @@ initAll = function()
 
                 df.retainObjectWId(newId,handler)
 
-                local dlFactory = ctx:namedMessageable("dlSessionFactory")
+                local dlFactory = df.namedMessageable("dlSessionFactory")
                 local dlHandle = ctx:messageRetValues(dlFactory,
                     VSig("SLDF_InNewAsync"),
                     VString(thePath),

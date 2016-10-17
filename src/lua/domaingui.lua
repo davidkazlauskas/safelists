@@ -54,7 +54,7 @@ function fileBrowserRightClickHandler(dg,df)
                         end
                     end),
                     arrayBranch("Rename directory",function()
-                        local dialog = dg.ctx:namedMessageable("singleInputDialog")
+                        local dialog = df.namedMessageable("singleInputDialog")
 
                         local showOrHide = function(val)
                             dg.ctx:message(dialog,VSig("INDLG_InShowDialog"),VBool(val))
@@ -95,7 +95,7 @@ function fileBrowserRightClickHandler(dg,df)
                                 if (messageablesEqual(VMsgNil(),asyncSqlite)) then
                                     return
                                 end
-                                local mainModel = dg.ctx:namedMessageable("mainModel")
+                                local mainModel = df.namedMessageable("mainModel")
                                 dg.ctx:messageAsyncWCallback(
                                     asyncSqlite,
                                     function(output)
@@ -129,7 +129,7 @@ function fileBrowserRightClickHandler(dg,df)
                         showOrHide(true)
                     end),
                     arrayBranch("New directory",function()
-                        local dialog = dg.ctx:namedMessageable("singleInputDialog")
+                        local dialog = df.namedMessageable("singleInputDialog")
 
                         local showOrHide = function(val)
                             dg.ctx:message(dialog,VSig("INDLG_InShowDialog"),VBool(val))
@@ -180,7 +180,7 @@ function fileBrowserRightClickHandler(dg,df)
                                 if (messageablesEqual(VMsgNil(),asyncSqlite)) then
                                     return
                                 end
-                                local mainModel = dg.ctx:namedMessageable("mainModel")
+                                local mainModel = df.namedMessageable("mainModel")
 
                                 local theQuery = sqlNewDirectoryStatement(dirIdWhole,outName)
 

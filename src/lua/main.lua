@@ -771,7 +771,7 @@ initAll = function()
     end)
 
 
-    local getCurrentEntityId = function()
+    df.getCurrentEntityId = function()
         local mret = df.messageRetValues(mainWnd,
                         VSig("MWI_QueryCurrentEntityId"),VInt(-7),VBool(false))
         return mret._2, mret._3
@@ -781,8 +781,6 @@ initAll = function()
         return df.messageRetValues(mainWnd,
             VSig("MWI_QueryCurrentFileParent"),VInt(-7))._2
     end
-    -- export
-    df.getCurrentEntityId = getCurrentEntityId
     df.getCurrentFileParent = getCurrentFileParent
     df.setStatus = function(statText)
         setStatus(dg.ctx,dg.mainWnd,statText)
@@ -798,7 +796,7 @@ initAll = function()
 
     local addNewFileUnderCurrentDir = instrument(function(data,dialog)
         local thisCorout = coroutine.running()
-        local currentEntityId = getCurrentEntityId()
+        local currentEntityId = df.getCurrentEntityId()
         local currentDirIdWhole = whole(currentEntityId)
 
         local asyncSqlite = dg.currentAsyncSqlite
@@ -1091,7 +1089,7 @@ initAll = function()
             if (dg.currentDirId > 0 and dg.shouldMoveFile == true) then
                 dg.shouldMoveFile = false
 
-                local _, isDir = getCurrentEntityId()
+                local _, isDir = df.getCurrentEntityId()
                 if (not isDir) then
                     df.messageBox(
                         "Cannot move!",

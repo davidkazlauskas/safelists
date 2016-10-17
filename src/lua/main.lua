@@ -467,7 +467,7 @@ initAll = function()
 
     df.makeGenericDialog = function(schema,name)
         return df.messageRetValues(
-            dialogService,
+            df.namedMessageable("dialogService"),
             VSig("GDS_MakeGenericDialog"),
             VString(schema),
             VString(name),

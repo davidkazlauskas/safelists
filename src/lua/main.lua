@@ -116,9 +116,8 @@ initAll = function()
     end
 
     df.openUrlInBrowser = function(url)
-        local dialogService = df.namedMessageable("dialogService")
         df.message(
-            dialogService,
+            df.namedMessageable("dialogService"),
             VSig("GDS_OpenUrlInBrowser"),
             VString(url)
         )

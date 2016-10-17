@@ -124,7 +124,8 @@ DomainGlobals = {
     shouldMoveDir = false,
     shouldMoveFile = false,
     ctx = nil,
-    mainWnd = nil
+    mainWnd = nil,
+    oneOffFunctions = {}
 }
 
 DomainFunctions = {
@@ -135,7 +136,6 @@ dg = DomainGlobals
 df = DomainFunctions
 
 FrameEndFunctions = {}
-OneOffFunctions = {}
 
 HashRevisionModel = {
     hashRevisionUpdate = 0,
@@ -378,6 +378,10 @@ initAll = function()
         end
     )
 
+    df.scheduleOneOffFunction = function(newFunc)
+        table.insert(dg.oneOffFunctions, newFunc)
+    end
+
     local mainWndButtonHandlers = {}
 
     -- HOOK EXAMPLE
@@ -406,7 +410,7 @@ initAll = function()
         ["Windows 10 (dark)"] = "appdata/themes/windows-10/gtk-dark.css"
     }
 
-    local loadTheme = function(name)
+    df.loadTheme = function(name)
         local path = themes[name]
         assert( nil ~= path, "Theme doesn't exist." )
         loadCss(path)
@@ -415,7 +419,7 @@ initAll = function()
 
     -- menu bar model attempt
     local menuBarModelStuff = function()
-        local mainWrapped = GenericWidget.putOn(mainWnd)
+        local mainWrapped = GenericWidget.putOn(dg.mainWnd)
         local menuBar = mainWrapped:getWidget("mainWindowMenuBar")
 
         local luaModel = MenuModel.new()
@@ -429,35 +433,35 @@ initAll = function()
         local themes = another:appendSubComp("settings-themes","Themes")
         local adwaita = themes:appendSubComp("theme-adwaita","Adwaita")
         adwaita:appendSubLeaf("theme-adwaita-light","light",function()
-            loadTheme("Adwaita (light)")
+            df.loadTheme("Adwaita (light)")
         end)
         adwaita:appendSubLeaf("theme-adwaita-dark","dark",function()
-            loadTheme("Adwaita (dark)")
+            df.loadTheme("Adwaita (dark)")
         end)
         themes:appendSubLeaf("theme-raleigh","Raleigh",function()
-            loadTheme("Raleigh")
+            df.loadTheme("Raleigh")
         end)
         local vertex = themes:appendSubComp("theme-vertex","Vertex")
         vertex:appendSubLeaf("theme-vertex-light","light",function()
-            loadTheme("Vertex (light)")
+            df.loadTheme("Vertex (light)")
         end)
         vertex:appendSubLeaf("theme-vertex-dark","dark",function()
-            loadTheme("Vertex (dark)")
+            df.loadTheme("Vertex (dark)")
         end)
         themes:appendSubLeaf("theme-borderline-gtk","Borderline GTK",function()
-            loadTheme("Borderline GTK")
+            df.loadTheme("Borderline GTK")
         end)
         local win10 = themes:appendSubComp("theme-win-10","Windows 10")
         win10:appendSubLeaf("theme-win-10-light","light",function()
-            loadTheme("Windows 10 (light)")
+            df.loadTheme("Windows 10 (light)")
         end)
         win10:appendSubLeaf("theme-win-10-dark","dark",function()
-            loadTheme("Windows 10 (dark)")
+            df.loadTheme("Windows 10 (dark)")
         end)
 
         another:appendSubLeaf("quit-application","Quit",df.quitApplication)
 
-        local model = luaModel:makeMessageable(ctx)
+        local model = luaModel:makeMessageable(dg.ctx)
         local id = objRetainer:retainNewId(model)
 
         menuBar:menuBarSetModelStackless(model)
@@ -469,13 +473,13 @@ initAll = function()
             local currTheme = dg.persistentSettings:getValue("safelists.theme")
             local defaultTheme = "Adwaita (light)"
             if (nil == currTheme) then
-                loadTheme(defaultTheme)
+                df.loadTheme(defaultTheme)
             else
-                loadTheme(currTheme)
+                df.loadTheme(currTheme)
             end
         end
 
-        table.insert(OneOffFunctions,setupCurrent)
+        df.scheduleOneOffFunction(setupCurrent)
     end
     menuBarModelStuff()
 
@@ -1327,8 +1331,8 @@ initAll = function()
 
     mainWindowPushButtonHandler = ctx:makeLuaMatchHandler(
         VMatch(function()
-            local oneOffSteal = OneOffFunctions
-            OneOffFunctions = {}
+            local oneOffSteal = dg.oneOffFunctions
+            dg.oneOffFunctions = {}
             for k,v in ipairs(oneOffSteal) do
                 v()
             end

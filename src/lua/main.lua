@@ -151,6 +151,8 @@ DownloadsModel = {
     revisionUpdateNum = 0
 }
 
+dg.dm = DownloadsModel
+
 SingleDownload = {
     __index = {
         newDownload = function (id,path)
@@ -296,7 +298,7 @@ df.updateSessionWidget = function()
         return
     end
 
-    if (DownloadsModel:isDirty()) then
+    if (dg.dm:isDirty()) then
         local ctx = luaContext()
         fullDownloadModelUpdate(ctx,wgt)
     end
@@ -1579,7 +1581,7 @@ initAll = function()
                 --collectgarbage('collect')
                 --print("Post col: " .. collectgarbage('count'))
 
-                local currSess = DownloadsModel:newSession()
+                local currSess = dg.dm:newSession()
                 currSess.loggedErrors = false
 
                 local appendLog = function(theStr)
@@ -1597,7 +1599,7 @@ initAll = function()
                         if (nil ~= dl) then
                             local done = values._3
                             local total = values._4
-                            DownloadsModel:incRevision()
+                            dg.dm:incRevision()
                             dl:setProgress(done,total)
                         end
                         local newBytes = values._5
@@ -1607,13 +1609,13 @@ initAll = function()
                         local valTree = val:values()
                         local newKey = valTree._2
                         local newPath = valTree._3
-                        DownloadsModel:incRevision()
+                        dg.dm:incRevision()
                         currSess:addDownload(newKey,newPath)
                     end,"SLD_OutStarted","int","string"),
                     VMatch(function(natpack,val)
                         local valTree = val:values()
                         local delKey = valTree._2
-                        DownloadsModel:incRevision()
+                        dg.dm:incRevision()
                         currSess:removeDownload(delKey)
                     end,"SLD_OutSingleDone","int"),
                     VMatch(function(natpack,val)
@@ -1621,14 +1623,14 @@ initAll = function()
                         local valTree = val:values()
                         local delKey = valTree._2
                         print("File not found brah: |" .. delKey .. "|")
-                        DownloadsModel:incRevision()
+                        dg.dm:incRevision()
                         currSess:removeDownload(delKey)
                     end,"SLD_OutFileNotFound","int"),
                     VMatch(function()
                         print('Downloaded!')
                         currentSessions[downloadPath] = nil
-                        --DownloadsModel:incRevision()
-                        --DownloadsModel:dropSession(currSess)
+                        --dg.dm:incRevision()
+                        --dg.dm:dropSession(currSess)
                         --objRetainer:release(newId)
                     end,"SLD_OutDone"),
                     VMatch(function(natpack,val)
@@ -1963,7 +1965,7 @@ initAll = function()
                 end
 
                 currentSessions[thePath] = "t"
-                local currSess = DownloadsModel:newSession()
+                local currSess = dg.dm:newSession()
                 local newId = objRetainer:newId()
 
                 local handler = ctx:makeLuaMatchHandler(
@@ -1974,7 +1976,7 @@ initAll = function()
                         if (nil ~= dl) then
                             local done = values._3
                             local total = values._4
-                            DownloadsModel:incRevision()
+                            dg.dm:incRevision()
                             dl:setProgress(done,total)
                         end
                         local newBytes = values._5
@@ -1984,20 +1986,20 @@ initAll = function()
                         local valTree = val:values()
                         local newKey = valTree._2
                         local newPath = valTree._3
-                        DownloadsModel:incRevision()
+                        dg.dm:incRevision()
                         currSess:addDownload(newKey,newPath)
                     end,"SLD_OutStarted","int","string"),
                     VMatch(function(natpack,val)
                         local valTree = val:values()
                         local delKey = valTree._2
-                        DownloadsModel:incRevision()
+                        dg.dm:incRevision()
                         currSess:removeDownload(delKey)
                     end,"SLD_OutSingleDone","int"),
                     VMatch(function()
                         print('Downloaded!')
                         currentSessions[thePath] = nil
-                        --DownloadsModel:incRevision()
-                        --DownloadsModel:dropSession(currSess)
+                        --dg.dm:incRevision()
+                        --dg.dm:dropSession(currSess)
                         --objRetainer:release(newId)
                     end,"SLD_OutDone"),
                     VMatch(function(natPack,val)
@@ -2073,7 +2075,7 @@ initAll = function()
             -- man, that lua inconsitency with
             -- 1 based arrays drives me nuts
 
-            local sess = DownloadsModel:nthSession(sessNum)
+            local sess = dg.dm:nthSession(sessNum)
             local download = sess:nthDownload(dlNum)
             local progress = roundFloatStr(download:getProgress() * 100,2)
             local done = download:getDone()
@@ -2086,23 +2088,23 @@ initAll = function()
             natPack:setSlot(5,VDouble(download:getProgress()))
         end,"DLMDL_QueryDownloadLabelAndProgress","int","int","string","double"),
         VMatch(function(natPack)
-            natPack:setSlot(2,VInt( DownloadsModel:sessionCount() ))
+            natPack:setSlot(2,VInt( dg.dm:sessionCount() ))
         end,"DLMDL_QueryCount","int"),
         VMatch(function(natPack,vtree)
             local sessN = vtree:values()._2 + 1
-            local sess = DownloadsModel:nthSession(sessN)
+            local sess = dg.dm:nthSession(sessN)
             local count = sess:activeDownloadCount()
             natPack:setSlot(3,VInt(count))
         end,"DLMDL_QuerySessionDownloadCount","int","int"),
         VMatch(function(natPack,vtree)
             local sessN = vtree:values()._2 + 1
             local theLabel = "Session #" ..
-                DownloadsModel:nthSessionNum(sessN)
+                dg.dm:nthSessionNum(sessN)
             natPack:setSlot(3,VString(theLabel))
         end,"DLMDL_QuerySessionTitle","int","string"),
         VMatch(function(natPack,vtree)
             local sessN = vtree:values()._2 + 1
-            local sess = DownloadsModel:nthSession(sessN)
+            local sess = dg.dm:nthSession(sessN)
             local done = sess:doneDownloads()
             local doneWhole = whole(done)
             local total = sess:totalDownloads()
@@ -2126,7 +2128,7 @@ initAll = function()
         end,"DLMDL_QuerySessionTotalProgress","int","string","double"),
         VMatch(function(natPack,vtree)
             local sessN = vtree:values()._2 + 1
-            local sess = DownloadsModel:nthSession(sessN)
+            local sess = dg.dm:nthSession(sessN)
             local consumed = sess:consumeLog()
             natPack:setSlot(3,VString(consumed))
         end,"DLMDL_QuerySessionLog","int","string")

@@ -793,7 +793,7 @@ initAll = function()
             VString(theStatement))
     end
 
-    local addNewFileUnderCurrentDir = instrument(function(data,dialog)
+    df.addNewFileUnderCurrentDir = instrument(function(data,dialog)
         local thisCorout = coroutine.running()
         local currentEntityId = df.getCurrentEntityId()
         local currentDirIdWhole = whole(currentEntityId)
@@ -902,8 +902,6 @@ initAll = function()
         -- TODO: how to reflect db failures to dialog?
         return true
     end)
-
-    df.addNewFileUnderCurrentDir = addNewFileUnderCurrentDir
 
     df.updateFileFromDiff = function(fileId,currentDirId,diffTable,orig,dialog)
         -- diffTable:

@@ -278,7 +278,7 @@ initAll = function()
 
         end)
 
-    local setDownloadSpeedGui = function(string)
+    df.setDownloadSpeedGui = function(string)
         df.message(
             mainWnd,
             VSig("MWI_InSetDownloadText"),
@@ -286,7 +286,7 @@ initAll = function()
         )
     end
 
-    local updateDownloadSpeed = function()
+    df.updateDownloadSpeed = function()
         dg.downloadSpeedChecker:regBytes(0)
         local theSpeed = dg.downloadSpeedChecker:bytesPerSec()
 
@@ -308,10 +308,10 @@ initAll = function()
             speedString = "Download speed: " .. speedString
         end
 
-        setDownloadSpeedGui(speedString)
+        df.setDownloadSpeedGui(speedString)
     end
 
-    local newAsqlite = function(path)
+    df.newAsqlite = function(path)
         local factory = df.namedMessageable("asyncSqliteFactory")
         local shutdownGuard = df.namedMessageable("shutdownGuard")
 
@@ -326,8 +326,8 @@ initAll = function()
         return result
     end
 
-    local newSafelist = function(path)
-        local res = newAsqlite(path)
+    df.newSafelist = function(path)
+        local res = df.newAsqlite(path)
         df.messageAsync(
             res,
             VSig("ASQL_Execute"),
@@ -1039,7 +1039,7 @@ initAll = function()
 
     df.addFrameEndFunction(df.updateRevisionGui)
     df.addFrameEndFunction(df.updateSessionWidget)
-    df.addFrameEndFunction(updateDownloadSpeed)
+    df.addFrameEndFunction(df.updateDownloadSpeed)
 
     df.addFrameEndFunction(function()
         dg.persistentSettings:persist()
@@ -1502,7 +1502,7 @@ initAll = function()
                     local openNew = function()
                         local mainModel = df.namedMessageable("mainModel")
 
-                        dg.currentAsyncSqlite = newAsqlite(outPath)
+                        dg.currentAsyncSqlite = df.newAsqlite(outPath)
 
                         df.message(mainModel,
                             VSig("MMI_InLoadFolderTree"),
@@ -1568,7 +1568,7 @@ initAll = function()
                     local openNew = function()
                         local mainModel = df.namedMessageable("mainModel")
 
-                        dg.currentAsyncSqlite = newSafelist(outPath)
+                        dg.currentAsyncSqlite = df.newSafelist(outPath)
                         local new = dg.currentAsyncSqlite
                         df.resetVarsForSafelist()
                         df.message(mainModel,

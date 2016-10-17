@@ -475,6 +475,13 @@ initAll = function()
         )._4
     end
 
+    df.hideDialog = function(dialog)
+        df.message(
+            dialog,
+            VSig("INDLG_InHideDialog")
+        )
+    end
+
     df.newFileDialog = instrument(function(funcSuccess)
         local thisCorout = coroutine.running()
         local dialogService = df.namedMessageable("dialogService")
@@ -489,10 +496,7 @@ initAll = function()
         local hookedCancel = hookButton("cancelButton")
 
         local hideDlg = function()
-            df.message(
-                dialog,
-                VSig("INDLG_InHideDialog")
-            )
+            df.hideDialog(dialog)
         end
 
         local handler = df.makeLuaMatchHandler(
@@ -598,10 +602,7 @@ initAll = function()
         local hookedCancel = hookButton("cancelButton")
 
         local hideDlg = function()
-            df.message(
-                dialog,
-                VSig("INDLG_InHideDialog")
-            )
+            df.hideDialog(dialog)
         end
 
         -- TODO: sort to make sure?
@@ -898,10 +899,7 @@ initAll = function()
             VDouble(tonumber(data.size)),
             VString(data.hash)
         )
-        df.message(
-            dialog,
-            VSig("INDLG_InHideDialog")
-        )
+        df.hideDialog(dialog)
         df.updateRevision()
 
         -- TODO: how to reflect db failures to dialog?
@@ -931,10 +929,7 @@ initAll = function()
         end
 
         local hideDlg = function()
-            df.message(
-                dialog,
-                VSig("INDLG_InHideDialog")
-            )
+            df.hideDialog(dialog)
         end
 
         if (missing("name","mirrors","size","hash")) then

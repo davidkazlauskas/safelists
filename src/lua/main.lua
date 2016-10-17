@@ -162,6 +162,10 @@ initAll = function()
         ctx:message(table.unpack({...}))
     end
 
+    df.messageAsync = function(...)
+        ctx:messageAsync(table.unpack({...}))
+    end
+
     df.quitApplication = function()
         df.message(
             mainWnd,
@@ -197,7 +201,7 @@ initAll = function()
 
     dg.persistentSettings = PersistentSettings.new(
         function(saveData)
-            ctx:messageAsync(
+            df.messageAsync(
                 writer,
                 VSig("RFW_WriteStringToFileWDir"),
                 VString(settingsFileLocation),
@@ -449,7 +453,7 @@ initAll = function()
 
     local newSafelist = function(path)
         local res = newAsqlite(path)
-        ctx:messageAsync(
+        df.messageAsync(
             res,
             VSig("ASQL_Execute"),
             VString(newSafelistSchema())
@@ -912,7 +916,7 @@ initAll = function()
         df.message(dg.mainWnd,VSig("MWI_InDeleteSelectedDir"))
     end
     df.execSqliteOnHandler = function(sqliteHandler,theStatement)
-        dg.ctx:messageAsync(sqliteHandler,
+        df.messageAsync(sqliteHandler,
             VSig("ASQL_Execute"),
             VString(theStatement))
     end
@@ -1071,7 +1075,7 @@ initAll = function()
             local outString = sqlUpdateFileQuery(fileIdWhole,diffTable.name,
                 diffTable.size,diffTable.hash,diffTable.mirrors)
 
-            ctx:messageAsync(
+            df.messageAsync(
                 asyncSqlite,
                 VSig("ASQL_Execute"),
                 VString(outString)
@@ -1273,7 +1277,7 @@ initAll = function()
                 elseif (case == 0) then
                     local updateQuery = sqlMoveFileStatement(toMoveWhole,currentDirIdWhole)
 
-                    ctx:messageAsync(
+                    df.messageAsync(
                         asyncSqlite,
                         VSig("ASQL_Execute"),
                         VString(updateQuery)
@@ -1343,7 +1347,7 @@ initAll = function()
                 --assert( success, "Great success failed..." )
                 print("val|" .. value .. "|")
                 if (value == 0) then
-                    ctx:messageAsync(asyncSqlite,
+                    df.messageAsync(asyncSqlite,
                         VSig("ASQL_OutAffected"),
                         VString(sqlMoveDirStatement(currentDirToMoveIdWhole,inIdWhole)),
                         VInt(-1))
@@ -1514,7 +1518,7 @@ initAll = function()
                               .. " Are mirrors pointing to the same file?"
                             )
                         else
-                            ctx:messageAsync(
+                            df.messageAsync(
                                 asyncSqlite,
                                 VSig("ASQL_Execute"),
                                 VString(sqlUpdateFileHashStatement(idWhole,hash))
@@ -1532,7 +1536,7 @@ initAll = function()
                         local idWhole = whole(id)
                         local newSize = val._3
                         -- size collision already checked with assert
-                        ctx:messageAsync(
+                        df.messageAsync(
                             asyncSqlite,
                             VSig("ASQL_Execute"),
                             VString(sqlUpdateFileSizeStatement(idWhole,whole(newSize)))

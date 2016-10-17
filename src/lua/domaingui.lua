@@ -279,7 +279,7 @@ function fileBrowserRightClickHandler(dg,df)
                             if (messageablesEqual(VMsgNil(),asyncSqlite)) then
                                 return
                             end
-                            dg.ctx:messageAsync(asyncSqlite,
+                            df.messageAsync(asyncSqlite,
                                 VSig("ASQL_Execute"),
                                 VString(sqlDeleteFile(whole(currentFileId))))
                             df.message(dg.mainWnd,VSig("MWI_InDeleteSelectedDir"))

@@ -162,12 +162,16 @@ initAll = function()
         ctx:message(table.unpack({...}))
     end
 
+    df.messageRetValues = function(...)
+        return ctx:messageRetValues(table.unpack({...}))
+    end
+
     df.messageAsync = function(...)
         ctx:messageAsync(table.unpack({...}))
     end
 
-    df.messageRetValues = function(...)
-        return ctx:messageRetValues(table.unpack({...}))
+    df.messageAsyncWCallback = function(...)
+        ctx:messageAsyncWCallback(table.unpack({...}))
     end
 
     df.quitApplication = function()
@@ -214,7 +218,7 @@ initAll = function()
             )
         end,
         function(functionForLoading)
-            ctx:messageAsyncWCallback(
+            df.messageAsyncWCallback(
                 writer,
                 function(out)
                     local tbl = out:values()
@@ -387,7 +391,7 @@ initAll = function()
         local sess = dg.currentAsyncSqlite
         assert( nil ~= sess, "Sess is null for revision read..." )
 
-        ctx:messageAsyncWCallback(sess,
+        df.messageAsyncWCallback(sess,
             resumerCallbackValues(thisCorout),
             VSig("ASQL_OutSingleRow"),VString(sqlRevNumber()),
             VString("empty"),VBool(false))
@@ -769,7 +773,7 @@ initAll = function()
         local query = sqlGetMirrorUsesForFile(fileIdWhole)
         local asyncSqlite = dg.currentAsyncSqlite
 
-        ctx:messageAsyncWCallback(
+        df.messageAsyncWCallback(
             asyncSqlite,
             resumerCallbackValues(thisCorout),
             VSig("ASQL_OutSingleRow"),
@@ -960,7 +964,7 @@ initAll = function()
         -- !! check first
         local condition = sqlCheckForForbiddenFileNames(currentDirIdWhole,data.name)
 
-        ctx:messageAsyncWCallback(
+        df.messageAsyncWCallback(
             asyncSqlite,
             resumerCallbackValues(thisCorout),
             VSig("ASQL_OutSingleNum"),
@@ -992,7 +996,7 @@ initAll = function()
             sqlAddNewFileQuery(currentDirIdWhole,data.name,
                 data.size,data.hash,data.mirrors)
 
-        ctx:messageAsyncWCallback(
+        df.messageAsyncWCallback(
             asyncSqlite,
             -- you know, I'd love a feature
             -- in sqlite to query something
@@ -1006,7 +1010,7 @@ initAll = function()
         coroutine.yield()
 
         local lastFileId = sqlFileIdSelect(currentDirIdWhole,data.name) .. ";"
-        ctx:messageAsyncWCallback(
+        df.messageAsyncWCallback(
             asyncSqlite,
             resumerCallbackValues(thisCorout),
             VSig("ASQL_OutSingleNum"),
@@ -1131,7 +1135,7 @@ initAll = function()
             local validationQuery =
                 sqlCheckForForbiddenFileNamesUpdate(
                     currentDirIdWhole,fileIdWhole,currentName)
-            ctx:messageAsyncWCallback(
+            df.messageAsyncWCallback(
                 asyncSqlite,
                 function(out)
                     local tbl = out:values()
@@ -1244,7 +1248,7 @@ initAll = function()
 
                 local condition = sqlMoveFileValidation(toMoveWhole,currentDirIdWhole)
 
-                ctx:messageAsyncWCallback(
+                df.messageAsyncWCallback(
                     asyncSqlite,
                     resumerCallbackValues(thisCorout),
                     VSig("ASQL_OutSingleRow"),
@@ -1337,7 +1341,7 @@ initAll = function()
 
                 local condition = sqlMoveDirCondition(inIdWhole, currentDirToMoveIdWhole)
 
-                ctx:messageAsyncWCallback(
+                df.messageAsyncWCallback(
                     asyncSqlite,
                     resumerCallbackValues(thisCorout),
                     VSig("ASQL_OutSingleNum"),
@@ -1500,7 +1504,7 @@ initAll = function()
                         local theDl = currSess:keyDownload(id)
                         local thePath = theDl:getPath()
 
-                        ctx:messageAsyncWCallback(asyncSqlite,
+                        df.messageAsyncWCallback(asyncSqlite,
                             resumerCallbackValues(thisCorout),
                             VSig("ASQL_OutSingleRow"),
                             VString(sqlGetFileHash(idWhole)),
@@ -1642,7 +1646,7 @@ initAll = function()
 
                     local asql = dg.currentAsyncSqlite
                     if (nil ~= asql) then
-                        ctx:messageAsyncWCallback(
+                        df.messageAsyncWCallback(
                             dg.currentAsyncSqlite,
                             function()
                                 openNew()
@@ -1709,7 +1713,7 @@ initAll = function()
 
                     local prev = dg.currentAsyncSqlite
                     if (nil ~= prev) then
-                        ctx:messageAsyncWCallback(
+                        df.messageAsyncWCallback(
                             prev,
                             openNew,
                             VSig("ASQL_Shutdown"))
@@ -1721,7 +1725,7 @@ initAll = function()
 
                 noSafelistState()
 
-                ctx:messageAsyncWCallback(
+                df.messageAsyncWCallback(
                     writer,
                     resumerCallbackValues(thisCorout),
                     VSig("RFW_DoesFileExist"),
@@ -1740,7 +1744,7 @@ initAll = function()
                     local afterAnswer = function(response)
 
                         if (response == 0) then
-                            ctx:messageAsyncWCallback(
+                            df.messageAsyncWCallback(
                                 writer,
                                 ifContinue,
                                 VSig("RFW_DeleteFile"),

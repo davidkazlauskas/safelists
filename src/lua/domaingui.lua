@@ -96,7 +96,7 @@ function fileBrowserRightClickHandler(dg,df)
                                     return
                                 end
                                 local mainModel = df.namedMessageable("mainModel")
-                                dg.ctx:messageAsyncWCallback(
+                                df.messageAsyncWCallback(
                                     asyncSqlite,
                                     function(output)
                                         local val = output:values()
@@ -184,12 +184,12 @@ function fileBrowserRightClickHandler(dg,df)
 
                                 local theQuery = sqlNewDirectoryStatement(dirIdWhole,outName)
 
-                                dg.ctx:messageAsyncWCallback(
+                                df.messageAsyncWCallback(
                                     asyncSqlite,
                                     function(res)
                                         local num = res:values()._3
                                         if (num > 0) then
-                                            dg.ctx:messageAsyncWCallback(
+                                            df.messageAsyncWCallback(
                                                 asyncSqlite,
                                                 function(back)
                                                     local newId = back:values()._3

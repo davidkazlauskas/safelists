@@ -195,9 +195,6 @@ initAll = function()
         )
     end
 
-    local constsTbl = {}
-    constsTbl['ispaidmode'] = false
-
     df.globSetting =
         function(thename)
             return df.messageRetValues(
@@ -240,18 +237,12 @@ initAll = function()
     )
 
     df.scheduleOneOffFunction = function(newFunc)
-        table.insert(dg.oneOffFunctions, newFunc)
+        table.insert(dg.oneOffFunctions,newFunc)
     end
 
-    local mainWndButtonHandlers = {}
+    dg.mainWndButtonHandlers = {}
 
-    -- HOOK EXAMPLE
-    --local awkButton = genMainWnd:getWidget("awkwardButton")
-    --mainWndButtonHandlers[awkButton:hookButtonClick()] = function()
-        --print("awk hooked")
-    --end
-
-    local loadCss = function(path)
+    df.loadCss = function(path)
         local cssMng = df.namedMessageable("themeManager")
         df.message(
             cssMng,
@@ -260,7 +251,7 @@ initAll = function()
         )
     end
 
-    local themes = {
+    dg.themes = {
         ["Adwaita (light)"] = "@/org/gtk/libgtk/theme/Adwaita.css",
         ["Adwaita (dark)"] = "@/org/gtk/libgtk/theme/Adwaita-dark.css",
         ["Raleigh"] = "@/org/gtk/libgtk/theme/Raleigh.css",
@@ -272,9 +263,9 @@ initAll = function()
     }
 
     df.loadTheme = function(name)
-        local path = themes[name]
+        local path = dg.themes[name]
         assert( nil ~= path, "Theme doesn't exist." )
-        loadCss(path)
+        df.loadCss(path)
         dg.persistentSettings:setValue("safelists.theme",name)
     end
 
@@ -1149,7 +1140,7 @@ initAll = function()
         end,"MWI_OutDrawEnd"),
         VMatch(function(nat,val)
             local index = val:values()._2
-            mainWndButtonHandlers[index]()
+            dg.mainWndButtonHandlers[index]()
         end,"GWI_GBT_OutClickEvent","int"),
         VMatch(function()
             local mainModel = df.namedMessageable("mainModel")

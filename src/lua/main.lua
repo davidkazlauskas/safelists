@@ -125,7 +125,8 @@ DomainGlobals = {
     shouldMoveFile = false,
     ctx = nil,
     mainWnd = nil,
-    oneOffFunctions = {}
+    oneOffFunctions = {},
+    frameEndFunctions = {}
 }
 
 DomainFunctions = {
@@ -134,8 +135,6 @@ DomainFunctions = {
 
 dg = DomainGlobals
 df = DomainFunctions
-
-FrameEndFunctions = {}
 
 HashRevisionModel = {
     hashRevisionUpdate = 0,
@@ -513,7 +512,11 @@ initAll = function()
     df.updateRevision = function()
         HashRevisionModel.hashRevisionUpdate =
             HashRevisionModel.hashRevisionUpdate + 1
-        FrameEndFunctions[2]()
+        dg.frameEndFunctions[2]()
+    end
+
+    df.addFrameEndFunction = function(another)
+        table.insert(dg.frameEndFunctions,another)
     end
 
     local updateRevisionGui = instrument(function()
@@ -1313,11 +1316,11 @@ initAll = function()
 
     end
 
-    table.insert(FrameEndFunctions,updateRevisionGui)
-    table.insert(FrameEndFunctions,updateSessionWidget)
-    table.insert(FrameEndFunctions,updateDownloadSpeed)
+    df.addFrameEndFunction(updateRevisionGui)
+    df.addFrameEndFunction(updateSessionWidget)
+    df.addFrameEndFunction(updateDownloadSpeed)
 
-    table.insert(FrameEndFunctions,function()
+    df.addFrameEndFunction(function()
         dg.persistentSettings:persist()
     end)
 
@@ -1337,7 +1340,7 @@ initAll = function()
                 v()
             end
 
-            for k,v in ipairs(FrameEndFunctions) do
+            for k,v in ipairs(dg.frameEndFunctions) do
                 v()
             end
             --print('Draw ended!')

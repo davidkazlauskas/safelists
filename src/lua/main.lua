@@ -1540,113 +1540,15 @@ initAll = function()
                     "safelists.lastopen",examplesPath)),
                 VMsg(handler))
         end,"MWI_OutOpenSafelistButtonClicked"),
-        VMatch(function()
+        VMatch(instrument(function()
+            local thisCorout = coroutine.running()
             local dialogService = df.namedMessageable("dialogService")
-            local afterPath = instrument(function(outPath)
-                if (outPath == "") then
-                    return
-                end
-
-                local thisCorout = coroutine.running()
-
-                if (not string.ends(string.lower(outPath),".safelist")) then
-                    outPath = outPath .. ".safelist"
-                end
-
-                local ifContinue = function()
-                    local openNew = function()
-                        local mainModel = df.namedMessageable("mainModel")
-
-                        dg.currentAsyncSqlite = df.newSafelist(outPath)
-                        local new = dg.currentAsyncSqlite
-                        df.resetVarsForSafelist()
-                        df.message(mainModel,
-                            VSig("MMI_InLoadFolderTree"),
-                            VMsg(new),VMsg(mainWnd))
-                        df.updateRevision()
-                        df.onSafelistState()
-                    end
-
-                    local prev = dg.currentAsyncSqlite
-                    if (nil ~= prev) then
-                        df.messageAsyncWCallback(
-                            prev,
-                            openNew,
-                            VSig("ASQL_Shutdown"))
-                        return
-                    end
-
-                    openNew()
-                end
-
-                df.noSafelistState()
-
-                df.messageAsyncWCallback(
-                    writer,
-                    resumerCallbackValues(thisCorout),
-                    VSig("RFW_DoesFileExist"),
-                    VString(outPath),
-                    VBool(false)
-                )
-
-                local tbl = coroutine.yield()
-                local exists = tbl._3
-                if (not exists) then
-                    ifContinue()
-                else
-                    local dialogService =
-                        df.namedMessageable("dialogService")
-
-                    local afterAnswer = function(response)
-
-                        if (response == 0) then
-                            df.messageAsyncWCallback(
-                                writer,
-                                ifContinue,
-                                VSig("RFW_DeleteFile"),
-                                VString(outPath)
-                            )
-                        elseif (response == 1 or response == -1) then
-                            df.noSafelistState()
-                        else
-                            assert( false, "Wrong neighbourhood, milky." )
-                            df.noSafelistState()
-                        end
-
-                    end
-
-                    local nId = df.newObjectId()
-
-                    local handler = df.makeLuaMatchHandler(
-                        VMatch(function(natPack,val)
-                            local outPath = val:values()._2
-                            afterAnswer(outPath)
-                            df.releaseObject(nId)
-                        end,"GDS_OutNotifyAnswer","int")
-                    )
-
-                    df.retainObjectWId(nId,handler)
-
-                    df.message(
-                        dialogService,
-                        VSig("GDS_OkCancelDialog"),
-                        VMsg(mainWnd),
-                        VString("Safelist exists"),
-                        VString("Safelist already exists."
-                        .. " Overwrite it? (data will be lost)"),
-                        VMsg(handler)
-                    )
-                end
-            end)
 
             local nId = df.newObjectId()
 
             local handler = df.makeLuaMatchHandler(
-                VMatch(function(natPack,val)
-                    local outPath = val:values()._2
-                    afterPath(outPath)
-                    df.releaseObject(nId)
-                end,"GDS_OutNotifyPath","string")
+                VMatch(resumerCallbackWBranch("success",thisCorout),
+                    "GDS_OutNotifyPath","string")
             )
 
             df.retainObjectWId(nId,handler)
@@ -1657,7 +1559,108 @@ initAll = function()
                 VString("Select new safelist path"),
                 VMsg(handler)
             )
-        end,"MWI_OutCreateSafelistButtonClicked"),
+
+            local outBranch, _, val = coroutine.yield()
+
+            if outBranch ~= "success" then
+                return
+            end
+
+            local outPath = val:values()._2
+
+            if (outPath == "") then
+                return
+            end
+
+            if (not string.ends(string.lower(outPath),".safelist")) then
+                outPath = outPath .. ".safelist"
+            end
+
+            local ifContinue = function()
+                local openNew = function()
+                    local mainModel = df.namedMessageable("mainModel")
+
+                    dg.currentAsyncSqlite = df.newSafelist(outPath)
+                    local new = dg.currentAsyncSqlite
+                    df.resetVarsForSafelist()
+                    df.message(mainModel,
+                        VSig("MMI_InLoadFolderTree"),
+                        VMsg(new),VMsg(mainWnd))
+                    df.updateRevision()
+                    df.onSafelistState()
+                end
+
+                local prev = dg.currentAsyncSqlite
+                if (nil ~= prev) then
+                    df.messageAsyncWCallback(
+                        prev,
+                        openNew,
+                        VSig("ASQL_Shutdown"))
+                    return
+                end
+
+                openNew()
+            end
+
+            df.noSafelistState()
+
+            df.messageAsyncWCallback(
+                writer,
+                resumerCallbackValues(thisCorout),
+                VSig("RFW_DoesFileExist"),
+                VString(outPath),
+                VBool(false)
+            )
+
+            local tbl = coroutine.yield()
+            local exists = tbl._3
+            if (not exists) then
+                ifContinue()
+            else
+                local dialogService =
+                    df.namedMessageable("dialogService")
+
+                local afterAnswer = function(response)
+
+                    if (response == 0) then
+                        df.messageAsyncWCallback(
+                            writer,
+                            ifContinue,
+                            VSig("RFW_DeleteFile"),
+                            VString(outPath)
+                        )
+                    elseif (response == 1 or response == -1) then
+                        df.noSafelistState()
+                    else
+                        assert( false, "Wrong neighbourhood, milky." )
+                        df.noSafelistState()
+                    end
+
+                end
+
+                local nId = df.newObjectId()
+
+                local handler = df.makeLuaMatchHandler(
+                    VMatch(function(natPack,val)
+                        local outPath = val:values()._2
+                        afterAnswer(outPath)
+                        df.releaseObject(nId)
+                    end,"GDS_OutNotifyAnswer","int")
+                )
+
+                df.retainObjectWId(nId,handler)
+
+                df.message(
+                    dialogService,
+                    VSig("GDS_OkCancelDialog"),
+                    VMsg(mainWnd),
+                    VString("Safelist exists"),
+                    VString("Safelist already exists."
+                    .. " Overwrite it? (data will be lost)"),
+                    VMsg(handler)
+                )
+            end
+        end),"MWI_OutCreateSafelistButtonClicked"),
         VMatch(function()
 
             local dialogService = df.namedMessageable("dialogService")

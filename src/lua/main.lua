@@ -777,11 +777,10 @@ initAll = function()
         return mret._2, mret._3
     end
 
-    local getCurrentFileParent = function()
+    df.getCurrentFileParent = function()
         return df.messageRetValues(mainWnd,
             VSig("MWI_QueryCurrentFileParent"),VInt(-7))._2
     end
-    df.getCurrentFileParent = getCurrentFileParent
     df.setStatus = function(statText)
         setStatus(dg.ctx,dg.mainWnd,statText)
     end

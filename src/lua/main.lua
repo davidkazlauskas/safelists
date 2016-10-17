@@ -12,82 +12,9 @@ require('messages')
 require('guiutil')
 require('domaingui')
 require('downloadsmodel')
-require('objretainer')
+require('utilobjects')
 require('menumodel')
 
-DownloadSpeedChecker = {
-    __index = {
-        new = function(samples)
-            assert( type(samples) == "number", "expected num..." )
-            assert( samples >= 0, "Zigga nease..." )
-            local res = {
-                iter = 0,
-                intervals = {},
-                samples = samples
-            }
-            for i=1,samples do
-                table.insert(
-                    res.intervals,
-                    DownloadSpeedChecker.__index.newInterval()
-                )
-            end
-            setmetatable(res,DownloadSpeedChecker)
-            return res
-        end,
-        newInterval = function()
-            return {
-                unixStamp = 0,
-                sum = 0
-            }
-        end,
-        regBytes = function(self,bytes)
-            local current = os.time()
-            local mod = current % self.samples + 1
-            if (self.iter ~= current) then
-                self.iter = current
-                self.intervals[mod].unixStamp = current
-                self.intervals[mod].sum = 0
-            end
-
-            self.intervals[mod].sum = self.intervals[mod].sum + bytes
-        end,
-        bytesPerSec = function(self)
-            local total = 0
-            for k,v in ipairs(self.intervals) do
-                total = total + v.sum
-            end
-            return total / self.samples
-        end
-    }
-}
-
-downloadSpeedChecker = DownloadSpeedChecker.__index.new(7)
-
-CurrentSafelist = {
-    __index = {
-        isSamePath = function(self,path)
-            return self.path == path
-        end,
-        setPath = function(self,path)
-            self.path = path
-        end,
-        isEmpty = function(self)
-            return self.path == ""
-        end,
-        new = function()
-            local res = {
-                path = ""
-            }
-            setmetatable(res,CurrentSafelist)
-            return res
-        end
-    }
-}
-
-currentSafelist = CurrentSafelist.__index.new()
-
-
-revealDownloads = false
 
 DomainGlobals = {
     currentAsyncSqlite = nil,
@@ -98,7 +25,9 @@ DomainGlobals = {
     oneOffFunctions = {},
     frameEndFunctions = {},
     sessionWidget = nil,
-    currentSessions = {}
+    currentSessions = {},
+    currentSafelist = CurrentSafelist.__index.new(),
+    downloadSpeedChecker = DownloadSpeedChecker.__index.new(7)
 }
 
 DomainFunctions = {
@@ -359,8 +288,8 @@ initAll = function()
     end
 
     local updateDownloadSpeed = function()
-        downloadSpeedChecker:regBytes(0)
-        local theSpeed = downloadSpeedChecker:bytesPerSec()
+        dg.downloadSpeedChecker:regBytes(0)
+        local theSpeed = dg.downloadSpeedChecker:bytesPerSec()
 
         local speedString = ""
         if (theSpeed > 0) then
@@ -1394,7 +1323,7 @@ initAll = function()
                             dl:setProgress(done,total)
                         end
                         local newBytes = values._5
-                        downloadSpeedChecker:regBytes(newBytes)
+                        dg.downloadSpeedChecker:regBytes(newBytes)
                     end,"SLD_OutProgressUpdate","int","double","double","double"),
                     VMatch(function(natpack,val)
                         local valTree = val:values()
@@ -1557,7 +1486,7 @@ initAll = function()
 
             local afterPath = function(outPath)
                 if (outPath ~= "") then
-                    if (currentSafelist:isSamePath(outPath)) then
+                    if (dg.currentSafelist:isSamePath(outPath)) then
                         messageBox(
                             "Already opened!",
                             "'" .. outPath ..
@@ -1565,8 +1494,8 @@ initAll = function()
                         )
                         return
                     end
-                    currentSafelist:setPath(outPath)
-                    if (not currentSafelist:isEmpty()) then
+                    dg.currentSafelist:setPath(outPath)
+                    if (not dg.currentSafelist:isEmpty()) then
                         df.noSafelistState() -- prevent user from doing
                                           -- anything for split second
                     end
@@ -1771,7 +1700,7 @@ initAll = function()
                             dl:setProgress(done,total)
                         end
                         local newBytes = values._5
-                        downloadSpeedChecker:regBytes(newBytes)
+                        dg.downloadSpeedChecker:regBytes(newBytes)
                     end,"SLD_OutProgressUpdate","int","double","double","double"),
                     VMatch(function(natpack,val)
                         local valTree = val:values()

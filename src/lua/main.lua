@@ -1209,7 +1209,6 @@ initAll = function()
                 local value = table._3
                 local success = table._4
                 --assert( success, "Great success failed..." )
-                print("val|" .. value .. "|")
                 if (value == 0) then
                     df.messageAsync(asyncSqlite,
                         VSig("ASQL_OutAffected"),

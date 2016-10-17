@@ -1548,7 +1548,7 @@ initAll = function()
                         ctx:messageAsync(
                             asyncSqlite,
                             VSig("ASQL_Execute"),
-                            VString(sqlUpdateFileSizeStatement(idWhole,newSize))
+                            VString(sqlUpdateFileSizeStatement(idWhole,whole(newSize)))
                         )
                         df.updateRevision()
                     end,"SLD_OutSizeUpdate","int","double"),

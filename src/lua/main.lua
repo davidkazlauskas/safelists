@@ -336,7 +336,7 @@ initAll = function()
         return res
     end
 
-    local messageBoxWParent = function(title,message,parent)
+    df.messageBoxWParent = function(title,message,parent)
         local dialogService =
             df.namedMessageable("dialogService")
 
@@ -372,7 +372,7 @@ initAll = function()
         local mainWrapped = GenericWidget.putOn(mainWnd)
         local mainAppWnd = mainWrapped:getWidget("mainAppWindow")
 
-        messageBoxWParent(title,message,mainAppWnd:getMessageable())
+        df.messageBoxWParent(title,message,mainAppWnd:getMessageable())
     end
 
     df.messageBox = messageBox
@@ -383,7 +383,7 @@ initAll = function()
         if (result.name ~= nil and
             not isValidFilename(result.name)
         ) then
-            messageBoxWParent(
+            df.messageBoxWParent(
                 "Invalid input",
                 "Filename contains invalid characters.",
                 dialog
@@ -400,7 +400,7 @@ initAll = function()
                 local trimmed = trimString(v)
 
                 if (uniqueMirrMap[trimmed] == 1) then
-                    messageBoxWParent(
+                    df.messageBoxWParent(
                         "Invalid input",
                         "Mirror field contains duplicate mirror '"
                         .. trimmed .. "'.",
@@ -417,7 +417,7 @@ initAll = function()
             end
 
             if (#mirrTrimmed == 0) then
-                messageBoxWParent(
+                df.messageBoxWParent(
                     "Invalid input",
                     "No valid mirrors found.",
                     dialog
@@ -431,7 +431,7 @@ initAll = function()
         if (result.hash ~= nil and result.hash ~= "" and
             not isValidDumbHash256(result.hash))
         then
-            messageBoxWParent(
+            df.messageBoxWParent(
                 "Invalid input",
                 "DumbHash256 entered is invalid." ..
                 " Expected 64 hexadecimal digits.",
@@ -443,7 +443,7 @@ initAll = function()
         if (result.size ~= nil and result.size ~= "" and
             not string.match(result.size,"^%d+$"))
         then
-            messageBoxWParent(
+            df.messageBoxWParent(
                 "Invalid input",
                 "Size is invalid. Expected number in bytes.",
                 dialog
@@ -815,7 +815,7 @@ initAll = function()
         )
 
         local inputFail = function(message)
-            messageBoxWParent(
+            df.messageBoxWParent(
                 "Invalid input",
                 message,
                 dialog
@@ -976,7 +976,7 @@ initAll = function()
         end
 
         local inputFail = function(message)
-            messageBoxWParent(
+            df.messageBoxWParent(
                 "Invalid input",
                 message,
                 dialog
@@ -1134,7 +1134,7 @@ initAll = function()
                 local fileSize = tonumber(split[3])
                 local hash = split[4]
                 if (case == 1) then
-                    messageBoxWParent(
+                    df.messageBoxWParent(
                         "Invalid move",
                         "File with such name already"
                         .. " exists under that directory.",
@@ -1142,7 +1142,7 @@ initAll = function()
                     )
                     loadCurrentRoutine()
                 elseif (case == 2) then
-                    messageBoxWParent(
+                    df.messageBoxWParent(
                         "Invalid move",
                         "File cannot be moved under"
                         .. " this directory.",
@@ -1239,7 +1239,7 @@ initAll = function()
                         .. " of directory to move under."
                     )
                 elseif (value == 2) then
-                    messageBoxWParent(
+                    df.messageBoxWParent(
                         "Cannot move!",
                         "Parent directory already"
                         .. " has directory with such name.",

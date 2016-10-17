@@ -456,25 +456,33 @@ initAll = function()
         return true
     end
 
+    df.hookButton = function(dialog,widget)
+        return df.messageRetValues(
+            dialog,
+            VSig("INDLG_HookButtonClick"),
+            VString(widget),
+            VInt(-1)
+        )._3
+    end
+
+    df.makeGenericDialog = function(schema,name)
+        return df.messageRetValues(
+            dialogService,
+            VSig("GDS_MakeGenericDialog"),
+            VString(schema),
+            VString(name),
+            VMsg(nil)
+        )._4
+    end
+
     df.newFileDialog = instrument(function(funcSuccess)
         local thisCorout = coroutine.running()
         local dialogService = df.namedMessageable("dialogService")
 
-        local dialog = df.messageRetValues(
-            dialogService,
-            VSig("GDS_MakeGenericDialog"),
-            VString("main"),
-            VString("newFileDialog"),
-            VMsg(nil)
-        )._4
+        local dialog = df.makeGenericDialog("main","newFileDialog")
 
         local hookButton = function(widget)
-            return df.messageRetValues(
-                dialog,
-                VSig("INDLG_HookButtonClick"),
-                VString(widget),
-                VInt(-1)
-            )._3
+            return df.hookButton(dialog,widget)
         end
 
         local hookedOk = hookButton("okButton")
@@ -505,7 +513,6 @@ initAll = function()
             dialog,
             VSig("INDLG_InAlwaysAbove")
         )
-
         df.message(
             dialog,
             VSig("INDLG_InShowDialog")
@@ -576,13 +583,7 @@ initAll = function()
             finished = false
         }
 
-        local dialog = df.messageRetValues(
-            dialogService,
-            VSig("GDS_MakeGenericDialog"),
-            VString("main"),
-            VString("newFileDialog"),
-            VMsg(nil)
-        )._4
+        local dialog = df.makeGenericDialog("main","newFileDialog")
 
         local hookButton = function(widget)
             return df.messageRetValues(

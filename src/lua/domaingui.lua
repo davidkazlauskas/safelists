@@ -60,7 +60,7 @@ function fileBrowserRightClickHandler(dg,df)
                             df.message(dialog,VSig("INDLG_InShowDialog"),VBool(val))
                         end
 
-                        local dirName = dg.ctx:messageRetValues(dg.mainWnd,VSig("MWI_QueryCurrentDirName"),VString("?"))._2
+                        local dirName = df.messageRetValues(dg.mainWnd,VSig("MWI_QueryCurrentDirName"),VString("?"))._2
                         local dirId = df.getCurrentEntityId()
 
                         if (dirName == "[unselected]") then
@@ -82,7 +82,7 @@ function fileBrowserRightClickHandler(dg,df)
                         local handler = dg.ctx:makeLuaMatchHandler(
                             VMatch(function()
                                 print("Ok renamed!")
-                                local outName = dg.ctx:messageRetValues(dialog,VSig("INDLG_QueryInput"),VString("?"))._2
+                                local outName = df.messageRetValues(dialog,VSig("INDLG_QueryInput"),VString("?"))._2
                                 -- more thorough user input check should be performed
                                 if (outName == "") then
                                     df.setStatus("Some directory name must be specified.")
@@ -144,7 +144,7 @@ function fileBrowserRightClickHandler(dg,df)
                             VSig("INDLG_InSetParent"),
                             VMsg(dg.mainWnd))
 
-                        local dirName = dg.ctx:messageRetValues(dg.mainWnd,VSig("MWI_QueryCurrentDirName"),VString("?"))._2
+                        local dirName = df.messageRetValues(dg.mainWnd,VSig("MWI_QueryCurrentDirName"),VString("?"))._2
                         local dirId = df.getCurrentEntityId()
                         local dirIdWhole = whole(dirId)
 
@@ -162,7 +162,7 @@ function fileBrowserRightClickHandler(dg,df)
                         local handler = dg.ctx:makeLuaMatchHandler(
                             VMatch(function()
                                 print("Ok!")
-                                local outName = dg.ctx:messageRetValues(dialog,VSig("INDLG_QueryInput"),VString("?"))._2
+                                local outName = df.messageRetValues(dialog,VSig("INDLG_QueryInput"),VString("?"))._2
                                 -- more thorough user input check should be performed
                                 if (outName == "") then
                                     setDlgErr("Some directory name must be specified.")

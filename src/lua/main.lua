@@ -166,6 +166,10 @@ initAll = function()
         ctx:messageAsync(table.unpack({...}))
     end
 
+    df.messageRetValues = function(...)
+        return ctx:messageRetValues(table.unpack({...}))
+    end
+
     df.quitApplication = function()
         df.message(
             mainWnd,
@@ -187,7 +191,7 @@ initAll = function()
 
     df.globSetting =
         function(thename)
-            return ctx:messageRetValues(
+            return df.messageRetValues(
                 globConsts,
                 VSig("GLC_LookupString"),
                 VString(thename),
@@ -440,7 +444,7 @@ initAll = function()
         local factory = df.namedMessageable("asyncSqliteFactory")
         local shutdownGuard = df.namedMessageable("shutdownGuard")
 
-        local result = ctx:messageRetValues(factory,
+        local result = df.messageRetValues(factory,
             VSig("ASQLF_CreateNew"),
             VString(path),VMsg(nil))._3
 
@@ -466,7 +470,7 @@ initAll = function()
             df.namedMessageable("dialogService")
 
         local dialog =
-            ctx:messageRetValues(
+            df.messageRetValues(
                 dialogService,
                 VSig("GDS_MakeGenericWidget"),
                 VString("dialogs"),
@@ -587,7 +591,7 @@ initAll = function()
         local thisCorout = coroutine.running()
         local dialogService = df.namedMessageable("dialogService")
 
-        local dialog = ctx:messageRetValues(
+        local dialog = df.messageRetValues(
             dialogService,
             VSig("GDS_MakeGenericDialog"),
             VString("main"),
@@ -596,7 +600,7 @@ initAll = function()
         )._4
 
         local hookButton = function(widget)
-            return ctx:messageRetValues(
+            return df.messageRetValues(
                 dialog,
                 VSig("INDLG_HookButtonClick"),
                 VString(widget),
@@ -648,7 +652,7 @@ initAll = function()
                     print("ok clicked")
 
                     local queryInput = function(value)
-                        return ctx:messageRetValues(
+                        return df.messageRetValues(
                             dialog,
                             VSig("INDLG_QueryInput"),
                             VString(value),
@@ -703,7 +707,7 @@ initAll = function()
             finished = false
         }
 
-        local dialog = ctx:messageRetValues(
+        local dialog = df.messageRetValues(
             dialogService,
             VSig("GDS_MakeGenericDialog"),
             VString("main"),
@@ -712,7 +716,7 @@ initAll = function()
         )._4
 
         local hookButton = function(widget)
-            return ctx:messageRetValues(
+            return df.messageRetValues(
                 dialog,
                 VSig("INDLG_HookButtonClick"),
                 VString(widget),
@@ -841,7 +845,7 @@ initAll = function()
                 if (signal == hookedOk) then
 
                     local queryInput = function(value)
-                        return ctx:messageRetValues(
+                        return df.messageRetValues(
                             dialog,
                             VSig("INDLG_QueryInput"),
                             VString(value),
@@ -897,13 +901,13 @@ initAll = function()
 
 
     local getCurrentEntityId = function()
-        local mret = ctx:messageRetValues(mainWnd,
+        local mret = df.messageRetValues(mainWnd,
                         VSig("MWI_QueryCurrentEntityId"),VInt(-7),VBool(false))
         return mret._2, mret._3
     end
 
     local getCurrentFileParent = function()
-        return ctx:messageRetValues(mainWnd,
+        return df.messageRetValues(mainWnd,
             VSig("MWI_QueryCurrentFileParent"),VInt(-7))._2
     end
     -- export
@@ -1173,7 +1177,7 @@ initAll = function()
     noSafelistState()
 
     ctx:attachContextTo(mainWnd)
-    dg.sessionWidget = ctx:messageRetValues(mainWnd,
+    dg.sessionWidget = df.messageRetValues(mainWnd,
         VSig("MWI_QueryDownloadSessionWidget"),VMsg(nil))._2
 
     resetVarsForSafelist()
@@ -1393,7 +1397,7 @@ initAll = function()
             end
 
             local isCurrentDead = function()
-                return ctx:messageRetValues(
+                return df.messageRetValues(
                     asyncSqlite,
                     VSig("ASQL_IsDead"),
                     VBool(true)
@@ -1560,7 +1564,7 @@ initAll = function()
                         print('Safelist session dun! Downloading...')
                         local locked = handlerWeak:lockPtr()
                         assert( nil ~= locked , "Locking weak ptr gives nil..." )
-                        local dlHandle = ctx:messageRetValues(dlFactory,
+                        local dlHandle = df.messageRetValues(dlFactory,
                             VSig("SLDF_InNewAsync"),
                             VString(downloadPath),
                             VMsg(locked),
@@ -1864,7 +1868,7 @@ initAll = function()
                 df.retainObjectWId(newId,handler)
 
                 local dlFactory = df.namedMessageable("dlSessionFactory")
-                local dlHandle = ctx:messageRetValues(dlFactory,
+                local dlHandle = df.messageRetValues(dlFactory,
                     VSig("SLDF_InNewAsync"),
                     VString(thePath),
                     VMsg(handler),

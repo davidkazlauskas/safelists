@@ -1,15 +1,14 @@
 [package]
 name = "safe_file_downloader"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["David <david@templatious.org>"]
 
 [dependencies]
 libc = "0.2.2"
-safe_core = "0.10.0"
-sodiumoxide = "0.0.9"
+safe_core = "0.22.0"
 regex = "0.1.8"
 quick-error = "0.1.4"
-rustc-serialize = "0.3.18"
+rustc-serialize = "0.3.19"
 
 [lib]
 name = "safefiledownloader"

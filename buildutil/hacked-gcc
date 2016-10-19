@@ -1,0 +1,15 @@
+#!/bin/bash
+
+args=("$@")
+myargs=()
+nextarg=-1
+
+for ((i=0; i<$#; i++)) {
+   if [ $nextarg == $i ]; then continue; fi
+   case ${args[$i]} in
+       -m64) nextarg=$((i+1)) ;;
+       *) myargs+="${args[$i]} "
+   esac
+}
+
+/mxe/usr/bin/i686-pc-linux-gnu.static-gcc-orig -shared-libgcc -m32 -march=i686 $myargs

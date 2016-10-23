@@ -5,4 +5,11 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 mkdir -p $DIR/homecache
 mkdir -p $DIR/build
 
-docker run -it -e LOCAL_USER_ID=`id -u $USER` -v $DIR:/safelists/ -v $DIR/homecache:/home/user/ --rm safelists_templatious:v1 /safelists/innerbuild
+docker rm -f safelists_build_lnx32
+docker run --name safelists_build_lnx32 \
+    -d \
+    -e LOCAL_USER_ID=`id -u $USER` -v $HOME/Desktop/ramdisk/stmp:/tmp -v $DIR:/safelists/ -v $DIR/homecache:/root/ \
+    -e VIRTUAL_DIR=/home/deividas/Desktop/Dropbox/MyPrj/SafeLists \
+    -e VIRTUAL_BUILD_DIR=/home/deividas/Desktop/ramdisk/stmp/build safelists_templatious:v1 sleep 1000000
+
+docker exec -it safelists_build_lnx32 /safelists/innerbuild

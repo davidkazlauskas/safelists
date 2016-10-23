@@ -1,0 +1,301 @@
+--- build.rs	2016-10-23 14:42:39.566217800 +0300
++++ build.rs	2016-10-23 14:42:55.990218600 +0300
+@@ -1,12 +1,10 @@
+ #[macro_use]
+ extern crate unwrap;
+ 
+-#[cfg(not(feature = "get-libsodium"))]
+ extern crate pkg_config;
+ 
+ const VERSION: &'static str = "1.0.11";
+ 
+-#[cfg(not(feature = "get-libsodium"))]
+ fn main() {
+     use std::env;
+     if let Ok(lib_dir) = env::var("SODIUM_LIB_DIR") {
+@@ -33,269 +31,3 @@
+ 
+ 
+ 
+-#[cfg(feature = "get-libsodium")]
+-extern crate gcc;
+-#[cfg(feature = "get-libsodium")]
+-extern crate flate2;
+-#[cfg(feature = "get-libsodium")]
+-extern crate tar;
+-
+-#[cfg(feature = "get-libsodium")]
+-fn get_install_dir() -> String {
+-    use std::env;
+-    unwrap!(env::var("OUT_DIR")) + "/installed"
+-}
+-
+-#[cfg(all(windows, feature = "get-libsodium"))]
+-fn main() {
+-    use std::fs::{self, File};
+-    use std::path::{Path, PathBuf};
+-    use std::process::Command;
+-    use flate2::read::GzDecoder;
+-    use tar::Archive;
+-
+-    if cfg!(target_env = "msvc") {
+-        panic!("This feature currently can't be used with MSVC builds.");
+-    }
+-
+-    // Download gz tarball
+-    let basename = "libsodium-".to_string() + VERSION;
+-    let gz_filename = basename.clone() + "-mingw.tar.gz";
+-    let url = "https://download.libsodium.org/libsodium/releases/".to_string() + &gz_filename;
+-    let install_dir = get_install_dir();
+-    let gz_path = install_dir.clone() + "/" + &gz_filename;
+-    unwrap!(fs::create_dir_all(Path::new(&install_dir).join("lib")));
+-
+-    let command = "([Net.ServicePointManager]::SecurityProtocol = 'Tls12') -and \
+-                   ((New-Object System.Net.WebClient).DownloadFile(\""
+-        .to_string() + &url + "\", \"" + &gz_path + "\"))";
+-    let mut download_cmd = Command::new("powershell");
+-    let download_output = download_cmd.arg("-Command")
+-        .arg(&command)
+-        .output()
+-        .unwrap_or_else(|error| {
+-            panic!("Failed to run powershell download command: {}", error);
+-        });
+-    if !download_output.status.success() {
+-        panic!("\n{:?}\n{}\n{}\n",
+-               download_cmd,
+-               String::from_utf8_lossy(&download_output.stdout),
+-               String::from_utf8_lossy(&download_output.stderr));
+-    }
+-
+-    // Unpack the tarball
+-    let gz_archive = unwrap!(File::open(&gz_path));
+-    let gz_decoder = unwrap!(GzDecoder::new(gz_archive));
+-    let mut archive = Archive::new(gz_decoder);
+-
+-    // Extract just the appropriate version of libsodium.a and headers to the install path
+-    let arch_path = if cfg!(target_pointer_width = "32") {
+-        Path::new("libsodium-win32")
+-    } else if cfg!(target_pointer_width = "64") {
+-        Path::new("libsodium-win64")
+-    } else {
+-        panic!("target_pointer_width not 32 or 64")
+-    };
+-
+-    let unpacked_include = arch_path.join("include");
+-    let unpacked_lib = arch_path.join("lib\\libsodium.a");
+-    let entries = unwrap!(archive.entries());
+-    for entry_result in entries {
+-        let mut entry = unwrap!(entry_result);
+-        let entry_path = unwrap!(entry.path()).to_path_buf();
+-        let full_install_path = if entry_path.starts_with(&unpacked_include) {
+-            let include_file = unwrap!(entry_path.strip_prefix(arch_path));
+-            Path::new(&install_dir).join(include_file)
+-        } else if entry_path == unpacked_lib {
+-            Path::new(&install_dir).join("lib").join("libsodium.a")
+-        } else {
+-            continue;
+-        };
+-        let _ = unwrap!(entry.unpack(full_install_path));
+-    }
+-
+-    // Clean up
+-    let _ = fs::remove_file(gz_path);
+-
+-    // Get path to gcc in order to guess location of libpthread.a
+-    let mut lib_search_dirs = vec![Path::new(&install_dir).join("lib")];
+-    let mut where_cmd = Command::new("where");
+-    let where_output = where_cmd.arg(gcc::Config::new().get_compiler().path())
+-        .output()
+-        .unwrap_or_else(|error| {
+-            panic!("Failed to run where command: {}", error);
+-        });
+-    if !where_output.status.success() {
+-        panic!("\n{:?}\n{}\n{}\n",
+-               where_cmd,
+-               String::from_utf8_lossy(&where_output.stdout),
+-               String::from_utf8_lossy(&where_output.stderr));
+-    }
+-    let compiler_path_as_string = String::from_utf8_lossy(&where_output.stdout);
+-    let compiler_path = PathBuf::from(unwrap!(compiler_path_as_string.lines().next()).trim());
+-    let mingw_path = unwrap!(unwrap!(compiler_path.parent()).parent());
+-    if cfg!(target_pointer_width = "32") {
+-        lib_search_dirs.push(mingw_path.join("lib"));
+-        lib_search_dirs.push(mingw_path.join("i686-w64-mingw32").join("lib"));
+-    } else {
+-        lib_search_dirs.push(mingw_path.join("x86_64-w64-mingw32").join("lib"));
+-    }
+-
+-    println!("cargo:rustc-link-lib=static=sodium");
+-    println!("cargo:rustc-link-lib=pthread");
+-    for lib_search_dir in &lib_search_dirs {
+-        println!("cargo:rustc-link-search=native={}",
+-                 lib_search_dir.display());
+-    }
+-    println!("cargo:include={}/include", install_dir);
+-}
+-
+-
+-
+-#[cfg(all(not(windows), feature = "get-libsodium"))]
+-fn main() {
+-    use std::env;
+-    use std::fs::{self, File};
+-    use std::process::Command;
+-    use flate2::read::GzDecoder;
+-    use tar::Archive;
+-
+-    // Download gz tarball
+-    let basename = "libsodium-".to_string() + VERSION;
+-    let gz_filename = basename.clone() + ".tar.gz";
+-    let url = "https://github.com/jedisct1/libsodium/releases/download/".to_string() + VERSION +
+-              "/" + &gz_filename;
+-    let mut install_dir = get_install_dir();
+-    let mut source_dir = unwrap!(env::var("OUT_DIR")) + "/source";
+-    // Avoid issues with paths containing spaces by falling back to using /tmp
+-    let target = unwrap!(env::var("TARGET"));
+-    if install_dir.contains(" ") {
+-        let fallback_path = "/tmp/".to_string() + &basename + "/" + &target;
+-        install_dir = fallback_path.clone() + "/installed";
+-        source_dir = fallback_path.clone() + "/source";
+-        println!("cargo:warning=The path to the usual build directory contains spaces and hence \
+-                  can't be used to build libsodium.  Falling back to use {}.  If running `cargo \
+-                  clean`, ensure you also delete this fallback directory",
+-                 fallback_path);
+-    }
+-    let gz_path = source_dir.clone() + "/" + &gz_filename;
+-    unwrap!(fs::create_dir_all(&install_dir));
+-    unwrap!(fs::create_dir_all(&source_dir));
+-
+-    let mut curl_cmd = Command::new("curl");
+-    let curl_output = curl_cmd.arg(&url)
+-        .arg("-sSLvo")
+-        .arg(&gz_path)
+-        .output()
+-        .unwrap_or_else(|error| {
+-            panic!("Failed to run curl command: {}", error);
+-        });
+-    if !curl_output.status.success() {
+-        panic!("\n{:?}\n{}\n{}\n",
+-               curl_cmd,
+-               String::from_utf8_lossy(&curl_output.stdout),
+-               String::from_utf8_lossy(&curl_output.stderr));
+-    }
+-
+-    // Unpack the tarball
+-    let gz_archive = unwrap!(File::open(&gz_path));
+-    let gz_decoder = unwrap!(GzDecoder::new(gz_archive));
+-    let mut archive = Archive::new(gz_decoder);
+-    unwrap!(archive.unpack(&source_dir));
+-    source_dir.push_str(&format!("/{}", basename));
+-
+-    // Clean up
+-    let _ = fs::remove_file(gz_path);
+-
+-    // Run `./configure`
+-    let gcc = gcc::Config::new();
+-    let (cc, cflags) = if target.contains("i686") {
+-        (format!("{} -m32", gcc.get_compiler().path().display()),
+-         env::var("CFLAGS").unwrap_or(String::default()) + " -march=i686")
+-    } else {
+-        (format!("{}", gcc.get_compiler().path().display()),
+-         env::var("CFLAGS").unwrap_or(String::default()))
+-    };
+-    let prefix_arg = format!("--prefix={}", install_dir);
+-    let host = unwrap!(env::var("HOST"));
+-    let host_arg = format!("--host={}", target);
+-
+-    let mut configure_cmd = Command::new("./configure");
+-    let configure_output = configure_cmd.current_dir(&source_dir)
+-        .env("CC", &cc)
+-        .env("CFLAGS", &cflags)
+-        .arg(&prefix_arg)
+-        .arg(&host_arg)
+-        .arg("--enable-shared=no")
+-        .arg("--disable-pie")
+-        .output()
+-        .unwrap_or_else(|error| {
+-            panic!("Failed to run './configure': {}", error);
+-        });
+-    if !configure_output.status.success() {
+-        panic!("\n{:?}\nCFLAGS={}\nCC={}\n{}\n{}\n",
+-               configure_cmd,
+-               cflags,
+-               cc,
+-               String::from_utf8_lossy(&configure_output.stdout),
+-               String::from_utf8_lossy(&configure_output.stderr));
+-    }
+-
+-    // Run `make check`, or `make all` if we're cross-compiling
+-    let j_arg = format!("-j{}", unwrap!(env::var("NUM_JOBS")));
+-    let cross_compiling = target != host;
+-    let make_arg = if cross_compiling { "all" } else { "check" };
+-    let mut make_cmd = Command::new("make");
+-    let make_output = make_cmd.current_dir(&source_dir)
+-        .env("CC", &cc)
+-        .env("CFLAGS", &cflags)
+-        .env("V", "1")
+-        .arg(make_arg)
+-        .arg(&j_arg)
+-        .output()
+-        .unwrap_or_else(|error| {
+-            panic!("Failed to run 'make check': {}", error);
+-        });
+-    if !make_output.status.success() {
+-        let need_i386 = if cross_compiling &&
+-                           String::from_utf8_lossy(&make_output.stderr)
+-            .contains("fatal error: asm/errno.h: No such file or directory") {
+-            "********************************************\nPossible missing dependencies.  Try \
+-             running:\n  sudo apt-get install \
+-             linux-libc-dev:i386\n********************************************\n\n"
+-        } else {
+-            ""
+-        };
+-        panic!("\n{:?}\nCFLAGS={}\nCC={}\n{}\n{}\n{}\n{}",
+-               make_cmd,
+-               &cflags,
+-               &cc,
+-               String::from_utf8_lossy(&configure_output.stdout),
+-               String::from_utf8_lossy(&make_output.stdout),
+-               String::from_utf8_lossy(&make_output.stderr),
+-               need_i386);
+-    }
+-
+-    // Run `make install`
+-    let mut install_cmd = Command::new("make");
+-    let install_output = install_cmd.current_dir(&source_dir)
+-        .env("CC", &cc)
+-        .env("CFLAGS", &cflags)
+-        .arg("install")
+-        .output()
+-        .unwrap_or_else(|error| {
+-            panic!("Failed to run 'make install': {}", error);
+-        });
+-    if !install_output.status.success() {
+-        panic!("\n{:?}\n{}\n{}\n{}\n{}\n",
+-               install_cmd,
+-               String::from_utf8_lossy(&configure_output.stdout),
+-               String::from_utf8_lossy(&make_output.stdout),
+-               String::from_utf8_lossy(&install_output.stdout),
+-               String::from_utf8_lossy(&install_output.stderr));
+-    }
+-
+-    println!("cargo:rustc-link-lib=static=sodium");
+-    println!("cargo:rustc-link-search=native={}/lib", install_dir);
+-    println!("cargo:include={}/include", install_dir);
+-}
+--- Cargo.toml	2016-10-23 14:43:23.194219900 +0300
++++ Cargo.toml	2016-10-23 14:43:31.366220300 +0300
+@@ -18,7 +18,6 @@
+ unwrap = "~1.1.0"
+ 
+ [build-dependencies]
+-flate2 = { version = "~0.2.14", optional = true }
+ gcc = { version = "~0.3.35", optional = true }
+ pkg-config = { version = "~0.3.8", optional = true }
+ tar = { version = "~0.4.8", optional = true }
+@@ -29,4 +28,4 @@
+ 
+ [features]
+ default = ["pkg-config"]
+-get-libsodium = ["flate2", "gcc", "tar"]
++get-libsodium = ["gcc", "tar"]

@@ -175,6 +175,7 @@ quick_error! {
             description(err)
             display("{}",err)
         }
+        ReadError(err: NfsError)
     }
 }
 
@@ -225,7 +226,10 @@ impl DownloaderActorLocal {
 
         {
             let reader = self.rkit.file_helper.read(&fileu);
-            let size = reader.size() as i64;
+            if reader.is_err() {
+                return Err(AddTaskError::ReadError(reader.err().unwrap()));
+            }
+            let size = reader.unwrap().size() as i64;
             let mut sizemut : i64 = size;
             unsafe {
                 (task.userdata_arbitrary_message_func)(

@@ -27,7 +27,6 @@ struct ReaderKit {
     client: Arc< Mutex< Client > >,
     dns_ops: DnsOperations,
     dir_helper: DirectoryHelper,
-    file_helper: FileHelper,
 }
 
 quick_error! {
@@ -55,16 +54,18 @@ impl ReaderKit {
 
         let dns_ops = DnsOperations::new_unregistered(clientu.clone());
         let dir_helper = DirectoryHelper::new(clientu.clone());
-        let file_helper = FileHelper::new(clientu.clone());
 
         Ok(
             ReaderKit {
                 client: clientu,
                 dns_ops: dns_ops,
                 dir_helper: dir_helper,
-                file_helper: file_helper,
             }
         )
+    }
+
+    fn file_helper(&self) -> FileHelper {
+        FileHelper::new(self.client.clone())
     }
 }
 
@@ -225,7 +226,8 @@ impl DownloaderActorLocal {
         let fileu = file.unwrap();
 
         {
-            let reader = self.rkit.file_helper.read(&fileu);
+            let mut helper = self.rkit.file_helper();
+            let reader = helper.read(&fileu);
             if reader.is_err() {
                 return Err(AddTaskError::ReadError(reader.err().unwrap()));
             }
@@ -332,9 +334,14 @@ impl DownloaderActorLocal {
 
             {
                 let (chunkstart,chunkend) = nextu.next_chunk();
-                let mut reader = self.rkit.file_helper.read(&nextu.file);
+                let mut fclone = self.rkit.file_helper();
+                let mut reader = fclone.read(&nextu.file);
+                if reader.is_err() {
+                    //TODO: how to handle reader error, just pospone?
+                    return;
+                }
                 let size = chunkend - chunkstart;
-                let readres = reader.read(chunkstart,size);
+                let readres = reader.unwrap().read(chunkstart,size);
                 (readres,chunkstart,chunkend)
             }
         };

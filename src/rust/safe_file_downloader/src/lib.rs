@@ -140,7 +140,7 @@ impl DownloadTaskWRreader {
 }
 
 pub struct DownloaderActor {
-    send: ::std::sync::mpsc::Sender< DownloaderMsgs >,
+    pub send: ::std::sync::mpsc::Sender< DownloaderMsgs >,
 }
 
 pub struct DownloaderActorLocal {

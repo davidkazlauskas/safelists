@@ -35,11 +35,11 @@ pub extern fn dtor(
 }
 
 fn main() {
-    use safefiledownloader;
-    let (remote,local) = safefiledownloader::DownloaderActor::new();
-    safefiledownloader::DownloaderActorLocal::launch_thread(local);
+    use safefiledownloader::{DownloadTask, DownloaderActor, DownloaderActorLocal, DownloaderMsgs};
+    let (remote,local) = DownloaderActor::new();
+    DownloaderActorLocal::launch_thread(local);
 
-    let task = safefiledownloader::DownloadTask {
+    let task = DownloadTask {
         userdata: std::ptr::null_mut(),
         userdata_buffer_func: step_function,
         userdata_next_range_func: next_range_func,
@@ -48,10 +48,10 @@ fn main() {
     };
 
     let msg = DownloaderMsgs::Schedule {
-        path: "www.slstocks/bg.jpg", task: task
+        path: "www.slstocks/bg.jpg".to_string(), task: task
     };
 
-    remote.send(msg);
+    remote.send.send(msg);
 
     println!("Hello world");
 }

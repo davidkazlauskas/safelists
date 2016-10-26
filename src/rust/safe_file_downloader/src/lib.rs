@@ -5,6 +5,7 @@ extern crate safe_core;
 extern crate regex;
 extern crate rustc_serialize;
 extern crate core;
+#[macro_use] extern crate log;
 #[macro_use] extern crate quick_error;
 
 use std::sync::{Arc,Mutex};
@@ -43,9 +44,12 @@ impl ReaderKit {
     // should be created only once
     // per program
     fn unregistered_kit() -> Result< ReaderKit, GetReaderKitError >  {
+        trace!("Mekin client!");
         let client = Client::create_unregistered_client();
+        trace!("Dern!");
 
         if client.is_err() {
+            warn!("{:?}", client.err());
             return Err( GetReaderKitError::CouldNotCreateClient(
                 "Could not create unregistered client.") );
         }
@@ -396,6 +400,7 @@ impl DownloaderActorLocal {
             move || {
                 let kit = ReaderKit::unregistered_kit();
                 if kit.is_err() {
+                    println!("Client creation error: {:?}",kit.err());
                     return;
                 }
 

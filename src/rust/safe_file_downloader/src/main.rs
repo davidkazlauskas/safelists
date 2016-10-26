@@ -1,6 +1,7 @@
 
 extern crate libc;
 extern crate safefiledownloader;
+extern crate env_logger;
 
 pub extern fn step_function(
     param: *mut libc::c_void,
@@ -40,6 +41,8 @@ pub extern fn dtor(
 }
 
 fn main() {
+    env_logger::init().unwrap();
+
     use safefiledownloader::{DownloadTask, DownloaderActor, DownloaderActorLocal, DownloaderMsgs};
     let (remote,local) = DownloaderActor::new();
     DownloaderActorLocal::launch_thread(local);

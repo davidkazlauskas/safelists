@@ -31,6 +31,11 @@ pub extern fn arbitrary_message_func(
 pub extern fn dtor(
     param: *mut libc::c_void
 ) {
+    unsafe {
+        let curr: std::sync::Arc<std::sync::mpsc::Sender<i32>> = std::mem::transmute(param);
+        curr.send(0);
+        drop(curr);
+    }
     println!("dtor");
 }
 
@@ -39,19 +44,26 @@ fn main() {
     let (remote,local) = DownloaderActor::new();
     DownloaderActorLocal::launch_thread(local);
 
-    let task = DownloadTask {
-        userdata: std::ptr::null_mut(),
-        userdata_buffer_func: step_function,
-        userdata_next_range_func: next_range_func,
-        userdata_arbitrary_message_func: arbitrary_message_func,
-        userdata_destructor: dtor
-    };
+    let (tx,rx) = std::sync::mpsc::channel::<i32>();
+    let wtx = std::sync::Arc::new(tx);
 
-    let msg = DownloaderMsgs::Schedule {
-        path: "www.slstocks/bg.jpg".to_string(), task: task
-    };
+    unsafe {
+        let task = DownloadTask {
+            userdata: std::mem::transmute(wtx),
+            userdata_buffer_func: step_function,
+            userdata_next_range_func: next_range_func,
+            userdata_arbitrary_message_func: arbitrary_message_func,
+            userdata_destructor: dtor
+        };
 
-    remote.send.send(msg);
+        let msg = DownloaderMsgs::Schedule {
+            path: "www.slstocks/bg.jpg".to_string(), task: task
+        };
+
+        remote.send.send(msg);
+    }
+
+    rx.recv();
 
     println!("Hello world");
 }

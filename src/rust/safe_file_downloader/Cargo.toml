@@ -12,4 +12,8 @@ rustc-serialize = "0.3.19"
 
 [lib]
 name = "safefiledownloader"
-crate-type = [ "dylib" ]
+crate-type = [ "rlib", "dylib" ]
+
+[[bin]]
+name = "safefiledownloader"
+path = "src/main.rs"

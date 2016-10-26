@@ -69,22 +69,22 @@ impl ReaderKit {
     }
 }
 
-struct DownloadTask {
-    userdata: *mut libc::c_void,
-    userdata_buffer_func: extern fn(
+pub struct DownloadTask {
+    pub userdata: *mut libc::c_void,
+    pub userdata_buffer_func: extern fn(
         param: *mut libc::c_void,
         libc::uint64_t,
         libc::uint64_t,
         *const libc::uint8_t) -> libc::int32_t,
-    userdata_next_range_func: extern fn(
+    pub userdata_next_range_func: extern fn(
         param: *mut libc::c_void,
         *mut libc::int64_t,
         *mut libc::int64_t) -> libc::int32_t,
-    userdata_arbitrary_message_func: extern fn(
+    pub userdata_arbitrary_message_func: extern fn(
         param: *mut libc::c_void,
         msgtype: i32,
         param: *mut libc::c_void),
-    userdata_destructor: extern fn(param: *mut libc::c_void),
+    pub userdata_destructor: extern fn(param: *mut libc::c_void),
 }
 
 impl Drop for DownloadTask {
@@ -97,7 +97,7 @@ impl Drop for DownloadTask {
 unsafe impl Send for DownloadTask {}
 unsafe impl Send for DownloaderMsgs {}
 
-enum DownloaderMsgs {
+pub enum DownloaderMsgs {
     Schedule { path: String,task: DownloadTask },
     Stop {
         donefunc: extern fn(param: *mut libc::c_void),
@@ -139,11 +139,11 @@ impl DownloadTaskWRreader {
     }
 }
 
-struct DownloaderActor {
+pub struct DownloaderActor {
     send: ::std::sync::mpsc::Sender< DownloaderMsgs >,
 }
 
-struct DownloaderActorLocal {
+pub struct DownloaderActorLocal {
     recv: ::std::sync::mpsc::Receiver< DownloaderMsgs >,
     rkit: ReaderKit,
     tasks: Vec< DownloadTaskWRreader >,
@@ -153,7 +153,7 @@ struct DownloaderActorLocal {
 }
 
 impl DownloaderActor {
-    fn new() -> (
+    pub fn new() -> (
         DownloaderActor,
         ::std::sync::mpsc::Receiver< DownloaderMsgs >
     )
@@ -389,7 +389,7 @@ impl DownloaderActorLocal {
         }
     }
 
-    fn launch_thread(recv: ::std::sync::mpsc::Receiver< DownloaderMsgs >) {
+    pub fn launch_thread(recv: ::std::sync::mpsc::Receiver< DownloaderMsgs >) {
         println!("Thread lunched!");
 
         std::thread::spawn(

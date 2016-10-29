@@ -1042,6 +1042,11 @@ initAll = function()
 
     df.resetVarsForSafelist()
 
+    df.appendLog = function(dlModel,theStr)
+        dlModel:appendLog(theStr)
+        dlModel.loggedErrors = true
+    end
+
     mainWindowPushButtonHandler = df.makeLuaMatchHandler(
         VMatch(function()
             local oneOffSteal = dg.oneOffFunctions
@@ -1292,8 +1297,7 @@ initAll = function()
                 currSess.loggedErrors = false
 
                 local appendLog = function(theStr)
-                    currSess:appendLog(theStr)
-                    currSess.loggedErrors = true
+                    df.appendLog(currSess,theStr)
                 end
 
                 local newId = df.newObjectId()

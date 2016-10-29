@@ -1334,6 +1334,7 @@ initAll = function()
                         local valTree = val:values()
                         local delKey = valTree._2
                         print("File not found brah: |" .. delKey .. "|")
+                        appendLog("File not found: " .. delKey)
                         dg.dm:incRevision()
                         currSess:removeDownload(delKey)
                     end,"SLD_OutFileNotFound","int"),

@@ -1334,8 +1334,10 @@ initAll = function()
                         local valTree = val:values()
                         local delKey = valTree._2
                         local dkWh = whole(delKey)
-                        print("File not found brah: |" .. dkWh .. "|")
-                        appendLog("File not found: " .. dkWh)
+                        local theDl = currSess:keyDownload(delKey)
+                        local thePath = theDl:getPath()
+                        print("File not found brah: |" .. dkWh .. "|" .. thePath .. "|")
+                        appendLog("File not found: " .. thePath)
                         dg.dm:incRevision()
                         currSess:removeDownload(delKey)
                     end,"SLD_OutFileNotFound","int"),

@@ -42,6 +42,7 @@ ADD_DEFINITIONS(
     -std=c++11
     -g
     -DSAFELISTS_TESTING
+    #-O0
     -O3
 )
 
@@ -147,9 +148,10 @@ if(CMAKE_CROSS_COMPILING)
         # support musl in future?
         SET( CARGO_COMMAND PKG_CONFIG_ALLOW_CROSS=1
             CC=${CMAKE_C_COMPILER}
-            cargo rustc ${CARGO_BUILD_MODE}
+            RUSTFLAGS="-Clinker=${CMAKE_C_COMPILER}"
+            cargo build ${CARGO_BUILD_MODE}
             --target=${TARGET_ARCHITECTURE}-unknown-linux-gnu
-            -Clinker=${CMAKE_C_COMPILER} )
+            )
     endif()
 endif()
 

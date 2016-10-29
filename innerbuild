@@ -55,6 +55,7 @@ fi
 #/bin/bash
 
 make -j 1
+make -j 1 package-zip
 chown -R user:user .
 
 

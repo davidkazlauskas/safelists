@@ -1333,8 +1333,9 @@ initAll = function()
                         -- MAKE-PRETTY
                         local valTree = val:values()
                         local delKey = valTree._2
-                        print("File not found brah: |" .. delKey .. "|")
-                        appendLog("File not found: " .. delKey)
+                        local dkWh = whole(delKey)
+                        print("File not found brah: |" .. dkWh .. "|")
+                        appendLog("File not found: " .. dkWh)
                         dg.dm:incRevision()
                         currSess:removeDownload(delKey)
                     end,"SLD_OutFileNotFound","int"),

@@ -1042,7 +1042,7 @@ initAll = function()
 
     df.resetVarsForSafelist()
 
-    df.appendLog = function(dlModel,theStr)
+    df.appendSessionLog = function(dlModel,theStr)
         dlModel:appendLog(theStr)
         dlModel.loggedErrors = true
     end
@@ -1297,7 +1297,7 @@ initAll = function()
                 currSess.loggedErrors = false
 
                 local appendLog = function(theStr)
-                    df.appendLog(currSess,theStr)
+                    df.appendSessionLog(currSess,theStr)
                 end
 
                 local newId = df.newObjectId()

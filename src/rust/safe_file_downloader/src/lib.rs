@@ -5,6 +5,7 @@ extern crate safe_core;
 extern crate regex;
 extern crate rustc_serialize;
 extern crate core;
+extern crate env_logger;
 #[macro_use] extern crate log;
 #[macro_use] extern crate quick_error;
 
@@ -521,6 +522,12 @@ pub extern fn safe_file_downloader_schedule(
 
         return 0;
     }
+}
+
+#[no_mangle]
+pub extern fn safe_file_downloader_init_logging()
+{
+    env_logger::init().unwrap();
 }
 
 quick_error! {

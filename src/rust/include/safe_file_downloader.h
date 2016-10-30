@@ -54,6 +54,9 @@ extern "C" {
     // safe_file_downloader ensures that destructor on safe_file_downloader_args.userdata
     // is called.
     void safe_file_downloader_schedule(void* handle,void* args /* safe_file_downloader_args */ );
+
+    // init logging for rust
+    void safe_file_downloader_init_logging();
 #ifdef __cplusplus
 }
 #endif

@@ -25,6 +25,7 @@
 #include <io/AsyncDownloader.hpp>
 #include <model/AsyncSqliteFactory.hpp>
 #include <meta/GlobalConsts.hpp>
+#include <safe_file_downloader.h>
 
 TEMPLATIOUS_TRIPLET_STD;
 
@@ -2071,6 +2072,8 @@ int main(int argc,char** argv) {
     // TODO: start right away without console (win32 main)
     FreeConsole();
 #endif
+
+    ::safe_file_downloader_init_logging();
 
     std::vector< std::unique_ptr<char[]> > envVars;
     prepEnv(envVars,argc,argv);

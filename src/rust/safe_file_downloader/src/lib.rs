@@ -527,7 +527,9 @@ pub extern fn safe_file_downloader_schedule(
 #[no_mangle]
 pub extern fn safe_file_downloader_init_logging()
 {
+    println!("Initializing logging for safe file downloader lib...");
     env_logger::init().unwrap();
+    println!("Done!");
 }
 
 quick_error! {

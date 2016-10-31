@@ -55,6 +55,13 @@ fi
 #/bin/bash
 
 make -j 1
+LAST_CODE=$?
+
+if [ "$LAST_CODE" -ne "0" ];
+then
+    exit $LAST_CODE
+exit
+
 make -j 1 package-zip
 chown -R user:user .
 

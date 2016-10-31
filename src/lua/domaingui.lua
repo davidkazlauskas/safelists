@@ -5,18 +5,16 @@ function fileBrowserRightClickHandler(dg,df)
 
     local currentEntityId, isDir = df.getCurrentEntityId()
     if (currentEntityId > 0 and isDir) then
-        menuModel = { "New directory", "Move directory", "Delete directory", "Rename directory", "New file" }
+        menuModel = { "Download directory", "New directory", "Move directory", "Delete directory", "Rename directory", "New file" }
         if (currentEntityId == 1) then
             -- root is unmovable, unrenamable and undeletable
             menuModel = { "New directory", "New file" }
         end
         --"Download directory",
-        -- TODO: implement download directory
     elseif (currentEntityId > 0 and not isDir) then
         menuModel = { "Download file", "Edit file", "Delete file", "Move file" }
         --"Download file",
         -- TODO: localize labels not to depend on them
-        -- TODO: implement download
     else
         return
     end
@@ -127,6 +125,14 @@ function fileBrowserRightClickHandler(dg,df)
 
                         df.message(dialog,VSig("INDLG_InSetNotifier"),VMsg(handler))
                         showOrHide(true)
+                    end),
+                    arrayBranch("Download directory",function()
+                        local currentDirId = df.getCurrentEntityId()
+                        if (currentDirId ~= -1) then
+                            local query = sqlSelectOneDirectoryForSession(whole(currentDirId))
+                            print("|" .. query .. "|")
+                            downloadSessionHandler(df,dh,query)
+                        end
                     end),
                     arrayBranch("New directory",function()
                         local dialog = df.namedMessageable("singleInputDialog")

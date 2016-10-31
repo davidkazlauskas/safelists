@@ -110,12 +110,12 @@ namespace {
 
     // returns in memory database
     // which needs to be saved to file.
-    sqlite3* createDownloadSession(sqlite3* connection) {
+    sqlite3* createDownloadSession(sqlite3* connection, const char* selQuery) {
         sqlite3* result = nullptr;
         sqlite3_open(":memory:",&result);
         assert( nullptr != result && "Aww, cmon, I really need to handle this?" );
         char* err = nullptr;
-        int res = sqlite3_exec(result,DL_SESSION_SCHEMA,nullptr,nullptr,&err);
+        int res = sqlite3_exec(result,selQuery,nullptr,nullptr,&err);
         if (res != 0 && nullptr != err) {
             printf("Sqlite err: %s\n",err);
             assert( false && "Mitch, please!" );
@@ -253,7 +253,7 @@ private:
                    StrongMsgPtr& notifyWhenDone,
                    const std::string& path)
                 {
-                    createSession(asyncSqlite, notifyWhenDone, path, "");
+                    createSession(asyncSqlite, notifyWhenDone, path, DL_SESSION_SCHEMA);
                 }
             ),
             SF::virtualMatch<
@@ -267,16 +267,16 @@ private:
                    StrongMsgPtr& asyncSqlite,
                    StrongMsgPtr& notifyWhenDone,
                    const std::string& path,
-                   const std::string& statement)
+                   const std::string& query)
                 {
-                    createSession(asyncSqlite, notifyWhenDone, path, statement);
+                    createSession(asyncSqlite, notifyWhenDone, path, query);
                 }
             )
         );
     }
 
     static void createSession(StrongMsgPtr& asyncSqlite, StrongMsgPtr& notifyWhenDone,
-            const std::string& path, const std::string& statement)
+            const std::string& path, const std::string& query)
     {
         typedef SafeListDownloaderFactory SLDF;
         WeakMsgPtr notify = notifyWhenDone;
@@ -306,20 +306,10 @@ private:
                     return;
                 }
 
-                sqlite3* memSession = createDownloadSession(connection);
+                sqlite3* memSession = createDownloadSession(connection,query.c_str());
                 auto closeGuard = SCOPE_GUARD_LC(
                     sqlite3_close(memSession);
                 );
-                if (!statement.empty()) {
-                    char* errMsg = nullptr;
-                    int out = ::sqlite3_exec(memSession, statement.c_str(), nullptr, nullptr, &errMsg);
-                    if (0 != out) {
-                        printf("Sqlite error when executing user download session function: |%s|%s|\n",
-                            errMsg, statement.c_str());
-                        closeGuard.fire();
-                        assert( false && "Sqlite error executing user user download session function." );
-                    }
-                }
                 saveDbToFileAndClose(memSession,path.c_str());
             }
         );

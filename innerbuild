@@ -60,7 +60,7 @@ LAST_CODE=$?
 if [ "$LAST_CODE" -ne "0" ];
 then
     exit $LAST_CODE
-exit
+fi
 
 make -j 1 package-zip
 chown -R user:user .

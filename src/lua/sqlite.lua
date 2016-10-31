@@ -296,3 +296,22 @@ function sqlSelectOneFileForSession(fileId)
         "FROM files " ..
         "WHERE file_id=" .. fileId .. "; "
 end
+
+function sqlSelectOneDirectoryForSession(dirId)
+    -- query must select four fields, file_id, path_to_download, file_size, file_hash
+    return
+        "SELECT file_id, path_name || file_name, file_size, file_hash_256 " ..
+        "FROM files " ..
+        "LEFT OUTER JOIN " ..
+        "(  " ..
+        "   WITH RECURSIVE " ..
+        "   children(d_id,path_name) AS ( " ..
+        "      SELECT dir_id,'' FROM directories WHERE dir_id=" .. dirId .. " " ..
+        "      UNION ALL " ..
+        "      SELECT dir_id,children.path_name || dir_name || '/' " ..
+        "      FROM directories JOIN children ON directories.dir_parent=children.d_id " ..
+        "   ) SELECT d_id,path_name FROM children   " ..
+        ")  " ..
+        "ON dir_id=d_id " ..
+        "WHERE d_id IS NOT NULL; "
+end

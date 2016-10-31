@@ -296,7 +296,6 @@ end
 function downloadSessionHandler(df,dh,selectQuery)
     local dlFactory = df.namedMessageable("dlSessionFactory")
     local dialogService = df.namedMessageable("dialogService")
-    local mainWnd = df.namedMessageable("dialogService")
     local asyncSqlite = dg.currentAsyncSqlite
     if (messageablesEqual(VMsgNil(),asyncSqlite)) then
         assert( false, "Didn't expect download request" ..

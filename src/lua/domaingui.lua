@@ -461,6 +461,7 @@ function downloadSessionHandler(df,dh,selectQuery)
                 local idWhole = whole(id)
                 local newSize = val._3
                 -- size collision already checked with assert
+                -- TODO: update size in GUI model
                 df.messageAsync(
                     asyncSqlite,
                     VSig("ASQL_Execute"),

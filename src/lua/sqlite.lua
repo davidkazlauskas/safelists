@@ -231,13 +231,20 @@ function sqlUpdateFileSizeStatement(fileId,size)
 end
 
 function sqlDeleteDirectoryRecursively(dirId)
-    -- TODO: IMPORTANT recursive delete query, cold
-    -- this does not delete directories recursively
+    local allDirsSelect =
+           " WITH RECURSIVE"
+        .. " children(d_id) AS ("
+        .. "       VALUES(" .. dirId .. ")"
+        .. "       UNION ALL"
+        .. "       SELECT dir_id"
+        .. "       FROM directories JOIN children ON "
+        .. "          directories.dir_parent=children.d_id "
+        .. " ) SELECT d_id FROM children"
     return
-        "DELETE FROM directories WHERE dir_id=" .. dirId .. ";" ..
         "DELETE FROM mirrors WHERE file_id IN " ..
-        "  (SELECT file_id FROM files WHERE dir_id=" .. dirId .. ");" ..
-        "DELETE FROM files WHERE dir_id=" .. dirId .. ";"
+        "  (SELECT file_id FROM files WHERE dir_id IN (" .. allDirsSelect .. "));" ..
+        "DELETE FROM files WHERE dir_id IN (" .. allDirsSelect .. ");" ..
+        "DELETE FROM directories WHERE dir_id IN (" .. allDirsSelect .. ");"
 end
 
 function sqlUpdateDirectoryNameStatement(dirId,name)

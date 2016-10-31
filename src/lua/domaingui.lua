@@ -13,7 +13,7 @@ function fileBrowserRightClickHandler(dg,df)
         --"Download directory",
         -- TODO: implement download directory
     elseif (currentEntityId > 0 and not isDir) then
-        menuModel = { "Edit file", "Delete file", "Move file" }
+        menuModel = { "Download file", "Edit file", "Delete file", "Move file" }
         --"Download file",
         -- TODO: localize labels not to depend on them
         -- TODO: implement download
@@ -231,8 +231,14 @@ function fileBrowserRightClickHandler(dg,df)
                         df.message(dialog,VSig("INDLG_InSetNotifier"),VMsg(handler))
                         showOrHide(true)
                     end),
+                    arrayBranch("Download file",function()
+                        print("Download file clicked")
+                        local currentFileId = whole(df.getCurrentEntityId())
+                        downloadSessionHandler(df,dh,sqlSelectOneFileForSession(currentFileId))
+                    end),
                     arrayBranch("New file",function()
                         print("New file clicked")
+                        local currentFileId = df.getCurrentEntityId()
                         df.newFileDialog(
                             function(result,dialog)
                                 local firstValidation =

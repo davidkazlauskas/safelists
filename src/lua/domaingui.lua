@@ -292,3 +292,231 @@ function fileBrowserRightClickHandler(dg,df)
             end
         )
 end
+
+function downloadSessionHandler(df,dh,selectQuery)
+    local dlFactory = df.namedMessageable("dlSessionFactory")
+    local dialogService = df.namedMessageable("dialogService")
+    local mainWnd = df.namedMessageable("dialogService")
+    local asyncSqlite = dg.currentAsyncSqlite
+    if (messageablesEqual(VMsgNil(),asyncSqlite)) then
+        assert( false, "Didn't expect download request" ..
+            " with null safelist.")
+        return
+    end
+
+    local isCurrentDead = function()
+        return df.messageRetValues(
+            asyncSqlite,
+            VSig("ASQL_IsDead"),
+            VBool(true)
+        )._2
+    end
+
+    local afterDirectory = function(downloadPath)
+
+        if (downloadPath == "") then
+            return
+        end
+
+        assert( downloadPath[#downloadPath] ~= "/",
+            "Don't expect slash at the end." )
+
+        downloadPath = downloadPath .. "/safelist_session"
+
+        if (dg.currentSessions[downloadPath] == "t") then
+            df.messageBox(
+                "In progress",
+                "Safelist already being downloaded."
+            )
+            return
+        end
+
+        dg.currentSessions[downloadPath] = "t"
+
+        --print("Pre col: " .. collectgarbage('count'))
+        --collectgarbage('collect')
+        --print("Post col: " .. collectgarbage('count'))
+
+        local currSess = dg.dm:newSession()
+        currSess.loggedErrors = false
+
+        local appendLog = function(theStr)
+            df.appendSessionLog(currSess,theStr)
+        end
+
+        local newId = df.newObjectId()
+        local handlerWeak = nil
+        local handler = df.makeLuaMatchHandler(
+            VMatch(function(natPack,val)
+                local values = val:values()
+                local dl = currSess:keyDownload(values._2)
+                -- dead progress update
+                if (nil ~= dl) then
+                    local done = values._3
+                    local total = values._4
+                    dg.dm:incRevision()
+                    dl:setProgress(done,total)
+                end
+                local newBytes = values._5
+                dg.downloadSpeedChecker:regBytes(newBytes)
+            end,"SLD_OutProgressUpdate","int","double","double","double"),
+            VMatch(function(natpack,val)
+                local valTree = val:values()
+                local newKey = valTree._2
+                local newPath = valTree._3
+                dg.dm:incRevision()
+                currSess:addDownload(newKey,newPath)
+            end,"SLD_OutStarted","int","string"),
+            VMatch(function(natpack,val)
+                local valTree = val:values()
+                local delKey = valTree._2
+                dg.dm:incRevision()
+                currSess:removeDownload(delKey)
+            end,"SLD_OutSingleDone","int"),
+            VMatch(function(natpack,val)
+                -- MAKE-PRETTY
+                local valTree = val:values()
+                local delKey = valTree._2
+                local dkWh = whole(delKey)
+                local theDl = currSess:keyDownload(delKey)
+                local thePath = theDl:getPath()
+                print("File not found brah: |" .. dkWh .. "|" .. thePath .. "|")
+                appendLog("File not found: " .. thePath)
+                dg.dm:incRevision()
+                currSess:removeDownload(delKey)
+            end,"SLD_OutFileNotFound","int"),
+            VMatch(function()
+                print('Downloaded!')
+                dg.currentSessions[downloadPath] = nil
+                --dg.dm:incRevision()
+                --dg.dm:dropSession(currSess)
+                --objRetainer:release(newId)
+            end,"SLD_OutDone"),
+            VMatch(function(natpack,val)
+                -- back in the day use counts were incremented
+                -- but it's a waste of time because now hashes
+                -- don't verify that two safelists are the same
+                return
+            end,"SLD_OutMirrorUsed","int","string"),
+            VMatch(instrument(function(natPack,val)
+                local thisCorout = coroutine.running()
+                local values = val:values()
+                local hash = values._3
+                if (nil == asyncSqlite or isCurrentDead()) then
+                    return
+                end
+
+                local id = values._2
+                local idWhole = whole(id)
+                local theDl = currSess:keyDownload(id)
+                local thePath = theDl:getPath()
+
+                df.messageAsyncWCallback(asyncSqlite,
+                    resumerCallbackValues(thisCorout),
+                    VSig("ASQL_OutSingleRow"),
+                    VString(sqlGetFileHash(idWhole)),
+                    VString(""),
+                    VBool(false))
+
+                local outVal = coroutine.yield()
+                local qhash = outVal._3
+
+                assert( outVal._4, "Query failed..." )
+                --assert( qhash ~= hash, "Hash collision, hash is different."
+                    --.. " (todo: handle this case)" )
+
+                if (qhash ~= hash and qhash ~= "") then
+                    appendLog(
+                      "Hash mismatch: " .. thePath
+                      .. " is reported to be of hash \"" .. qhash .. "\""
+                      .. " but turns out to be \"" .. hash .. "\"."
+                      .. " Are mirrors pointing to the same file?"
+                    )
+                else
+                    df.messageAsync(
+                        asyncSqlite,
+                        VSig("ASQL_Execute"),
+                        VString(sqlUpdateFileHashStatement(idWhole,hash))
+                    )
+                    df.updateRevision()
+                end
+            end),"SLD_OutHashUpdate","int","string"),
+            VMatch(function(natPack,out)
+                if (isCurrentDead()) then
+                    return
+                end
+
+                local val = out:values()
+                local id = val._2
+                local idWhole = whole(id)
+                local newSize = val._3
+                -- size collision already checked with assert
+                df.messageAsync(
+                    asyncSqlite,
+                    VSig("ASQL_Execute"),
+                    VString(sqlUpdateFileSizeStatement(idWhole,whole(newSize)))
+                )
+                df.updateRevision()
+            end,"SLD_OutSizeUpdate","int","double"),
+            VMatch(function(natPack,out)
+                local val = out:values()
+                local id = val._2
+                local exp = val._3
+                local real = val._4
+                local theDl = currSess:keyDownload(id)
+                appendLog(
+                  "Size mismatch: " .. theDl:getPath()
+                  .. " is reported to be of size " .. whole(exp)
+                  .. " but turns out to be " .. whole(real) .. "."
+                  .. " Are mirrors pointing to the same file?"
+                )
+            end,"SLD_OutSizeMismatch","int","double","double"),
+            VMatch(function()
+                print('Safelist session dun! Downloading...')
+                local locked = handlerWeak:lockPtr()
+                assert( nil ~= locked , "Locking weak ptr gives nil..." )
+                local dlHandle = df.messageRetValues(dlFactory,
+                    VSig("SLDF_InNewAsync"),
+                    VString(downloadPath),
+                    VMsg(locked),
+                    VMsg(nil)
+                )._4
+                assert( dlHandle ~= nil )
+            end,"SLDF_OutCreateSessionDone"),
+            VMatch(function(natPack,val)
+                local vals = val:values()
+                print("The total: " .. vals._2)
+                currSess:setTotalDownloads(vals._2)
+            end,"SLD_OutTotalDownloads","int")
+        )
+
+        handlerWeak = handler:getWeak()
+        df.retainObjectWId(newId,handler)
+
+        df.message(dlFactory,
+            VSig("SLDF_CreateSession"),
+            VMsg(asyncSqlite),
+            VMsg(handler),
+            VString(downloadPath),
+            VString(selectQuery)
+        )
+    end
+
+    local nId = df.newObjectId()
+
+    local handler = df.makeLuaMatchHandler(
+        VMatch(function(natPack,val)
+            local outPath = val:values()._2
+            afterDirectory(outPath)
+            df.releaseObject(nId)
+        end,"GDS_OutNotifyPath","string")
+    )
+
+    df.retainObjectWId(nId,handler)
+
+    local outVal = df.message(dialogService,
+        VSig("GDS_DirChooserDialog"),
+        VMsg(df.mainWnd()),
+        VString("Select download location."),
+        VMsg(handler))
+end

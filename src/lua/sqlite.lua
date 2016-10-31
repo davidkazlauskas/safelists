@@ -272,6 +272,7 @@ function sqlDeleteFile(fileId)
 end
 
 function sqlSelectAllFilesForSession()
+    -- query must select four fields, file_id, path_to_download, file_size, file_hash
     return
         "SELECT file_id, path_name || file_name, file_size, file_hash_256 " ..
         "FROM files " ..

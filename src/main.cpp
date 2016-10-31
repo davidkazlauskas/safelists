@@ -3,6 +3,7 @@
 #endif
 
 #include <iostream>
+#include <iomanip>
 #include <cstdlib>
 #include <gtkmm.h>
 #include <templatious/FullPack.hpp>
@@ -862,13 +863,29 @@ private:
     };
 
     Glib::ustring sizeToHumanReadableSize(int64_t size) {
-        // TODO: implement MB/KB etc.
         if (size == 0) {
             return "";
         } else if (size == -1) {
             return "unknown";
         }
-        return Glib::ustring(std::to_string(size));
+
+        const int64_t KB_LIM = 1024;
+        const int64_t MB_LIM = KB_LIM * 1024;
+        const int64_t GB_LIM = MB_LIM * 1024;
+
+        std::stringstream ss;
+
+        double dbCast = static_cast<double>(size);
+        if (size >= GB_LIM) {
+            ss << std::fixed << std::setprecision(2) << dbCast / GB_LIM << " GB";
+        } else if (size >= MB_LIM) {
+            ss << std::fixed << std::setprecision(2) << dbCast / MB_LIM << " MB";
+        } else if (size >= KB_LIM) {
+            ss << std::fixed << std::setprecision(2) << dbCast / KB_LIM << " KB";
+        } else {
+            ss << size << " bytes";
+        }
+        return Glib::ustring(ss.str());
     }
 
     void setDirRow(const DirRow& r,const Gtk::TreeModel::Row& mdlRow) {

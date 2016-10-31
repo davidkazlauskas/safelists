@@ -130,7 +130,6 @@ function fileBrowserRightClickHandler(dg,df)
                         local currentDirId = df.getCurrentEntityId()
                         if (currentDirId ~= -1) then
                             local query = sqlSelectOneDirectoryForSession(whole(currentDirId))
-                            print("|" .. query .. "|")
                             downloadSessionHandler(df,dh,query)
                         end
                     end),

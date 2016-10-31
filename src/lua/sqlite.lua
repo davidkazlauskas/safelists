@@ -288,3 +288,11 @@ function sqlSelectAllFilesForSession()
         ")  " ..
         "ON dir_id=d_id; "
 end
+
+function sqlSelectOneFileForSession(fileId)
+    -- query must select four fields, file_id, path_to_download, file_size, file_hash
+    return
+        "SELECT file_id, file_name, file_size, file_hash_256 " ..
+        "FROM files " ..
+        "WHERE file_id=" .. fileId .. "; "
+end

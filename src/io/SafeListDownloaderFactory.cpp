@@ -269,14 +269,14 @@ private:
                    const std::string& path,
                    const std::string& query)
                 {
-                    createSession(asyncSqlite, notifyWhenDone, path, query);
+                    createSession(asyncSqlite, notifyWhenDone, path, query.c_str());
                 }
             )
         );
     }
 
     static void createSession(StrongMsgPtr& asyncSqlite, StrongMsgPtr& notifyWhenDone,
-            const std::string& path, const std::string& query)
+            const std::string& path, const char* query)
     {
         typedef SafeListDownloaderFactory SLDF;
         WeakMsgPtr notify = notifyWhenDone;
@@ -306,7 +306,7 @@ private:
                     return;
                 }
 
-                sqlite3* memSession = createDownloadSession(connection,query.c_str());
+                sqlite3* memSession = createDownloadSession(connection,query);
                 auto closeGuard = SCOPE_GUARD_LC(
                     sqlite3_close(memSession);
                 );

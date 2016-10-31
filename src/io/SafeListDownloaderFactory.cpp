@@ -253,44 +253,77 @@ private:
                    StrongMsgPtr& notifyWhenDone,
                    const std::string& path)
                 {
-                    WeakMsgPtr notify = notifyWhenDone;
-
-                    typedef std::function<void(sqlite3*)> Sig;
-
-                    auto asyncMessage = SF::vpackPtrWCallback<
-                        AsyncSqlite::ArbitraryOperation, Sig
-                    >(
-                        [=](const TEMPLATIOUS_VPCORE<
-                                AsyncSqlite::ArbitraryOperation, Sig
-                            >& pack) {
-                            auto locked = notify.lock();
-                            if (nullptr == locked) {
-                                return;
-                            }
-
-                            auto notifyMsg = SF::vpackPtr<
-                                SLDF::OutCreateSessionDone
-                            >(nullptr);
-                            locked->message(notifyMsg);
-                        },
-                        nullptr,
-                        [=](sqlite3* connection) {
-                            bool exists = boost::filesystem::exists(path.c_str());
-                            if (exists) {
-                                return;
-                            }
-
-                            sqlite3* memSession = createDownloadSession(connection);
-                            auto closeGuard = SCOPE_GUARD_LC(
-                                sqlite3_close(memSession);
-                            );
-                            saveDbToFileAndClose(memSession,path.c_str());
-                        }
-                    );
-                    asyncSqlite->message(asyncMessage);
+                    createSession(asyncSqlite, notifyWhenDone, path, "");
+                }
+            ),
+            SF::virtualMatch<
+                SLDF::CreateSession,
+                StrongMsgPtr,
+                StrongMsgPtr,
+                std::string,
+                std::string
+            >(
+                [](SLDF::CreateSession,
+                   StrongMsgPtr& asyncSqlite,
+                   StrongMsgPtr& notifyWhenDone,
+                   const std::string& path,
+                   const std::string& statement)
+                {
+                    createSession(asyncSqlite, notifyWhenDone, path, statement);
                 }
             )
         );
+    }
+
+    static void createSession(StrongMsgPtr& asyncSqlite, StrongMsgPtr& notifyWhenDone,
+            const std::string& path, const std::string& statement)
+    {
+        typedef SafeListDownloaderFactory SLDF;
+        WeakMsgPtr notify = notifyWhenDone;
+
+        typedef std::function<void(sqlite3*)> Sig;
+
+        auto asyncMessage = SF::vpackPtrWCallback<
+            AsyncSqlite::ArbitraryOperation, Sig
+        >(
+            [=](const TEMPLATIOUS_VPCORE<
+                    AsyncSqlite::ArbitraryOperation, Sig
+                >& pack) {
+                auto locked = notify.lock();
+                if (nullptr == locked) {
+                    return;
+                }
+
+                auto notifyMsg = SF::vpackPtr<
+                    SLDF::OutCreateSessionDone
+                >(nullptr);
+                locked->message(notifyMsg);
+            },
+            nullptr,
+            [=](sqlite3* connection) {
+                bool exists = boost::filesystem::exists(path.c_str());
+                if (exists) {
+                    return;
+                }
+
+                sqlite3* memSession = createDownloadSession(connection);
+                auto closeGuard = SCOPE_GUARD_LC(
+                    sqlite3_close(memSession);
+                );
+                if (!statement.empty()) {
+                    char* errMsg = nullptr;
+                    int out = ::sqlite3_exec(memSession, statement.c_str(), nullptr, nullptr, &errMsg);
+                    if (0 != out) {
+                        printf("Sqlite error when executing user download session function: |%s|%s|\n",
+                            errMsg, statement.c_str());
+                        closeGuard.fire();
+                        assert( false && "Sqlite error executing user user download session function." );
+                    }
+                }
+                saveDbToFileAndClose(memSession,path.c_str());
+            }
+        );
+        asyncSqlite->message(asyncMessage);
     }
 
     VmfPtr _handler;

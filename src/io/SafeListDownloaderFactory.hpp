@@ -28,6 +28,18 @@ struct SafeListDownloaderFactory {
     //   StrongMsgPtr (notify when done),
     //   std::string (session path)
     // >
+    //
+    // 2ND OVERLOAD
+    // Create safelist session from
+    // async sqlite to safelist, after applying statement
+    // Signature:
+    // <
+    //   CreateSession,
+    //   StrongMsgPtr (asyncsqlite to safelist),
+    //   StrongMsgPtr (notify when done),
+    //   std::string (session path),
+    //   std::string (statement to perform after session creation)
+    // >
     DUMMY_REG(CreateSession,"SLDF_CreateSession");
 
     // sent out when CreateSession finishes

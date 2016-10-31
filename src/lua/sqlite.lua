@@ -270,3 +270,20 @@ function sqlDeleteFile(fileId)
         "DELETE FROM files WHERE file_id=" .. fileId .. ";"
         .. "DELETE FROM mirrors WHERE file_id=" .. fileId .. ";"
 end
+
+function sqlSelectAllFilesForSession()
+    return
+        "SELECT file_id, path_name || file_name, file_size, file_hash_256 " ..
+        "FROM files " ..
+        "LEFT OUTER JOIN " ..
+        "(  " ..
+        "   WITH RECURSIVE " ..
+        "   children(d_id,path_name) AS ( " ..
+        "      SELECT dir_id,'' FROM directories WHERE dir_name='root' AND dir_id=1 " ..
+        "      UNION ALL " ..
+        "      SELECT dir_id,children.path_name || dir_name || '/' " ..
+        "      FROM directories JOIN children ON directories.dir_parent=children.d_id " ..
+        "   ) SELECT d_id,path_name FROM children   " ..
+        ")  " ..
+        "ON dir_id=d_id; "
+end

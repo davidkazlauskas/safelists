@@ -158,6 +158,9 @@ namespace {
 
         sqlite3_exec(result,"BEGIN;",nullptr,nullptr,&err);
         res = sqlite3_exec(connection,selQuery,&insertDownloadSessionCallback,&data,&err);
+        if (nullptr != err) {
+            printf("|%s|", err);
+        }
         assert( res == 0 &&  nullptr == err && "BOO!" );
         data._statement = statementMirrors;
         res = sqlite3_exec(connection,DL_SELECT_MIRRORS,&insertDownloadMirrorCallback,&data,&err);
@@ -283,6 +286,8 @@ private:
 
         typedef std::function<void(sqlite3*)> Sig;
 
+        std::string queryCopy = query;
+
         auto asyncMessage = SF::vpackPtrWCallback<
             AsyncSqlite::ArbitraryOperation, Sig
         >(
@@ -306,7 +311,7 @@ private:
                     return;
                 }
 
-                sqlite3* memSession = createDownloadSession(connection,query);
+                sqlite3* memSession = createDownloadSession(connection,queryCopy.c_str());
                 auto closeGuard = SCOPE_GUARD_LC(
                     sqlite3_close(memSession);
                 );

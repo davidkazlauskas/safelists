@@ -1453,7 +1453,8 @@ initAll = function()
                     VSig("SLDF_CreateSession"),
                     VMsg(asyncSqlite),
                     VMsg(handler),
-                    VString(downloadPath)
+                    VString(downloadPath),
+                    VString(sqlSelectAllFilesForSession())
                 )
 
             end

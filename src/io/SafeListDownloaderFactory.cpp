@@ -115,7 +115,7 @@ namespace {
         sqlite3_open(":memory:",&result);
         assert( nullptr != result && "Aww, cmon, I really need to handle this?" );
         char* err = nullptr;
-        int res = sqlite3_exec(result,selQuery,nullptr,nullptr,&err);
+        int res = sqlite3_exec(result,DL_SESSION_SCHEMA,nullptr,nullptr,&err);
         if (res != 0 && nullptr != err) {
             printf("Sqlite err: %s\n",err);
             assert( false && "Mitch, please!" );
@@ -157,7 +157,7 @@ namespace {
         );
 
         sqlite3_exec(result,"BEGIN;",nullptr,nullptr,&err);
-        res = sqlite3_exec(connection,DL_SELECT_ABS_PATHS,&insertDownloadSessionCallback,&data,&err);
+        res = sqlite3_exec(connection,selQuery,&insertDownloadSessionCallback,&data,&err);
         assert( res == 0 &&  nullptr == err && "BOO!" );
         data._statement = statementMirrors;
         res = sqlite3_exec(connection,DL_SELECT_MIRRORS,&insertDownloadMirrorCallback,&data,&err);
@@ -253,7 +253,7 @@ private:
                    StrongMsgPtr& notifyWhenDone,
                    const std::string& path)
                 {
-                    createSession(asyncSqlite, notifyWhenDone, path, DL_SESSION_SCHEMA);
+                    createSession(asyncSqlite, notifyWhenDone, path, DL_SELECT_ABS_PATHS);
                 }
             ),
             SF::virtualMatch<

@@ -56,7 +56,6 @@ function fileBrowserRightClickHandler(dg,df)
                                 return
                             end
                             local wholeDir = whole(currentDirId)
-                            -- TODO: ask if really want to delete
                             df.execSqliteOnHandler(asyncSqlite,sqlDeleteDirectoryRecursively(wholeDir))
                             df.deleteSelectedDir()
                             df.updateRevision()
@@ -310,7 +309,6 @@ function fileBrowserRightClickHandler(dg,df)
                         local currentFileId = df.getCurrentEntityId()
                         -- we know that this is file because
                         -- we wouldn't see this menu
-                        -- TODO: ask if really want to delete
                         if (currentFileId ~= -1) then
                             local asyncSqlite = dg.currentAsyncSqlite
                             if (messageablesEqual(VMsgNil(),asyncSqlite)) then

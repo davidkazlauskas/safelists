@@ -140,8 +140,8 @@ function resumerCallbackValues(corout)
 end
 
 function resumerCallback(corout)
-    return function(out)
-        coroutine.resume(corout,out)
+    return function(...)
+        coroutine.resume(corout,table.unpack({...}))
     end
 end
 

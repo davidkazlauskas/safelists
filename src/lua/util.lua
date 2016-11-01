@@ -139,6 +139,12 @@ function resumerCallbackValues(corout)
     end
 end
 
+function resumerCallback(corout)
+    return function(out)
+        coroutine.resume(corout,out)
+    end
+end
+
 function resumerCallbackWBranch(branch,corout)
     return function(...)
         coroutine.resume(corout,branch,table.unpack({...}))

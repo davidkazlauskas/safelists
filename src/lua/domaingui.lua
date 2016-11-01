@@ -293,7 +293,20 @@ function fileBrowserRightClickHandler(dg,df)
                         dg.fileToMove = currentEntityId
                         dg.shouldMoveFile = true
                     end),
-                    arrayBranch("Delete file",function()
+                    arrayBranch("Delete file",instrument(function()
+                        local thisCorout = coroutine.running()
+
+                        df.okCancelDialog(
+                            "Delete file?",
+                            "This action will delete the selected file.",
+                            resumerCallback(thisCorout))
+
+                        local contRes = coroutine.yield()
+
+                        if (contRes ~= "ok") then
+                            return
+                        end
+
                         local currentFileId = df.getCurrentEntityId()
                         -- we know that this is file because
                         -- we wouldn't see this menu
@@ -311,7 +324,7 @@ function fileBrowserRightClickHandler(dg,df)
                         else
                             df.setStatus("No directory selected.")
                         end
-                    end)
+                    end))
                 )
             end
         )

@@ -365,9 +365,12 @@ initAll = function()
         window:setVisible(true)
     end
 
+    df.dialogService = function()
+        return df.namedMessageable("dialogService")
+    end
+
     df.messageBox = function(title,message)
-        local dialogService =
-            df.namedMessageable("dialogService")
+        local dialogService = df.dialogService()
 
         local mainWrapped = GenericWidget.putOn(mainWnd)
         local mainAppWnd = mainWrapped:getWidget("mainAppWindow")
@@ -1047,6 +1050,37 @@ initAll = function()
         dlModel.loggedErrors = true
     end
 
+    df.okCancelDialog = function(title,text,closure)
+        -- closure answers: ok, cancel
+        local nId = df.newObjectId()
+
+        local handler = df.makeLuaMatchHandler(
+            VMatch(function(natPack,val)
+                local outAns = val:values()._2
+                if (outAns == 0) then
+                    closure("ok")
+                elseif (outAns == -1) then
+                    -- cancel or exit
+                    closure("cancel")
+                else
+                    closure("")
+                end
+                df.releaseObject(nId)
+            end,"GDS_OutNotifyAnswer","int")
+        )
+
+        df.retainObjectWId(nId,handler)
+
+        df.message(
+            df.dialogService(),
+            VSig("GDS_OkCancelDialog"),
+            VMsg(df.mainWnd()),
+            VString(title),
+            VString(text),
+            VMsg(handler)
+        )
+    end
+
     mainWindowPushButtonHandler = df.makeLuaMatchHandler(
         VMatch(function()
             local oneOffSteal = dg.oneOffFunctions
@@ -1401,19 +1435,16 @@ initAll = function()
             if (not exists) then
                 ifContinue()
             else
-                local dialogService =
-                    df.namedMessageable("dialogService")
-
                 local afterAnswer = function(response)
 
-                    if (response == 0) then
+                    if (response == "ok") then
                         df.messageAsyncWCallback(
                             writer,
                             ifContinue,
                             VSig("RFW_DeleteFile"),
                             VString(outPath)
                         )
-                    elseif (response == 1 or response == -1) then
+                    elseif (response == "cancel" or response == "exit") then
                         df.noSafelistState()
                     else
                         assert( false, "Wrong neighbourhood, milky." )
@@ -1422,27 +1453,10 @@ initAll = function()
 
                 end
 
-                local nId = df.newObjectId()
-
-                local handler = df.makeLuaMatchHandler(
-                    VMatch(function(natPack,val)
-                        local outPath = val:values()._2
-                        afterAnswer(outPath)
-                        df.releaseObject(nId)
-                    end,"GDS_OutNotifyAnswer","int")
-                )
-
-                df.retainObjectWId(nId,handler)
-
-                df.message(
-                    dialogService,
-                    VSig("GDS_OkCancelDialog"),
-                    VMsg(mainWnd),
-                    VString("Safelist exists"),
-                    VString("Safelist already exists."
-                    .. " Overwrite it? (data will be lost)"),
-                    VMsg(handler)
-                )
+                df.okCancelDialog(
+                    "Safelist exists",
+                    "Safelist already exists. Overwrite it? (data will be lost)",
+                    afterAnswer)
             end
         end),"MWI_OutCreateSafelistButtonClicked"),
         VMatch(function()

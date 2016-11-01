@@ -31,7 +31,20 @@ function fileBrowserRightClickHandler(dg,df)
                             dg.shouldMoveDir = true
                         end
                     end),
-                    arrayBranch("Delete directory",function()
+                    arrayBranch("Delete directory",instrument(function()
+                        local thisCorout = coroutine.running()
+
+                        df.okCancelDialog(
+                            "Delete directory?",
+                            "This action will delete selected directory recursively.",
+                            resumerCallback(thisCorout))
+
+                        local contRes = coroutine.yield()
+
+                        if (contRes ~= "ok") then
+                            return
+                        end
+
                         local currentDirId = df.getCurrentEntityId()
                         if (currentDirId ~= -1) then
                             if (currentDirId == 1) then
@@ -50,7 +63,7 @@ function fileBrowserRightClickHandler(dg,df)
                         else
                             df.setStatus("No directory selected.")
                         end
-                    end),
+                    end)),
                     arrayBranch("Rename directory",function()
                         local dialog = df.namedMessageable("singleInputDialog")
 

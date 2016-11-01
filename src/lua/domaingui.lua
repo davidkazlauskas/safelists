@@ -264,10 +264,13 @@ function fileBrowserRightClickHandler(dg,df)
                                     return false
                                 end
 
+                                local thisCorout = coroutine.running()
+
                                 -- great success, form validation passed
                                 -- TODO: how to prolong file dialog?
-                                df.addNewFileUnderCurrentDir(result,dialog)
-                                return true
+                                df.addNewFileUnderCurrentDir(
+                                    result,dialog,resumerCallback(thisCorout))
+                                return coroutine.yield()
                             end
                         )
                     end),
@@ -282,8 +285,11 @@ function fileBrowserRightClickHandler(dg,df)
                                     return false
                                 end
 
-                                df.updateFileFromDiff(currentEntityId,dirId,result,orig,dialog)
-                                return true
+                                local thisCorout = coroutine.running()
+
+                                df.updateFileFromDiff(currentEntityId,dirId,
+                                    result,orig,dialog,resumerCallback(thisCorout))
+                                return coroutine.yield()
                             end
                         )
                     end),

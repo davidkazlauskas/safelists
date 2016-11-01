@@ -558,19 +558,24 @@ initAll = function()
 
                     if funcSuccess(outResult,dialog) then
                         df.releaseObject(newId)
+                        return
                     end
                 elseif (signal == hookedCancel) then
                     print("Cancel clicked")
                     hideDlg()
                     df.releaseObject(newId)
+                    return
                 else
                     assert( false, "No such signal? " .. signal )
+                    return
                 end
             elseif (outBranch == "exited") then
                 print("Exit vanilla")
                 df.releaseObject(newId)
+                return
             else
                 assert(false, "lolwut?")
+                return
             end
         end
     end)
@@ -748,6 +753,7 @@ initAll = function()
                         outResult.mirrors = mirrTrimmed
                     end
 
+                    -- TODO: major refactor this mess
                     if funcSuccess(outResult,original,dialog) then
                         print("success, returned")
                         df.releaseObject(newId)
@@ -763,12 +769,15 @@ initAll = function()
                     return
                 else
                     assert( false, "No such signal? " .. signal )
+                    return
                 end
             elseif (outBranch == "exited") then
                 print("Exit vanilla")
                 df.releaseObject(newId)
+                return
             else
                 assert(false, "lolwut?")
+                return
             end
         end
     end)
@@ -796,7 +805,7 @@ initAll = function()
             VString(theStatement))
     end
 
-    df.addNewFileUnderCurrentDir = instrument(function(data,dialog)
+    df.addNewFileUnderCurrentDir = instrument(function(data,dialog,retCallback)
         local thisCorout = coroutine.running()
         local currentEntityId = df.getCurrentEntityId()
         local currentDirIdWhole = whole(currentEntityId)
@@ -828,6 +837,12 @@ initAll = function()
             )
         end
 
+        local retCbCheck = function(ans)
+            if (retCallback ~= nil) then
+                retCallback(ans)
+            end
+        end
+
         -- !! check first
         local condition = sqlCheckForForbiddenFileNames(currentDirIdWhole,data.name)
 
@@ -847,14 +862,17 @@ initAll = function()
         if (case == 1) then
             inputFail( "File '" .. data.name .. "' already"
                 .. " exists under current directory.")
+            retCbCheck(false)
             return false
         elseif (case == 2) then
             inputFail("Name '" .. data.name .. "' is forbidden.")
+            retCbCheck(false)
             return false
         end
 
         if (case ~= 0) then
             assert( false, "Say what cholo?" )
+            retCbCheck(false)
             return false
         end
 
@@ -903,10 +921,11 @@ initAll = function()
         df.updateRevision()
 
         -- TODO: how to reflect db failures to dialog?
+        retCbCheck(true)
         return true
     end)
 
-    df.updateFileFromDiff = function(fileId,currentDirId,diffTable,orig,dialog)
+    df.updateFileFromDiff = function(fileId,currentDirId,diffTable,orig,dialog,retCallback)
         -- diffTable:
         -- finished - did finish?
         -- name - the name
@@ -915,6 +934,12 @@ initAll = function()
         -- hash - hash (no by default)
         local fileIdWhole = whole(fileId)
         local currentDirIdWhole = whole(currentDirId)
+
+        local retCbCheck = function(ans)
+            if (retCallback ~= nil) then
+                retCallback(ans)
+            end
+        end
 
         local missing = function(...)
             local props = {...}
@@ -933,7 +958,8 @@ initAll = function()
         if (missing("name","mirrors","size","hash")) then
             -- nothing changed, no worries
             hideDlg()
-            return
+            retCbCheck(true)
+            return true
         end
 
         local asyncSqlite = dg.currentAsyncSqlite
@@ -1004,15 +1030,18 @@ initAll = function()
                     assert( isGood, "Take sqlite 101, sucker." )
                     if (case == 0) then
                         updateFunction()
+                        retCbCheck(true)
                         return
                     end
 
                     if (case == 1) then
                         inputFail( "File '" .. currentName .. "' already"
                             .. " exists under current directory.")
+                        retCbCheck(false)
                         return
                     elseif (case == 2) then
                         inputFail("Name '" .. currentName .. "' is forbidden.")
+                        retCbCheck(false)
                         return
                     end
 

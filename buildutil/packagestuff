@@ -133,10 +133,12 @@ if [ -n "$SIGNATURE_JSON_OUT_PATH" ]; then
     echo "$OUTPUT_JSON" | python -m json.tool > $SIGNATURE_JSON_OUT_PATH
 fi
 
+ZIP_COMMAND="zip"
+
 # first zipping cycle
 pushd "$OUTPUT_DIR"
 rm -f "$OUTPUT_ZIP_PATH"
-zip -r -9 "$OUTPUT_ZIP_PATH" "./$RAW_DIR_NAME"
+$ZIP_COMMAND -r -9 "$OUTPUT_ZIP_PATH" "./$RAW_DIR_NAME"
 popd
 
 # second proc cycle
@@ -150,14 +152,14 @@ while read -r line || [[ -n "$line" ]]; do
                 genericcopy $( getsplit 2 "$line" ) $( getsplit 3 "$line" ) -v
                 pushd "$OUTPUT_DIR"
                 TO_ADD=$( relfromabs "$OUTPUT_DIR" "$OUTPATH" )
-                zip -9 "$OUTPUT_ZIP_PATH" "./$TO_ADD"
+                $ZIP_COMMAND -9 "$OUTPUT_ZIP_PATH" "./$TO_ADD"
                 popd
             ;;
             store)
                 genericcopy $( getsplit 2 "$line" ) $( getsplit 3 "$line" ) -v
                 pushd "$OUTPUT_DIR"
                 TO_ADD=$( relfromabs "$OUTPUT_DIR" "$OUTPATH" )
-                zip -0 "$OUTPUT_ZIP_PATH" "./$TO_ADD"
+                $ZIP_COMMAND -0 "$OUTPUT_ZIP_PATH" "./$TO_ADD"
                 popd
             ;;
         esac

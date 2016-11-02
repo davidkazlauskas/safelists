@@ -11,6 +11,7 @@ rm -rf $BUILD_DIR/*
 ./bdoc
 
 pushd $BUILD_DIR/package
+rm -f $SL/safelists-linux-x86-1.1.0-0.zip
 zip -r -9 $SL/safelists-linux-x86-1.1.0-0.zip ./safelists
 popd
 
@@ -19,5 +20,6 @@ rm -rf $BUILD_DIR/*
 ./bdoc w32
 
 pushd $BUILD_DIR/package
+rm -f $SL/safelists-windows-x86-1.1.0-0.zip
 zip -r -9 $SL/safelists-windows-x86-1.1.0-0.zip ./safelists
 popd

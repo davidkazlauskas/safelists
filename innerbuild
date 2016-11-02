@@ -9,6 +9,11 @@ mkdir $BUILD_DIR
 source /safelists/mxeentry
 
 export CMXE_TOOLCHAIN=-DCMAKE_TOOLCHAIN_FILE=/mxe/usr/i686-pc-linux-gnu.static/share/cmake/mxe-conf.cmake
+if [ "$1" == "w32" ];
+then
+    export CMXE_TOOLCHAIN=-DCMAKE_TOOLCHAIN_FILE=/mxe/usr/i686-w64-mingw32.static/share/cmake/mxe-conf.cmake
+    CMAKE_PREBUILT_FLAG=-DSAFE_FILE_DOWNLOADER_PREBUILT=/mxe/usr/i686-w64-mingw32.static/lib/safefiledownloader.dll
+fi
 
 echo "|$VIRTUAL_DIR|$VIRTUAL_BUILD_DIR|"
 mkdir -p $VIRTUAL_DIR
@@ -24,7 +29,8 @@ pushd $VIRTUAL_BUILD_DIR
 
 if [ ! -f $VIRTUAL_BUILD_DIR/CMakeCache.txt ]; then
     cmake -DCARGO_COMMAND=/mxe/usr/i686-pc-linux-gnu.static/bin/cargo \
-        -DCMAKE_BUILD_TYPE=Debug "$@" -DPLUMBING_LUA_INCLUDE="<lua.hpp>" $CMXE_TOOLCHAIN $VIRTUAL_DIR
+        -DCMAKE_BUILD_TYPE=Release "$@" -DPLUMBING_LUA_INCLUDE="<lua.hpp>" \
+        $CMAKE_PREBUILT_FLAG $CMXE_TOOLCHAIN $VIRTUAL_DIR
 fi
 
 export CC=/mxe/usr/bin/i686-pc-linux-gnu.static-gcc
@@ -35,8 +41,21 @@ export TARGET=i686-unknown-linux-gnu
 export HOST=i686-unknown-linux-gnu
 export RUSTFLAGS="-Clinker=/mxe/usr/bin/i686-pc-linux-gnu.static-gcc"
 
+if [ "$1" == "w32" ];
+then
+    export CC=/mxe/usr/bin/i686-w64-mingw32.static-gcc
+    export CC_i686_pc_w64_mingw32=$CC
+    export CC_i686_unknown_linux_gnu=$CC
+    export CXX=/mxe/usr/bin/i686-w64-mingw32.static-g++
+    export CXX_i686_pc_w64_mingw32=$CXX
+    export CXX_i686_unknown_linux_gnu=$CXX
+    export TARGET=i686-pc-w64-mingw32
+    export HOST=i686-unknown-linux-gnu
+    export RUSTFLAGS="-Clinker=/mxe/usr/bin/i686-pc-linux-gnu.static-gcc"
+fi
 
-if [ ! -d /root/.cargo/registry/src/ ]; then
+
+if [ ! -d /root/.cargo/registry/src/ ] && [ "$1" != "w32" ]; then
     pushd $SL/src/rust/safe_file_downloader
     # first build that will fail but we need something to patch because we don't have sources yet.
     CARGO_TARGET_DIR=/tmp/bazouken PKG_CONFIG_ALLOW_CROSS=1 cargo build --target=i686-unknown-linux-gnu

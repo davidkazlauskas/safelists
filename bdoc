@@ -7,10 +7,12 @@ mkdir -p $DIR/build
 
 DEF_DOCKER="lnx32"
 DOCKER_IMAGE_NAME="safelists_templatious:v1"
+EXTRA_ARGS=""
 if [ "$1" == "w32" ];
 then
     DEF_DOCKER="w32"
     DOCKER_IMAGE_NAME="safelists_templatious_w32:v1"
+    EXTRA_ARGS="w32"
 fi
 
 DOCKER_NAME="safelists_build_env_$DEF_DOCKER"
@@ -22,4 +24,4 @@ docker run --name $DOCKER_NAME \
     -e VIRTUAL_DIR=/home/deividas/Desktop/Dropbox/MyPrj/SafeLists \
     -e VIRTUAL_BUILD_DIR=/home/deividas/Desktop/ramdisk/stmp/build $DOCKER_IMAGE_NAME sleep 1000000
 
-docker exec -it $DOCKER_NAME /safelists/innerbuild
+docker exec -it $DOCKER_NAME /safelists/innerbuild $EXTRA_ARGS

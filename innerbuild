@@ -48,12 +48,6 @@ if [ ! -d /root/.cargo/registry/src/ ]; then
     popd
 fi
 
-#cp $SL/buildutil/hacked-gcc $CC
-#rm /usr/bin/cc
-#ln -s $CC /usr/bin/cc
-
-#/bin/bash
-
 make -j 1
 LAST_CODE=$?
 

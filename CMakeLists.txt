@@ -19,9 +19,7 @@ macro(ensure_pkg_version action package version var)
     endif()
 endmacro()
 
-SET( SAFELISTS_VERSION "1.0.0" )
-SET( SAFELISTS_PRODUCTION_KEY_BOXING  "LtwTrQKKoNBK9cdW3aNizhu/zCJ4NBZo66KtxXCUXg0=" )
-SET( SAFELISTS_PRODUCTION_KEY_SIGNING "6D9ezHBmnJOEAfKlt5hTpU1/OLcPWiTvtpgiWH/cqy8=" )
+SET( SAFELISTS_VERSION "1.1.0" )
 
 SET( GTK3_VERSION_REQUIRED 3.14.4 )
 SET( GTKMM_VERSION_REQUIRED 3.14.0 )
@@ -47,9 +45,6 @@ ADD_DEFINITIONS(
 )
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release" OR USE_PROD_KEYS)
-    ADD_DEFINITIONS(
-        -DSAFELISTS_KEY_FOR_SIGN="${SAFELISTS_PRODUCTION_KEY_SIGNING}"
-    )
     message("Using production public keys for authentication.")
 endif(CMAKE_BUILD_TYPE STREQUAL "Release" OR USE_PROD_KEYS)
 

@@ -21,12 +21,9 @@ directory|appdata/lua/|-
 normal|appdata/uischemes/|-
 normal|appdata/uischemes/dialogs.glade|-
 normal|appdata/uischemes/download_progress.glade|-
-normal|appdata/uischemes/licensing.glade|-
 normal|appdata/uischemes/main.glade|-
 # appdata themes
 directory|appdata/themes/|-
-# refid, store to overwrite on server according to referral
-store|appdata/refid|-
 # examples
 nosign|exampleData/prod1.safelist|appdata/examples/example1.safelist
 # gnome schemas
@@ -34,8 +31,6 @@ directory|appdata/usr/share/glib-2.0/schemas/|-
 # default icons
 normal|appdata/usr/share/icons/Adwaita/index.theme|-
 directory|appdata/usr/share/icons/Adwaita/16x16/|-
-# signature generation path
-signature|signature.json
 # version info
 normal|version.json|-
 # crust config

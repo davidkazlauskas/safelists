@@ -5,8 +5,16 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 mkdir -p $DIR/homecache
 mkdir -p $DIR/build
 
-docker rm -f safelists_build_lnx32
-docker run --name safelists_build_lnx32 \
+DEF_DOCKER="lnx32"
+if [ "$1" == "w32" ];
+then
+    DEF_DOCKER="w32"
+fi
+
+DOCKER_NAME="safelists_build_$DEF_DOCKER"
+
+docker rm -f $DOCKER_NAME
+docker run --name $DOCKER_NAME \
     -d \
     -e LOCAL_USER_ID=`id -u $USER` -v $HOME/Desktop/ramdisk/stmp:/tmp -v $DIR:/safelists/ -v $DIR/homecache:/root/ \
     -e VIRTUAL_DIR=/home/deividas/Desktop/Dropbox/MyPrj/SafeLists \

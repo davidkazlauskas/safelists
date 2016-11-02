@@ -1,5 +1,3 @@
-#![feature(plugin)]
-
 extern crate libc;
 extern crate safe_core;
 extern crate regex;

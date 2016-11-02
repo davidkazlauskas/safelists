@@ -6,9 +6,11 @@ mkdir -p $DIR/homecache
 mkdir -p $DIR/build
 
 DEF_DOCKER="lnx32"
+DOCKER_IMAGE_NAME="safelists_templatious:v1"
 if [ "$1" == "w32" ];
 then
     DEF_DOCKER="w32"
+    DOCKER_IMAGE_NAME="safelists_templatious_w32:v1"
 fi
 
 DOCKER_NAME="safelists_build_env_$DEF_DOCKER"
@@ -18,6 +20,6 @@ docker run --name $DOCKER_NAME \
     -d \
     -e LOCAL_USER_ID=`id -u $USER` -v $HOME/Desktop/ramdisk/stmp:/tmp -v $DIR:/safelists/ -v $DIR/homecache:/root/ \
     -e VIRTUAL_DIR=/home/deividas/Desktop/Dropbox/MyPrj/SafeLists \
-    -e VIRTUAL_BUILD_DIR=/home/deividas/Desktop/ramdisk/stmp/build safelists_templatious:v1 sleep 1000000
+    -e VIRTUAL_BUILD_DIR=/home/deividas/Desktop/ramdisk/stmp/build $DOCKER_IMAGE_NAME sleep 1000000
 
 docker exec -it safelists_build_lnx32 /safelists/innerbuild

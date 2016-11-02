@@ -11,7 +11,7 @@ then
     DEF_DOCKER="w32"
 fi
 
-DOCKER_NAME="safelists_build_$DEF_DOCKER"
+DOCKER_NAME="safelists_build_env_$DEF_DOCKER"
 
 docker rm -f $DOCKER_NAME
 docker run --name $DOCKER_NAME \

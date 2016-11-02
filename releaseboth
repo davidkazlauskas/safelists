@@ -1,0 +1,23 @@
+#!/bin/bash
+
+BUILD_DIR=${BUILD_DIR:-/home/deividas/Desktop/ramdisk/stmp/build}
+SL=${SL:-./}
+
+
+pushd $SL
+
+# first linux build
+rm -rf $BUILD_DIR/*
+./bdoc
+
+pushd $BUILD_DIR/package
+zip -r -9 $SL/safelists-linux-x86-1.1.0-0.zip ./safelists
+popd
+
+# windows build
+rm -rf $BUILD_DIR/*
+./bdoc w32
+
+pushd $BUILD_DIR/package
+zip -r -9 $SL/safelists-windows-x86-1.1.0-0.zip ./safelists
+popd

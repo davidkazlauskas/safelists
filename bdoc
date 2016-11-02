@@ -22,4 +22,4 @@ docker run --name $DOCKER_NAME \
     -e VIRTUAL_DIR=/home/deividas/Desktop/Dropbox/MyPrj/SafeLists \
     -e VIRTUAL_BUILD_DIR=/home/deividas/Desktop/ramdisk/stmp/build $DOCKER_IMAGE_NAME sleep 1000000
 
-docker exec -it safelists_build_lnx32 /safelists/innerbuild
+docker exec -it $DOCKER_NAME /safelists/innerbuild

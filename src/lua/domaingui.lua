@@ -89,6 +89,8 @@ function fileBrowserRightClickHandler(dg,df)
 
                         df.message(dialog,VSig("INDLG_InSetValue"),VString(dirName))
 
+                        local newId = dg.objRetainer:newId()
+
                         local handler = df.makeLuaMatchHandler(
                             VMatch(function()
                                 print("Ok renamed!")
@@ -128,12 +130,16 @@ function fileBrowserRightClickHandler(dg,df)
                                     VInt(-1)
                                 )
                                 showOrHide(false)
+                                dg.objRetainer:release(newId)
                             end,"INDLG_OutOkClicked"),
                             VMatch(function()
                                 print("Cancel rename!")
                                 showOrHide(false)
+                                dg.objRetainer:release(newId)
                             end,"INDLG_OutCancelClicked")
                         )
+
+                        dg.objRetainer:retain(newId,handler)
 
                         df.message(dialog,VSig("INDLG_InSetNotifier"),VMsg(handler))
                         showOrHide(true)

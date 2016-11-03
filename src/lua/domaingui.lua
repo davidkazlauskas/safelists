@@ -73,16 +73,6 @@ function fileBrowserRightClickHandler(dg,df)
                         local dirName = df.messageRetValues(dg.mainWnd,VSig("MWI_QueryCurrentDirName"),VString("?"))._2
                         local dirId = df.getCurrentEntityId()
 
-                        if (dirName == "[unselected]") then
-                            df.setStatus("No directory was selected to create new one.")
-                            return
-                        end
-
-                        if (dirName == "root" and dirId == 1) then
-                            df.setStatus("Cannot rename root.")
-                            return
-                        end
-
                         df.message(dialog,VSig("INDLG_InSetLabel"),VString(
                             "Specify new folder name to rename  " .. dirName .. "."
                         ))
@@ -170,11 +160,6 @@ function fileBrowserRightClickHandler(dg,df)
                         local dirName = df.messageRetValues(dg.mainWnd,VSig("MWI_QueryCurrentDirName"),VString("?"))._2
                         local dirId = df.getCurrentEntityId()
                         local dirIdWhole = whole(dirId)
-
-                        if (dirName == "[unselected]") then
-                            df.setStatus("No directory was selected to create new one.")
-                            return
-                        end
 
                         df.message(dialog,VSig("INDLG_InSetLabel"),VString(
                             "Specify new folder name to create under " .. dirName .. "."

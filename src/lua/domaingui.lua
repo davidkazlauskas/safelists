@@ -188,77 +188,73 @@ function fileBrowserRightClickHandler(dg,df)
                                 -- more thorough user input check should be performed
                                 if (outName == "") then
                                     setDlgErr("Some directory name must be specified.")
-                                    return
-                                end
-
-                                if (not isValidFilename(outName)) then
+                                elseif (not isValidFilename(outName)) then
                                     setDlgErr("Directory name entered contains invalid characters.")
-                                    return
-                                end
-
-                                setDlgErr("")
-
-                                local asyncSqlite = dg.currentAsyncSqlite
-                                if (messageablesEqual(VMsgNil(),asyncSqlite)) then
-                                    return
-                                end
-                                local mainModel = df.namedMessageable("mainModel")
-
-                                local validationQuery =
-                                    sqlCheckForForbiddenFileNamesUpdate(
-                                        dirIdWhole,-1,outName)
-
-                                df.messageAsyncWCallback(
-                                    asyncSqlite,
-                                    resumerCallbackValues(thisCorout),
-                                    VSig("ASQL_OutSingleNum"),
-                                    VString(validationQuery),
-                                    VInt(-1),
-                                    VBool(false)
-                                )
-
-                                local outNum = coroutine.yield()._3
-
-                                if (outNum == 1) then
-                                    setDlgErr("File with name " .. outName .. " already exists.")
-                                elseif (outNum == 2) then
-                                    setDlgErr("Name is forbidden.")
-                                elseif (outNum == 3) then
-                                    setDlgErr("Directory with name " .. outName .. " already exists.")
-                                elseif (outNum == 4) then
-                                    setDlgErr("Name is forbidden.")
                                 else
-                                    local theQuery = sqlNewDirectoryStatement(dirIdWhole,outName)
+                                    setDlgErr("")
+
+                                    local asyncSqlite = dg.currentAsyncSqlite
+                                    if (messageablesEqual(VMsgNil(),asyncSqlite)) then
+                                        return
+                                    end
+                                    local mainModel = df.namedMessageable("mainModel")
+
+                                    local validationQuery =
+                                        sqlCheckForForbiddenFileNamesUpdate(
+                                            dirIdWhole,-1,outName)
 
                                     df.messageAsyncWCallback(
                                         asyncSqlite,
-                                        resumerCallback(thisCorout),
-                                        VSig("ASQL_Execute"),
-                                        VString(theQuery)
-                                    )
-
-                                    -- wait for upper query to complete
-                                    coroutine.yield()
-
-                                    df.messageAsyncWCallback(
-                                        asyncSqlite,
-                                        function(back)
-                                            local newId = back:values()._3
-                                            df.message(dg.mainWnd,
-                                                VSig("MWI_InAddChildUnderCurrentDir"),
-                                                VString(outName),VInt(newId))
-                                        end,
+                                        resumerCallbackValues(thisCorout),
                                         VSig("ASQL_OutSingleNum"),
-                                        VString(sqlSelectLastInsertedDirId()),
+                                        VString(validationQuery),
                                         VInt(-1),
                                         VBool(false)
                                     )
 
-                                    df.updateRevision()
-                                    -- todo: optimize, don't reload all
-                                    showOrHide(false)
-                                    dg.objRetainer:release(newId)
-                                    return
+                                    local outNum = coroutine.yield()._3
+
+                                    if (outNum == 1) then
+                                        setDlgErr("File with name " .. outName .. " already exists.")
+                                    elseif (outNum == 2) then
+                                        setDlgErr("Name is forbidden.")
+                                    elseif (outNum == 3) then
+                                        setDlgErr("Directory with name " .. outName .. " already exists.")
+                                    elseif (outNum == 4) then
+                                        setDlgErr("Name is forbidden.")
+                                    else
+                                        local theQuery = sqlNewDirectoryStatement(dirIdWhole,outName)
+
+                                        df.messageAsyncWCallback(
+                                            asyncSqlite,
+                                            resumerCallback(thisCorout),
+                                            VSig("ASQL_Execute"),
+                                            VString(theQuery)
+                                        )
+
+                                        -- wait for upper query to complete
+                                        coroutine.yield()
+
+                                        df.messageAsyncWCallback(
+                                            asyncSqlite,
+                                            function(back)
+                                                local newId = back:values()._3
+                                                df.message(dg.mainWnd,
+                                                    VSig("MWI_InAddChildUnderCurrentDir"),
+                                                    VString(outName),VInt(newId))
+                                            end,
+                                            VSig("ASQL_OutSingleNum"),
+                                            VString(sqlSelectLastInsertedDirId()),
+                                            VInt(-1),
+                                            VBool(false)
+                                        )
+
+                                        df.updateRevision()
+                                        -- todo: optimize, don't reload all
+                                        showOrHide(false)
+                                        dg.objRetainer:release(newId)
+                                        return
+                                    end
                                 end
                             elseif (btnLabel == "cancel") then
                                 print("Cancel!")

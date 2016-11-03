@@ -139,18 +139,21 @@ function resumerCallbackValues(corout)
     end
 end
 
+-- just forwards anything to resume the coroutine
 function resumerCallback(corout)
     return function(...)
         coroutine.resume(corout,table.unpack({...}))
     end
 end
 
+-- forward specified string and the rest of the arguments
 function resumerCallbackWBranch(branch,corout)
     return function(...)
         coroutine.resume(corout,branch,table.unpack({...}))
     end
 end
 
+-- ignore arguments, just forward the label
 function resumerCallbackSwitch(corout,label)
     return function()
         coroutine.resume(corout,label)

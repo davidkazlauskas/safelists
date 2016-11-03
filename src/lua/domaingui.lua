@@ -151,7 +151,7 @@ function fileBrowserRightClickHandler(dg,df)
                             downloadSessionHandler(df,dh,query)
                         end
                     end),
-                    arrayBranch("New directory",function()
+                    arrayBranch("New directory",instrument(function()
                         local dialog = df.namedMessageable("singleInputDialog")
 
                         local showOrHide = function(val)
@@ -182,78 +182,84 @@ function fileBrowserRightClickHandler(dg,df)
 
                         local newId = dg.objRetainer:newId()
 
+                        local thisCorout = coroutine.running()
+
                         local handler = df.makeLuaMatchHandler(
-                            VMatch(function()
-                                print("Ok!")
-                                local outName = df.messageRetValues(dialog,VSig("INDLG_QueryInput"),VString("?"))._2
-                                -- more thorough user input check should be performed
-                                if (outName == "") then
-                                    setDlgErr("Some directory name must be specified.")
-                                    return
-                                end
-
-                                if (not isValidFilename(outName)) then
-                                    setDlgErr("Directory name entered contains invalid characters.")
-                                    return
-                                end
-
-                                setDlgErr("")
-
-                                local asyncSqlite = dg.currentAsyncSqlite
-                                if (messageablesEqual(VMsgNil(),asyncSqlite)) then
-                                    return
-                                end
-                                local mainModel = df.namedMessageable("mainModel")
-
-                                local theQuery = sqlNewDirectoryStatement(dirIdWhole,outName)
-
-                                df.messageAsyncWCallback(
-                                    asyncSqlite,
-                                    function(res)
-                                        local num = res:values()._3
-                                        if (num > 0) then
-                                            df.messageAsyncWCallback(
-                                                asyncSqlite,
-                                                function(back)
-                                                    local newId = back:values()._3
-                                                    df.message(dg.mainWnd,
-                                                        VSig("MWI_InAddChildUnderCurrentDir"),
-                                                        VString(outName),VInt(newId))
-                                                end,
-                                                VSig("ASQL_OutSingleNum"),
-                                                VString(sqlSelectLastInsertedDirId()),
-                                                VInt(-1),
-                                                VBool(false)
-                                            )
-                                            df.updateRevision()
-                                        else
-                                            messageBox(
-                                                "Duplicate name!",
-                                                "'" .. outName ..
-                                                "' already exists under current directory."
-                                            )
-                                        end
-                                    end,
-                                    VSig("ASQL_OutAffected"),
-                                    VString(theQuery),
-                                    VInt(-1)
-                                )
-                                -- todo: optimize, don't reload all
-                                showOrHide(false)
-                                dg.objRetainer:release(newId)
-                            end,"INDLG_OutOkClicked"),
-                            VMatch(function()
-                                print("Cancel!")
-                                showOrHide(false)
-                                dg.objRetainer:release(newId)
-                            end,"INDLG_OutCancelClicked")
+                            VMatch(resumerCallbackSwitch(thisCorout,"ok"),"INDLG_OutOkClicked"),
+                            VMatch(resumerCallbackSwitch(thisCorout,"cancel"),"INDLG_OutCancelClicked")
                         )
 
                         dg.objRetainer:retain(newId,handler)
 
                         df.message(dialog,VSig("INDLG_InSetNotifier"),VMsg(handler))
                         showOrHide(true)
-                    end),
+
+                        local btnLabel = coroutine.yield()
+
+                        if (btnLabel == "ok") then
+                            print("Ok!")
+                            local outName = df.messageRetValues(dialog,VSig("INDLG_QueryInput"),VString("?"))._2
+                            -- more thorough user input check should be performed
+                            if (outName == "") then
+                                setDlgErr("Some directory name must be specified.")
+                                return
+                            end
+
+                            if (not isValidFilename(outName)) then
+                                setDlgErr("Directory name entered contains invalid characters.")
+                                return
+                            end
+
+                            setDlgErr("")
+
+                            local asyncSqlite = dg.currentAsyncSqlite
+                            if (messageablesEqual(VMsgNil(),asyncSqlite)) then
+                                return
+                            end
+                            local mainModel = df.namedMessageable("mainModel")
+
+                            local theQuery = sqlNewDirectoryStatement(dirIdWhole,outName)
+
+                            df.messageAsyncWCallback(
+                                asyncSqlite,
+                                function(res)
+                                    local num = res:values()._3
+                                    if (num > 0) then
+                                        df.messageAsyncWCallback(
+                                            asyncSqlite,
+                                            function(back)
+                                                local newId = back:values()._3
+                                                df.message(dg.mainWnd,
+                                                    VSig("MWI_InAddChildUnderCurrentDir"),
+                                                    VString(outName),VInt(newId))
+                                            end,
+                                            VSig("ASQL_OutSingleNum"),
+                                            VString(sqlSelectLastInsertedDirId()),
+                                            VInt(-1),
+                                            VBool(false)
+                                        )
+                                        df.updateRevision()
+                                    else
+                                        messageBox(
+                                            "Duplicate name!",
+                                            "'" .. outName ..
+                                            "' already exists under current directory."
+                                        )
+                                    end
+                                end,
+                                VSig("ASQL_OutAffected"),
+                                VString(theQuery),
+                                VInt(-1)
+                            )
+                            -- todo: optimize, don't reload all
+                            showOrHide(false)
+                            dg.objRetainer:release(newId)
+                        elseif (btnLabel == "cancel") then
+                            print("Cancel!")
+                            showOrHide(false)
+                            dg.objRetainer:release(newId)
+                        end
+                    end)),
                     arrayBranch("Download file",function()
                         print("Download file clicked")
                         local currentFileId = whole(df.getCurrentEntityId())

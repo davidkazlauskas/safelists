@@ -13,13 +13,15 @@ function sqlGetMirrorUsesForFile(fileIdWhole)
            .. " GROUP BY files.file_id;"
 end
 
-function sqlCheckForForbiddenFileNames(dirId,fileName)
+function sqlCheckForForbiddenFileNamesUpdate(dirId,fileId,fileName)
     return    " SELECT CASE"
            .. " WHEN (EXISTS (SELECT file_name FROM files"
            .. "     WHERE dir_id=" .. dirId
+           .. "     AND NOT file_id=" .. fileId
            .. "     AND lower(file_name)=lower('" .. fileName .. "'))) THEN 1"
            .. " WHEN (EXISTS (SELECT file_name FROM files"
            .. "     WHERE dir_id=" .. dirId
+           .. "     AND NOT file_id=" .. fileId
            .. "     AND (lower(file_name || '.ilist') = lower('" .. fileName .. "')"
            .. "     OR lower(file_name || '.ilist.tmp') = lower('" .. fileName .. "')))) THEN 2"
            .. " WHEN (EXISTS (SELECT dir_name FROM directories"
@@ -29,21 +31,6 @@ function sqlCheckForForbiddenFileNames(dirId,fileName)
            .. "     WHERE dir_parent=" .. dirId
            .. "     AND (lower(dir_name || '.ilist') = lower('" .. fileName .. "')"
            .. "     OR lower(dir_name || '.ilist.tmp') = lower('" .. fileName .. "')))) THEN 4"
-           .. " ELSE 0"
-           .. " END;"
-end
-
-function sqlCheckForForbiddenFileNamesUpdate(dirId,fileId,fileName)
-    return    " SELECT CASE"
-           .. " WHEN (EXISTS (SELECT file_name FROM files"
-           .. "     WHERE dir_id=" .. dirId
-           .. "     AND NOT file_id=" .. fileId
-           .. "     AND file_name='" .. fileName .. "')) THEN 1"
-           .. " WHEN (EXISTS (SELECT file_name FROM files"
-           .. "     WHERE dir_id=" .. dirId
-           .. "     AND NOT file_id=" .. fileId
-           .. "     AND (file_name || '.ilist' ='" .. fileName .. "'"
-           .. "     OR file_name || '.ilist.tmp' ='" .. fileName .. "'))) THEN 2"
            .. " ELSE 0"
            .. " END;"
 end

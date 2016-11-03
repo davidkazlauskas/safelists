@@ -63,7 +63,7 @@ function fileBrowserRightClickHandler(dg,df)
                             df.setStatus("No directory selected.")
                         end
                     end)),
-                    arrayBranch("Rename directory",function()
+                    arrayBranch("Rename directory",instrument(function()
                         local dialog = df.namedMessageable("singleInputDialog")
 
                         local showOrHide = function(val)
@@ -81,55 +81,86 @@ function fileBrowserRightClickHandler(dg,df)
 
                         local newId = dg.objRetainer:newId()
 
+                        local thisCorout = coroutine.running()
+
                         local handler = df.makeLuaMatchHandler(
-                            VMatch(function()
-                                print("Ok renamed!")
-                                local outName = df.messageRetValues(dialog,VSig("INDLG_QueryInput"),VString("?"))._2
-                                -- more thorough user input check should be performed
-                                if (outName == "") then
-                                    df.setStatus("Some directory name must be specified.")
-                                    return
-                                end
-
-                                local wholeDir = whole(dirId)
-
-                                local asyncSqlite = dg.currentAsyncSqlite
-                                df.messageAsyncWCallback(
-                                    asyncSqlite,
-                                    function(output)
-                                        local val = output:values()
-                                        local affected = val._3
-                                        if (affected > 0) then
-                                            df.message(dg.mainWnd,
-                                                VSig("MWI_InSetCurrentDirName"),
-                                                VString(outName))
-                                        else
-                                            messageBox(
-                                                "Duplicate name!",
-                                                "'" .. outName ..
-                                                "' already exists under current parent."
-                                            )
-                                        end
-                                    end,
-                                    VSig("ASQL_OutAffected"),
-                                    VString(sqlUpdateDirectoryNameStatement(wholeDir,outName)),
-                                    VInt(-1)
-                                )
-                                showOrHide(false)
-                                dg.objRetainer:release(newId)
-                            end,"INDLG_OutOkClicked"),
-                            VMatch(function()
-                                print("Cancel rename!")
-                                showOrHide(false)
-                                dg.objRetainer:release(newId)
-                            end,"INDLG_OutCancelClicked")
+                            VMatch(resumerCallbackSwitch(thisCorout,"ok"),"INDLG_OutOkClicked"),
+                            VMatch(resumerCallbackSwitch(thisCorout,"cancel"),"INDLG_OutCancelClicked")
                         )
 
                         dg.objRetainer:retain(newId,handler)
 
                         df.message(dialog,VSig("INDLG_InSetNotifier"),VMsg(handler))
                         showOrHide(true)
-                    end),
+
+
+                        while true do
+                            local btnLabel = coroutine.yield()
+
+                            if (btnLabel == "ok") then
+                                print("Ok renamed!")
+                                local outName = df.messageRetValues(dialog,VSig("INDLG_QueryInput"),VString("?"))._2
+                                if (outName == "") then
+                                    df.setStatus("Some directory name must be specified.")
+                                elseif (not isValidFilename(outName)) then
+                                    setDlgErr("Directory name entered contains invalid characters.")
+                                else
+                                    local wholeDir = whole(dirId)
+
+                                    local validationQuery =
+                                        sqlCheckForForbiddenFileNamesUpdate(
+                                            dirIdWhole,-1,outName)
+
+                                    df.messageAsyncWCallback(
+                                        asyncSqlite,
+                                        resumerCallbackValues(thisCorout),
+                                        VSig("ASQL_OutSingleNum"),
+                                        VString(validationQuery),
+                                        VInt(-1),
+                                        VBool(false)
+                                    )
+
+                                    local outNum = coroutine.yield()._3
+
+                                    if (outNum == 1) then
+                                        setDlgErr("File with name " .. outName .. " already exists.")
+                                    elseif (outNum == 2) then
+                                        setDlgErr("Name is forbidden.")
+                                    elseif (outNum == 3) then
+                                        setDlgErr("Directory with name " .. outName .. " already exists.")
+                                    elseif (outNum == 4) then
+                                        setDlgErr("Name is forbidden.")
+                                    else
+                                        local asyncSqlite = dg.currentAsyncSqlite
+                                        df.messageAsyncWCallback(
+                                            asyncSqlite,
+                                            resumerCallback(thisCorout),
+                                            VSig("ASQL_Execute"),
+                                            VString(sqlUpdateDirectoryNameStatement(wholeDir,outName))
+                                        )
+
+                                        -- wait for upper statement
+                                        coroutine.yield()
+
+                                        df.updateRevision()
+
+                                        df.message(dg.mainWnd,
+                                            VSig("MWI_InSetCurrentDirName"),
+                                            VString(outName))
+
+                                        showOrHide(false)
+                                        dg.objRetainer:release(newId)
+                                        return
+                                    end
+                                end
+                            elseif (btnLabel == "cancel") then
+                                print("Cancel rename!")
+                                showOrHide(false)
+                                dg.objRetainer:release(newId)
+                                return
+                            end
+                        end
+                    end)),
                     arrayBranch("Download directory",function()
                         local currentDirId = df.getCurrentEntityId()
                         if (currentDirId ~= -1) then

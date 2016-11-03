@@ -70,8 +70,14 @@ function fileBrowserRightClickHandler(dg,df)
                             df.message(dialog,VSig("INDLG_InShowDialog"),VBool(val))
                         end
 
+                        local setDlgErr = function(val)
+                            df.message(dialog,
+                                VSig("INDLG_InSetErrLabel"),VString(val))
+                        end
+
                         local dirName = df.messageRetValues(dg.mainWnd,VSig("MWI_QueryCurrentDirName"),VString("?"))._2
-                        local dirId = df.getCurrentEntityId()
+                        local dirId = whole(df.getCurrentEntityId())
+                        local parentDirId = whole(df.getCurrentFileParent())
 
                         df.message(dialog,VSig("INDLG_InSetLabel"),VString(
                             "Specify new folder name to rename  " .. dirName .. "."
@@ -93,7 +99,6 @@ function fileBrowserRightClickHandler(dg,df)
                         df.message(dialog,VSig("INDLG_InSetNotifier"),VMsg(handler))
                         showOrHide(true)
 
-
                         while true do
                             local btnLabel = coroutine.yield()
 
@@ -101,16 +106,15 @@ function fileBrowserRightClickHandler(dg,df)
                                 print("Ok renamed!")
                                 local outName = df.messageRetValues(dialog,VSig("INDLG_QueryInput"),VString("?"))._2
                                 if (outName == "") then
-                                    df.setStatus("Some directory name must be specified.")
+                                    setDlgErr("Some directory name must be specified.")
                                 elseif (not isValidFilename(outName)) then
                                     setDlgErr("Directory name entered contains invalid characters.")
                                 else
-                                    local wholeDir = whole(dirId)
-
                                     local validationQuery =
                                         sqlCheckForForbiddenFileNamesUpdate(
-                                            dirIdWhole,-1,outName)
+                                            parentDirId,-1,outName)
 
+                                    local asyncSqlite = dg.currentAsyncSqlite
                                     df.messageAsyncWCallback(
                                         asyncSqlite,
                                         resumerCallbackValues(thisCorout),
@@ -131,12 +135,11 @@ function fileBrowserRightClickHandler(dg,df)
                                     elseif (outNum == 4) then
                                         setDlgErr("Name is forbidden.")
                                     else
-                                        local asyncSqlite = dg.currentAsyncSqlite
                                         df.messageAsyncWCallback(
                                             asyncSqlite,
                                             resumerCallback(thisCorout),
                                             VSig("ASQL_Execute"),
-                                            VString(sqlUpdateDirectoryNameStatement(wholeDir,outName))
+                                            VString(sqlUpdateDirectoryNameStatement(dirId,outName))
                                         )
 
                                         -- wait for upper statement

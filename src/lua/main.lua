@@ -844,7 +844,7 @@ initAll = function()
         end
 
         -- !! check first
-        local condition = sqlCheckForForbiddenFileNames(currentDirIdWhole,data.name)
+        local condition = sqlCheckForForbiddenFileNamesUpdate(currentDirIdWhole,-1,data.name)
 
         df.messageAsyncWCallback(
             asyncSqlite,
@@ -859,12 +859,27 @@ initAll = function()
         local success = val._4
         assert( success, "YOU GET NOTHING, YOU LOSE" )
         local case = val._3
+        --[[
+        case 1 - file with such name exists in current dir
+        case 2 - file with forbidden tail name exists in current dir
+        case 3 - directory with such name exists in current dir
+        case 4 - directory with forbidden tail name exists in current dir
+        --]]
         if (case == 1) then
             inputFail( "File '" .. data.name .. "' already"
                 .. " exists under current directory.")
             retCbCheck(false)
             return false
         elseif (case == 2) then
+            inputFail("Name '" .. data.name .. "' is forbidden.")
+            retCbCheck(false)
+            return false
+        elseif (case == 3) then
+            inputFail( "Directory with name '" .. data.name .. "' already"
+                .. " exists under current directory.")
+            retCbCheck(false)
+            return false
+        elseif (case == 4) then
             inputFail("Name '" .. data.name .. "' is forbidden.")
             retCbCheck(false)
             return false
@@ -1040,6 +1055,15 @@ initAll = function()
                         retCbCheck(false)
                         return
                     elseif (case == 2) then
+                        inputFail("Name '" .. currentName .. "' is forbidden.")
+                        retCbCheck(false)
+                        return
+                    elseif (case == 3) then
+                        inputFail("Directory with name '" .. currentName
+                            .. "' already exists under current directory.")
+                        retCbCheck(false)
+                        return
+                    elseif (case == 4) then
                         inputFail("Name '" .. currentName .. "' is forbidden.")
                         retCbCheck(false)
                         return

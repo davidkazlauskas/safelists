@@ -94,10 +94,6 @@ function fileBrowserRightClickHandler(dg,df)
                                 local wholeDir = whole(dirId)
 
                                 local asyncSqlite = dg.currentAsyncSqlite
-                                if (messageablesEqual(VMsgNil(),asyncSqlite)) then
-                                    return
-                                end
-                                local mainModel = df.namedMessageable("mainModel")
                                 df.messageAsyncWCallback(
                                     asyncSqlite,
                                     function(output)
@@ -188,6 +184,7 @@ function fileBrowserRightClickHandler(dg,df)
                                 -- more thorough user input check should be performed
                                 if (outName == "") then
                                     setDlgErr("Some directory name must be specified.")
+                                    -- I'd love to just continue loop from here...
                                 elseif (not isValidFilename(outName)) then
                                     setDlgErr("Directory name entered contains invalid characters.")
                                 else
@@ -197,7 +194,6 @@ function fileBrowserRightClickHandler(dg,df)
                                     if (messageablesEqual(VMsgNil(),asyncSqlite)) then
                                         return
                                     end
-                                    local mainModel = df.namedMessageable("mainModel")
 
                                     local validationQuery =
                                         sqlCheckForForbiddenFileNamesUpdate(

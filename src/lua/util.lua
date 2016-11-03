@@ -150,3 +150,9 @@ function resumerCallbackWBranch(branch,corout)
         coroutine.resume(corout,branch,table.unpack({...}))
     end
 end
+
+function resumerCallbackSwitch(corout,label)
+    return function()
+        coroutine.resume(corout,label)
+    end
+end

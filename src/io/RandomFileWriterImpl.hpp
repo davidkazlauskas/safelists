@@ -63,6 +63,8 @@ private:
     std::vector< WriterPtr > _vec;
 };
 
+void ensureDirectoryExists(const char* path);
+
 }
 
 #endif /* end of include guard: RANDOMFILEWRITER_MCTC8IU8 */

@@ -9,6 +9,7 @@
 #include <io/Interval.hpp>
 #include <io/AsyncDownloader.hpp>
 #include <io/RandomFileWriter.hpp>
+#include <io/RandomFileWriterImpl.hpp>
 
 #include <boost/filesystem.hpp>
 
@@ -103,11 +104,27 @@ namespace {
     {
         std::string tmpPath = path + ".ilist.tmp";
         std::string ilistPath = path + ".ilist";
+
+        bool ilistRw = !isPathRewritable(ilistPath.c_str());
+        bool tmpRw = !isPathRewritable(tmpPath.c_str());
+
+        if (ilistRw || tmpRw) {
+            if (ilistRw) {
+                printf("Safelist downloader, ilist path exists, but is not a regular file: %s", ilistPath.c_str());
+            }
+            if (tmpRw) {
+                printf("Safelist downloader, tmp ilist path exists, but is not a regular file: %s", tmpPath.c_str());
+            }
+            // don't write ilist, just ignore.
+            return;
+        }
+
         { // open write and close file
             char hashString[32];
             static_assert( sizeof(hashString) == 32,
                 "YO SLICK! Biting off here!" );
             hash.toBytes(hashString);
+            SafeLists::ensureDirectoryExists(tmpPath.c_str());
             std::ofstream os(tmpPath.c_str(),std::ios::binary);
             os.write(hashString,sizeof(hashString));
             SafeLists::writeIntervalList(theList,os);

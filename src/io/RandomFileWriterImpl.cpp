@@ -41,30 +41,29 @@ namespace {
         }
         return true;
     }
-
-    void ensureDirectoryExists(const char* path) {
-        namespace fl = boost::filesystem;
-        std::string copy(path);
-        // use only unix type slashes,
-        // screw you microsoft.
-        auto pos = copy.find_last_of('/');
-        if (std::string::npos != pos) {
-            copy.erase(pos);
-            fl::path dirPath(copy.c_str());
-            bool isDir = fl::is_directory(dirPath);
-            if (isDir) {
-                return;
-            }
-            if (fl::exists(dirPath) && isDir) {
-                fl::remove_all(dirPath);
-            }
-            fl::create_directories(dirPath);
-        }
-    }
 }
 
 namespace SafeLists {
 
+void ensureDirectoryExists(const char* path) {
+    namespace fl = boost::filesystem;
+    std::string copy(path);
+    // use only unix type slashes,
+    // screw you microsoft.
+    auto pos = copy.find_last_of('/');
+    if (std::string::npos != pos) {
+        copy.erase(pos);
+        fl::path dirPath(copy.c_str());
+        bool isDir = fl::is_directory(dirPath);
+        if (isDir) {
+            return;
+        }
+        if (fl::exists(dirPath) && isDir) {
+            fl::remove_all(dirPath);
+        }
+        fl::create_directories(dirPath);
+    }
+}
 
 RandomFileWriteHandle::RandomFileWriteHandle(const char* path,int64_t size)
     : _path(path), _size(size), _writeSize(0)

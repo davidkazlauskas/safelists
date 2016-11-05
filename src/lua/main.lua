@@ -1222,8 +1222,7 @@ initAll = function()
                     )
                 elseif (case == 0) then
                     local dupeNameQuery =
-                        sqlCheckForForbiddenFileNamesUpdateNoQuotes(
-                            currentDirIdWhole,-1,sqlSelectDirNameById(toMoveWhole))
+                        sqlCheckForForbiddenFileNamesUpdate(currentDirIdWhole,-1,fileName)
 
                     df.messageAsyncWCallback(
                         asyncSqlite,

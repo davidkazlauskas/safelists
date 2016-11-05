@@ -58,8 +58,8 @@ namespace {
         // with these names (.ilist, .ilist.tmp)
         std::string listPath = path + ".ilist";
         std::string tmpPath = path + ".ilist.tmp";
-        bool tmpExists = fs::exists(tmpPath.c_str());
-        bool normalExists = fs::exists(listPath.c_str());
+        bool tmpExists = fs::exists(tmpPath.c_str()) && fs::is_regular_file(tmpPath.c_str());
+        bool normalExists = fs::exists(listPath.c_str()) && fs::is_regular_file(tmpPath.c_str());
 
         // no ilist exists yet, assume new
         if (!normalExists && !tmpExists && size > 0) {
@@ -95,6 +95,10 @@ namespace {
         return SafeLists::IntervalList(
             SafeLists::Interval()
         );
+    }
+
+    bool isPathRewritable(const char* path) {
+        return !fs::exists(path) || fs::is_regular_file(path);
     }
 
     void writeIntervalListAtomic(

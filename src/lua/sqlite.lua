@@ -320,3 +320,7 @@ function sqlSelectOneDirectoryForSession(dirId)
         "ON dir_id=d_id " ..
         "WHERE d_id IS NOT NULL; "
 end
+
+function sqlSelectDirNameById(dirId)
+    return "SELECT dir_name FROM directories WHERE dir_id=" .. dirId
+end

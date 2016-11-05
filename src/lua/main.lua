@@ -1333,6 +1333,49 @@ initAll = function()
                 local success = table._4
                 --assert( success, "Great success failed..." )
                 if (value == 0) then
+                    local dupeNameQuery =
+                        sqlCheckForForbiddenFileNamesUpdateNoQuotes(
+                            inIdWhole,-1,"(" .. sqlSelectDirNameById(currentDirToMoveIdWhole) .. ")")
+
+                    df.messageAsyncWCallback(
+                        asyncSqlite,
+                        resumerCallbackValues(thisCorout),
+                        VSig("ASQL_OutSingleNum"),
+                        VString(dupeNameQuery),
+                        VInt(-1),
+                        VBool(false)
+                    )
+
+                    local nameValRes = coroutine.yield()
+                    assert( nameValRes._4, "Back to sqlite school, sucker: |" ..  dupeNameQuery .. "|" )
+
+                    local caseDupe = nameValRes._3
+                    if (caseDupe == 1) then
+                        df.messageBox(
+                            "Cannot move!",
+                            "File with such name already exists under this directory."
+                        )
+                        return
+                    elseif (caseDupe == 2) then
+                        df.messageBox(
+                            "Cannot move!",
+                            "Name is forbidden under that directory."
+                        )
+                        return
+                    elseif (caseDupe == 3) then
+                        df.messageBox(
+                            "Cannot move!",
+                            "Directory with such name already exists under this directory."
+                        )
+                        return
+                    elseif (caseDupe == 4) then
+                        df.messageBox(
+                            "Cannot move!",
+                            "Name is forbidden under that directory."
+                        )
+                        return
+                    end
+
                     df.messageAsync(asyncSqlite,
                         VSig("ASQL_OutAffected"),
                         VString(sqlMoveDirStatement(currentDirToMoveIdWhole,inIdWhole)),

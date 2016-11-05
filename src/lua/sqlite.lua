@@ -13,26 +13,30 @@ function sqlGetMirrorUsesForFile(fileIdWhole)
            .. " GROUP BY files.file_id;"
 end
 
-function sqlCheckForForbiddenFileNamesUpdate(dirId,fileId,fileName)
+function sqlCheckForForbiddenFileNamesUpdateNoQuotes(dirId,fileId,fileName)
     return    " SELECT CASE"
            .. " WHEN (EXISTS (SELECT file_name FROM files"
            .. "     WHERE dir_id=" .. dirId
            .. "     AND NOT file_id=" .. fileId
-           .. "     AND lower(file_name)=lower('" .. fileName .. "'))) THEN 1"
+           .. "     AND lower(file_name)=lower(" .. fileName .. "))) THEN 1"
            .. " WHEN (EXISTS (SELECT file_name FROM files"
            .. "     WHERE dir_id=" .. dirId
            .. "     AND NOT file_id=" .. fileId
-           .. "     AND (lower(file_name || '.ilist') = lower('" .. fileName .. "')"
-           .. "     OR lower(file_name || '.ilist.tmp') = lower('" .. fileName .. "')))) THEN 2"
+           .. "     AND (lower(file_name || '.ilist') = lower(" .. fileName .. ")"
+           .. "     OR lower(file_name || '.ilist.tmp') = lower(" .. fileName .. ")))) THEN 2"
            .. " WHEN (EXISTS (SELECT dir_name FROM directories"
            .. "     WHERE dir_parent=" .. dirId
-           .. "     AND lower(dir_name)=lower('" .. fileName .. "'))) THEN 3"
+           .. "     AND lower(dir_name)=lower(" .. fileName .. "))) THEN 3"
            .. " WHEN (EXISTS (SELECT dir_name FROM directories"
            .. "     WHERE dir_parent=" .. dirId
-           .. "     AND (lower(dir_name || '.ilist') = lower('" .. fileName .. "')"
-           .. "     OR lower(dir_name || '.ilist.tmp') = lower('" .. fileName .. "')))) THEN 4"
+           .. "     AND (lower(dir_name || '.ilist') = lower(" .. fileName .. ")"
+           .. "     OR lower(dir_name || '.ilist.tmp') = lower(" .. fileName .. ")))) THEN 4"
            .. " ELSE 0"
            .. " END;"
+end
+
+function sqlCheckForForbiddenFileNamesUpdate(dirId,fileId,fileName)
+    return sqlCheckForForbiddenFileNamesUpdateNoQuotes(dirId,fileId,"'" .. fileName .. "'")
 end
 
 function sqlFileIdSelect(dirId,fileName)

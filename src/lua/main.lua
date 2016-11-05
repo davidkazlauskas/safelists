@@ -1167,14 +1167,6 @@ initAll = function()
             dg.currentDirId = inId
             local currentDirIdWhole = whole(dg.currentDirId)
 
-            local loadCurrentRoutine = function()
-                local mainModel = df.namedMessageable("mainModel")
-                local asyncSqlite = dg.currentAsyncSqlite
-                if (messageablesEqual(VMsgNil(),asyncSqlite)) then
-                    return
-                end
-            end
-
             if (dg.currentDirId > 0 and dg.shouldMoveFile == true) then
                 dg.shouldMoveFile = false
 
@@ -1221,7 +1213,6 @@ initAll = function()
                         .. " exists under that directory.",
                         mainWnd
                     )
-                    loadCurrentRoutine()
                 elseif (case == 2) then
                     df.messageBoxWParent(
                         "Invalid move",
@@ -1229,8 +1220,50 @@ initAll = function()
                         .. " this directory.",
                         mainWnd
                     )
-                    loadCurrentRoutine()
                 elseif (case == 0) then
+                    local dupeNameQuery =
+                        sqlCheckForForbiddenFileNamesUpdateNoQuotes(
+                            currentDirIdWhole,-1,sqlSelectDirNameById(toMoveWhole))
+
+                    df.messageAsyncWCallback(
+                        asyncSqlite,
+                        resumerCallbackValues(thisCorout),
+                        VSig("ASQL_OutSingleNum"),
+                        VString(dupeNameQuery),
+                        VInt(-1),
+                        VBool(false)
+                    )
+
+                    local nameValRes = coroutine.yield()
+                    assert( nameValRes._4, "Back to sqlite school, sucker: |" ..  dupeNameQuery .. "|" )
+
+                    local caseDupe = nameValRes._3
+                    if (caseDupe == 1) then
+                        df.messageBox(
+                            "Cannot move!",
+                            "File with such name already exists under this directory."
+                        )
+                        return
+                    elseif (caseDupe == 2) then
+                        df.messageBox(
+                            "Cannot move!",
+                            "Name is forbidden under that directory."
+                        )
+                        return
+                    elseif (caseDupe == 3) then
+                        df.messageBox(
+                            "Cannot move!",
+                            "Directory with such name already exists under this directory."
+                        )
+                        return
+                    elseif (caseDupe == 4) then
+                        df.messageBox(
+                            "Cannot move!",
+                            "Name is forbidden under that directory."
+                        )
+                        return
+                    end
+
                     local updateQuery = sqlMoveFileStatement(toMoveWhole,currentDirIdWhole)
 
                     df.messageAsync(
@@ -1252,7 +1285,6 @@ initAll = function()
                         VSig("MWI_InDeleteSelectedDir"),
                         VInt(1)
                     )
-                    loadCurrentRoutine()
                     df.updateRevision()
                 else
                     assert( false, "Huh?!?" )
@@ -1311,7 +1343,6 @@ initAll = function()
                         VSig("MWI_InMoveChildUnderParent"),
                         VInt(-1))
                     df.updateRevision()
-                    loadCurrentRoutine()
                 elseif (value == 1) then
                     df.messageBox(
                         "Cannot move!",
@@ -1335,7 +1366,6 @@ initAll = function()
                 end
                 return
             end
-            loadCurrentRoutine()
         end),"MWI_OutDirChangedSignal","int"),
         VMatch(function()
             downloadSessionHandler(df,dg,sqlSelectAllFilesForSession())

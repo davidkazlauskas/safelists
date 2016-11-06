@@ -1948,6 +1948,11 @@ private:
                 [=](INT::InSetLabel,std::string& str) {
                     str = this->_entry->get_text().c_str();
                 }
+            ),
+            SF::virtualMatch< SafeLists::GenericWindowTrait::SetWindowTitle, std::string >(
+                [=](ANY_CONV,const std::string& str) {
+                    _dlg->set_title(str.c_str());
+                }
             )
         );
     }

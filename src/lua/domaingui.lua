@@ -65,6 +65,8 @@ function fileBrowserRightClickHandler(dg,df)
                     end)),
                     arrayBranch("Rename directory",instrument(function()
                         local dialog = df.namedMessageable("singleInputDialog")
+                        local wrapped = GenericWidgetNode.putOn(dialog)
+                        wrapped:windowSetTitle("Rename directory")
 
                         local showOrHide = function(val)
                             df.message(dialog,VSig("INDLG_InShowDialog"),VBool(val))
@@ -173,6 +175,8 @@ function fileBrowserRightClickHandler(dg,df)
                     end),
                     arrayBranch("New directory",instrument(function()
                         local dialog = df.namedMessageable("singleInputDialog")
+                        local wrapped = GenericWidgetNode.putOn(dialog)
+                        wrapped:windowSetTitle("New directory")
 
                         local showOrHide = function(val)
                             df.message(dialog,VSig("INDLG_InShowDialog"),VBool(val))

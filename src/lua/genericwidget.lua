@@ -63,6 +63,18 @@ GenericWidgetNode = {
                 node.parent.hookedEvents[theId].routine()
             end,"GWI_GWT_OutValueChanged","int")
         )
+    end,
+    putOn = function(strongMsg,context)
+        if (nil == context) then
+            context = luaContext()
+        end
+        local res = {
+            messageable = strongMsg,
+            luaCtx = context,
+            parent = nil
+        }
+        setmetatable(res,GenericWidgetNode.mt)
+        return res
     end
 }
 

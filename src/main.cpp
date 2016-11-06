@@ -20,6 +20,7 @@
 #include <gtkmm/GtkMMSessionWidget.hpp>
 #include <gtkmm/GtkMMFileString.hpp>
 #include <gtkmm/GenericGtkWidget.hpp>
+#include <gtkmm/GenericGtkWidgetInterface.hpp>
 #include <gtkmm/GtkMMThemeManager.hpp>
 #include <io/SafeListDownloaderFactory.hpp>
 #include <io/RandomFileWriter.hpp>
@@ -1363,6 +1364,11 @@ private:
             SF::virtualMatch< SafeLists::GenericGtkWidgetNodePrivateWindow::QueryWindow, Gtk::Window* >(
                 [=](ANY_CONV,Gtk::Window*& ptr) {
                     ptr = static_cast<Gtk::Window*>(_main);
+                }
+            ),
+            SF::virtualMatch< SafeLists::GenericWindowTrait::SetWindowTitle, std::string >(
+                [=](ANY_CONV,const std::string& str) {
+                    _main->set_title(str.c_str());
                 }
             )
         );

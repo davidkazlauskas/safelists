@@ -490,6 +490,8 @@ initAll = function()
         local dialogService = df.namedMessageable("dialogService")
 
         local dialog = df.makeGenericDialog("main","newFileDialog")
+        local wrapped = GenericWidgetNode.putOn(dialog)
+        wrapped:windowSetTitle("New file")
 
         local hookButton = function(widget)
             return df.hookButton(dialog,widget)
@@ -596,6 +598,8 @@ initAll = function()
         }
 
         local dialog = df.makeGenericDialog("main","newFileDialog")
+        local wrapped = GenericWidgetNode.putOn(dialog)
+        wrapped:windowSetTitle("Edit file")
 
         local hookButton = function(widget)
             return df.messageRetValues(

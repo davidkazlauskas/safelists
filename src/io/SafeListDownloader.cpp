@@ -338,6 +338,13 @@ private:
                 SF::virtualMatch< AD::OutSizeKnown, int64_t >(
                     [&](ANY_CONV,int64_t theval) {
                         this->_sizeUpdate = theval;
+                        if (theval > 0) {
+                            LGuard g(this->_listMutex);
+                            if (!this->_list.isDefined()) {
+                                this->_list = SafeLists::IntervalList(
+                                    SafeLists::Interval(0,theval));
+                            }
+                        }
                     }
                 )
             );
@@ -600,13 +607,16 @@ private:
                         if (sizeDone != sizePrelim) {
                             auto newList = SafeLists::IntervalList(
                                 SafeLists::Interval(0,sizeDone));
-                            dl->_list.traverseFilled(
-                                [&](const Interval& i) {
-                                    newList.append(i);
-                                    return true;
-                                }
-                            );
-                            dl->_list = std::move(newList);
+                            {
+                                LGuard g(dl->_listMutex);
+                                dl->_list.traverseFilled(
+                                    [&](const Interval& i) {
+                                        newList.append(i);
+                                        return true;
+                                    }
+                                );
+                                dl->_list = std::move(newList);
+                            }
                             notifyObserver<
                                 SLD::OutSizeMismatch,
                                 int,
